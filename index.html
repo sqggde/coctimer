@@ -254,6 +254,11 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
+                        <button id="export-backup-btn" class="w-full px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center mb-2"><i class="fa fa-download mr-2"></i>导出备份</button>
+                        <button id="import-backup-btn" class="w-full px-3 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导入备份</button>
+                        <input type="file" id="backup-file-input" class="hidden" accept=".json">
+                    </div>
+                    <div class="border-t border-gray-200 pt-2">
                         <button id="support-btn" class="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
                     </div>
                 </div>
@@ -1667,6 +1672,58 @@
                 settings.hideDataInfo = hideDataInfoToggle.checked;
                 saveSettings();
                 applySettings();
+            });
+            // 导出备份
+            document.getElementById('export-backup-btn').addEventListener('click', () => {
+                const backup = {
+                    version: 1,
+                    exportDate: new Date().toISOString(),
+                    data: {
+                        accounts,
+                        accountNotes,
+                        accountOrder,
+                        currentAccount
+                    },
+                    settings: { ...settings }
+                };
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const dateStr = new Date().toISOString().slice(0, 10);
+                a.download = `coc_backup_${dateStr}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('备份已导出', 1500);
+            });
+            // 导入备份
+            document.getElementById('import-backup-btn').addEventListener('click', () => {
+                document.getElementById('backup-file-input').click();
+            });
+            document.getElementById('backup-file-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const backup = JSON.parse(ev.target.result);
+                        if (!backup.data || !backup.data.accounts) {
+                            showToast('备份文件格式无效', 2000);
+                            return;
+                        }
+                        if (!confirm('导入备份将覆盖当前所有数据，确定继续？')) return;
+                        localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(backup.data));
+                        localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings));
+                        showToast('备份导入成功！即将刷新', 1500);
+                        setTimeout(() => location.reload(), 1500);
+                    } catch (err) {
+                        showToast('文件解析失败：' + err.message, 3000);
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
             });
             chestDetectToggle.addEventListener('change', () => {
                 settings.chestDetect = chestDetectToggle.checked;
