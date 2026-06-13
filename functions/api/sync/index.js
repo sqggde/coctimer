@@ -1,17 +1,8 @@
 /**
- * COC Timer 云端备份 + 用户认证 — Cloudflare Pages Function
+ * COC Timer 云端备份/恢复 — Cloudflare Pages Function
  *
- * 架构: 前端 → Cloudflare Worker → GitHub Gist (单 Gist 存储用户+备份数据)
- *
- * 路由:
- *   POST /api/sync/register     — 注册: { email, password }
- *   POST /api/sync/login        — 登录: { email, password }
- *   POST /api/sync              — 备份: { email, password, data }
- *   GET  /api/sync?email=xxx&password=yyy — 恢复
- *
- * 环境变量:
- *   GIST_ID      — GitHub Gist ID (用于存储所有数据)
- *   GITHUB_TOKEN — 个人访问令牌 (需要 gist 权限)
+ * POST /api/sync  — 备份: { email, password, data }
+ * GET  /api/sync?email=xxx&password=yyy — 恢复
  */
 
 const GIST_API = 'https://api.github.com/gists';
@@ -24,35 +15,16 @@ export async function onRequest(context) {
     return jsonResponse(500, { error: '服务端未配置 GIST_ID 或 GITHUB_TOKEN' });
   }
 
-  const url = new URL(request.url);
-  const path = url.pathname;
-
-  // CORS 预检
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders() });
-  }
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders() });
 
   try {
-    // 路由分发
-    if (path.endsWith('/register') && request.method === 'POST') {
-      return await handleRegister(request, GIST_ID, GITHUB_TOKEN);
-    }
-    if (path.endsWith('/login') && request.method === 'POST') {
-      return await handleLogin(request, GIST_ID, GITHUB_TOKEN);
-    }
-    if (request.method === 'POST') {
-      return await handleBackup(request, GIST_ID, GITHUB_TOKEN);
-    }
-    if (request.method === 'GET') {
-      return await handleRestore(url, GIST_ID, GITHUB_TOKEN);
-    }
+    if (request.method === 'POST') return await handleBackup(request, GIST_ID, GITHUB_TOKEN);
+    if (request.method === 'GET') return await handleRestore(new URL(request.url), GIST_ID, GITHUB_TOKEN);
     return jsonResponse(405, { error: '不支持的方法' });
   } catch (err) {
     return jsonResponse(500, { error: err.message });
   }
 }
-
-// ========== 工具函数 ==========
 
 function corsHeaders() {
   return {
@@ -100,8 +72,6 @@ function readGistFile(gist, filename) {
   try { return JSON.parse(file.content); } catch { return null; }
 }
 
-// ========== 密码哈希 ==========
-
 async function hashPassword(password, salt) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password + salt);
@@ -113,14 +83,6 @@ function bytesToHex(bytes) {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function generateSalt() {
-  const rand = new Uint8Array(16);
-  crypto.getRandomValues(rand);
-  return bytesToHex(rand);
-}
-
-// ========== 认证中间件 ==========
-
 async function authenticate(email, password, gistId, token) {
   const gist = await getGist(gistId, token);
   const users = readGistFile(gist, '_users.json') || {};
@@ -129,56 +91,6 @@ async function authenticate(email, password, gistId, token) {
   const hash = await hashPassword(password, user.salt);
   if (hash !== user.passwordHash) return null;
   return user;
-}
-
-// ========== 注册 ==========
-
-async function handleRegister(request, gistId, token) {
-  const { email, password } = await request.json();
-
-  if (!email || !password) {
-    return jsonResponse(400, { error: '邮箱和密码不能为空' });
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return jsonResponse(400, { error: '邮箱格式无效' });
-  }
-  if (password.length < 6) {
-    return jsonResponse(400, { error: '密码至少6位' });
-  }
-
-  const gist = await getGist(gistId, token);
-  const users = readGistFile(gist, '_users.json') || {};
-
-  if (users[email]) {
-    return jsonResponse(409, { error: '该邮箱已注册' });
-  }
-
-  const salt = generateSalt();
-  const passwordHash = await hashPassword(password, salt);
-  users[email] = { passwordHash, salt, createdAt: new Date().toISOString() };
-
-  await patchGist(gistId, token, {
-    '_users.json': { content: JSON.stringify(users, null, 2) },
-  });
-
-  return jsonResponse(200, { success: true, email });
-}
-
-// ========== 登录 ==========
-
-async function handleLogin(request, gistId, token) {
-  const { email, password } = await request.json();
-
-  if (!email || !password) {
-    return jsonResponse(400, { error: '邮箱和密码不能为空' });
-  }
-
-  const user = await authenticate(email, password, gistId, token);
-  if (!user) {
-    return jsonResponse(401, { error: '邮箱或密码错误' });
-  }
-
-  return jsonResponse(200, { success: true, email });
 }
 
 // ========== 备份 ==========
@@ -192,19 +104,14 @@ async function handleBackup(request, gistId, token) {
   }
 
   const user = await authenticate(email, password, gistId, token);
-  if (!user) {
-    return jsonResponse(401, { error: '密码错误，请重新登录' });
-  }
+  if (!user) return jsonResponse(401, { error: '密码错误，请重新登录' });
 
   const filename = `backup_${email}.json`;
   const content = JSON.stringify(data, null, 2);
-
   const gist = await getGist(gistId, token);
   const fileExists = !!gist.files?.[filename];
 
-  await patchGist(gistId, token, {
-    [filename]: { content },
-  });
+  await patchGist(gistId, token, { [filename]: { content } });
 
   return jsonResponse(200, {
     success: true,
@@ -225,18 +132,13 @@ async function handleRestore(url, gistId, token) {
   }
 
   const user = await authenticate(email, password, gistId, token);
-  if (!user) {
-    return jsonResponse(401, { error: '密码错误，请重新登录' });
-  }
+  if (!user) return jsonResponse(401, { error: '密码错误，请重新登录' });
 
   const filename = `backup_${email}.json`;
-
   const gist = await getGist(gistId, token);
   const fileData = gist.files?.[filename];
 
-  if (!fileData) {
-    return jsonResponse(404, { error: '未找到该用户的备份数据', email });
-  }
+  if (!fileData) return jsonResponse(404, { error: '未找到该用户的备份数据', email });
 
   let backupData;
   try { backupData = JSON.parse(fileData.content); } catch {
