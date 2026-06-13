@@ -254,8 +254,10 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
-                        <button id="export-backup-btn" class="w-full px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center mb-2"><i class="fa fa-download mr-2"></i>导出备份</button>
-                        <button id="import-backup-btn" class="w-full px-3 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导入备份</button>
+                        <div class="flex space-x-2">
+                            <button id="export-backup-btn" class="flex-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导出备份</button>
+                            <button id="import-backup-btn" class="flex-1 px-3 py-1.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-download mr-2"></i>导入备份</button>
+                        </div>
                         <input type="file" id="backup-file-input" class="hidden" accept=".json">
                     </div>
                     <div class="border-t border-gray-200 pt-2">
@@ -271,7 +273,7 @@
                         <button id="cloud-restore-btn" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
-                        <button id="support-btn" class="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
+                        <button id="support-btn" class="w-full px-3 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
                     </div>
                 </div>
             </div>
