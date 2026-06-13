@@ -263,14 +263,12 @@
                     <div class="border-t border-gray-200 pt-2">
                         <div class="text-xs text-gray-500 mb-2 flex items-center"><i class="fa fa-cloud mr-1"></i>云端备份（跨设备同步）</div>
                         <div class="mb-2">
-                            <div class="flex items-center space-x-1 bg-gray-50 rounded-lg border border-gray-200 px-3 py-1.5">
-                                <i class="fa fa-key text-gray-400 text-xs"></i>
-                                <input type="password" id="cloud-user-id" placeholder="设置恢复密码（字母数字，2-64位）" class="flex-1 bg-transparent border-none outline-none text-sm py-1" autocomplete="off">
-                                <button id="cloud-toggle-pw" class="text-gray-400 hover:text-gray-600 text-xs p-1" type="button" title="显示/隐藏密码"><i class="fa fa-eye"></i></button>
-                            </div>
+                            <span id="cloud-login-text" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700">登录账号</span>
                         </div>
-                        <button id="cloud-backup-btn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center mb-2"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
-                        <button id="cloud-restore-btn" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
+                        <div class="flex space-x-2">
+                            <button id="cloud-backup-btn" class="flex-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
+                            <button id="cloud-restore-btn" class="flex-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
+                        </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
                         <button id="support-btn" class="w-full px-3 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
@@ -299,6 +297,64 @@
                     <div class="border-t border-gray-200 pt-3">
                         <p class="text-gray-800">本工具永久免费</p>
                         <p class="mt-2">但如果你觉得好用，<span class="text-orange-500 font-medium">自愿发电</span> 就是对我最大的鼓励，让我能一直更新下去，并可以拓展更多功能</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 登录弹窗 -->
+        <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl shadow-2xl p-4 mx-4 w-full max-w-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-800" style="font-size: 15px;">登录账号</h3>
+                    <button id="login-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                        <i class="fa fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm text-gray-600">邮箱</label>
+                        <input type="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="请输入邮箱">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">密码</label>
+                        <input type="password" id="login-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="请输入密码" autocomplete="off" onfocus="this.setAttribute('autocomplete','new-password')" style="ime-mode:disabled;" onkeydown="if(event.keyCode===13)document.getElementById('login-submit-btn').click()">
+                    </div>
+                    <div id="login-error" class="text-red-500 text-xs hidden"></div>
+                    <button id="login-submit-btn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-sign-in mr-2"></i>登录</button>
+                    <div class="text-center">
+                        <span id="login-to-register" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700">没有账号？点击注册</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 注册弹窗 -->
+        <div id="register-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl shadow-2xl p-4 mx-4 w-full max-w-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-800" style="font-size: 15px;">注册账号</h3>
+                    <button id="register-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                        <i class="fa fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm text-gray-600">邮箱</label>
+                        <input type="email" id="register-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="请输入邮箱">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">密码</label>
+                        <input type="password" id="register-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="请输入密码（至少6位）" autocomplete="off" onfocus="this.setAttribute('autocomplete','new-password')" style="ime-mode:disabled;" onkeydown="if(event.keyCode===13)document.getElementById('register-confirm-pwd').focus()">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">确认密码</label>
+                        <input type="password" id="register-confirm-pwd" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none" placeholder="再次输入密码" autocomplete="off" onfocus="this.setAttribute('autocomplete','new-password')" style="ime-mode:disabled;" onkeydown="if(event.keyCode===13)document.getElementById('register-submit-btn').click()">
+                    </div>
+                    <div id="register-error" class="text-red-500 text-xs hidden"></div>
+                    <button id="register-submit-btn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-user-plus mr-2"></i>注册</button>
+                    <div class="text-center">
+                        <span id="register-to-login" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700">已有账号？返回登录</span>
                     </div>
                 </div>
             </div>
@@ -1739,44 +1795,183 @@
                 reader.readAsText(file);
                 e.target.value = '';
             });
-            // === 云端备份/恢复（由 Cloudflare Pages Function + GitHub Gist 实现） ===
+            // === 账号认证 + 云端备份/恢复 ===
             const CLOUD_API = 'https://coctimer.pages.dev/api/sync';
-            const CLOUD_USER_ID_KEY = 'coc_cloud_user_id';
+            const AUTH_KEY = 'coc_cloud_auth';
 
-            // 恢复上次保存的 userId
-            const savedUserId = localStorage.getItem(CLOUD_USER_ID_KEY);
-            const cloudUserIdInput = document.getElementById('cloud-user-id');
-            if (savedUserId) {
-                cloudUserIdInput.value = savedUserId;
-            }
+            // DOM 引用
+            const cloudLoginText = document.getElementById('cloud-login-text');
+            const loginModal = document.getElementById('login-modal');
+            const loginCloseBtn = document.getElementById('login-close-btn');
+            const loginEmail = document.getElementById('login-email');
+            const loginPassword = document.getElementById('login-password');
+            const loginError = document.getElementById('login-error');
+            const loginSubmitBtn = document.getElementById('login-submit-btn');
+            const loginToRegister = document.getElementById('login-to-register');
+            const registerModal = document.getElementById('register-modal');
+            const registerCloseBtn = document.getElementById('register-close-btn');
+            const registerEmail = document.getElementById('register-email');
+            const registerPassword = document.getElementById('register-password');
+            const registerConfirmPwd = document.getElementById('register-confirm-pwd');
+            const registerError = document.getElementById('register-error');
+            const registerSubmitBtn = document.getElementById('register-submit-btn');
+            const registerToLogin = document.getElementById('register-to-login');
 
-            // 密码显示/隐藏切换
-            document.getElementById('cloud-toggle-pw').addEventListener('click', () => {
-                const input = cloudUserIdInput;
-                const icon = document.querySelector('#cloud-toggle-pw i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.className = 'fa fa-eye-slash';
+            // 加载缓存的登录信息
+            let authData = (() => {
+                try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
+            })();
+
+            // 更新登录显示状态
+            function updateLoginUI() {
+                if (authData && authData.email) {
+                    cloudLoginText.textContent = authData.email;
+                    cloudLoginText.className = 'text-sm cursor-pointer hover:text-blue-700';
+                    cloudLoginText.style.color = '#3b82f6';
                 } else {
-                    input.type = 'password';
-                    icon.className = 'fa fa-eye';
+                    cloudLoginText.textContent = '登录账号';
+                    cloudLoginText.className = 'text-blue-500 text-sm cursor-pointer hover:text-blue-700';
                 }
+            }
+            updateLoginUI();
+
+            // 点击登录文字/邮箱
+            cloudLoginText.addEventListener('click', () => {
+                if (authData && authData.email) {
+                    if (confirm('是否退出当前账号？')) {
+                        localStorage.removeItem(AUTH_KEY);
+                        authData = null;
+                        updateLoginUI();
+                        showToast('已退出登录', 1500);
+                    }
+                } else {
+                    loginEmail.value = '';
+                    loginPassword.value = '';
+                    loginError.classList.add('hidden');
+                    loginModal.classList.remove('hidden');
+                }
+            });
+
+            // 登录弹窗操作
+            loginCloseBtn.addEventListener('click', () => loginModal.classList.add('hidden'));
+            loginModal.addEventListener('click', (e) => { if (e.target === loginModal) loginModal.classList.add('hidden'); });
+
+            loginSubmitBtn.addEventListener('click', async () => {
+                const email = loginEmail.value.trim();
+                const password = loginPassword.value;
+                if (!email) { loginError.textContent = '请输入邮箱'; loginError.classList.remove('hidden'); return; }
+                if (!password) { loginError.textContent = '请输入密码'; loginError.classList.remove('hidden'); return; }
+
+                loginError.classList.add('hidden');
+                const orig = loginSubmitBtn.innerHTML;
+                loginSubmitBtn.disabled = true;
+                loginSubmitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>登录中...';
+
+                try {
+                    const res = await fetch(`${CLOUD_API}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        authData = { email };
+                        localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+                        sessionStorage.setItem('coc_session_pwd', password);
+                        updateLoginUI();
+                        loginModal.classList.add('hidden');
+                        showToast('登录成功', 1500);
+                    } else {
+                        loginError.textContent = result.error || '登录失败';
+                        loginError.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    loginError.textContent = '网络错误：' + err.message;
+                    loginError.classList.remove('hidden');
+                } finally {
+                    loginSubmitBtn.disabled = false;
+                    loginSubmitBtn.innerHTML = orig;
+                }
+            });
+
+            loginToRegister.addEventListener('click', () => {
+                loginModal.classList.add('hidden');
+                registerEmail.value = '';
+                registerPassword.value = '';
+                registerConfirmPwd.value = '';
+                registerError.classList.add('hidden');
+                registerModal.classList.remove('hidden');
+            });
+
+            // 注册弹窗操作
+            registerCloseBtn.addEventListener('click', () => registerModal.classList.add('hidden'));
+            registerModal.addEventListener('click', (e) => { if (e.target === registerModal) registerModal.classList.add('hidden'); });
+
+            registerSubmitBtn.addEventListener('click', async () => {
+                const email = registerEmail.value.trim();
+                const password = registerPassword.value;
+                const confirm = registerConfirmPwd.value;
+
+                if (!email) { registerError.textContent = '请输入邮箱'; registerError.classList.remove('hidden'); return; }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { registerError.textContent = '邮箱格式无效'; registerError.classList.remove('hidden'); return; }
+                if (!password) { registerError.textContent = '请输入密码'; registerError.classList.remove('hidden'); return; }
+                if (password.length < 6) { registerError.textContent = '密码至少6位'; registerError.classList.remove('hidden'); return; }
+                if (password !== confirm) { registerError.textContent = '两次密码不一致'; registerError.classList.remove('hidden'); return; }
+
+                registerError.classList.add('hidden');
+                const orig = registerSubmitBtn.innerHTML;
+                registerSubmitBtn.disabled = true;
+                registerSubmitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>注册中...';
+
+                try {
+                    const res = await fetch(`${CLOUD_API}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        authData = { email };
+                        localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+                        sessionStorage.setItem('coc_session_pwd', password);
+                        updateLoginUI();
+                        registerModal.classList.add('hidden');
+                        showToast('注册成功', 1500);
+                    } else {
+                        registerError.textContent = result.error || '注册失败';
+                        registerError.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    registerError.textContent = '网络错误：' + err.message;
+                    registerError.classList.remove('hidden');
+                } finally {
+                    registerSubmitBtn.disabled = false;
+                    registerSubmitBtn.innerHTML = orig;
+                }
+            });
+
+            registerToLogin.addEventListener('click', () => {
+                registerModal.classList.add('hidden');
+                loginModal.classList.remove('hidden');
             });
 
             // 云端备份
             document.getElementById('cloud-backup-btn').addEventListener('click', async () => {
-                const userId = cloudUserIdInput.value.trim();
-                if (!userId) {
-                    showToast('请先设置恢复密码', 2000);
-                    cloudUserIdInput.focus();
-                    return;
-                }
-                if (!/^[a-zA-Z0-9_-]{2,64}$/.test(userId)) {
-                    showToast('密码仅支持 2-64 位字母、数字、下划线、横线', 2500);
+                if (!authData || !authData.email) {
+                    showToast('请先登录账号', 2000);
                     return;
                 }
 
-                const backup = {
+                // 从 session 获取密码（用户每次打开设置重新输入，不持久化密码）
+                const pwd = sessionStorage.getItem('coc_session_pwd');
+                if (!pwd) {
+                    const input = prompt('请输入密码以验证身份：');
+                    if (!input) return;
+                    sessionStorage.setItem('coc_session_pwd', input);
+                }
+                const password = sessionStorage.getItem('coc_session_pwd');
+
+                const backupData = {
                     version: 1,
                     exportDate: new Date().toISOString(),
                     accounts,
@@ -1795,14 +1990,16 @@
                     const res = await fetch(CLOUD_API, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId, data: backup }),
+                        body: JSON.stringify({ email: authData.email, password, data: backupData }),
                     });
                     const result = await res.json();
                     if (result.success) {
-                        localStorage.setItem(CLOUD_USER_ID_KEY, userId);
                         const actionText = result.action === 'created' ? '已创建云端备份' : '云端备份已更新';
-                        showToast(`${actionText}`, 2000);
+                        showToast(actionText, 2000);
                     } else {
+                        if (result.error && result.error.includes('密码错误')) {
+                            sessionStorage.removeItem('coc_session_pwd');
+                        }
                         showToast('备份失败：' + (result.error || '未知错误'), 3000);
                     }
                 } catch (err) {
@@ -1815,14 +2012,20 @@
 
             // 云端恢复
             document.getElementById('cloud-restore-btn').addEventListener('click', async () => {
-                const userId = cloudUserIdInput.value.trim();
-                if (!userId) {
-                    showToast('请先输入恢复密码', 2000);
-                    cloudUserIdInput.focus();
+                if (!authData || !authData.email) {
+                    showToast('请先登录账号', 2000);
                     return;
                 }
 
                 if (!confirm('云端恢复将覆盖当前所有本地数据，确定继续？')) return;
+
+                const pwd = sessionStorage.getItem('coc_session_pwd');
+                if (!pwd) {
+                    const input = prompt('请输入密码以验证身份：');
+                    if (!input) return;
+                    sessionStorage.setItem('coc_session_pwd', input);
+                }
+                const password = sessionStorage.getItem('coc_session_pwd');
 
                 const btn = document.getElementById('cloud-restore-btn');
                 const origHtml = btn.innerHTML;
@@ -1830,11 +2033,10 @@
                 btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>恢复中...';
 
                 try {
-                    const res = await fetch(`${CLOUD_API}?userId=${encodeURIComponent(userId)}`);
+                    const res = await fetch(`${CLOUD_API}?email=${encodeURIComponent(authData.email)}&password=${encodeURIComponent(password)}`);
                     const result = await res.json();
                     if (result.success && result.data) {
                         const backup = result.data;
-                        // 兼容两种格式
                         const dataToRestore = backup.accounts ? backup : backup.data;
                         if (!dataToRestore || !dataToRestore.accounts) {
                             showToast('备份数据格式无效', 3000);
@@ -1844,10 +2046,12 @@
                         if (backup.settings || dataToRestore.settings) {
                             localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
                         }
-                        localStorage.setItem(CLOUD_USER_ID_KEY, userId);
                         showToast('云端恢复成功！即将刷新', 1500);
                         setTimeout(() => location.reload(), 1500);
                     } else {
+                        if (result.error && result.error.includes('密码错误')) {
+                            sessionStorage.removeItem('coc_session_pwd');
+                        }
                         showToast('恢复失败：' + (result.error || '未找到备份数据'), 3000);
                     }
                 } catch (err) {
