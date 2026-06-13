@@ -10,3 +10,10 @@ reasonix.toml
 
 # 原始图片
 759005e3e815876cf1a00f49a428fdc8.jpg
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
