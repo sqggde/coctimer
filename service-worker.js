@@ -1,6 +1,6 @@
-const CACHE_NAME = 'clash-tool-v1';
-const STATIC_CACHE = 'clash-tool-static-v1';
-const DYNAMIC_CACHE = 'clash-tool-dynamic-v1';
+const CACHE_NAME = 'clash-tool-v2';
+const STATIC_CACHE = 'clash-tool-static-v2';
+const DYNAMIC_CACHE = 'clash-tool-dynamic-v2';
 
 // 静态资源缓存列表
 const STATIC_ASSETS = [
@@ -51,9 +51,13 @@ self.addEventListener('fetch', event => {
 
   if (request.method !== 'GET') return;
 
-  // 同源静态资源 - 缓存优先
+  // 同源资源 - HTML用网络优先，其他静态资源用缓存优先
   if (url.origin === location.origin) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    if (request.destination === 'document' || url.pathname.endsWith('.html')) {
+      event.respondWith(networkFirst(request, STATIC_CACHE));
+    } else {
+      event.respondWith(cacheFirst(request, STATIC_CACHE));
+    }
     return;
   }
 
@@ -88,9 +92,13 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-async function networkFirst(request) {
+async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
+    if (response.ok && cacheName) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, response.clone());
+    }
     return response;
   } catch (e) {
     const cached = await caches.match(request);
