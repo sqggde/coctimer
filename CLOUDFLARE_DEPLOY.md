@@ -1,17 +1,13 @@
-# Cloudflare Pages 部署 & 云端备份配置指南
+# Cloudflare 部署 & 云端备份配置指南
 
-## 一、部署静态站点到 Cloudflare Pages
+---
+
+## 一、部署 Worker（云端备份 API）
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. 左侧菜单 → **Workers 和 Pages** → **Pages** → **创建项目** → **连接到 Git**
-3. 授权 GitHub 账号，选中 `coctimer` 仓库
-4. **设置构建配置：**
-   - 框架预设：**None**
-   - 构建命令：留空
-   - 构建输出目录：**`/`**（或留空）
-5. 点击 **保存并部署**，等待部署完成
-
-> 部署后你的站点会在 `https://你的项目名.pages.dev` 访问
+2. 左侧菜单 → **Workers 和 Pages** → **创建 Worker** → 输入名称 `coctimer`
+3. 把 `worker.js` 的代码**全选复制**粘贴到编辑器中，**保存并部署**
+4. 部署成功后你会在 `https://coctimer.xxxxxxxxxx.workers.dev` 访问
 
 ---
 
@@ -43,20 +39,18 @@
 
 ---
 
-## 四、配置 Cloudflare Pages 环境变量
+## 四、配置 Worker 环境变量
 
-1. 在 Cloudflare Pages Dashboard 进入你的项目
-2. **设置** → **环境变量（Environment variables）**
-3. 添加以下两个变量（**生产环境**）：
+1. 进入你的 Worker → **设置** → **变量（Variables）**
+2. 添加以下两个变量：
 
    | 变量名 | 值 | 说明 |
    |---|---|---|
    | `GIST_ID` | `1a2b3c4d5e6f7g8h9i0j` | 你创建的 Gist ID |
    | `GITHUB_TOKEN` | `ghp_xxxxxxxxxxxxxxxxxxxx` | 你的 GitHub 令牌 |
 
-4. **部署 → 重新部署** 以生效
-
-> ⚠️ **重要：** `GITHUB_TOKEN` 务必勾选 **加密（Encrypt）**，Cloudflare 会自动加密存储。
+3. `GITHUB_TOKEN` 添加时选择 **加密（Encrypt）**
+4. 点击 **保存并部署** 使变量生效
 
 ---
 
