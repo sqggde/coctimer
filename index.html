@@ -225,6 +225,16 @@
                     </button>
                 </div>
                 <div class="space-y-3">
+                    <div class="border-t border-gray-200 pt-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <span id="cloud-login-text" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700">登录账号</span>
+                            <span class="text-xs text-gray-500 flex items-center"><i class="fa fa-cloud mr-1"></i>云端备份</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="cloud-backup-btn" class="flex-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
+                            <button id="cloud-restore-btn" class="flex-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
+                        </div>
+                    </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-700">隐藏账号信息</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -259,16 +269,6 @@
                             <button id="import-backup-btn" class="flex-1 px-3 py-1 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-download mr-2"></i>导入备份</button>
                         </div>
                         <input type="file" id="backup-file-input" class="hidden" accept=".json">
-                    </div>
-                    <div class="border-t border-gray-200 pt-2">
-                        <div class="flex items-center justify-between mb-2">
-                            <span id="cloud-login-text" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700">登录账号</span>
-                            <span class="text-xs text-gray-500 flex items-center"><i class="fa fa-cloud mr-1"></i>云端备份</span>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="cloud-backup-btn" class="flex-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
-                            <button id="cloud-restore-btn" class="flex-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
-                        </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
                         <button id="support-btn" class="w-full px-3 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
