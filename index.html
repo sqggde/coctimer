@@ -1528,6 +1528,7 @@
             darkModeAutoBtn.className = settings.darkModeAuto
                 ? 'px-2 py-1 rounded transition-all duration-200 text-xs bg-blue-500 text-white'
                 : 'px-2 py-1 rounded transition-all duration-200 text-xs bg-gray-300 text-gray-500';
+            darkModeAutoBtn.textContent = settings.darkModeAuto ? '跟随系统' : '跟随系统';
             dataInfoDiv.classList.toggle('hidden', settings.hideDataInfo);
             sleepTimeBtn.className = settings.nightMode
                 ? 'px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-blue-200 text-blue-700 cursor-pointer hover:bg-blue-300'
@@ -1540,16 +1541,23 @@
             document.documentElement.classList.toggle('dark', settings.darkMode);
         }
 
+        let systemDarkMedia = null;
+
         function checkAutoDarkMode() {
             if (!settings.darkModeAuto) return;
-            const now = new Date();
-            const hour = now.getHours();
-            const shouldBeDark = hour >= 20 || hour < 8;
+            const shouldBeDark = systemDarkMedia ? systemDarkMedia.matches : window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (settings.darkMode !== shouldBeDark) {
                 settings.darkMode = shouldBeDark;
                 saveSettings();
                 applySettings();
             }
+        }
+
+        function setupSystemDarkListener() {
+            systemDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+            systemDarkMedia.addEventListener('change', () => {
+                if (settings.darkModeAuto) checkAutoDarkMode();
+            });
         }
 
         function getNextSleepRange() {
@@ -2082,7 +2090,13 @@
                 settings.darkModeAuto = !settings.darkModeAuto;
                 saveSettings();
                 applySettings();
-                if (settings.darkModeAuto) checkAutoDarkMode();
+                if (settings.darkModeAuto) {
+                    checkAutoDarkMode();
+                } else if (systemDarkMedia) {
+                    settings.darkMode = false;
+                    saveSettings();
+                    applySettings();
+                }
             });
             sleepTimeBtn.addEventListener('click', () => {
                 if (!settings.nightMode) {
@@ -2137,8 +2151,8 @@
             }
 
             applySettings();
+            setupSystemDarkListener();
             checkAutoDarkMode();
-            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkAutoDarkMode(); });
             initSwipeGesture();
             updateHelperButtonState();
         }
