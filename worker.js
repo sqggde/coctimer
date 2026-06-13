@@ -1,5 +1,5 @@
 /**
- * COC Timer 云端备份 — Cloudflare Worker
+ * COC Timer 云端备份 — Cloudflare Worker (备用, 当前使用 Pages Function)
  *
  * 部署方式: 在 Cloudflare Dashboard → Workers & Pages → 创建 Worker → 粘贴此代码
  * 需要设置以下环境变量 (Settings → Variables):
