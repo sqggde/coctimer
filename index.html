@@ -216,7 +216,7 @@
             </div>
         </div>
 
-        <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 hidden overflow-y-auto py-6">
             <div class="bg-white rounded-xl shadow-2xl p-4 mx-4 w-full max-w-sm">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-semibold text-gray-800" style="font-size: 15px;">设置</h3>
@@ -257,6 +257,18 @@
                         <button id="export-backup-btn" class="w-full px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center mb-2"><i class="fa fa-download mr-2"></i>导出备份</button>
                         <button id="import-backup-btn" class="w-full px-3 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导入备份</button>
                         <input type="file" id="backup-file-input" class="hidden" accept=".json">
+                    </div>
+                    <div class="border-t border-gray-200 pt-2">
+                        <div class="text-xs text-gray-500 mb-2 flex items-center"><i class="fa fa-cloud mr-1"></i>云端备份（跨设备同步）</div>
+                        <div class="mb-2">
+                            <div class="flex items-center space-x-1 bg-gray-50 rounded-lg border border-gray-200 px-3 py-1.5">
+                                <i class="fa fa-key text-gray-400 text-xs"></i>
+                                <input type="password" id="cloud-user-id" placeholder="设置恢复密码（字母数字，2-64位）" class="flex-1 bg-transparent border-none outline-none text-sm py-1" autocomplete="off">
+                                <button id="cloud-toggle-pw" class="text-gray-400 hover:text-gray-600 text-xs p-1" type="button" title="显示/隐藏密码"><i class="fa fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <button id="cloud-backup-btn" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center mb-2"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
+                        <button id="cloud-restore-btn" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
                         <button id="support-btn" class="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center"><i class="fa fa-heart mr-2"></i>支持作者</button>
@@ -1724,6 +1736,124 @@
                 };
                 reader.readAsText(file);
                 e.target.value = '';
+            });
+            // === 云端备份/恢复 ===
+            const CLOUD_API = '/api/sync';
+            const CLOUD_USER_ID_KEY = 'coc_cloud_user_id';
+
+            // 恢复上次保存的 userId
+            const savedUserId = localStorage.getItem(CLOUD_USER_ID_KEY);
+            const cloudUserIdInput = document.getElementById('cloud-user-id');
+            if (savedUserId) {
+                cloudUserIdInput.value = savedUserId;
+            }
+
+            // 密码显示/隐藏切换
+            document.getElementById('cloud-toggle-pw').addEventListener('click', () => {
+                const input = cloudUserIdInput;
+                const icon = document.querySelector('#cloud-toggle-pw i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fa fa-eye-slash';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fa fa-eye';
+                }
+            });
+
+            // 云端备份
+            document.getElementById('cloud-backup-btn').addEventListener('click', async () => {
+                const userId = cloudUserIdInput.value.trim();
+                if (!userId) {
+                    showToast('请先设置恢复密码', 2000);
+                    cloudUserIdInput.focus();
+                    return;
+                }
+                if (!/^[a-zA-Z0-9_-]{2,64}$/.test(userId)) {
+                    showToast('密码仅支持 2-64 位字母、数字、下划线、横线', 2500);
+                    return;
+                }
+
+                const backup = {
+                    version: 1,
+                    exportDate: new Date().toISOString(),
+                    accounts,
+                    accountNotes,
+                    accountOrder,
+                    currentAccount,
+                    settings: { ...settings }
+                };
+
+                const btn = document.getElementById('cloud-backup-btn');
+                const origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>备份中...';
+
+                try {
+                    const res = await fetch(CLOUD_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId, data: backup }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        localStorage.setItem(CLOUD_USER_ID_KEY, userId);
+                        const actionText = result.action === 'created' ? '已创建云端备份' : '云端备份已更新';
+                        showToast(`${actionText}`, 2000);
+                    } else {
+                        showToast('备份失败：' + (result.error || '未知错误'), 3000);
+                    }
+                } catch (err) {
+                    showToast('备份失败（网络错误）：' + err.message, 3000);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            });
+
+            // 云端恢复
+            document.getElementById('cloud-restore-btn').addEventListener('click', async () => {
+                const userId = cloudUserIdInput.value.trim();
+                if (!userId) {
+                    showToast('请先输入恢复密码', 2000);
+                    cloudUserIdInput.focus();
+                    return;
+                }
+
+                if (!confirm('云端恢复将覆盖当前所有本地数据，确定继续？')) return;
+
+                const btn = document.getElementById('cloud-restore-btn');
+                const origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>恢复中...';
+
+                try {
+                    const res = await fetch(`${CLOUD_API}?userId=${encodeURIComponent(userId)}`);
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        const backup = result.data;
+                        // 兼容两种格式
+                        const dataToRestore = backup.accounts ? backup : backup.data;
+                        if (!dataToRestore || !dataToRestore.accounts) {
+                            showToast('备份数据格式无效', 3000);
+                            return;
+                        }
+                        localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(dataToRestore));
+                        if (backup.settings || dataToRestore.settings) {
+                            localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
+                        }
+                        localStorage.setItem(CLOUD_USER_ID_KEY, userId);
+                        showToast('云端恢复成功！即将刷新', 1500);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('恢复失败：' + (result.error || '未找到备份数据'), 3000);
+                    }
+                } catch (err) {
+                    showToast('恢复失败（网络错误）：' + err.message, 3000);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
             });
             chestDetectToggle.addEventListener('change', () => {
                 settings.chestDetect = chestDetectToggle.checked;
