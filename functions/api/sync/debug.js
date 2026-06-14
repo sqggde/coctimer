@@ -51,9 +51,17 @@ export async function onRequest(context) {
       pwdOk = (hashHex === user.passwordHash);
     }
 
-    // 4. 读取备份文件
+    // 4. 读取备份文件 - 如果 content 为空，尝试通过 raw_url 获取
     const filename = `backup_${email}.json`;
     const backupFile = gist.files?.[filename];
+    
+    let realContent = backupFile?.content;
+    if (!realContent && backupFile?.raw_url) {
+      try {
+        const rawResp = await fetch(backupFile.raw_url);
+        realContent = rawResp.ok ? await rawResp.text() : null;
+      } catch {}
+    }
     
     const debug = {
       email,
@@ -62,16 +70,18 @@ export async function onRequest(context) {
       allFilesInGist: allFiles,
       backupFileExists: !!backupFile,
       backupFileSize: backupFile?.size || 0,
-      backupFileContent: backupFile?.content ? backupFile.content.substring(0, 500) : null,
-      backupFileTruncated: backupFile?.content ? backupFile.content.length > 500 : false,
+      backupFileRawUrl: backupFile?.raw_url || null,
+      backupFileContentFromAPI: backupFile?.content || null,
+      backupFileContentFromRaw: realContent ? realContent.substring(0, 500) : null,
+      backupFileTruncated: realContent ? realContent.length > 500 : false,
       usersFileSize: usersRaw.length,
       usersCount: Object.keys(users).length,
     };
 
     // 5. 如果备份文件存在，尝试解析
-    if (backupFile?.content) {
+    if (realContent) {
       try {
-        JSON.parse(backupFile.content);
+        JSON.parse(realContent);
         debug.backupParseOk = true;
       } catch (e) {
         debug.backupParseOk = false;

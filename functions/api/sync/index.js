@@ -163,8 +163,19 @@ async function handleRestore(url, gistId, token) {
 
   if (!fileData) return jsonResponse(404, { error: '未找到该用户的备份数据', email });
 
+  // 获取文件内容（API 可能返回空 content，需要通过 raw_url 获取）
+  let rawContent = fileData.content;
+  if (!rawContent && fileData.raw_url) {
+    try {
+      const rawResp = await fetch(fileData.raw_url);
+      if (rawResp.ok) rawContent = await rawResp.text();
+    } catch {}
+  }
+
+  if (!rawContent) return jsonResponse(500, { error: '备份数据为空' });
+
   let backupData;
-  try { backupData = JSON.parse(fileData.content); } catch {
+  try { backupData = JSON.parse(rawContent); } catch {
     return jsonResponse(500, { error: '备份数据格式异常' });
   }
 
