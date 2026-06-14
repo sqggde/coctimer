@@ -11,7 +11,7 @@
 const CURRENT_VERSION = {
   versionCode: 15,
   versionName: "1.2.1",
-  directDownloadUrl: "",
+  directDownloadUrl: "https://github.com/sqggde/coctimer/releases/download/15/1.2.1.apk",
   baiduUrl: "https://pan.baidu.com/s/1Vdx6MyM2K7ZyfxCeFxqrWA?pwd=5io6",
   quarkUrl: "https://pan.quark.cn/s/279f7a166c2b",
   changelog: "- 新增滑动切换账号震感反馈\n- 新增导出/导入备份功能\n- 新增检查更新功能"
