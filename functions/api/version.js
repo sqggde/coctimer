@@ -9,8 +9,8 @@
  */
 
 const CURRENT_VERSION = {
-  versionCode: 14,
-  versionName: "1.2.0",
+  versionCode: 15,
+  versionName: "1.2.1",
   directDownloadUrl: "",
   baiduUrl: "https://pan.baidu.com/s/1Vdx6MyM2K7ZyfxCeFxqrWA?pwd=5io6",
   quarkUrl: "https://pan.quark.cn/s/279f7a166c2b",
