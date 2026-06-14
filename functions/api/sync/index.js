@@ -22,7 +22,15 @@ export async function onRequest(context) {
     if (request.method === 'GET') return await handleRestore(new URL(request.url), GIST_ID, GITHUB_TOKEN);
     return jsonResponse(405, { error: '不支持的方法' });
   } catch (err) {
-    return jsonResponse(500, { error: err.message });
+    // 兜底错误处理
+    const errMsg = err && err.message ? err.message : (err ? String(err) : '未知错误');
+    return new Response(JSON.stringify({ error: errMsg }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   }
 }
 
@@ -107,36 +115,30 @@ async function handleBackup(request, gistId, token) {
   if (!user) return jsonResponse(401, { error: '密码错误，请重新登录' });
 
   const filename = `backup_${email}.json`;
-  const content = JSON.stringify(data, null, 2);
+  const content = JSON.stringify(data);
 
-  // 先检查文件是否已存在
-  const gist = await getGist(gistId, token);
-  const fileExists = !!gist.files?.[filename];
+  // 直接更新 Gist 文件
+  const files = {};
+  files[filename] = { content };
 
-  // 写入文件
-  const patchResult = await patchGist(gistId, token, { [filename]: { content } });
+  const resp = await fetch(`${GIST_API}/${gistId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'User-Agent': 'coc-timer',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ files }),
+  });
 
-  // 验证文件内容是否写入成功
-  const verify = await getGist(gistId, token);
-  const writtenFile = verify.files?.[filename];
-  if (!writtenFile || !writtenFile.content) {
-    // 调试: 返回实际写入的内容
-    return jsonResponse(500, {
-      error: '备份写入失败',
-      debug: {
-        filename,
-        contentLength: content.length,
-        contentPreview: content.substring(0, 100),
-        writtenFileExists: !!writtenFile,
-        writtenContentLength: writtenFile ? (writtenFile.content || '').length : 0,
-        writtenContent: writtenFile ? (writtenFile.content || '').substring(0, 100) : null,
-      }
-    });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    return jsonResponse(500, { error: `GitHub API 错误: ${resp.status}`, detail: errText.substring(0, 500) });
   }
 
   return jsonResponse(200, {
     success: true,
-    action: fileExists ? 'updated' : 'created',
+    action: 'updated',
     email,
     timestamp: new Date().toISOString(),
   });
