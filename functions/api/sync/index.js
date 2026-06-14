@@ -108,10 +108,26 @@ async function handleBackup(request, gistId, token) {
 
   const filename = `backup_${email}.json`;
   const content = JSON.stringify(data, null, 2);
+
+  // 先检查文件是否已存在
   const gist = await getGist(gistId, token);
   const fileExists = !!gist.files?.[filename];
 
+  // 写入文件
   await patchGist(gistId, token, { [filename]: { content } });
+
+  // 验证文件内容是否写入成功
+  const verify = await getGist(gistId, token);
+  const writtenFile = verify.files?.[filename];
+  if (!writtenFile || !writtenFile.content) {
+    // 如果内容为空则重试一次
+    await patchGist(gistId, token, { [filename]: { content } });
+    const verify2 = await getGist(gistId, token);
+    const file2 = verify2.files?.[filename];
+    if (!file2 || !file2.content) {
+      return jsonResponse(500, { error: '备份写入失败，请重试' });
+    }
+  }
 
   return jsonResponse(200, {
     success: true,
