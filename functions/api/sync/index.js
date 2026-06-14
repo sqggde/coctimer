@@ -114,19 +114,24 @@ async function handleBackup(request, gistId, token) {
   const fileExists = !!gist.files?.[filename];
 
   // 写入文件
-  await patchGist(gistId, token, { [filename]: { content } });
+  const patchResult = await patchGist(gistId, token, { [filename]: { content } });
 
   // 验证文件内容是否写入成功
   const verify = await getGist(gistId, token);
   const writtenFile = verify.files?.[filename];
   if (!writtenFile || !writtenFile.content) {
-    // 如果内容为空则重试一次
-    await patchGist(gistId, token, { [filename]: { content } });
-    const verify2 = await getGist(gistId, token);
-    const file2 = verify2.files?.[filename];
-    if (!file2 || !file2.content) {
-      return jsonResponse(500, { error: '备份写入失败，请重试' });
-    }
+    // 调试: 返回实际写入的内容
+    return jsonResponse(500, {
+      error: '备份写入失败',
+      debug: {
+        filename,
+        contentLength: content.length,
+        contentPreview: content.substring(0, 100),
+        writtenFileExists: !!writtenFile,
+        writtenContentLength: writtenFile ? (writtenFile.content || '').length : 0,
+        writtenContent: writtenFile ? (writtenFile.content || '').substring(0, 100) : null,
+      }
+    });
   }
 
   return jsonResponse(200, {
