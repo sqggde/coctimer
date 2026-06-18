@@ -163,9 +163,9 @@ async function handleRestore(url, gistId, token) {
 
   if (!fileData) return jsonResponse(404, { error: '未找到该用户的备份数据', email });
 
-  // 获取文件内容（API 可能返回空 content，需要通过 raw_url 获取）
+  // 获取文件内容（GitHub API 对超过 1MB 的文件会截断，需通过 raw_url 获取完整内容）
   let rawContent = fileData.content;
-  if (!rawContent && fileData.raw_url) {
+  if ((!rawContent || fileData.truncated) && fileData.raw_url) {
     try {
       const rawResp = await fetch(fileData.raw_url);
       if (rawResp.ok) rawContent = await rawResp.text();

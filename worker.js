@@ -157,10 +157,24 @@ async function handleGet(url, gistId, token, corsHeaders) {
     });
   }
 
+  // 获取文件内容（GitHub API 对超过 1MB 的文件会截断，需通过 raw_url 获取完整内容）
+  let rawContent = fileData.content;
+  if ((!rawContent || fileData.truncated) && fileData.raw_url) {
+    try {
+      const rawResp = await fetch(fileData.raw_url);
+      if (rawResp.ok) rawContent = await rawResp.text();
+    } catch {}
+  }
+
+  if (!rawContent) {
+    return new Response(JSON.stringify({ error: '备份数据为空' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    });
+  }
+
   let backupData;
-  try {
-    backupData = JSON.parse(fileData.content);
-  } catch {
+  try { backupData = JSON.parse(rawContent); } catch {
     return new Response(JSON.stringify({ error: '备份数据格式异常' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
