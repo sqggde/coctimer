@@ -49,44 +49,44 @@ export async function onRequest(context) {
 
     switch (action) {
       case 'test': {
-        // 上传一个极小的测试文件来验证认证是否可用（随后删除）
-        const testFileName = '_coc_webdav_test.json';
-        const testFileUrl = `${baseUrl}${folder}/${testFileName}`;
-        const testContent = '{"test":true}';
-
+        let results = [];
+        // 1. 先 MKCOL 创建目录（忽略已存在错误）
         try {
-          const putResp = await fetch(testFileUrl, {
+          const mkResp = await fetch(`${baseUrl}${folder}/`, {
+            method: 'MKCOL',
+            headers: { Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav' },
+          });
+          results.push(`MKCOL(${mkResp.status})`);
+        } catch (e) { results.push('MKCOL(错误)'); }
+
+        // 2. 上传测试文件验证读写
+        const testName = `_coc_test_${Date.now()}.json`;
+        const testUrl = `${baseUrl}${folder}/${testName}`;
+        try {
+          const putResp = await fetch(testUrl, {
             method: 'PUT',
             headers: {
-              Authorization: `Basic ${encoded}`,
-              'User-Agent': 'coc-timer-webdav',
+              Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav',
               'Content-Type': 'application/json',
             },
-            body: testContent,
+            body: '{"test":1}',
           });
-
-          // 认证失败
           if (putResp.status === 401 || putResp.status === 403) {
             return jsonResponse(200, { success: false, error: '认证失败，请检查账号或密码' });
           }
-
           if (putResp.ok || putResp.status === 201 || putResp.status === 204) {
-            // 上传成功，删除测试文件（忽略删除失败）
+            results.push(`PUT(${putResp.status})`);
+            // 3. 删除测试文件
             try {
-              await fetch(testFileUrl, {
-                method: 'DELETE',
-                headers: { Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav' },
-              });
+              const delResp = await fetch(testUrl, { method: 'DELETE', headers: { Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav' } });
+              results.push(`DELETE(${delResp.status})`);
             } catch (e) {}
-            return jsonResponse(200, { success: true, message: '连接成功，WebDAV 读写正常' });
+            return jsonResponse(200, { success: true, message: '连接成功，WebDAV 读写正常。' + results.join(' → ') });
           }
-
-          // 其他错误
-          let errDetail = '';
-          try { errDetail = (await putResp.text()).substring(0, 200); } catch (e) {}
-          return jsonResponse(200, { success: false, error: `服务器返回异常 (${putResp.status})`, detail: errDetail });
-        } catch (fetchErr) {
-          return jsonResponse(200, { success: false, error: `无法连接到服务器: ${fetchErr.message}` });
+          let d = ''; try { d = (await putResp.text()).substring(0,150); } catch (e) {}
+          return jsonResponse(200, { success: false, error: `上传失败(${putResp.status})`, detail: d });
+        } catch (e) {
+          return jsonResponse(200, { success: false, error: `请求异常: ${e.message}` });
         }
       }
 
@@ -94,8 +94,14 @@ export async function onRequest(context) {
         if (!data) {
           return jsonResponse(400, { error: '备份操作需要 data 字段' });
         }
-
-        // PUT 上传文件（覆盖已有，只保留最新一份）
+        // 1. 创建目录（如果已存在会返回 405/冲突，忽略即可）
+        try {
+          await fetch(`${baseUrl}${folder}/`, {
+            method: 'MKCOL',
+            headers: { Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav' },
+          });
+        } catch (e) {}
+        // 2. PUT 上传文件（覆盖已有，只保留最新一份）
         const jsonStr = JSON.stringify(data);
         try {
           const putResp = await fetch(fileUrl, {
@@ -107,24 +113,14 @@ export async function onRequest(context) {
             },
             body: jsonStr,
           });
-
           if (putResp.ok || putResp.status === 204 || putResp.status === 201) {
             return jsonResponse(200, { success: true, action: 'updated' });
           }
-
-          // 尝试读取错误详情
           let errDetail = '';
           try { errDetail = (await putResp.text()).substring(0, 500); } catch (e) {}
-          return jsonResponse(500, {
-            success: false,
-            error: `上传失败 (${putResp.status})`,
-            detail: errDetail,
-          });
+          return jsonResponse(500, { success: false, error: `上传失败 (${putResp.status})`, detail: errDetail });
         } catch (fetchErr) {
-          return jsonResponse(500, {
-            success: false,
-            error: `上传请求异常: ${fetchErr.message}`,
-          });
+          return jsonResponse(500, { success: false, error: `上传请求异常: ${fetchErr.message}` });
         }
       }
 
