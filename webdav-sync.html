@@ -130,6 +130,11 @@
     </div>
 
     <script>
+        // 检查是否从服务器打开
+        if (location.protocol === 'file:') {
+            document.body.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>❌ 请通过 Web 服务器访问此页面</h2><p style="color:#666;margin-top:12px;">不要直接双击打开 HTML 文件，请先部署到 Cloudflare Pages 后<br>通过 <code>https://coctimer.pages.dev/webdav-sync.html</code> 访问</p><a href="./index.html" style="display:inline-block;margin-top:16px;color:#3b82f6;">返回主页面</a></div>';
+            throw new Error('file protocol detected');
+        }
         // ========== WebDAV 同步页面 ==========
         const WEBDAV_API = '/api/webdav';
         const WEBDAV_CONFIG_KEY = 'coc_webdav_config';
@@ -242,7 +247,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'test', server, username, password, folder }),
                 });
-                const result = await res.json();
+                const text = await res.text();
+                let result;
+                try { result = JSON.parse(text); } catch {
+                    showMsg('❌ 服务器返回了非 JSON 内容，可能地址不对或未部署：' + text.substring(0, 120), 'red');
+                    return;
+                }
                 showMsg(result.success ? '✅ 连接成功！' : '❌ ' + (result.error || '连接失败'), result.success ? 'green' : 'red');
             } catch (err) {
                 showMsg('❌ 网络错误：' + err.message, 'red');
@@ -315,7 +325,12 @@
                         data: backupData,
                     }),
                 });
-                const result = await res.json();
+                const text = await res.text();
+                let result;
+                try { result = JSON.parse(text); } catch {
+                    showToast('❌ 服务器返回异常：' + text.substring(0, 80), 3000);
+                    return;
+                }
                 if (result.success) {
                     config.lastSync = new Date().toLocaleString('zh-CN');
                     try { localStorage.setItem(WEBDAV_CONFIG_KEY, JSON.stringify(config)); } catch (e) {}
@@ -353,7 +368,12 @@
                         folder: config.folder,
                     }),
                 });
-                const result = await res.json();
+                const text = await res.text();
+                let result;
+                try { result = JSON.parse(text); } catch {
+                    showToast('❌ 服务器返回异常：' + text.substring(0, 80), 3000);
+                    return;
+                }
                 if (result.success && result.data) {
                     const backup = result.data;
                     const dataToRestore = backup.accounts ? backup : backup.data;
