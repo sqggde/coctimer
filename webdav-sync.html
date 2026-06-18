@@ -132,11 +132,11 @@
     <script>
         // 检查是否从服务器打开
         if (location.protocol === 'file:') {
-            document.body.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>❌ 请通过 Web 服务器访问此页面</h2><p style="color:#666;margin-top:12px;">不要直接双击打开 HTML 文件，请先部署到 Cloudflare Pages 后<br>通过 <code>https://coctimer.pages.dev/webdav-sync.html</code> 访问</p><a href="./index.html" style="display:inline-block;margin-top:16px;color:#3b82f6;">返回主页面</a></div>';
+            document.body.innerHTML = '<div style="padding:40px;text-align:center;color:red;"><h2>❌ 请通过 Web 服务器访问此页面</h2><p style="color:#666;margin-top:12px;">不要直接双击打开 HTML 文件，请通过 <code>https://sqggde.github.io/coctimer/</code><br>或 <code>https://coctimer.pages.dev/</code> 访问</p><a href="./index.html" style="display:inline-block;margin-top:16px;color:#3b82f6;">返回主页面</a></div>';
             throw new Error('file protocol detected');
         }
         // ========== WebDAV 同步页面 ==========
-        const WEBDAV_API = '/api/webdav';
+        const WEBDAV_API = 'https://coctimer.pages.dev/api/webdav';
         const WEBDAV_CONFIG_KEY = 'coc_webdav_config';
         const STORAGE_KEY = 'clash_upgrade_assistant_v3_fixed';
         const SETTINGS_KEY = 'clash_upgrade_settings';
