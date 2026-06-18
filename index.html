@@ -267,14 +267,6 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
-                        <a href="./webdav-sync.html" class="flex items-center justify-between py-1 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors duration-200">
-                            <span class="text-sm text-gray-700"><i class="fa fa-server mr-1"></i>WebDAV 备份</span>
-                            <span class="px-3 py-1 rounded-lg text-[13px] font-medium flex items-center bg-gray-300 text-gray-500" id="webdav-status-indicator">
-                                <i class="fa fa-times mr-1"></i>未启用
-                            </span>
-                        </a>
-                    </div>
-                    <div class="border-t border-gray-200 pt-2">
                         <div class="flex items-center space-x-2">
                             <span class="text-gray-600 text-[13px] whitespace-nowrap"><i class="fa fa-hdd-o mr-1"></i>本地备份</span>
                             <button id="export-backup-btn" class="flex-1 px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导出备份</button>
@@ -2177,21 +2169,6 @@
             checkAutoDarkMode();
             initSwipeGesture();
             updateHelperButtonState();
-
-            // WebDAV 状态指示（配置在独立页面 webdav-sync.html 中管理）
-            const wdIndicator = document.getElementById('webdav-status-indicator');
-            if (wdIndicator) {
-                try {
-                    const wdRaw = localStorage.getItem('coc_webdav_config');
-                    if (wdRaw) {
-                        const wdCfg = JSON.parse(wdRaw);
-                        if (wdCfg.enabled && wdCfg.server && wdCfg.username && wdCfg.password) {
-                            wdIndicator.className = 'px-3 py-1 rounded-lg text-[13px] font-medium flex items-center bg-green-500 text-white';
-                            wdIndicator.innerHTML = '<i class="fa fa-check mr-1"></i>已启用';
-                        }
-                    }
-                } catch (e) {}
-            }
         }
         document.addEventListener('DOMContentLoaded', init);
     </script>
