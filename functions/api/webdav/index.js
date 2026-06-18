@@ -49,34 +49,45 @@ export async function onRequest(context) {
 
     switch (action) {
       case 'test': {
-        // 1. 先对服务器根目录做 PROPFIND 验证认证
-        const rootUrl = baseUrl;
-        const rootResp = await fetch(rootUrl, {
-          method: 'PROPFIND',
-          headers: {
-            Authorization: `Basic ${encoded}`,
-            'User-Agent': 'coc-timer-webdav',
-            Depth: '0',
-          },
-        });
-        if (rootResp.status === 401 || rootResp.status === 403) {
-          return jsonResponse(200, { success: false, error: '认证失败，请检查账号或密码' });
+        // 上传一个极小的测试文件来验证认证是否可用（随后删除）
+        const testFileName = '_coc_webdav_test.json';
+        const testFileUrl = `${baseUrl}${folder}/${testFileName}`;
+        const testContent = '{"test":true}';
+
+        try {
+          const putResp = await fetch(testFileUrl, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Basic ${encoded}`,
+              'User-Agent': 'coc-timer-webdav',
+              'Content-Type': 'application/json',
+            },
+            body: testContent,
+          });
+
+          // 认证失败
+          if (putResp.status === 401 || putResp.status === 403) {
+            return jsonResponse(200, { success: false, error: '认证失败，请检查账号或密码' });
+          }
+
+          if (putResp.ok || putResp.status === 201 || putResp.status === 204) {
+            // 上传成功，删除测试文件（忽略删除失败）
+            try {
+              await fetch(testFileUrl, {
+                method: 'DELETE',
+                headers: { Authorization: `Basic ${encoded}`, 'User-Agent': 'coc-timer-webdav' },
+              });
+            } catch (e) {}
+            return jsonResponse(200, { success: true, message: '连接成功，WebDAV 读写正常' });
+          }
+
+          // 其他错误
+          let errDetail = '';
+          try { errDetail = (await putResp.text()).substring(0, 200); } catch (e) {}
+          return jsonResponse(200, { success: false, error: `服务器返回异常 (${putResp.status})`, detail: errDetail });
+        } catch (fetchErr) {
+          return jsonResponse(200, { success: false, error: `无法连接到服务器: ${fetchErr.message}` });
         }
-        // 2. 再检查目标目录是否可访问（可选，仅提示）
-        const dirUrl = `${baseUrl}${folder}/`;
-        const dirResp = await fetch(dirUrl, {
-          method: 'PROPFIND',
-          headers: {
-            Authorization: `Basic ${encoded}`,
-            'User-Agent': 'coc-timer-webdav',
-            Depth: '0',
-          },
-        });
-        let msg = '连接成功';
-        if (dirResp.status === 404 || dirResp.status === 301 || dirResp.status === 302) {
-          msg = '连接成功（目录不存在，上传时会自动创建）';
-        }
-        return jsonResponse(200, { success: true, message: msg, status: dirResp.status });
       }
 
       case 'backup': {
