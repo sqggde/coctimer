@@ -267,6 +267,14 @@
                         </div>
                     </div>
                     <div class="border-t border-gray-200 pt-2">
+                        <div class="flex items-center justify-between cursor-pointer" id="webdav-status-row">
+                            <span class="text-sm text-gray-700"><i class="fa fa-server mr-1"></i>WebDAV 备份</span>
+                            <button id="webdav-toggle-btn" class="px-3 py-1 rounded-lg text-[13px] font-medium flex items-center bg-gray-300 text-gray-500 transition-all duration-200">
+                                <i class="fa fa-times mr-1"></i>未启用
+                            </button>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 pt-2">
                         <div class="flex items-center space-x-2">
                             <span class="text-gray-600 text-[13px] whitespace-nowrap"><i class="fa fa-hdd-o mr-1"></i>本地备份</span>
                             <button id="export-backup-btn" class="flex-1 px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center"><i class="fa fa-upload mr-2"></i>导出备份</button>
@@ -302,6 +310,61 @@
                         <p class="text-gray-800">本工具永久免费</p>
                         <p class="mt-2">但如果你觉得好用，<span class="text-orange-500 font-medium">自愿发电</span> 就是对我最大的鼓励，让我能一直更新下去，并可以拓展更多功能</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WebDAV 设置弹窗 -->
+        <div id="webdav-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl shadow-2xl p-4 mx-4 w-full max-w-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-800" style="font-size: 15px;"><i class="fa fa-server mr-1"></i>WebDAV 备份设置</h3>
+                    <button id="webdav-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                        <i class="fa fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <!-- 启用开关 -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">启用 WebDAV 备份</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="webdav-enabled-toggle" class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                        </label>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="flex space-x-2">
+                        <button id="webdav-backup-btn" class="flex-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white disabled:text-gray-500 rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center" disabled><i class="fa fa-cloud-upload mr-2"></i>上传备份</button>
+                        <button id="webdav-restore-btn" class="flex-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white disabled:text-gray-500 rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center" disabled><i class="fa fa-cloud-download mr-2"></i>导入备份</button>
+                    </div>
+                    <p class="text-xs text-gray-400">提示：只保留最新一份备份，同名文件会被覆盖</p>
+
+                    <!-- 输入项 -->
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">WebDAV 服务器地址</label>
+                        <input type="url" id="webdav-server" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" placeholder="例如 https://dav.jianguoyun.com/dav/">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">WebDAV 账号</label>
+                        <input type="text" id="webdav-username" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" placeholder="邮箱或用户名">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">WebDAV 密码</label>
+                        <input type="password" id="webdav-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" placeholder="坚果云用户请使用应用专用密码">
+                        <p class="text-xs text-gray-400 mt-1">坚果云用户请在「账户信息 → 安全选项 → 第三方应用管理」生成应用专用密码</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">文件夹名称</label>
+                        <input type="text" id="webdav-folder" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200" placeholder="例如 COC_Timer（自动创建）" value="COC_Timer">
+                    </div>
+
+                    <!-- 底部按钮 -->
+                    <div class="flex space-x-2 pt-2 border-t border-gray-200">
+                        <button id="webdav-test-btn" class="flex-1 px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center"><i class="fa fa-plug mr-2"></i>测试连接</button>
+                        <button id="webdav-save-btn" class="flex-1 px-3 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-[13px] flex items-center justify-center"><i class="fa fa-check mr-2"></i>保存设置</button>
+                    </div>
+                    <div id="webdav-status-msg" class="text-xs text-center hidden"></div>
                 </div>
             </div>
         </div>
@@ -2170,6 +2233,227 @@
             checkAutoDarkMode();
             initSwipeGesture();
             updateHelperButtonState();
+
+            // ========== WebDAV 备份 ==========
+            const WEBDAV_API = '/api/webdav';
+            const WEBDAV_CONFIG_KEY = 'coc_webdav_config';
+
+            // DOM 元素
+            const webdavStatusRow = document.getElementById('webdav-status-row');
+            const webdavToggleBtn = document.getElementById('webdav-toggle-btn');
+            const webdavModal = document.getElementById('webdav-modal');
+            const webdavCloseBtn = document.getElementById('webdav-close-btn');
+            const webdavEnabledToggle = document.getElementById('webdav-enabled-toggle');
+            const webdavBackupBtn = document.getElementById('webdav-backup-btn');
+            const webdavRestoreBtn = document.getElementById('webdav-restore-btn');
+            const webdavServer = document.getElementById('webdav-server');
+            const webdavUsername = document.getElementById('webdav-username');
+            const webdavPassword = document.getElementById('webdav-password');
+            const webdavFolder = document.getElementById('webdav-folder');
+            const webdavTestBtn = document.getElementById('webdav-test-btn');
+            const webdavSaveBtn = document.getElementById('webdav-save-btn');
+            const webdavStatusMsg = document.getElementById('webdav-status-msg');
+
+            // 加载 WebDAV 配置
+            let webdavConfig = { enabled: false, server: '', username: '', password: '', folder: 'COC_Timer' };
+            try {
+                const saved = localStorage.getItem(WEBDAV_CONFIG_KEY);
+                if (saved) webdavConfig = { ...webdavConfig, ...JSON.parse(saved) };
+            } catch (e) {}
+
+            function updateWebdavStatusUI() {
+                if (webdavConfig.enabled && webdavConfig.server && webdavConfig.username && webdavConfig.password) {
+                    webdavToggleBtn.className = 'px-3 py-1 rounded-lg text-[13px] font-medium flex items-center bg-green-500 text-white transition-all duration-200';
+                    webdavToggleBtn.innerHTML = '<i class="fa fa-check mr-1"></i>已启用';
+                } else {
+                    webdavToggleBtn.className = 'px-3 py-1 rounded-lg text-[13px] font-medium flex items-center bg-gray-300 text-gray-500 transition-all duration-200';
+                    webdavToggleBtn.innerHTML = '<i class="fa fa-times mr-1"></i>未启用';
+                }
+            }
+            updateWebdavStatusUI();
+
+            // 打开 WebDAV 设置弹窗
+            webdavStatusRow.addEventListener('click', () => {
+                // 填入当前配置
+                webdavEnabledToggle.checked = webdavConfig.enabled;
+                webdavServer.value = webdavConfig.server || '';
+                webdavUsername.value = webdavConfig.username || '';
+                webdavPassword.value = webdavConfig.password || '';
+                webdavFolder.value = webdavConfig.folder || 'COC_Timer';
+                webdavBackupBtn.disabled = !webdavConfig.enabled;
+                webdavRestoreBtn.disabled = !webdavConfig.enabled;
+                webdavStatusMsg.classList.add('hidden');
+                webdavModal.classList.remove('hidden');
+            });
+
+            webdavCloseBtn.addEventListener('click', () => {
+                webdavModal.classList.add('hidden');
+            });
+
+            // 启用开关 → 控制按钮
+            webdavEnabledToggle.addEventListener('change', () => {
+                const enabled = webdavEnabledToggle.checked;
+                webdavBackupBtn.disabled = !enabled;
+                webdavRestoreBtn.disabled = !enabled;
+            });
+
+            // 测试连接
+            webdavTestBtn.addEventListener('click', async () => {
+                const server = webdavServer.value.trim();
+                const username = webdavUsername.value.trim();
+                const password = webdavPassword.value;
+                const folder = webdavFolder.value.trim() || 'COC_Timer';
+
+                if (!server || !username || !password) {
+                    showWebdavMsg('请填写服务器地址、账号和密码', 'red');
+                    return;
+                }
+
+                webdavTestBtn.disabled = true;
+                webdavTestBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>测试中...';
+                webdavStatusMsg.classList.add('hidden');
+
+                try {
+                    const res = await fetch(WEBDAV_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'test', server, username, password, folder }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        showWebdavMsg('✅ 连接成功！', 'green');
+                    } else {
+                        showWebdavMsg('❌ ' + (result.error || '连接失败'), 'red');
+                    }
+                } catch (err) {
+                    showWebdavMsg('❌ 网络错误：' + err.message, 'red');
+                } finally {
+                    webdavTestBtn.disabled = false;
+                    webdavTestBtn.innerHTML = '<i class="fa fa-plug mr-2"></i>测试连接';
+                }
+            });
+
+            // 保存设置
+            webdavSaveBtn.addEventListener('click', () => {
+                const newConfig = {
+                    enabled: webdavEnabledToggle.checked,
+                    server: webdavServer.value.trim(),
+                    username: webdavUsername.value.trim(),
+                    password: webdavPassword.value,
+                    folder: webdavFolder.value.trim() || 'COC_Timer',
+                };
+                webdavConfig = newConfig;
+                try { localStorage.setItem(WEBDAV_CONFIG_KEY, JSON.stringify(newConfig)); } catch (e) {}
+                updateWebdavStatusUI();
+                webdavBackupBtn.disabled = !newConfig.enabled;
+                webdavRestoreBtn.disabled = !newConfig.enabled;
+                showWebdavMsg('✅ 设置已保存', 'green');
+                setTimeout(() => { webdavModal.classList.add('hidden'); }, 800);
+            });
+
+            function showWebdavMsg(text, color) {
+                webdavStatusMsg.textContent = text;
+                webdavStatusMsg.className = 'text-xs text-center ' + (color === 'red' ? 'text-red-500' : 'text-green-500') + ' mt-1';
+                webdavStatusMsg.classList.remove('hidden');
+            }
+
+            // WebDAV 上传备份
+            webdavBackupBtn.addEventListener('click', async () => {
+                if (!webdavConfig.enabled || !webdavConfig.server) {
+                    showToast('请先启用并配置 WebDAV', 2000);
+                    return;
+                }
+
+                const backupData = {
+                    version: 1,
+                    exportDate: new Date().toISOString(),
+                    accounts,
+                    accountNotes,
+                    accountOrder,
+                    currentAccount,
+                    settings: { ...settings }
+                };
+
+                webdavBackupBtn.disabled = true;
+                const origHtml = webdavBackupBtn.innerHTML;
+                webdavBackupBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>备份中...';
+
+                try {
+                    const res = await fetch(WEBDAV_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'backup',
+                            server: webdavConfig.server,
+                            username: webdavConfig.username,
+                            password: webdavConfig.password,
+                            folder: webdavConfig.folder,
+                            data: backupData,
+                        }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        showToast('WebDAV 备份成功', 2000);
+                    } else {
+                        showToast('备份失败：' + (result.error || '未知错误'), 3000);
+                    }
+                } catch (err) {
+                    showToast('备份失败（网络错误）：' + err.message, 3000);
+                } finally {
+                    webdavBackupBtn.disabled = false;
+                    webdavBackupBtn.innerHTML = origHtml;
+                }
+            });
+
+            // WebDAV 导入恢复
+            webdavRestoreBtn.addEventListener('click', async () => {
+                if (!webdavConfig.enabled || !webdavConfig.server) {
+                    showToast('请先启用并配置 WebDAV', 2000);
+                    return;
+                }
+
+                if (!confirm('从 WebDAV 恢复将覆盖当前所有本地数据，确定继续？')) return;
+
+                webdavRestoreBtn.disabled = true;
+                const origHtml = webdavRestoreBtn.innerHTML;
+                webdavRestoreBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>恢复中...';
+
+                try {
+                    const res = await fetch(WEBDAV_API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'restore',
+                            server: webdavConfig.server,
+                            username: webdavConfig.username,
+                            password: webdavConfig.password,
+                            folder: webdavConfig.folder,
+                        }),
+                    });
+                    const result = await res.json();
+                    if (result.success && result.data) {
+                        const backup = result.data;
+                        const dataToRestore = backup.accounts ? backup : backup.data;
+                        if (!dataToRestore || !dataToRestore.accounts) {
+                            showToast('备份数据格式无效', 3000);
+                            return;
+                        }
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToRestore));
+                        if (backup.settings || dataToRestore.settings) {
+                            localStorage.setItem(SETTINGS_KEY, JSON.stringify(backup.settings || dataToRestore.settings));
+                        }
+                        showToast('WebDAV 恢复成功！即将刷新', 1500);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('恢复失败：' + (result.error || '未找到备份数据'), 3000);
+                    }
+                } catch (err) {
+                    showToast('恢复失败（网络错误）：' + err.message, 3000);
+                } finally {
+                    webdavRestoreBtn.disabled = false;
+                    webdavRestoreBtn.innerHTML = origHtml;
+                }
+            });
         }
         document.addEventListener('DOMContentLoaded', init);
     </script>
