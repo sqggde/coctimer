@@ -49,9 +49,9 @@ export async function onRequest(context) {
 
     switch (action) {
       case 'test': {
-        // 尝试 PROPFIND 目标目录，检查是否可访问
-        const testUrl = `${baseUrl}${folder}/`;
-        const resp = await fetch(testUrl, {
+        // 1. 先对服务器根目录做 PROPFIND 验证认证
+        const rootUrl = baseUrl;
+        const rootResp = await fetch(rootUrl, {
           method: 'PROPFIND',
           headers: {
             Authorization: `Basic ${encoded}`,
@@ -59,12 +59,24 @@ export async function onRequest(context) {
             Depth: '0',
           },
         });
-        // 404 表示目录不存在但服务器可达（可后续创建）
-        // 401/403 表示认证失败
-        if (resp.status === 401 || resp.status === 403) {
+        if (rootResp.status === 401 || rootResp.status === 403) {
           return jsonResponse(200, { success: false, error: '认证失败，请检查账号或密码' });
         }
-        return jsonResponse(200, { success: true, status: resp.status });
+        // 2. 再检查目标目录是否可访问（可选，仅提示）
+        const dirUrl = `${baseUrl}${folder}/`;
+        const dirResp = await fetch(dirUrl, {
+          method: 'PROPFIND',
+          headers: {
+            Authorization: `Basic ${encoded}`,
+            'User-Agent': 'coc-timer-webdav',
+            Depth: '0',
+          },
+        });
+        let msg = '连接成功';
+        if (dirResp.status === 404 || dirResp.status === 301 || dirResp.status === 302) {
+          msg = '连接成功（目录不存在，上传时会自动创建）';
+        }
+        return jsonResponse(200, { success: true, message: msg, status: dirResp.status });
       }
 
       case 'backup': {

@@ -253,7 +253,7 @@
                     showMsg('❌ 服务器返回了非 JSON 内容，可能地址不对或未部署：' + text.substring(0, 120), 'red');
                     return;
                 }
-                showMsg(result.success ? '✅ 连接成功！' : '❌ ' + (result.error || '连接失败'), result.success ? 'green' : 'red');
+                showMsg(result.success ? '✅ ' + (result.message || '连接成功！') : '❌ ' + (result.error || '连接失败'), result.success ? 'green' : 'red');
             } catch (err) {
                 showMsg('❌ 网络错误：' + err.message, 'red');
             } finally {
