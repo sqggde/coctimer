@@ -72,38 +72,37 @@ export async function onRequest(context) {
           return jsonResponse(400, { error: '备份操作需要 data 字段' });
         }
 
-        // 1. 先尝试创建目录（如果已存在会返回 405/Method Not Allowed 或 冲突，忽略即可）
-        const mkcolUrl = `${baseUrl}${folder}/`;
-        await fetch(mkcolUrl, {
-          method: 'MKCOL',
-          headers: {
-            Authorization: `Basic ${encoded}`,
-            'User-Agent': 'coc-timer-webdav',
-          },
-        });
-
-        // 2. PUT 上传文件（覆盖已有文件，实现"只保留最新一份"）
+        // PUT 上传文件（覆盖已有，只保留最新一份）
         const jsonStr = JSON.stringify(data);
-        const putResp = await fetch(fileUrl, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Basic ${encoded}`,
-            'User-Agent': 'coc-timer-webdav',
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-          body: jsonStr,
-        });
+        try {
+          const putResp = await fetch(fileUrl, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Basic ${encoded}`,
+              'User-Agent': 'coc-timer-webdav',
+              'Content-Type': 'application/json; charset=utf-8',
+            },
+            body: jsonStr,
+          });
 
-        if (putResp.ok || putResp.status === 204 || putResp.status === 201) {
-          return jsonResponse(200, { success: true, action: 'updated' });
+          if (putResp.ok || putResp.status === 204 || putResp.status === 201) {
+            return jsonResponse(200, { success: true, action: 'updated' });
+          }
+
+          // 尝试读取错误详情
+          let errDetail = '';
+          try { errDetail = (await putResp.text()).substring(0, 500); } catch (e) {}
+          return jsonResponse(500, {
+            success: false,
+            error: `上传失败 (${putResp.status})`,
+            detail: errDetail,
+          });
+        } catch (fetchErr) {
+          return jsonResponse(500, {
+            success: false,
+            error: `上传请求异常: ${fetchErr.message}`,
+          });
         }
-
-        const errText = await putResp.text();
-        return jsonResponse(500, {
-          success: false,
-          error: `上传失败 (${putResp.status})`,
-          detail: errText.substring(0, 500),
-        });
       }
 
       case 'restore': {
