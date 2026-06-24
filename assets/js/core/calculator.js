@@ -207,10 +207,10 @@ function getCategoryDenominators(data) {
     const buildings = data.buildings || [];
     const buildings2 = data.buildings2 || [];
     return {
-        buildings: buildings.filter(b => b.data === 1000015 || b.data === 1000064).length,
-        lab: buildings.filter(b => b.data === 1000007).length,
-        pets: buildings.filter(b => b.data === 1000068).length,
-        buildings2: buildings2.filter(b => b.data === 1000034 || b.data === 1000047 || b.data === 1000078).length,
-        units2: buildings2.filter(b => b.data === 1000046).length
+        buildings: buildings.filter(b => b.data === 1000015 || b.data === 1000064).reduce((s, b) => s + (b.cnt || 1), 0),
+        lab: buildings.filter(b => b.data === 1000007).reduce((s, b) => s + (b.cnt || 1), 0),
+        pets: buildings.filter(b => b.data === 1000068).reduce((s, b) => s + (b.cnt || 1), 0),
+        buildings2: buildings2.filter(b => b.data === 1000034 || b.data === 1000047 || b.data === 1000078).reduce((s, b) => s + (b.cnt || 1), 0),
+        units2: buildings2.filter(b => b.data === 1000046).reduce((s, b) => s + (b.cnt || 1), 0)
     };
 }
