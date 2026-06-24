@@ -201,3 +201,16 @@ function getItemCategory(item) {
 }
 
 function getItemName(id) { return ITEM_NAMES[id?.toString()] || `未知(${id})`; }
+
+// ===== 分母：各类别可升级建筑的总数 =====
+function getCategoryDenominators(data) {
+    const buildings = data.buildings || [];
+    const buildings2 = data.buildings2 || [];
+    return {
+        buildings: buildings.filter(b => b.data === 1000015 || b.data === 1000064).length,
+        lab: buildings.filter(b => b.data === 1000007).length,
+        pets: buildings.filter(b => b.data === 1000068).length,
+        buildings2: buildings2.filter(b => b.data === 1000034 || b.data === 1000047 || b.data === 1000078).length,
+        units2: buildings2.filter(b => b.data === 1000046).length
+    };
+}

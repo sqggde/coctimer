@@ -2,6 +2,7 @@
 function displayUpgradingItems(items, data) {
     Object.values(categoryContainers).forEach(c => { if(c) c.innerHTML = ''; });
     const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
+    const denominators = getCategoryDenominators(data);
     if (items.length === 0) {
         showEmptyState('当前账号没有正在升级的项目');
         upgradesContainer.classList.add('hidden');
@@ -56,7 +57,7 @@ function displayUpgradingItems(items, data) {
     for (let g of Object.keys(counts)) {
         const badge = categoryCountBadges[g];
         const parentDiv = categoryContainers[g]?.parentElement;
-        if (counts[g] > 0) { if(badge) { badge.textContent = counts[g]; badge.classList.remove('hidden'); } if(parentDiv) parentDiv.classList.remove('hidden'); }
+        if (counts[g] > 0) { if(badge) { badge.textContent = counts[g] + '/' + denominators[g]; badge.classList.remove('hidden'); } if(parentDiv) parentDiv.classList.remove('hidden'); }
         else { if(badge) badge.classList.add('hidden'); if(parentDiv) parentDiv.classList.add('hidden'); }
     }
     upgradesContainer.classList.remove('hidden');
