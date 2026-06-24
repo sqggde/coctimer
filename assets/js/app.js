@@ -71,8 +71,8 @@ const darkModeToggle = document.getElementById('dark-mode-toggle');
 const darkModeAutoBtn = document.getElementById('dark-mode-auto-btn');
 
 // ===== 初始化 =====
-function init() {
-    checkSingleInstance();
+async function init() {
+    await checkSingleInstance();
     loadSettings();
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
