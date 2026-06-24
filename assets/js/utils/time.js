@@ -1,6 +1,6 @@
 // ===== 时间工具 =====
 function formatRemainingTime(sec) {
-    if (sec < 0) return "已完成";
+    if (sec <= 0) return "已完成";
     const d = Math.floor(sec/86400);
     const h = Math.floor((sec%86400)/3600);
     const m = Math.floor((sec%3600)/60);
