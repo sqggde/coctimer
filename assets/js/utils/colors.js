@@ -1,16 +1,15 @@
 // ===== 颜色优先级系统 =====
 function getColorPriority(sec) {
-    if (sec <= 0) return 6;
-    if (sec < 1800) return 5;
-    if (sec < 3600) return 4;
-    if (sec < 14400) return 3;
-    if (sec < 28800) return 2;
-    if (sec < 86400) return 1;
+    if (sec <= 0) return 5;
+    if (sec < 1800) return 4;
+    if (sec < 3600) return 3;
+    if (sec < 14400) return 2;
+    if (sec < 28800) return 1;
     return 0;
 }
 
 function priorityToColorClass(priority, defaultColor) {
-    const map = { 6:'text-success', 5:'text-danger_red', 4:'text-warning_orangered', 3:'text-warning_orange', 2:'text-warning_yellow', 1:'text-warning', 0: defaultColor || 'text-primary' };
+    const map = { 5:'text-success', 4:'text-danger_red', 3:'text-warning_orangered', 2:'text-warning_orange', 1:'text-warning_yellow', 0: defaultColor || 'text-gray-500' };
     return map[priority] || defaultColor || 'text-primary';
 }
 

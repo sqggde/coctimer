@@ -184,7 +184,7 @@ function updateCategorySummary(counts, denominators) {
         if (badgeEl) {
             const c = counts[key] || 0;
             const d = denominators[key] || 0;
-            const isDismissed = sessionDismissedCategories[key] || (settings.dismissedCategories && settings.dismissedCategories[key]);
+            const isDismissed = (sessionDismissedCategories[currentAccount] && sessionDismissedCategories[currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[currentAccount] && settings.dismissedCategories[currentAccount][key]);
             badgeEl.style.opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
         }
     });
@@ -214,48 +214,54 @@ function initSummaryCardInteractions() {
         });
     });
 
-    // 长按图标3秒 → 取消屏蔽
-    card.querySelectorAll('img').forEach(img => {
-        let pressTimer = null;
-        const start = () => {
-            pressTimer = setTimeout(() => {
-                const parent = img.closest('.flex.flex-col');
+    // 连续点击3次图标 → 取消屏蔽
+    // 监听 img 本身及其父容器 div.relative（图标区域）
+    card.querySelectorAll('.flex.flex-col.items-center > div.relative').forEach(wrapper => {
+        let clickCount = 0;
+        let clickTimer = null;
+        wrapper.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    clickCount = 0;
+                }, 1000);
+            }
+            if (clickCount >= 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+                const parent = wrapper.closest('.flex.flex-col');
                 if (!parent) return;
                 const textEl = parent.querySelector('[id^="summary-"]:not([id^="summary-badge-"])');
                 if (!textEl) return;
                 const key = textEl.id.replace('summary-', '');
-                const isDismissed = sessionDismissedCategories[key] || (settings.dismissedCategories && settings.dismissedCategories[key]);
+                const isDismissed = (sessionDismissedCategories[currentAccount] && sessionDismissedCategories[currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[currentAccount] && settings.dismissedCategories[currentAccount][key]);
                 if (!isDismissed) return;
                 undismissTargetKey = key;
                 document.getElementById('undismiss-modal').classList.remove('hidden');
-            }, 3000);
-        };
-        const end = () => { clearTimeout(pressTimer); };
-        img.addEventListener('mousedown', start);
-        img.addEventListener('mouseup', end);
-        img.addEventListener('mouseleave', end);
-        img.addEventListener('touchstart', start, { passive: true });
-        img.addEventListener('touchend', end);
-        img.addEventListener('touchcancel', end);
+            }
+        });
     });
 }
 
 // 弹窗按钮事件
 document.getElementById('dismiss-session-btn')?.addEventListener('click', () => {
-    if (dismissTargetKey) {
-        sessionDismissedCategories[dismissTargetKey] = true;
-        if (currentAccount) refreshCurrentAccountDisplay();
+    if (dismissTargetKey && currentAccount) {
+        if (!sessionDismissedCategories[currentAccount]) sessionDismissedCategories[currentAccount] = {};
+        sessionDismissedCategories[currentAccount][dismissTargetKey] = true;
+        refreshCurrentAccountDisplay();
     }
     document.getElementById('dismiss-modal').classList.add('hidden');
     dismissTargetKey = null;
 });
 document.getElementById('dismiss-forever-btn')?.addEventListener('click', () => {
-    if (dismissTargetKey) {
-        sessionDismissedCategories[dismissTargetKey] = true;
+    if (dismissTargetKey && currentAccount) {
+        if (!sessionDismissedCategories[currentAccount]) sessionDismissedCategories[currentAccount] = {};
+        sessionDismissedCategories[currentAccount][dismissTargetKey] = true;
         if (!settings.dismissedCategories) settings.dismissedCategories = {};
-        settings.dismissedCategories[dismissTargetKey] = true;
+        if (!settings.dismissedCategories[currentAccount]) settings.dismissedCategories[currentAccount] = {};
+        settings.dismissedCategories[currentAccount][dismissTargetKey] = true;
         saveSettings();
-        if (currentAccount) refreshCurrentAccountDisplay();
+        refreshCurrentAccountDisplay();
     }
     document.getElementById('dismiss-modal').classList.add('hidden');
     dismissTargetKey = null;
@@ -273,11 +279,11 @@ document.getElementById('dismiss-modal')?.addEventListener('click', (e) => {
 
 // 取消屏蔽弹窗按钮事件
 document.getElementById('undismiss-confirm-btn')?.addEventListener('click', () => {
-    if (undismissTargetKey) {
-        delete sessionDismissedCategories[undismissTargetKey];
-        if (settings.dismissedCategories) delete settings.dismissedCategories[undismissTargetKey];
+    if (undismissTargetKey && currentAccount) {
+        if (sessionDismissedCategories[currentAccount]) delete sessionDismissedCategories[currentAccount][undismissTargetKey];
+        if (settings.dismissedCategories && settings.dismissedCategories[currentAccount]) delete settings.dismissedCategories[currentAccount][undismissTargetKey];
         saveSettings();
-        if (currentAccount) refreshCurrentAccountDisplay();
+        refreshCurrentAccountDisplay();
     }
     document.getElementById('undismiss-modal').classList.add('hidden');
     undismissTargetKey = null;

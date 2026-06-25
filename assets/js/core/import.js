@@ -8,8 +8,9 @@ function quickImportJsonData() {
         try {
             const data = JSON.parse(text.trim());
             if (!data.timestamp) throw new Error('缺少timestamp字段');
-            sessionDismissedCategories = {};
             const tag = data.tag || `账号_${Date.now()}`;
+            // 清除该账号的单次屏蔽记录
+            if (sessionDismissedCategories[tag]) delete sessionDismissedCategories[tag];
             accounts[tag] = data;
             if (!accountNotes[tag]) delete accountNotes[tag];
             addAccountToOrder(tag);
@@ -42,8 +43,9 @@ function parseJsonData() {
         try {
             const data = JSON.parse(text);
             if (!data.timestamp) throw new Error('缺少timestamp');
-            sessionDismissedCategories = {};
             const tag = data.tag || `账号_${Date.now()}`;
+            // 清除该账号的单次屏蔽记录
+            if (sessionDismissedCategories[tag]) delete sessionDismissedCategories[tag];
             accounts[tag] = data;
             if (!accountNotes[tag]) delete accountNotes[tag];
             addAccountToOrder(tag);
