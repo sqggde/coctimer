@@ -23,3 +23,12 @@ codegraph-win32-x64.zip
 # 本地文档（不上传 GitHub）
 CARD_SUMMARY.md
 SPLIT_SUMMARY.md
+# 代码分析工具
+.codegraph/
+
+# 用户脚本
+github-chinese-fixed.user.js
+
+# 文档
+CLOUD_BACKUP_SUMMARY.md
+CLOUDFLARE_DEPLOY.md
