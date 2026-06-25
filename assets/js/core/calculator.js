@@ -192,8 +192,8 @@ function extractUpgradingItems(data, nowTimestamp = Math.floor(Date.now() / 1000
 
 function getItemCategory(item) {
     const cat = item.category;
-    if (cat === "buildings" || cat === "heroes" || cat === "traps" || (cat === "buildings2" && item.isRefiningTable)) return "buildings";
-    if (cat === "units" || cat === "spells" || cat === "siege_machines" || cat === "guardians") return "lab";
+    if (cat === "buildings" || cat === "heroes" || cat === "traps" || cat === "guardians" || (cat === "buildings2" && item.isRefiningTable)) return "buildings";
+    if (cat === "units" || cat === "spells" || cat === "siege_machines") return "lab";
     if (cat === "pets") return "pets";
     if (cat === "buildings2" || cat === "heroes2" || cat === "traps2") return "buildings2";
     if (cat === "units2") return "units2";
