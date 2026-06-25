@@ -60,6 +60,7 @@ function switchAccount(accountTag) {
     const upgradingItems = extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
     updateDataInfo(data);
     displayUpgradingItems(upgradingItems, data);
+    initSummaryCardInteractions();
     updateMainTitle();
     applySettings();
     accountActionsDiv.classList.remove('hidden');

@@ -1,12 +1,19 @@
-// ===== UI 渲染 — 更新页面展示 =====
+﻿// ===== UI 娓叉煋 鈥?? 鏇存柊椤甸潰灞曠ず =====
 function displayUpgradingItems(items, data) {
     Object.values(categoryContainers).forEach(c => { if(c) c.innerHTML = ''; });
     const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
     const denominators = getCategoryDenominators(data);
     if (items.length === 0) {
-        showEmptyState('当前账号没有正在升级的项目');
-        upgradesContainer.classList.add('hidden');
         upgradesCountBadge.classList.add('hidden');
+        // 鍗充娇娌℃湁鍗囩骇椤圭洰锛屼粛鐒舵樉绀哄悇鍒嗙被琛岋紙0/鍒嗘瘝锛??
+        for (let g of Object.keys(counts)) {
+            const badge = categoryCountBadges[g];
+            const parentDiv = categoryContainers[g]?.parentElement;
+            if(badge) { badge.textContent = '0/' + denominators[g]; badge.classList.remove('hidden'); }
+            if(parentDiv) parentDiv.classList.remove('hidden');
+        }
+        upgradesContainer.classList.remove('hidden');
+        emptyState.classList.add('hidden');
         return;
     }
     upgradesCountBadge.textContent = items.length;
@@ -57,9 +64,10 @@ function displayUpgradingItems(items, data) {
     for (let g of Object.keys(counts)) {
         const badge = categoryCountBadges[g];
         const parentDiv = categoryContainers[g]?.parentElement;
-        if (counts[g] > 0) { if(badge) { badge.textContent = counts[g] + '/' + denominators[g]; badge.classList.remove('hidden'); } if(parentDiv) parentDiv.classList.remove('hidden'); }
-        else { if(badge) badge.classList.add('hidden'); if(parentDiv) parentDiv.classList.add('hidden'); }
+        if(badge) { badge.textContent = (counts[g] || 0) + '/' + denominators[g]; badge.classList.remove('hidden'); } if(parentDiv) parentDiv.classList.remove('hidden');
     }
+    // 更新分类概览卡片
+    updateCategorySummary(counts, denominators);
     upgradesContainer.classList.remove('hidden');
     emptyState.classList.add('hidden');
 }
@@ -159,3 +167,128 @@ function showJsonModal() {
     jsonModal.classList.remove('hidden');
     jsonInput.focus();
 }
+
+// ===== 鍒嗙被姒傝??鍗＄墖 + 灞忚斀閫昏緫 =====
+let sessionDismissedCategories = {};
+
+function updateCategorySummary(counts, denominators) {
+    const card = document.getElementById('category-summary-card');
+    if (!card) return;
+    card.classList.remove('hidden');
+    const keys = ['buildings', 'lab', 'pets', 'buildings2', 'units2'];
+    keys.forEach(key => {
+        const el = document.getElementById('summary-' + key);
+        if (el) el.textContent = (counts[key] || 0) + '/' + (denominators[key] || 0);
+        // 绾㈢偣锛氬垎瀛??<鍒嗘瘝 涓?? 鏈????灞忚斀
+        const badgeEl = document.getElementById('summary-badge-' + key);
+        if (badgeEl) {
+            const c = counts[key] || 0;
+            const d = denominators[key] || 0;
+            const isDismissed = sessionDismissedCategories[key] || (settings.dismissedCategories && settings.dismissedCategories[key]);
+            badgeEl.style.opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
+        }
+    });
+}
+
+// ===== 灞忚斀寮圭獥閫昏緫 =====
+let dismissTargetKey = null;
+let undismissTargetKey = null;
+let summaryCardInitialized = false;
+
+function initSummaryCardInteractions() {
+    if (summaryCardInitialized) return;
+    summaryCardInitialized = true;
+    const card = document.getElementById('category-summary-card');
+    if (!card) return;
+
+    // 点击数字区域 → 弹出屏蔽选项（仅当红点可见时）
+    card.querySelectorAll('[id^="summary-"]').forEach(el => {
+        if (el.id.startsWith('summary-badge-')) return;
+        if (!el.id.startsWith('summary-')) return;
+        el.addEventListener('click', () => {
+            const key = el.id.replace('summary-', '');
+            const badgeEl = document.getElementById('summary-badge-' + key);
+            if (!badgeEl || badgeEl.style.opacity === '0') return;
+            dismissTargetKey = key;
+            document.getElementById('dismiss-modal').classList.remove('hidden');
+        });
+    });
+
+    // 长按图标3秒 → 取消屏蔽
+    card.querySelectorAll('img').forEach(img => {
+        let pressTimer = null;
+        const start = () => {
+            pressTimer = setTimeout(() => {
+                const parent = img.closest('.flex.flex-col');
+                if (!parent) return;
+                const textEl = parent.querySelector('[id^="summary-"]:not([id^="summary-badge-"])');
+                if (!textEl) return;
+                const key = textEl.id.replace('summary-', '');
+                const isDismissed = sessionDismissedCategories[key] || (settings.dismissedCategories && settings.dismissedCategories[key]);
+                if (!isDismissed) return;
+                undismissTargetKey = key;
+                document.getElementById('undismiss-modal').classList.remove('hidden');
+            }, 3000);
+        };
+        const end = () => { clearTimeout(pressTimer); };
+        img.addEventListener('mousedown', start);
+        img.addEventListener('mouseup', end);
+        img.addEventListener('mouseleave', end);
+        img.addEventListener('touchstart', start, { passive: true });
+        img.addEventListener('touchend', end);
+        img.addEventListener('touchcancel', end);
+    });
+}
+
+// 弹窗按钮事件
+document.getElementById('dismiss-session-btn')?.addEventListener('click', () => {
+    if (dismissTargetKey) {
+        sessionDismissedCategories[dismissTargetKey] = true;
+        if (currentAccount) refreshCurrentAccountDisplay();
+    }
+    document.getElementById('dismiss-modal').classList.add('hidden');
+    dismissTargetKey = null;
+});
+document.getElementById('dismiss-forever-btn')?.addEventListener('click', () => {
+    if (dismissTargetKey) {
+        sessionDismissedCategories[dismissTargetKey] = true;
+        if (!settings.dismissedCategories) settings.dismissedCategories = {};
+        settings.dismissedCategories[dismissTargetKey] = true;
+        saveSettings();
+        if (currentAccount) refreshCurrentAccountDisplay();
+    }
+    document.getElementById('dismiss-modal').classList.add('hidden');
+    dismissTargetKey = null;
+});
+document.getElementById('dismiss-cancel-btn')?.addEventListener('click', () => {
+    document.getElementById('dismiss-modal').classList.add('hidden');
+    dismissTargetKey = null;
+});
+document.getElementById('dismiss-modal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('dismiss-modal')) {
+        document.getElementById('dismiss-modal').classList.add('hidden');
+        dismissTargetKey = null;
+    }
+});
+
+// 取消屏蔽弹窗按钮事件
+document.getElementById('undismiss-confirm-btn')?.addEventListener('click', () => {
+    if (undismissTargetKey) {
+        delete sessionDismissedCategories[undismissTargetKey];
+        if (settings.dismissedCategories) delete settings.dismissedCategories[undismissTargetKey];
+        saveSettings();
+        if (currentAccount) refreshCurrentAccountDisplay();
+    }
+    document.getElementById('undismiss-modal').classList.add('hidden');
+    undismissTargetKey = null;
+});
+document.getElementById('undismiss-cancel-btn')?.addEventListener('click', () => {
+    document.getElementById('undismiss-modal').classList.add('hidden');
+    undismissTargetKey = null;
+});
+document.getElementById('undismiss-modal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('undismiss-modal')) {
+        document.getElementById('undismiss-modal').classList.add('hidden');
+        undismissTargetKey = null;
+    }
+});
