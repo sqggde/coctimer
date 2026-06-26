@@ -1,4 +1,4 @@
-/**
+﻿/**
  * COC Timer 版本检查 — Cloudflare Pages Function
  *
  * GET /api/version — 返回最新版本信息，客户端比较 versionCode 判断是否需要更新
@@ -12,8 +12,8 @@ const CURRENT_VERSION = {
   versionCode: 16,
   versionName: "1.2.2",
   directDownloadUrl: "https://github.com/sqggde/coctimer/releases/download/v1.2.2/1.2.2.apk",
-  baiduUrl: "https://pan.baidu.com/s/1Vdx6MyM2K7ZyfxCeFxqrWA?pwd=5io6",
-  quarkUrl: "https://pan.quark.cn/s/279f7a166c2b",
+  baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
+  quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
   changelog: "- 新增WebDAV云备份(支持坚果云等)\n- 新增选择应用图标\n- 新增后台隐身运行\n- 新增屏蔽夜世界\n- WebDAV改用OkHttp库\n- 通知格式优化(显示账号名+建筑名+等级)\n- 震感反馈增强"
 };
 
