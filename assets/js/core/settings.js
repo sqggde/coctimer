@@ -1,11 +1,11 @@
 // ===== 设置管理 =====
-let settings = { hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false, dismissedCategories: {} };
+let settings = { hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false, dismissedCategories: {}, builderBoostMode24: {} };
 
 function loadSettings() {
     try {
         const raw = localStorage.getItem(SETTINGS_KEY);
-        if (raw) settings = { ...{ hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false }, ...JSON.parse(raw) };
-    } catch (e) { settings = { hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false, dismissedCategories: {} }; }
+        if (raw) settings = { ...{ hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false, builderBoostMode24: {} }, ...JSON.parse(raw) };
+    } catch (e) { settings = { hideDataInfo: false, chestDetect: true, nightMode: false, sleepStart: '22:00', sleepEnd: '08:00', darkMode: false, darkModeAuto: false, dismissedCategories: {}, builderBoostMode24: {} }; }
 }
 
 function saveSettings() {

@@ -1,4 +1,35 @@
-﻿// ===== UI 娓叉煋 鈥?? 鏇存柊椤甸潰灞曠ず =====
+﻿/**
+ * 获取持续指派项目的阶段图标（⚡ 加速 / ⌛ 等待）
+ */
+function getItemPhaseIcon(item, data) {
+    if (item.helper_recurrent !== true) return '';
+    const helpers = data.helpers || [];
+    const timestamp = data.timestamp || Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - timestamp;
+
+    let helper;
+    if (["buildings", "heroes", "traps", "guardians"].includes(item.category)) {
+        helper = helpers.find(h => h.data === 124000000 || h.data === 93000000);
+    } else if (["units", "siege_machines", "spells"].includes(item.category)) {
+        helper = helpers.find(h => h.data === 124000001 || h.data === 93000001);
+    }
+    if (!helper) return '';
+
+    const initialCooldown = helper.helper_cooldown || 82800;
+    if (elapsed < initialCooldown) {
+        // 还在初始冷却，未进入循环 — 显示沙漏
+        return ' <span title="等待助手冷却">⌛</span>';
+    }
+
+    const cycleElapsed = (elapsed - initialCooldown) % 82800;
+    if (cycleElapsed < 3600) {
+        return ' <span title="助手加速中">⚡</span>';
+    }
+    return ' <span title="助手冷却中">⌛</span>';
+}
+
+// ===== UI 渲染 — 更新页面展示 =====
 function displayUpgradingItems(items, data) {
     Object.values(categoryContainers).forEach(c => { if(c) c.innerHTML = ''; });
     const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
@@ -57,7 +88,8 @@ function displayUpgradingItems(items, data) {
                     }
                 });
             }
-            card.innerHTML = `<div class="flex items-center"><div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-3"><i class="fa ${icon} text-primary text-sm"></i></div><div><h3 class="font-medium text-gray-800" style="font-size:13px;">${escapeHtml(name)}</h3><p class="text-xs text-gray-500">${originCat} · 等级 ${item.lvl} → ${item.lvl+1}</p></div></div><div class="text-right"><div class="text-sm ${textColor}" style="font-size:14px;">${remainFmt}</div><div class="text-xs text-gray-500">${doneTimeFmt}</div></div>`;
+            const phaseIcon = getItemPhaseIcon(item, data);
+            card.innerHTML = `<div class="flex items-center"><div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mr-3"><i class="fa ${icon} text-primary text-sm"></i></div><div><h3 class="font-medium text-gray-800" style="font-size:13px;">${escapeHtml(name)}${phaseIcon}</h3><p class="text-xs text-gray-500">${originCat} · 等级 ${item.lvl} → ${item.lvl+1}</p></div></div><div class="text-right"><div class="text-sm ${textColor}" style="font-size:14px;">${remainFmt}</div><div class="text-xs text-gray-500">${doneTimeFmt}</div></div>`;
             if (categoryContainers[g]) categoryContainers[g].appendChild(card);
         });
     }
@@ -75,11 +107,36 @@ function displayUpgradingItems(items, data) {
 let updateTimer = null;
 let sortTimer = null;
 
+/**
+ * 更新国服 Builder Boost 切换开关（10x / 24x）
+ */
+function updateBuilderBoostToggle(data) {
+    const toggle = document.getElementById('builder-boost-toggle');
+    const btn = document.getElementById('builder-boost-toggle-btn');
+    if (!toggle || !btn) return;
+
+    // 检测国服：工人助手 ID === 124000000
+    const helpers = data.helpers || [];
+    const isCn = helpers.some(h => h.data === 124000000);
+    if (!isCn) {
+        toggle.classList.add('hidden');
+        return;
+    }
+
+    toggle.classList.remove('hidden');
+    const is24Mode = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+    btn.textContent = is24Mode ? '24x' : '10x';
+    btn.className = is24Mode
+        ? 'text-xs font-medium px-2 py-0.5 rounded-full border border-orange-500 text-orange-500 bg-orange-50 hover:bg-orange-100 transition-all duration-200'
+        : 'text-xs font-medium px-2 py-0.5 rounded-full border border-blue-500 text-blue-500 bg-blue-50 hover:bg-blue-100 transition-all duration-200';
+}
+
 function refreshCurrentAccountDisplay() {
     if (!currentAccount || !accounts[currentAccount]) return;
     const data = accounts[currentAccount];
     const upgradingItems = extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
     displayUpgradingItems(upgradingItems, data);
+    updateBuilderBoostToggle(data);
     updateAllAccountTabColors();
     updateMainTitle();
 }
@@ -94,11 +151,6 @@ function updateDataInfo(data) {
     if (chestEl) {
         const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);
         chestEl.classList.toggle('hidden', !hasChest);
-    }
-    const zongziEl = document.getElementById('zongzi-chest-notification');
-    if (zongziEl) {
-        const hasZongzi = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000143 && o.cnt > 0);
-        zongziEl.classList.toggle('hidden', !hasZongzi);
     }
 }
 

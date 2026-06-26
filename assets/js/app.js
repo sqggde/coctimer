@@ -90,6 +90,18 @@ async function init() {
     helperBtn.addEventListener('click', openHelperModal);
     helperCloseBtn.addEventListener('click', closeHelperModal);
     helperModal.addEventListener('click', (e) => { if (e.target === helperModal) closeHelperModal(); });
+
+    // Builder Boost 国服 10x/24x 切换
+    document.getElementById('builder-boost-toggle-btn')?.addEventListener('click', () => {
+        if (!currentAccount || !accounts[currentAccount]) return;
+        const data = accounts[currentAccount];
+        if (!settings.builderBoostMode24) settings.builderBoostMode24 = {};
+        const current = settings.builderBoostMode24[data.tag] || false;
+        settings.builderBoostMode24[data.tag] = !current;
+        saveSettings();
+        refreshCurrentAccountDisplay();
+    });
+
     settingsBtn.addEventListener('click', showSettingsModal);
     settingsCloseBtn.addEventListener('click', hideSettingsModal);
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) hideSettingsModal(); });
@@ -167,12 +179,6 @@ async function init() {
             const data = accounts[currentAccount];
             const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);
             chestEl.classList.toggle('hidden', !hasChest);
-        }
-        const zongziEl = document.getElementById('zongzi-chest-notification');
-        if (zongziEl && currentAccount && accounts[currentAccount]) {
-            const data = accounts[currentAccount];
-            const hasZongzi = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000143 && o.cnt > 0);
-            zongziEl.classList.toggle('hidden', !hasZongzi);
         }
     });
 

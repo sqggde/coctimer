@@ -1,159 +1,230 @@
-// ========== 核心修复：计算完成时间（变量声明完备） ==========
+// ========== 核心修复：计算完成时间（支持循环助手，统一 helper_timer 逻辑） ==========
 function calculateCompletionTimestamp(item, data) {
     const { timer, category } = item;
     const { timestamp } = data;
     let completionTimestamp = timestamp + timer;
 
-    // 计算加速效果
-    const boosts = data.boosts || {};
-    const helpers = data.helpers || [];
-    const workerHelper = helpers.find(h => h.data === 93000000 || h.data === 124000000);
-    const labHelper = helpers.find(h => h.data === 93000001 || h.data === 124000001);
-    const itemHelperTimer = item.helper_timer || 0;
+    // ---------- 新规则：循环助手（helper_recurrent === true） ----------
+    if (item.helper_recurrent === true) {
+        const supportedCategories = ["buildings", "heroes", "traps", "guardians", "units", "siege_machines", "spells"];
+        if (!supportedCategories.includes(category)) {
+            return timestamp + timer; // 不支持的类别直接回退
+        }
 
-    // 根据不同类别应用不同的加速规则
-    switch (category) {
-        case "buildings":
-        case "heroes":
-        case "traps":
-        case "guardians":
-            // 第一步：计算helper_timer（与boost道具同样的逻辑：两种算法取最小值）
-            if (itemHelperTimer > 0 && workerHelper) {
-                const helperLevel = workerHelper.lvl;
-                const helperReduction = itemHelperTimer * helperLevel;           // 固定减 (倍数-1)
-                const helperReduction2 = itemHelperTimer * (helperLevel + 1);   // 倍速阈值 (实际倍数)
-                let completionTimestamp2 = completionTimestamp - helperReduction;
+        // 1. 初始剩余时间 = timer
+        let remaining = timer;
+        const boosts = data.boosts || {};
+        const helpers = data.helpers || [];
 
-                // 如果剩余时间小于等于倍速阈值，改用加速倍数计算
-                if (completionTimestamp - timestamp <= helperReduction2) {
-                    completionTimestamp2 = timestamp + Math.ceil((completionTimestamp - timestamp) / (helperLevel + 1));
+        // 获取对应的助手
+        let workerHelper = null;
+        let labHelper = null;
+        if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
+            workerHelper = helpers.find(h => h.data === 124000000 || h.data === 93000000);
+        } else if (["units", "siege_machines", "spells"].includes(category)) {
+            labHelper = helpers.find(h => h.data === 124000001 || h.data === 93000001);
+        }
+
+        // ---- 第一步：应用 helper_timer（统一新逻辑） ----
+        let helper = workerHelper || labHelper;
+        if (helper) {
+            const itemHelperTimer = item.helper_timer || 0;
+            if (itemHelperTimer > 0) {
+                const helperLevel = helper.lvl;
+                // 新增两个值
+                const helperReduction = itemHelperTimer * helperLevel;          // 净减少
+                const helperReduction2 = itemHelperTimer * (helperLevel + 1);   // 阈值
+                if (timer <= helperReduction2) {
+                    // 使用倍率
+                    remaining = Math.ceil(timer / (helperLevel + 1));
+                } else {
+                    // 减去净减少
+                    remaining = timer - helperReduction;
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
             }
+        }
 
-            // 第二步：计算boosts
+        // ---- 第二步：应用一次性药水（与原逻辑完全一致） ----
+        if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
             if (boosts.builder_boost) {
-                const boostReduction = boosts.builder_boost * 9;
-                const boostReduction2 = boosts.builder_boost * 10;
-                let completionTimestamp2 = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    completionTimestamp2 = timestamp + Math.ceil((completionTimestamp - timestamp) / 10);
+                const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+                const mult = is24 ? 24 : 10;
+                const boostReduction = boosts.builder_boost * (mult - 1);
+                const boostReduction2 = boosts.builder_boost * mult;
+                let newRemaining = remaining - boostReduction;
+                if (remaining <= boostReduction2) {
+                    newRemaining = Math.ceil(remaining / mult);
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
+                remaining = Math.min(remaining, newRemaining);
             } else if (boosts.builder_consumable) {
-                // 工人大餐先尝试减少固定时间，再使用2倍加速
                 const boostReduction = boosts.builder_consumable;
                 const boostReduction2 = boosts.builder_consumable * 2;
-                let completionTimestamp2 = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    const currentRemaining = completionTimestamp - timestamp;
-                    const boostedTime = Math.ceil(currentRemaining / 2);
-                    completionTimestamp2 = timestamp + boostedTime;
+                let newRemaining = remaining - boostReduction;
+                if (remaining <= boostReduction2) {
+                    newRemaining = Math.ceil(remaining / 2);
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
+                remaining = Math.min(remaining, newRemaining);
             }
-            break;
-
-        case "units":
-        case "siege_machines":
-        case "spells":
-            // 第一步：计算helper_timer（与boost道具同样的逻辑：两种算法取最小值）
-            if (itemHelperTimer > 0 && labHelper) {
-                const helperLevel = labHelper.lvl;
-                const helperReduction = itemHelperTimer * helperLevel;           // 固定减 (倍数-1)
-                const helperReduction2 = itemHelperTimer * (helperLevel + 1);   // 倍速阈值 (实际倍数)
-                let completionTimestamp2 = completionTimestamp - helperReduction;
-
-                // 如果剩余时间小于等于倍速阈值，改用加速倍数计算
-                if (completionTimestamp - timestamp <= helperReduction2) {
-                    completionTimestamp2 = timestamp + Math.ceil((completionTimestamp - timestamp) / (helperLevel + 1));
-                }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
-            }
-
-            // 第二步：计算boosts
+        } else if (["units", "siege_machines", "spells"].includes(category)) {
             if (boosts.lab_boost) {
                 const boostReduction = boosts.lab_boost * 23;
                 const boostReduction2 = boosts.lab_boost * 24;
-                let completionTimestamp2 = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    completionTimestamp2 = timestamp + Math.ceil((completionTimestamp - timestamp) / 24);
+                let newRemaining = remaining - boostReduction;
+                if (remaining <= boostReduction2) {
+                    newRemaining = Math.ceil(remaining / 24);
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
+                remaining = Math.min(remaining, newRemaining);
             } else if (boosts.lab_consumable) {
                 const boostReduction = boosts.lab_consumable * 3;
                 const boostReduction2 = boosts.lab_consumable * 4;
-                let completionTimestamp2 = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    const currentRemaining = completionTimestamp - timestamp;
-                    const boostedTime = Math.ceil(currentRemaining / 4);
-                    completionTimestamp2 = timestamp + boostedTime;
+                let newRemaining = remaining - boostReduction;
+                if (remaining <= boostReduction2) {
+                    newRemaining = Math.ceil(remaining / 4);
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, completionTimestamp2);
+                remaining = Math.min(remaining, newRemaining);
             }
-            break;
+        }
 
-        case "pets":
-            // 计算boosts
-            if (boosts.pet_boost) {
-                const boostReduction = boosts.pet_boost * 23;
-                const boostReduction2 = boosts.pet_boost * 24;
-                let petCompletionTimestamp = completionTimestamp - boostReduction;
+        if (remaining <= 0) {
+            return timestamp;
+        }
 
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    petCompletionTimestamp = timestamp + Math.ceil((completionTimestamp - timestamp) / 24);
+        // ---- 第三步：循环模拟周期性助手（冷却 → 加速1小时 → 等待22小时） ----
+        let currentTime = timestamp;
+        if (!helper) {
+            return currentTime + remaining;
+        }
+
+        const helperLevel = helper.lvl || 0;
+        const boostTime = 3600;
+        const boostReduction = helperLevel * boostTime;
+        const boostReduction2 = (helperLevel + 1) * boostTime;
+        const waitTime = 22 * 3600;
+        let helperCooldown = helper.helper_cooldown || 0;
+
+        while (true) {
+            if (helperCooldown > 0) {
+                if (remaining <= helperCooldown) {
+                    return currentTime + remaining;
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, petCompletionTimestamp);
-            } else if (boosts.lab_consumable) {
-                // 研究浓汤先尝试减少固定时间，再使用4倍加速
-                const boostReduction = boosts.lab_consumable * 3;
-                const boostReduction2 = boosts.lab_consumable * 4;
-                let petCompletionTimestamp = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    petCompletionTimestamp = timestamp + Math.ceil((completionTimestamp - timestamp) / 4);
-                }
-
-                completionTimestamp = Math.min(completionTimestamp, petCompletionTimestamp);
+                remaining -= helperCooldown;
+                currentTime += helperCooldown;
+                helperCooldown = 0;
             }
-            break;
 
-        case "buildings2":
-        case "traps2":
-        case "heroes2":
-        case "units2":
-            // 计算clocktower_boost
-            if (boosts.clocktower_boost) {
-                const boostReduction = boosts.clocktower_boost * 9;
-                const boostReduction2 = boosts.clocktower_boost * 10;
-                let clockCompletionTimestamp = completionTimestamp - boostReduction;
-
-                // 如果结果剩余时间小于等于加速时间，使用加速倍数计算
-                if (completionTimestamp - timestamp <= boostReduction2) {
-                    clockCompletionTimestamp = timestamp + Math.ceil((completionTimestamp - timestamp) / 10);
+            if (remaining <= boostReduction2) {
+                return currentTime + Math.ceil(remaining / (helperLevel + 1));
+            } else {
+                remaining -= boostReduction2;
+                currentTime += boostTime;
+                if (remaining <= waitTime) {
+                    return currentTime + remaining;
+                } else {
+                    remaining -= waitTime;
+                    currentTime += waitTime;
                 }
-
-                completionTimestamp = Math.min(completionTimestamp, clockCompletionTimestamp);
             }
-            break;
+        }
     }
+
+    // ---------- 原有计算逻辑（修正 helper_timer 为统一逻辑） ----------
+    const boosts = data.boosts || {};
+    const helpers = data.helpers || [];
+    const workerHelper = helpers.find(h => h.data === 124000000 || h.data === 93000000);
+    const labHelper = helpers.find(h => h.data === 124000001 || h.data === 93000001);
+    const itemHelperTimer = item.helper_timer || 0;
+
+    // 修正：统一 helper_timer 逻辑
+    const applyHelperTimer = (remaining, helper) => {
+        if (!helper || itemHelperTimer <= 0) return remaining;
+        const helperLevel = helper.lvl;
+        const helperReduction = itemHelperTimer * helperLevel;
+        const helperReduction2 = itemHelperTimer * (helperLevel + 1);
+        if (remaining <= helperReduction2) {
+            return Math.ceil(remaining / (helperLevel + 1));
+        } else {
+            return remaining - helperReduction;
+        }
+    };
+
+    // 先应用 helper_timer
+    let remaining = timer;
+    if (["buildings", "heroes", "traps", "guardians"].includes(category) && workerHelper) {
+        remaining = applyHelperTimer(remaining, workerHelper);
+    } else if (["units", "siege_machines", "spells"].includes(category) && labHelper) {
+        remaining = applyHelperTimer(remaining, labHelper);
+    }
+
+    // 再应用药水
+    if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
+        if (boosts.builder_boost) {
+            const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+            const mult = is24 ? 24 : 10;
+            const boostReduction = boosts.builder_boost * (mult - 1);
+            const boostReduction2 = boosts.builder_boost * mult;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / mult);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        } else if (boosts.builder_consumable) {
+            const boostReduction = boosts.builder_consumable;
+            const boostReduction2 = boosts.builder_consumable * 2;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 2);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        }
+    } else if (["units", "siege_machines", "spells"].includes(category)) {
+        if (boosts.lab_boost) {
+            const boostReduction = boosts.lab_boost * 23;
+            const boostReduction2 = boosts.lab_boost * 24;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 24);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        } else if (boosts.lab_consumable) {
+            const boostReduction = boosts.lab_consumable * 3;
+            const boostReduction2 = boosts.lab_consumable * 4;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 4);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        }
+    } else if (category === "pets") {
+        if (boosts.pet_boost) {
+            const boostReduction = boosts.pet_boost * 23;
+            const boostReduction2 = boosts.pet_boost * 24;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 24);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        } else if (boosts.lab_consumable) {
+            const boostReduction = boosts.lab_consumable * 3;
+            const boostReduction2 = boosts.lab_consumable * 4;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 4);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        }
+    } else if (["buildings2", "traps2", "heroes2", "units2"].includes(category)) {
+        if (boosts.clocktower_boost) {
+            const boostReduction = boosts.clocktower_boost * 9;
+            const boostReduction2 = boosts.clocktower_boost * 10;
+            let newRemaining = remaining - boostReduction;
+            if (remaining <= boostReduction2) {
+                newRemaining = Math.ceil(remaining / 10);
+            }
+            remaining = Math.min(remaining, newRemaining);
+        }
+    }
+
+    completionTimestamp = timestamp + remaining;
     if (isNaN(completionTimestamp) || completionTimestamp < timestamp) return timestamp + timer;
     return completionTimestamp;
 }
