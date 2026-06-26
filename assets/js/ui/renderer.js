@@ -253,49 +253,42 @@ function initSummaryCardInteractions() {
     const card = document.getElementById('category-summary-card');
     if (!card) return;
 
-    // 点击数字区域 → 弹出屏蔽选项（仅当红点可见时）
-    card.querySelectorAll('[id^="summary-"]').forEach(el => {
-        if (el.id.startsWith('summary-badge-')) return;
-        if (!el.id.startsWith('summary-')) return;
-        el.addEventListener('click', () => {
-            const key = el.id.replace('summary-', '');
-            const badgeEl = document.getElementById('summary-badge-' + key);
-            if (!badgeEl || badgeEl.style.opacity === '0') return;
+    // 事件委托：点击卡片内任意位置，判断是否点击了图标区域
+    card.addEventListener('click', (e) => {
+        // 找到被点击元素所在的分列容器 .flex.flex-col.items-center
+        const col = e.target.closest('.flex.flex-col.items-center');
+        if (!col) return;
+
+        const textEl = col.querySelector('[id^="summary-"]:not([id^="summary-badge-"])');
+        if (!textEl) return;
+        const key = textEl.id.replace('summary-', '');
+        const isDismissed = (sessionDismissedCategories[currentAccount] && sessionDismissedCategories[currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[currentAccount] && settings.dismissedCategories[currentAccount][key]);
+
+        if (!isDismissed) {
             dismissTargetKey = key;
             document.getElementById('dismiss-modal').classList.remove('hidden');
-        });
-    });
-
-    // 连续点击3次图标 → 取消屏蔽
-    // 监听 img 本身及其父容器 div.relative（图标区域）
-    card.querySelectorAll('.flex.flex-col.items-center > div.relative').forEach(wrapper => {
-        let clickCount = 0;
-        let clickTimer = null;
-        wrapper.addEventListener('click', () => {
-            clickCount++;
-            if (clickCount === 1) {
-                clickTimer = setTimeout(() => {
-                    clickCount = 0;
-                }, 1000);
+        } else {
+            const clickKey = 'dismiss_click_' + key;
+            const now = Date.now();
+            const lastClick = parseInt(card.dataset[clickKey + '_time'] || '0');
+            const count = parseInt(card.dataset[clickKey + '_count'] || '0');
+            if (now - lastClick > 1000) {
+                card.dataset[clickKey + '_count'] = '1';
+            } else {
+                const newCount = count + 1;
+                card.dataset[clickKey + '_count'] = String(newCount);
+                if (newCount >= 3) {
+                    card.dataset[clickKey + '_count'] = '0';
+                    undismissTargetKey = key;
+                    document.getElementById('undismiss-modal').classList.remove('hidden');
+                    return;
+                }
             }
-            if (clickCount >= 3) {
-                clearTimeout(clickTimer);
-                clickCount = 0;
-                const parent = wrapper.closest('.flex.flex-col');
-                if (!parent) return;
-                const textEl = parent.querySelector('[id^="summary-"]:not([id^="summary-badge-"])');
-                if (!textEl) return;
-                const key = textEl.id.replace('summary-', '');
-                const isDismissed = (sessionDismissedCategories[currentAccount] && sessionDismissedCategories[currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[currentAccount] && settings.dismissedCategories[currentAccount][key]);
-                if (!isDismissed) return;
-                undismissTargetKey = key;
-                document.getElementById('undismiss-modal').classList.remove('hidden');
-            }
-        });
+            card.dataset[clickKey + '_time'] = String(now);
+        }
     });
 }
 
-// 弹窗按钮事件
 document.getElementById('dismiss-session-btn')?.addEventListener('click', () => {
     if (dismissTargetKey && currentAccount) {
         if (!sessionDismissedCategories[currentAccount]) sessionDismissedCategories[currentAccount] = {};
