@@ -9,12 +9,12 @@
  */
 
 const CURRENT_VERSION = {
-  versionCode: 16,
-  versionName: "1.2.2",
-  directDownloadUrl: "https://github.com/sqggde/coctimer/releases/download/v1.2.2/1.2.2.apk",
+  versionCode: 17,
+  versionName: "1.2.3",
+  directDownloadUrl: "https://github.com/sqggde/coctimer/releases/download/v1.2.3/1.2.3.apk",
   baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
   quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
-  changelog: "- 新增WebDAV云备份(支持坚果云等)\n- 新增选择应用图标\n- 新增后台隐身运行\n- 新增屏蔽夜世界\n- WebDAV改用OkHttp库\n- 通知格式优化(显示账号名+建筑名+等级)\n- 震感反馈增强"
+  changelog: "1.更新游戏内图标\n2.优化计算\n3.增加通知类型"
 };
 
 export async function onRequest(context) {
