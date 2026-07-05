@@ -1,19 +1,15 @@
 /**
- * COC Timer 版本检查 — Cloudflare Pages Function
+ * COC Timer 鐗堟湰妫€鏌?鈥?Cloudflare Pages Function
  *
- * GET /api/version — 返回最新版本信息，客户端比较 versionCode 判断是否需要更新
- * 发布新版本时，修改下方的字段并重新部署即可
- *
- * directDownloadUrl: 已移除（为可持续发展，后续只通过网盘提供下载）
- * baiduUrl / quarkUrl: 网盘下载链接，客户端点击后复制到剪贴板
- */
+ * GET /api/version 鈥?杩斿洖鏈€鏂扮増鏈俊鎭紝瀹㈡埛绔瘮杈?versionCode 鍒ゆ柇鏄惁闇€瑕佹洿鏂? * 鍙戝竷鏂扮増鏈椂锛屼慨鏀逛笅鏂圭殑瀛楁骞堕噸鏂伴儴缃插嵆鍙? *
+ * directDownloadUrl: 宸茬Щ闄わ紙涓哄彲鎸佺画鍙戝睍锛屽悗缁彧閫氳繃缃戠洏鎻愪緵涓嬭浇锛? * baiduUrl / quarkUrl: 缃戠洏涓嬭浇閾炬帴锛屽鎴风鐐瑰嚮鍚庡鍒跺埌鍓创鏉? */
 
 const CURRENT_VERSION = {
-  versionCode: 18,
+  versionCode: 19,
   versionName: "1.2.5",
   baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
   quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
-  changelog: "1.通知优化\n2.增加国服夏日狂欢计算\n3.备注显示字数可调\n4.图标压缩"
+  changelog: "1.閫氱煡浼樺寲\n2.澧炲姞鍥芥湇澶忔棩鐙傛璁＄畻\n3.澶囨敞鏄剧ず瀛楁暟鍙皟\n4.鍥炬爣鍘嬬缉"
 };
 
 export async function onRequest(context) {
