@@ -10,10 +10,10 @@
 
 const CURRENT_VERSION = {
   versionCode: 18,
-  versionName: "1.2.4",
+  versionName: "1.2.5",
   baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
   quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
-  changelog: "1.优化计算逻辑\n2.界面ui优化"
+  changelog: "1.通知优化\n2.增加国服夏日狂欢计算\n3.备注显示字数可调\n4.图标压缩"
 };
 
 export async function onRequest(context) {
