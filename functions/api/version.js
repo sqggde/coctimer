@@ -1,4 +1,4 @@
-/**
+﻿/**
  * COC Timer 版本检查 — Cloudflare Pages Function
  *
  * GET /api/version — 返回最新版本信息，客户端比较 versionCode 判断是否需要更新
@@ -9,11 +9,11 @@
  */
 
 const CURRENT_VERSION = {
-  versionCode: 19,
-  versionName: "1.2.5",
+  versionCode: 23,
+  versionName: "1.3.0",
   baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
   quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
-  changelog: "1.通知优化\n2.增加国服夏日狂欢计算\n3.备注显示字数可调\n4.图标压缩"
+  changelog: "1.部落模块功能优化\n2.新增账号进度页面\n3.其他优化"
 };
 
 export async function onRequest(context) {
