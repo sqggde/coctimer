@@ -9,11 +9,11 @@
  */
 
 const CURRENT_VERSION = {
-  versionCode: 23,
-  versionName: "1.3.0",
+  versionCode: 30,
+  versionName: "1.3.5",
   baiduUrl: "https://pan.baidu.com/wap/init?surl=qzvS6ASRObo0orXa3nG3PQ&pwd=4uuw",
   quarkUrl: "https://pan.quark.cn/s/81f54352d73e",
-  changelog: "1.部落模块功能优化\n2.新增账号进度页面\n3.其他优化"
+  changelog: "你已经很久没光顾我的B站了，以至于一直使用这个上古版本。"
 };
 
 export async function onRequest(context) {
