@@ -1,0 +1,322 @@
+{
+  "id": "73000009",
+  "name": "冰牙",
+  "category": "pet",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "movementSpeed": 32,
+    "range": 0.8,
+    "attackSpeed": 1.1
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 94,
+        "damagePerShot": 112.8,
+        "frostmitesPerSummon": 1,
+        "maxFrostmites": 4,
+        "hp": 2350
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 98,
+        "damagePerShot": 117.6,
+        "frostmitesPerSummon": 1,
+        "maxFrostmites": 4,
+        "hp": 2450
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 70000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 102,
+        "damagePerShot": 122.4,
+        "frostmitesPerSummon": 1,
+        "maxFrostmites": 4,
+        "hp": 2550
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 85000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 106,
+        "damagePerShot": 127.2,
+        "frostmitesPerSummon": 1,
+        "maxFrostmites": 4,
+        "hp": 2650
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 100000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 110,
+        "damagePerShot": 132,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 8,
+        "hp": 2800
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 115000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 114,
+        "damagePerShot": 136.8,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 8,
+        "hp": 2900
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 130000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "dps": 118,
+        "damagePerShot": 141.6,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 8,
+        "hp": 3000
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 145000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "dps": 122,
+        "damagePerShot": 146.4,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 8,
+        "hp": 3100
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "dps": 126,
+        "damagePerShot": 151.2,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 8,
+        "hp": 3200
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 170000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "dps": 130,
+        "damagePerShot": 156,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 10,
+        "hp": 3300
+      },
+      "petHouseLevelRequired": 5,
+      "townHallRequired": 15,
+      "cost": 180000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "dps": 134,
+        "damagePerShot": 160.8,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 10,
+        "hp": 3400
+      },
+      "petHouseLevelRequired": 11,
+      "townHallRequired": 17,
+      "cost": 200000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "dps": 138,
+        "damagePerShot": 165.6,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 10,
+        "hp": 3500
+      },
+      "petHouseLevelRequired": 11,
+      "townHallRequired": 17,
+      "cost": 230000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "dps": 142,
+        "damagePerShot": 170.4,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 10,
+        "hp": 3600
+      },
+      "petHouseLevelRequired": 11,
+      "townHallRequired": 17,
+      "cost": 260000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 14,
+      "stats": {
+        "dps": 146,
+        "damagePerShot": 175.2,
+        "frostmitesPerSummon": 2,
+        "maxFrostmites": 10,
+        "hp": 3700
+      },
+      "petHouseLevelRequired": 11,
+      "townHallRequired": 17,
+      "cost": 290000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 15,
+      "stats": {
+        "dps": 150,
+        "damagePerShot": 180,
+        "frostmitesPerSummon": 3,
+        "maxFrostmites": 12,
+        "hp": 3800
+      },
+      "petHouseLevelRequired": 11,
+      "townHallRequired": 17,
+      "cost": 320000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "frosty",
+  "en_name": "Frosty",
+  "preferredTarget": "Within 4.5 tiles of Hero",
+  "attackType": "Single Target",
+  "petHouseLevelRequired": 5,
+  "specialAbility": "Freezy Friends",
+  "summonCooldown": 8
+}

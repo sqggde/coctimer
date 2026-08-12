@@ -1,0 +1,122 @@
+{
+  "id": "SUPER_4000008",
+  "name": "超级飞龙",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 16,
+    "housingSpace": 20,
+    "range": 2.5,
+    "attackSpeed": 1.25,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 30000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 10
+    }
+  },
+  "levels": [
+    {
+      "level": 3,
+      "stats": {
+        "hp": 3900,
+        "dps": 286,
+        "damagePerShot": 108
+      },
+      "townHallRequired": 8
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 4500,
+        "dps": 309,
+        "damagePerShot": 117
+      },
+      "townHallRequired": 9
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 5100,
+        "dps": 333,
+        "damagePerShot": 126
+      },
+      "townHallRequired": 10
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 5600,
+        "dps": 357,
+        "damagePerShot": 135
+      },
+      "townHallRequired": 11
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 6100,
+        "dps": 381,
+        "damagePerShot": 144
+      },
+      "townHallRequired": 12
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 6400,
+        "dps": 405,
+        "damagePerShot": 153
+      },
+      "townHallRequired": 13
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 6700,
+        "dps": 429,
+        "damagePerShot": 162
+      },
+      "townHallRequired": 14
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 7200,
+        "dps": 452,
+        "damagePerShot": 171
+      },
+      "townHallRequired": 15
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 7600,
+        "dps": 471,
+        "damagePerShot": 178.2
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 8000,
+        "dps": 490,
+        "damagePerShot": 185.4
+      },
+      "townHallRequired": 17
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 8400,
+        "dps": 537,
+        "damagePerShot": 192.46
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

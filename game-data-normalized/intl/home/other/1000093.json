@@ -1,0 +1,104 @@
+{
+  "id": "1000093",
+  "name": "帮手小屋",
+  "category": "other",
+  "base": "home",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 500
+      },
+      "cost": 1000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 9
+    }
+  ],
+  "abilities": [],
+  "rawId": "helper-hut",
+  "en_name": "Helper Hut",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 0
+    },
+    {
+      "townHallLevel": 8,
+      "count": 0
+    },
+    {
+      "townHallLevel": 9,
+      "count": 1
+    },
+    {
+      "townHallLevel": 10,
+      "count": 1
+    },
+    {
+      "townHallLevel": 11,
+      "count": 1
+    },
+    {
+      "townHallLevel": 12,
+      "count": 1
+    },
+    {
+      "townHallLevel": 13,
+      "count": 1
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

@@ -9,7 +9,10 @@
   "orientation": "portrait-primary",
   "scope": "./",
   "lang": "zh-CN",
-  "categories": ["games", "utilities"],
+  "categories": [
+    "games",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "./assets/img/pwa-64x64.png",

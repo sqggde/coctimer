@@ -1,0 +1,411 @@
+{
+  "id": "1000010",
+  "name": "城墙",
+  "category": "wall",
+  "base": "home",
+  "traits": {
+    "size": "1x1"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 100,
+        "wallRings": 0
+      },
+      "cost": 0,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 2
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 200,
+        "wallRings": 1
+      },
+      "cost": 1000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 2
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 400,
+        "wallRings": 1
+      },
+      "cost": 5000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1,
+      "townHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 800,
+        "wallRings": 1
+      },
+      "cost": 10000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1,
+      "townHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1200,
+        "wallRings": 1
+      },
+      "cost": 20000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 2,
+      "townHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1800,
+        "wallRings": 1
+      },
+      "cost": 30000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 3,
+      "townHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 2400,
+        "wallRings": 1
+      },
+      "cost": 50000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 5,
+      "townHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 3000,
+        "wallRings": 1
+      },
+      "cost": 75000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 8,
+      "townHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 3500,
+        "wallRings": 1
+      },
+      "cost": 100000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 10,
+      "townHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 4000,
+        "wallRings": 1
+      },
+      "cost": 200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 20,
+      "townHallRequired": 9
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 5000,
+        "wallRings": 1
+      },
+      "cost": 500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 50,
+      "townHallRequired": 10
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 7000,
+        "wallRings": 1
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 100,
+      "townHallRequired": 11
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 8000,
+        "wallRings": 2
+      },
+      "cost": 1500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 150,
+      "townHallRequired": 12
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 9000,
+        "wallRings": 2
+      },
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 200,
+      "townHallRequired": 13
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 10000,
+        "wallRings": 3
+      },
+      "cost": 3000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 300,
+      "townHallRequired": 14
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 11000,
+        "wallRings": 4
+      },
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 400,
+      "townHallRequired": 15
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 12000,
+        "wallRings": 5
+      },
+      "cost": 5000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 500,
+      "townHallRequired": 16
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hp": 13000,
+        "wallRings": 7
+      },
+      "cost": 7000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 700,
+      "townHallRequired": 17
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hp": 14000,
+        "wallRings": 10
+      },
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1000,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "wall",
+  "en_name": "Wall",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 25
+    },
+    {
+      "townHallLevel": 3,
+      "count": 50
+    },
+    {
+      "townHallLevel": 4,
+      "count": 75
+    },
+    {
+      "townHallLevel": 5,
+      "count": 100
+    },
+    {
+      "townHallLevel": 6,
+      "count": 125
+    },
+    {
+      "townHallLevel": 7,
+      "count": 175
+    },
+    {
+      "townHallLevel": 8,
+      "count": 225
+    },
+    {
+      "townHallLevel": 9,
+      "count": 250
+    },
+    {
+      "townHallLevel": 10,
+      "count": 275
+    },
+    {
+      "townHallLevel": 11,
+      "count": 300
+    },
+    {
+      "townHallLevel": 12,
+      "count": 300
+    },
+    {
+      "townHallLevel": 13,
+      "count": 300
+    },
+    {
+      "townHallLevel": 14,
+      "count": 325
+    },
+    {
+      "townHallLevel": 15,
+      "count": 325
+    },
+    {
+      "townHallLevel": 16,
+      "count": 325
+    },
+    {
+      "townHallLevel": 17,
+      "count": 325
+    },
+    {
+      "townHallLevel": 18,
+      "count": 325
+    }
+  ]
+}

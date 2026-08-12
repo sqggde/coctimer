@@ -1,0 +1,241 @@
+{
+  "id": "1000067",
+  "name": "投石炮",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 3600,
+        "dps": 125,
+        "damagePerShot": 400,
+        "damagePerShotMin": 300,
+        "splashDamageMax": 300,
+        "splashDamageMin": 100
+      },
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 13,
+      "xpGained": 657
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 4200,
+        "dps": 150,
+        "damagePerShot": 480,
+        "damagePerShotMin": 360,
+        "splashDamageMax": 360,
+        "splashDamageMin": 120
+      },
+      "cost": 9000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 13,
+      "xpGained": 777
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 4800,
+        "dps": 170,
+        "damagePerShot": 544,
+        "damagePerShotMin": 380,
+        "splashDamageMax": 380,
+        "splashDamageMin": 130
+      },
+      "cost": 11000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 14,
+      "xpGained": 804
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 5100,
+        "dps": 175,
+        "damagePerShot": 560,
+        "damagePerShotMin": 400,
+        "splashDamageMax": 400,
+        "splashDamageMin": 140
+      },
+      "cost": 11500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 15,
+      "xpGained": 831
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 5410,
+        "dps": 180,
+        "damagePerShot": 576,
+        "damagePerShotMin": 420,
+        "splashDamageMax": 420,
+        "splashDamageMin": 150
+      },
+      "cost": 12000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 16,
+      "xpGained": 856
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 5600,
+        "dps": 185,
+        "damagePerShot": 592,
+        "damagePerShotMin": 440,
+        "splashDamageMax": 440,
+        "splashDamageMin": 155
+      },
+      "cost": 16500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 17,
+      "xpGained": 881
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 5800,
+        "dps": 190,
+        "damagePerShot": 608,
+        "damagePerShotMin": 450,
+        "splashDamageMax": 450,
+        "splashDamageMin": 160
+      },
+      "cost": 26500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 18,
+      "xpGained": 1138
+    },
+    {
+      "level": 1,
+      "stats": {
+        "supercharge": true,
+        "hp": 5800,
+        "dps": 193,
+        "damagePerShot": 617.6,
+        "damagePerShotMin": 450,
+        "splashDamageMax": 450,
+        "splashDamageMin": 160
+      },
+      "cost": 14500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 18,
+      "xpGained": 657
+    },
+    {
+      "level": 2,
+      "stats": {
+        "supercharge": true,
+        "hp": 5950,
+        "dps": 193,
+        "damagePerShot": 617.6,
+        "damagePerShotMin": 450,
+        "splashDamageMax": 450,
+        "splashDamageMin": 160
+      },
+      "cost": 9500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 18,
+      "xpGained": 777
+    }
+  ],
+  "abilities": [],
+  "rawId": "scattershot",
+  "en_name": "Scattershot",
+  "modes": {
+    "normal": {
+      "range": 10,
+      "minRange": 3,
+      "attackSpeed": 3.2,
+      "damageType": "splash",
+      "numberOfRounds": 90
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 13,
+      "count": 2
+    },
+    {
+      "townHallLevel": 14,
+      "count": 2
+    },
+    {
+      "townHallLevel": 15,
+      "count": 2
+    },
+    {
+      "townHallLevel": 16,
+      "count": 2
+    },
+    {
+      "townHallLevel": 17,
+      "count": 2
+    },
+    {
+      "townHallLevel": 18,
+      "count": 2
+    }
+  ]
+}

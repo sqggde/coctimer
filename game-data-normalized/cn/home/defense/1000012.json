@@ -1,0 +1,404 @@
+{
+  "id": "1000012",
+  "name": "防空火箭",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "空中",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 800,
+        "dps": 80,
+        "damagePerShot": 80,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 22000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 54,
+        "seconds": 0
+      },
+      "townHallRequired": 4,
+      "xpGained": 60
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 850,
+        "dps": 110,
+        "damagePerShot": 110,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 90000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 54,
+        "seconds": 0
+      },
+      "townHallRequired": 4,
+      "xpGained": 84
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 900,
+        "dps": 140,
+        "damagePerShot": 140,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 210000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 13,
+        "seconds": 0
+      },
+      "townHallRequired": 5,
+      "xpGained": 146
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 950,
+        "dps": 160,
+        "damagePerShot": 160,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 14,
+        "minutes": 43,
+        "seconds": 0
+      },
+      "townHallRequired": 6,
+      "xpGained": 207
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1000,
+        "dps": 190,
+        "damagePerShot": 190,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 800000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 22,
+        "minutes": 7,
+        "seconds": 0
+      },
+      "townHallRequired": 7,
+      "xpGained": 254
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1050,
+        "dps": 230,
+        "damagePerShot": 230,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 7,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 8,
+      "xpGained": 293
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1100,
+        "dps": 280,
+        "damagePerShot": 280,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 1750000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 9,
+      "xpGained": 415
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1210,
+        "dps": 320,
+        "damagePerShot": 320,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 2300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 10,
+      "xpGained": 464
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1300,
+        "dps": 360,
+        "damagePerShot": 360,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 3400000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 11,
+      "xpGained": 509
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1400,
+        "dps": 400,
+        "damagePerShot": 400,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 5000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 12,
+      "xpGained": 587
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1500,
+        "dps": 440,
+        "damagePerShot": 440,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 5600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 13,
+      "xpGained": 623
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1650,
+        "dps": 500,
+        "damagePerShot": 500,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 6500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 14,
+      "xpGained": 657
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 1750,
+        "dps": 540,
+        "damagePerShot": 540,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 15,
+      "xpGained": 720
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 1850,
+        "dps": 600,
+        "damagePerShot": 600,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 9000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 16,
+      "xpGained": 749
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 1950,
+        "dps": 650,
+        "damagePerShot": 650,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 15000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 11,
+        "hours": 7,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 17,
+      "xpGained": 905
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 2000,
+        "dps": 700,
+        "damagePerShot": 700,
+        "range": 10,
+        "attackSpeed": 1
+      },
+      "cost": 26000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 15,
+        "hours": 5,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 18,
+      "xpGained": 1069
+    }
+  ],
+  "abilities": [],
+  "rawId": "air-defense",
+  "en_name": "Air Defense",
+  "modes": {
+    "normal": {
+      "range": 10,
+      "attackSpeed": 1,
+      "damageType": "single"
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 4,
+      "count": 1
+    },
+    {
+      "townHallLevel": 5,
+      "count": 1
+    },
+    {
+      "townHallLevel": 6,
+      "count": 2
+    },
+    {
+      "townHallLevel": 7,
+      "count": 3
+    },
+    {
+      "townHallLevel": 8,
+      "count": 3
+    },
+    {
+      "townHallLevel": 9,
+      "count": 4
+    },
+    {
+      "townHallLevel": 10,
+      "count": 4
+    },
+    {
+      "townHallLevel": 11,
+      "count": 4
+    },
+    {
+      "townHallLevel": 12,
+      "count": 4
+    },
+    {
+      "townHallLevel": 13,
+      "count": 4
+    },
+    {
+      "townHallLevel": 14,
+      "count": 4
+    },
+    {
+      "townHallLevel": 15,
+      "count": 4
+    },
+    {
+      "townHallLevel": 16,
+      "count": 4
+    },
+    {
+      "townHallLevel": 17,
+      "count": 4
+    },
+    {
+      "townHallLevel": 18,
+      "count": 4
+    }
+  ]
+}

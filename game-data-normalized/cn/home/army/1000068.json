@@ -1,0 +1,292 @@
+{
+  "id": "1000068",
+  "name": "战宠小屋",
+  "category": "army",
+  "base": "home",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 700
+      },
+      "unlockedPet": "L.A.S.S.I",
+      "cost": 3000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 14
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 800
+      },
+      "unlockedPet": "Electro Owl",
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 14
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 900
+      },
+      "unlockedPet": "Mighty Yak",
+      "cost": 5000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 14
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1000
+      },
+      "unlockedPet": "Unicorn",
+      "cost": 6000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 20,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 549,
+      "townHallRequired": 14
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1050
+      },
+      "unlockedPet": "Frosty",
+      "cost": 7000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 14,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 15
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1100
+      },
+      "unlockedPet": "Diggy",
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 9,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 623,
+      "townHallRequired": 15
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1150
+      },
+      "unlockedPet": "Poison Lizard",
+      "cost": 9000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 15
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1200
+      },
+      "unlockedPet": "Phoenix",
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 22,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 689,
+      "townHallRequired": 15
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1250
+      },
+      "unlockedPet": "Spirit Fox",
+      "cost": 11000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "townHallRequired": 16
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1300
+      },
+      "unlockedPet": "Angry Jelly",
+      "cost": 12000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 16
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1350
+      },
+      "unlockedPet": "Sneezy",
+      "cost": 16500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 11,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 17
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1400
+      },
+      "unlockedPet": "Greedy Raven",
+      "cost": 25500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 15,
+        "hours": 10,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1080,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "pet-house",
+  "en_name": "Pet House",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 0
+    },
+    {
+      "townHallLevel": 8,
+      "count": 0
+    },
+    {
+      "townHallLevel": 9,
+      "count": 0
+    },
+    {
+      "townHallLevel": 10,
+      "count": 0
+    },
+    {
+      "townHallLevel": 11,
+      "count": 0
+    },
+    {
+      "townHallLevel": 12,
+      "count": 0
+    },
+    {
+      "townHallLevel": 13,
+      "count": 0
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

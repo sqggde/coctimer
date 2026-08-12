@@ -1,0 +1,86 @@
+{
+  "id": "SUPER_4000010",
+  "name": "超级亡灵",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 32,
+    "housingSpace": 2,
+    "range": 2.75,
+    "attackSpeed": 1,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 45,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 1
+    }
+  },
+  "levels": [
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1500,
+        "dps": 300,
+        "damagePerShot": 300
+      },
+      "townHallRequired": 12
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1600,
+        "dps": 325,
+        "damagePerShot": 325
+      },
+      "townHallRequired": 13
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1700,
+        "dps": 350,
+        "damagePerShot": 350
+      },
+      "townHallRequired": 14
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1800,
+        "dps": 360,
+        "damagePerShot": 360
+      },
+      "townHallRequired": 15
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1900,
+        "dps": 370,
+        "damagePerShot": 370
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 2100,
+        "dps": 385,
+        "damagePerShot": 385
+      },
+      "townHallRequired": 17
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 2300,
+        "dps": 400,
+        "damagePerShot": 400
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

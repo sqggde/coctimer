@@ -1,0 +1,376 @@
+{
+  "id": "106000048",
+  "name": "动作人偶",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 159,
+        "giantGiantLevel": 1,
+        "selfHealingPerSecond": 6,
+        "dpsIncrease": 28
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 184,
+        "giantGiantLevel": 1,
+        "selfHealingPerSecond": 8,
+        "dpsIncrease": 32
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 200,
+        "giantGiantLevel": 2,
+        "selfHealingPerSecond": 10,
+        "dpsIncrease": 36
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 217,
+        "giantGiantLevel": 2,
+        "selfHealingPerSecond": 12,
+        "dpsIncrease": 40
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 236,
+        "giantGiantLevel": 2,
+        "selfHealingPerSecond": 14,
+        "dpsIncrease": 44
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 254,
+        "giantGiantLevel": 3,
+        "selfHealingPerSecond": 16,
+        "dpsIncrease": 48
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 276,
+        "giantGiantLevel": 3,
+        "selfHealingPerSecond": 18,
+        "dpsIncrease": 53
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 298,
+        "giantGiantLevel": 3,
+        "selfHealingPerSecond": 20,
+        "dpsIncrease": 58
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 318,
+        "giantGiantLevel": 4,
+        "selfHealingPerSecond": 22,
+        "dpsIncrease": 63
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 10,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 339,
+        "giantGiantLevel": 4,
+        "selfHealingPerSecond": 24,
+        "dpsIncrease": 68
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 359,
+        "giantGiantLevel": 4,
+        "selfHealingPerSecond": 26,
+        "dpsIncrease": 74
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 380,
+        "giantGiantLevel": 5,
+        "selfHealingPerSecond": 28,
+        "dpsIncrease": 80
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 20,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 399,
+        "giantGiantLevel": 5,
+        "selfHealingPerSecond": 30,
+        "dpsIncrease": 84
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 424,
+        "giantGiantLevel": 5,
+        "selfHealingPerSecond": 31,
+        "dpsIncrease": 89
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 448,
+        "giantGiantLevel": 6,
+        "selfHealingPerSecond": 32,
+        "dpsIncrease": 94
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 30,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 473,
+        "giantGiantLevel": 6,
+        "selfHealingPerSecond": 33,
+        "dpsIncrease": 98
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 498,
+        "giantGiantLevel": 6,
+        "selfHealingPerSecond": 34,
+        "dpsIncrease": 102
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 522,
+        "giantGiantLevel": 7,
+        "selfHealingPerSecond": 35,
+        "dpsIncrease": 106
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 50,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hitpointIncrease": 544,
+        "giantGiantLevel": 7,
+        "selfHealingPerSecond": 36,
+        "dpsIncrease": 109
+      },
+      "upgradeShinyOre": 2800,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hitpointIncrease": 565,
+        "giantGiantLevel": 7,
+        "selfHealingPerSecond": 36,
+        "dpsIncrease": 112
+      },
+      "upgradeShinyOre": 2900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 21,
+      "stats": {
+        "hitpointIncrease": 586,
+        "giantGiantLevel": 8,
+        "selfHealingPerSecond": 37,
+        "dpsIncrease": 116
+      },
+      "upgradeShinyOre": 3000,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 100,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 22,
+      "stats": {
+        "hitpointIncrease": 608,
+        "giantGiantLevel": 8,
+        "selfHealingPerSecond": 37,
+        "dpsIncrease": 119
+      },
+      "upgradeShinyOre": 3100,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 23,
+      "stats": {
+        "hitpointIncrease": 628,
+        "giantGiantLevel": 8,
+        "selfHealingPerSecond": 38,
+        "dpsIncrease": 122
+      },
+      "upgradeShinyOre": 3200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 24,
+      "stats": {
+        "hitpointIncrease": 649,
+        "giantGiantLevel": 9,
+        "selfHealingPerSecond": 38,
+        "dpsIncrease": 125
+      },
+      "upgradeShinyOre": 3300,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 120,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 25,
+      "stats": {
+        "hitpointIncrease": 671,
+        "giantGiantLevel": 9,
+        "selfHealingPerSecond": 39,
+        "dpsIncrease": 128
+      },
+      "upgradeShinyOre": 3400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 26,
+      "stats": {
+        "hitpointIncrease": 692,
+        "giantGiantLevel": 9,
+        "selfHealingPerSecond": 39,
+        "dpsIncrease": 132
+      },
+      "upgradeShinyOre": 3500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 27,
+      "stats": {
+        "hitpointIncrease": 713,
+        "giantGiantLevel": 10,
+        "selfHealingPerSecond": 40,
+        "dpsIncrease": 135
+      },
+      "upgradeShinyOre": 3600,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 150,
+      "blacksmithLevelRequired": 9
+    }
+  ],
+  "abilities": [],
+  "rawId": "action-figure",
+  "en_name": "Action Figure",
+  "hero": "archer-queen",
+  "rarity": "Epic",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Buy in Friend or Foe event for 3,100 Champ Medals",
+    "Buy in Splash Bash event for 3,100 Splash Medals",
+    "Buy in Equipment Blast event for 3,100 Relic Medals",
+    "Buy in Wise Warriors event for 3,100 Grumpy Medals",
+    "Purchasable from the Trader for 1,500 Gems"
+  ],
+  "ability": {
+    "invisibilityDuration": "1s"
+  }
+}

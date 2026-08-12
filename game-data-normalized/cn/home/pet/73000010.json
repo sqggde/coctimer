@@ -1,0 +1,211 @@
+{
+  "id": "73000010",
+  "name": "灵狐",
+  "category": "pet",
+  "base": "home",
+  "traits": {
+    "targetType": "地面",
+    "movementSpeed": 24,
+    "range": 3.5,
+    "attackSpeed": 1.2
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 94,
+        "damagePerShot": 112.8,
+        "invisibilityDuration": 3,
+        "hp": 2350
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 98,
+        "damagePerShot": 117.6,
+        "invisibilityDuration": 3,
+        "hp": 2450
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 70000,
+      "costResource": "DarkElixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 102,
+        "damagePerShot": 122.4,
+        "invisibilityDuration": 3,
+        "hp": 2550
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 85000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 106,
+        "damagePerShot": 127.2,
+        "invisibilityDuration": 3,
+        "hp": 2650
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 100000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 110,
+        "damagePerShot": 132,
+        "invisibilityDuration": 3.5,
+        "hp": 2800
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 115000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 114,
+        "damagePerShot": 136.8,
+        "invisibilityDuration": 3.5,
+        "hp": 2900
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 130000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "dps": 118,
+        "damagePerShot": 141.6,
+        "invisibilityDuration": 3.5,
+        "hp": 3000
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 145000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "dps": 122,
+        "damagePerShot": 146.4,
+        "invisibilityDuration": 3.5,
+        "hp": 3100
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "dps": 126,
+        "damagePerShot": 151.2,
+        "invisibilityDuration": 3.5,
+        "hp": 3200
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 170000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "dps": 130,
+        "damagePerShot": 156,
+        "invisibilityDuration": 4,
+        "hp": 3300
+      },
+      "petHouseLevelRequired": 9,
+      "townHallRequired": 16,
+      "cost": 180000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "spirit-fox",
+  "en_name": "Spirit Fox",
+  "preferredTarget": "Within 4.5 tiles of Hero",
+  "attackType": "Single Target",
+  "petHouseLevelRequired": 9,
+  "specialAbility": "Spirit Walk"
+}

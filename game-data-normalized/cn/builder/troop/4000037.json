@@ -1,0 +1,319 @@
+{
+  "id": "4000037",
+  "name": "加农炮战车",
+  "category": "troop",
+  "base": "builder",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 19,
+    "housingSpace": 16,
+    "range": 4.5,
+    "attackSpeed": 1.2
+  },
+  "levels": [
+    {
+      "level": 7,
+      "stats": {
+        "hp": 666,
+        "dps": 115,
+        "damagePerShot": 138,
+        "mortarDps": 60,
+        "mortarDamagePerShot": 150,
+        "unitsPerCamp": 1
+      },
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 0,
+      "laboratoryRequired": 5
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 666,
+        "dps": 115,
+        "damagePerShot": 138,
+        "mortarDps": 68,
+        "mortarDamagePerShot": 170,
+        "unitsPerCamp": 1
+      },
+      "cost": 1000000,
+      "costResource": "Elixir2",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5,
+      "laboratoryRequired": 5
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 732,
+        "dps": 130,
+        "damagePerShot": 156,
+        "mortarDps": 68,
+        "mortarDamagePerShot": 170,
+        "unitsPerCamp": 1
+      },
+      "cost": 1100000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5,
+      "laboratoryRequired": 5
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 732,
+        "dps": 130,
+        "damagePerShot": 156,
+        "mortarDps": 78,
+        "mortarDamagePerShot": 195,
+        "unitsPerCamp": 1
+      },
+      "cost": 1200000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5,
+      "laboratoryRequired": 5
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 805,
+        "dps": 150,
+        "damagePerShot": 180,
+        "mortarDps": 78,
+        "mortarDamagePerShot": 195,
+        "unitsPerCamp": 1
+      },
+      "cost": 1400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6,
+      "laboratoryRequired": 6
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 805,
+        "dps": 150,
+        "damagePerShot": 180,
+        "mortarDps": 90,
+        "mortarDamagePerShot": 225,
+        "unitsPerCamp": 1
+      },
+      "cost": 1600000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6,
+      "laboratoryRequired": 6
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 886,
+        "dps": 170,
+        "damagePerShot": 204,
+        "mortarDps": 90,
+        "mortarDamagePerShot": 225,
+        "unitsPerCamp": 1
+      },
+      "cost": 2400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7,
+      "laboratoryRequired": 7
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 886,
+        "dps": 170,
+        "damagePerShot": 204,
+        "mortarDps": 102,
+        "mortarDamagePerShot": 255,
+        "unitsPerCamp": 1
+      },
+      "cost": 2600000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7,
+      "laboratoryRequired": 7
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 974,
+        "dps": 190,
+        "damagePerShot": 228,
+        "mortarDps": 102,
+        "mortarDamagePerShot": 255,
+        "unitsPerCamp": 1
+      },
+      "cost": 3400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8,
+      "laboratoryRequired": 8
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 974,
+        "dps": 190,
+        "damagePerShot": 228,
+        "mortarDps": 114,
+        "mortarDamagePerShot": 285,
+        "unitsPerCamp": 1
+      },
+      "cost": 3600000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8,
+      "laboratoryRequired": 8
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 1072,
+        "dps": 215,
+        "damagePerShot": 258,
+        "mortarDps": 114,
+        "mortarDamagePerShot": 285,
+        "unitsPerCamp": 1
+      },
+      "cost": 4100000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hp": 1072,
+        "dps": 215,
+        "damagePerShot": 258,
+        "mortarDps": 130,
+        "mortarDamagePerShot": 325,
+        "unitsPerCamp": 1
+      },
+      "cost": 4300000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hp": 1179,
+        "dps": 240,
+        "damagePerShot": 288,
+        "mortarDps": 130,
+        "mortarDamagePerShot": 325,
+        "unitsPerCamp": 1
+      },
+      "cost": 5300000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10,
+      "laboratoryRequired": 10
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hp": 1179,
+        "dps": 240,
+        "damagePerShot": 288,
+        "mortarDps": 144,
+        "mortarDamagePerShot": 360,
+        "unitsPerCamp": 1
+      },
+      "cost": 5700000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10,
+      "laboratoryRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "cannon-cart",
+  "en_name": "Cannon Cart",
+  "builderBarracksRequired": 7,
+  "specialAbility": "Change Mode",
+  "mortarMovementSpeed": 0,
+  "mortarRange": 8.5,
+  "mortarAttackSpeed": 2.5,
+  "mortarDamageType": "splash"
+}

@@ -1,0 +1,38 @@
+{
+  "id": "1000097",
+  "name": "精制台",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 1000
+      },
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "crafting-station",
+  "en_name": "Crafting Station",
+  "modes": {},
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "id": "1000011",
+  "name": "法师塔",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 620,
+        "dps": 11,
+        "damagePerShot": 14.3
+      },
+      "cost": 100000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 5,
+      "xpGained": 60
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 650,
+        "dps": 13,
+        "damagePerShot": 16.9
+      },
+      "cost": 150000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 30,
+        "seconds": 0
+      },
+      "townHallRequired": 5,
+      "xpGained": 73
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 680,
+        "dps": 16,
+        "damagePerShot": 20.8
+      },
+      "cost": 250000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 6,
+      "xpGained": 120
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 730,
+        "dps": 20,
+        "damagePerShot": 26
+      },
+      "cost": 400000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 7,
+      "xpGained": 169
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 840,
+        "dps": 24,
+        "damagePerShot": 31.2
+      },
+      "cost": 550000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 10,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 8,
+      "xpGained": 189
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 960,
+        "dps": 32,
+        "damagePerShot": 41.6
+      },
+      "cost": 660000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 8,
+      "xpGained": 207
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1200,
+        "dps": 40,
+        "damagePerShot": 52
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 9,
+      "xpGained": 254
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1440,
+        "dps": 45,
+        "damagePerShot": 58.5
+      },
+      "cost": 1100000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 20,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 10,
+      "xpGained": 268
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1600,
+        "dps": 50,
+        "damagePerShot": 65
+      },
+      "cost": 1300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 10,
+      "xpGained": 293
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1900,
+        "dps": 62,
+        "damagePerShot": 80.6
+      },
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 11,
+      "xpGained": 328
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 2120,
+        "dps": 70,
+        "damagePerShot": 91
+      },
+      "cost": 2500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 12,
+      "xpGained": 360
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 2240,
+        "dps": 78,
+        "damagePerShot": 101.4
+      },
+      "cost": 2600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 13,
+      "xpGained": 388
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 2500,
+        "dps": 84,
+        "damagePerShot": 109.2
+      },
+      "cost": 3000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 13,
+      "xpGained": 415
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 2800,
+        "dps": 90,
+        "damagePerShot": 117
+      },
+      "cost": 4500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 14,
+      "xpGained": 509
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 3000,
+        "dps": 95,
+        "damagePerShot": 123.5
+      },
+      "cost": 5500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 15,
+      "xpGained": 587
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 3150,
+        "dps": 102,
+        "damagePerShot": 132.6
+      },
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 16,
+      "xpGained": 623
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 3300,
+        "dps": 110,
+        "damagePerShot": 143
+      },
+      "cost": 14000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "townHallRequired": 17,
+      "xpGained": 856
+    }
+  ],
+  "abilities": [],
+  "rawId": "wizard-tower",
+  "en_name": "Wizard Tower",
+  "modes": {
+    "normal": {
+      "range": 7,
+      "attackSpeed": 1.3,
+      "damageType": "splash",
+      "splashRadius": 1
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 5,
+      "count": 1
+    },
+    {
+      "townHallLevel": 6,
+      "count": 2
+    },
+    {
+      "townHallLevel": 7,
+      "count": 2
+    },
+    {
+      "townHallLevel": 8,
+      "count": 3
+    },
+    {
+      "townHallLevel": 9,
+      "count": 4
+    },
+    {
+      "townHallLevel": 10,
+      "count": 4
+    },
+    {
+      "townHallLevel": 11,
+      "count": 5
+    },
+    {
+      "townHallLevel": 12,
+      "count": 5
+    },
+    {
+      "townHallLevel": 13,
+      "count": 5
+    },
+    {
+      "townHallLevel": 14,
+      "count": 5
+    },
+    {
+      "townHallLevel": 15,
+      "count": 5
+    },
+    {
+      "townHallLevel": 16,
+      "count": 5
+    },
+    {
+      "townHallLevel": 17,
+      "count": 5
+    },
+    {
+      "townHallLevel": 18,
+      "count": 6,
+      "countAfterMerges": 2
+    }
+  ]
+}

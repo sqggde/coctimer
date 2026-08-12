@@ -1,0 +1,206 @@
+{
+  "id": "4000022",
+  "name": "蓝胖",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "地面",
+    "movementSpeed": 14,
+    "housingSpace": 6,
+    "range": 3,
+    "attackSpeed": 2.2,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 135,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 3
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 325,
+        "dps": 60,
+        "damagePerShot": 132
+      },
+      "townHallRequired": 10,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 375,
+        "dps": 72,
+        "damagePerShot": 158.4
+      },
+      "townHallRequired": 10,
+      "laboratoryRequired": 8,
+      "cost": 32500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 420,
+        "dps": 84,
+        "damagePerShot": 184.8
+      },
+      "townHallRequired": 11,
+      "laboratoryRequired": 9,
+      "cost": 44000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 470,
+        "dps": 96,
+        "damagePerShot": 211.2
+      },
+      "townHallRequired": 12,
+      "laboratoryRequired": 10,
+      "cost": 62500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 505,
+        "dps": 102,
+        "damagePerShot": 224.4
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 11,
+      "cost": 85000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 530,
+        "dps": 108,
+        "damagePerShot": 237.6
+      },
+      "townHallRequired": 14,
+      "laboratoryRequired": 12,
+      "cost": 110000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 565,
+        "dps": 114,
+        "damagePerShot": 250.8
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 145000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 600,
+        "dps": 126,
+        "damagePerShot": 277.2
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 175000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 700,
+        "dps": 140,
+        "damagePerShot": 308
+      },
+      "townHallRequired": 17,
+      "laboratoryRequired": 15,
+      "cost": 260000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 850,
+        "dps": 156,
+        "damagePerShot": 343.2
+      },
+      "townHallRequired": 18,
+      "laboratoryRequired": 16,
+      "cost": 360000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "bowler",
+  "en_name": "Bowler",
+  "barrackLevelRequired": 7
+}

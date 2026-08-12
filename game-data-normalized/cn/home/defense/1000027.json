@@ -1,0 +1,407 @@
+{
+  "id": "1000027",
+  "name": "地狱塔",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 1500,
+        "dps": 30,
+        "damagePerShot": 3.84,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "townHallRequired": 10
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 1800,
+        "dps": 35,
+        "damagePerShot": 4.48,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 1200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 17,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 10
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 2100,
+        "dps": 40,
+        "damagePerShot": 5.12,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 2400000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 13,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 10
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 2400,
+        "dps": 45,
+        "damagePerShot": 5.76,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 3400000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 464,
+      "townHallRequired": 11
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 2700,
+        "dps": 50,
+        "damagePerShot": 6.4,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 11
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 3000,
+        "dps": 55,
+        "damagePerShot": 7.04,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 6000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 12
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 3300,
+        "dps": 65,
+        "damagePerShot": 8.32,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 13
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 3700,
+        "dps": 80,
+        "damagePerShot": 10.24,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 9500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 19,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "townHallRequired": 14
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 4000,
+        "dps": 100,
+        "damagePerShot": 12.8,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 14,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 749,
+      "townHallRequired": 15
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 4400,
+        "dps": 120,
+        "damagePerShot": 15.36,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 11000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 11,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 16
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 4800,
+        "dps": 140,
+        "damagePerShot": 17.92,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 16000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 12,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 17
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 5100,
+        "dps": 155,
+        "damagePerShot": 19.84,
+        "range": 9,
+        "attackSpeed": 0.13
+      },
+      "cost": 26500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 15,
+        "hours": 11,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1080,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [
+    {
+      "name": "多目标",
+      "levels": [
+        {
+          "level": 1,
+          "stats": {
+            "dps": 30,
+            "damagePerShot": 3.84,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 2,
+          "stats": {
+            "dps": 35,
+            "damagePerShot": 4.48,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 3,
+          "stats": {
+            "dps": 40,
+            "damagePerShot": 5.12,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 4,
+          "stats": {
+            "dps": 45,
+            "damagePerShot": 5.76,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 5,
+          "stats": {
+            "dps": 50,
+            "damagePerShot": 6.4,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 6,
+          "stats": {
+            "dps": 55,
+            "damagePerShot": 7.04,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 7,
+          "stats": {
+            "dps": 65,
+            "damagePerShot": 8.32,
+            "numberOfTargets": 5
+          }
+        },
+        {
+          "level": 8,
+          "stats": {
+            "dps": 80,
+            "damagePerShot": 10.24,
+            "numberOfTargets": 6
+          }
+        },
+        {
+          "level": 9,
+          "stats": {
+            "dps": 100,
+            "damagePerShot": 12.8,
+            "numberOfTargets": 6
+          }
+        },
+        {
+          "level": 10,
+          "stats": {
+            "dps": 120,
+            "damagePerShot": 15.36,
+            "numberOfTargets": 6
+          }
+        },
+        {
+          "level": 11,
+          "stats": {
+            "dps": 140,
+            "damagePerShot": 17.92,
+            "numberOfTargets": 6
+          }
+        },
+        {
+          "level": 12,
+          "stats": {
+            "dps": 155,
+            "damagePerShot": 19.84,
+            "numberOfTargets": 6
+          }
+        }
+      ]
+    }
+  ],
+  "rawId": "inferno-tower",
+  "en_name": "Inferno Tower",
+  "modes": {
+    "normal": {
+      "range": 9,
+      "attackSpeed": 0.128,
+      "damageType": "single"
+    },
+    "multiTarget": {
+      "range": 10,
+      "attackSpeed": 0.128,
+      "damageType": "multiple"
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 10,
+      "count": 2
+    },
+    {
+      "townHallLevel": 11,
+      "count": 2
+    },
+    {
+      "townHallLevel": 12,
+      "count": 3
+    },
+    {
+      "townHallLevel": 13,
+      "count": 3
+    },
+    {
+      "townHallLevel": 14,
+      "count": 3
+    },
+    {
+      "townHallLevel": 15,
+      "count": 3
+    },
+    {
+      "townHallLevel": 16,
+      "count": 3
+    },
+    {
+      "townHallLevel": 17,
+      "count": 3
+    },
+    {
+      "townHallLevel": 18,
+      "count": 3
+    }
+  ]
+}

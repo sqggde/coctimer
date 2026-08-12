@@ -1,0 +1,260 @@
+{
+  "id": "1000040",
+  "name": "建筑大师训练营",
+  "category": "army",
+  "base": "builder",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 300
+      },
+      "unlockedUnit": "Raged Barbarian",
+      "cost": 1000,
+      "costResource": "Elixir2",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "builderHallRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 350
+      },
+      "unlockedUnit": "Sneaky Archer",
+      "cost": 4000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 1,
+        "seconds": 0
+      },
+      "xpGained": 7,
+      "builderHallRequired": 2
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 400
+      },
+      "unlockedUnit": "Boxer Giant",
+      "cost": 10000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 10,
+        "seconds": 0
+      },
+      "xpGained": 24,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 460
+      },
+      "unlockedUnit": "Beta Minion",
+      "cost": 25000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 30,
+        "seconds": 0
+      },
+      "xpGained": 42,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 550
+      },
+      "unlockedUnit": "Bomber",
+      "cost": 100000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 103,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 650
+      },
+      "unlockedUnit": "Baby Dragon",
+      "cost": 150000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 750
+      },
+      "unlockedUnit": "Cannon Cart",
+      "cost": 300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 9,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 180,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 850
+      },
+      "unlockedUnit": "Night Witch",
+      "cost": 500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1000
+      },
+      "unlockedUnit": "Drop Ship",
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1150
+      },
+      "unlockedUnit": "Power P.E.K.K.A",
+      "cost": 1500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1300
+      },
+      "unlockedUnit": "Hog Glider",
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1450
+      },
+      "unlockedUnit": "Electrofire Wizard",
+      "cost": 3000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "builder-barracks",
+  "en_name": "Builder Barracks",
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 1,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 2,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 3,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 1
+    }
+  ]
+}

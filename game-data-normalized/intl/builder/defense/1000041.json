@@ -1,0 +1,242 @@
+{
+  "id": "1000041",
+  "name": "双管加农炮",
+  "category": "defense",
+  "base": "builder",
+  "traits": {
+    "targetType": "地面",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 600,
+        "dps": 91,
+        "damagePerShot": 50
+      },
+      "cost": 20000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 10,
+        "seconds": 0
+      },
+      "xpGained": 24,
+      "builderHallRequired": 2
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 690,
+        "dps": 101,
+        "damagePerShot": 55
+      },
+      "cost": 50000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 60,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 800,
+        "dps": 112,
+        "damagePerShot": 61
+      },
+      "cost": 80000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 103,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 910,
+        "dps": 123,
+        "damagePerShot": 67
+      },
+      "cost": 300000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1050,
+        "dps": 136,
+        "damagePerShot": 74
+      },
+      "cost": 900000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1250,
+        "dps": 148,
+        "damagePerShot": 81
+      },
+      "cost": 1400000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1450,
+        "dps": 163,
+        "damagePerShot": 89
+      },
+      "cost": 2200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1700,
+        "dps": 180,
+        "damagePerShot": 98
+      },
+      "cost": 3200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1950,
+        "dps": 198,
+        "damagePerShot": 108
+      },
+      "cost": 4200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 2200,
+        "dps": 220,
+        "damagePerShot": 120
+      },
+      "cost": 5200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 929,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "double-cannon",
+  "en_name": "Double Cannon",
+  "modes": {
+    "normal": {
+      "range": 7,
+      "attackSpeed": 0.1555,
+      "timeBetweenBursts": 1.333,
+      "shotsPerBurst": 4,
+      "damageType": "single"
+    }
+  },
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 2,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 3,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 3
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 3
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 3
+    }
+  ]
+}

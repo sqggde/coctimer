@@ -1,0 +1,117 @@
+{
+  "id": "1000085",
+  "name": "弹跳加农炮",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "地面",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 5400,
+        "dps": 360,
+        "damagePerShot": 288,
+        "range": 9,
+        "attackSpeed": 0.8
+      },
+      "cost": 12000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 16
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 5700,
+        "dps": 390,
+        "damagePerShot": 312,
+        "range": 9,
+        "attackSpeed": 0.8
+      },
+      "cost": 13000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 10,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 16
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 6000,
+        "dps": 405,
+        "damagePerShot": 324,
+        "range": 9,
+        "attackSpeed": 0.8
+      },
+      "cost": 17500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 12,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 963,
+      "townHallRequired": 17
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 6100,
+        "dps": 412,
+        "damagePerShot": 329.6,
+        "range": 9,
+        "attackSpeed": 0.8
+      },
+      "cost": 26500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 14,
+        "hours": 22,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1080,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "ricochet-cannon",
+  "en_name": "Ricochet Cannon",
+  "modes": {
+    "normal": {
+      "range": 9,
+      "attackSpeed": 0.8,
+      "damageType": "ricochet",
+      "chainRange": 3.5
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 16,
+      "count": 2
+    },
+    {
+      "townHallLevel": 17,
+      "count": 3
+    },
+    {
+      "townHallLevel": 18,
+      "count": 3
+    }
+  ]
+}

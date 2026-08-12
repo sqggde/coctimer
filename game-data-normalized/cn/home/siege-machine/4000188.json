@@ -1,0 +1,169 @@
+{
+  "id": "4000188",
+  "name": "空中部队发射器",
+  "category": "siege-machine",
+  "base": "home",
+  "traits": {
+    "movementSpeed": 16,
+    "housingSpace": 1,
+    "range": 5.5,
+    "attackSpeed": 8,
+    "donationCost": {
+      "amount": 45000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 15
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 1,
+        "damagePerShot": 8,
+        "hp": 3600,
+        "barrelCount": 4
+      },
+      "spawnedTroops": [
+        {
+          "troopId": "minion",
+          "count": 2,
+          "level": 10
+        },
+        {
+          "troopId": "balloon",
+          "count": 1,
+          "level": 9
+        },
+        {
+          "troopId": "baby-dragon",
+          "count": 1,
+          "level": 8
+        }
+      ],
+      "laboratoryRequired": 0,
+      "townHallRequired": 17,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 2,
+        "damagePerShot": 16,
+        "hp": 3800,
+        "barrelCount": 4
+      },
+      "spawnedTroops": [
+        {
+          "troopId": "minion",
+          "count": 3,
+          "level": 11
+        },
+        {
+          "troopId": "balloon",
+          "count": 1,
+          "level": 10
+        },
+        {
+          "troopId": "baby-dragon",
+          "count": 1,
+          "level": 9
+        }
+      ],
+      "laboratoryRequired": 15,
+      "townHallRequired": 17,
+      "cost": 22000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 3,
+        "damagePerShot": 24,
+        "hp": 4000,
+        "barrelCount": 5
+      },
+      "spawnedTroops": [
+        {
+          "troopId": "minion",
+          "count": 4,
+          "level": 12
+        },
+        {
+          "troopId": "balloon",
+          "count": 1,
+          "level": 11
+        },
+        {
+          "troopId": "baby-dragon",
+          "count": 1,
+          "level": 10
+        }
+      ],
+      "laboratoryRequired": 16,
+      "townHallRequired": 18,
+      "cost": 26000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 13,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 4,
+        "damagePerShot": 32,
+        "hp": 4200,
+        "barrelCount": 5
+      },
+      "spawnedTroops": [
+        {
+          "troopId": "minion",
+          "count": 4,
+          "level": 13
+        },
+        {
+          "troopId": "balloon",
+          "count": 1,
+          "level": 12
+        },
+        {
+          "troopId": "baby-dragon",
+          "count": 1,
+          "level": 11
+        }
+      ],
+      "laboratoryRequired": 16,
+      "townHallRequired": 18,
+      "cost": 29000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 16,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "sky-wagon",
+  "en_name": "Sky Wagon",
+  "workshopLevelRequired": 9,
+  "preferredTarget": "Defenses",
+  "attackType": "Area Splash (Ground Only)"
+}

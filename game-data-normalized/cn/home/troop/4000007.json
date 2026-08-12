@@ -1,0 +1,268 @@
+{
+  "id": "4000007",
+  "name": "天使",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "无",
+    "targetType": "地面",
+    "movementSpeed": 16,
+    "housingSpace": 14,
+    "range": 4.5,
+    "attackSpeed": 0.7,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 21000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 7
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 500,
+        "dps": -36,
+        "damagePerShot": -25.2,
+        "healingPerSecond": 36,
+        "healingPerPulse": 25.2,
+        "healingPerSecondOnHeroes": 19,
+        "healingPerPulseOnHeroes": 13.3
+      },
+      "townHallRequired": 6,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 700,
+        "dps": -48,
+        "damagePerShot": -33.6,
+        "healingPerSecond": 48,
+        "healingPerPulse": 33.6,
+        "healingPerSecondOnHeroes": 26,
+        "healingPerPulseOnHeroes": 18.2
+      },
+      "townHallRequired": 7,
+      "laboratoryRequired": 5,
+      "cost": 450000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 900,
+        "dps": -60,
+        "damagePerShot": -42,
+        "healingPerSecond": 60,
+        "healingPerPulse": 42,
+        "healingPerSecondOnHeroes": 33,
+        "healingPerPulseOnHeroes": 23.1
+      },
+      "townHallRequired": 8,
+      "laboratoryRequired": 6,
+      "cost": 900000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1200,
+        "dps": -66,
+        "damagePerShot": -46.2,
+        "healingPerSecond": 66,
+        "healingPerPulse": 46.2,
+        "healingPerSecondOnHeroes": 36,
+        "healingPerPulseOnHeroes": 25.2
+      },
+      "townHallRequired": 9,
+      "laboratoryRequired": 7,
+      "cost": 2500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1500,
+        "dps": -72,
+        "damagePerShot": -50.4,
+        "healingPerSecond": 72,
+        "healingPerPulse": 50.4,
+        "healingPerSecondOnHeroes": 48,
+        "healingPerPulseOnHeroes": 33.6
+      },
+      "townHallRequired": 11,
+      "laboratoryRequired": 9,
+      "cost": 4000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 15,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1600,
+        "dps": -72,
+        "damagePerShot": -50.4,
+        "healingPerSecond": 72,
+        "healingPerPulse": 50.4,
+        "healingPerSecondOnHeroes": 56,
+        "healingPerPulseOnHeroes": 39.2
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 11,
+      "cost": 6000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1700,
+        "dps": -72,
+        "damagePerShot": -50.4,
+        "healingPerSecond": 72,
+        "healingPerPulse": 50.4,
+        "healingPerSecondOnHeroes": 62,
+        "healingPerPulseOnHeroes": 43.4
+      },
+      "townHallRequired": 14,
+      "laboratoryRequired": 12,
+      "cost": 9500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 7,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1800,
+        "dps": -76,
+        "damagePerShot": -53.2,
+        "healingPerSecond": 76,
+        "healingPerPulse": 53.2,
+        "healingPerSecondOnHeroes": 68,
+        "healingPerPulseOnHeroes": 47.6
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 11000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 8,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1900,
+        "dps": -80,
+        "damagePerShot": -56,
+        "healingPerSecond": 80,
+        "healingPerPulse": 56,
+        "healingPerSecondOnHeroes": 75,
+        "healingPerPulseOnHeroes": 52.5
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 13000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 9,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 2000,
+        "dps": -80,
+        "damagePerShot": -56,
+        "healingPerSecond": 80,
+        "healingPerPulse": 56,
+        "healingPerSecondOnHeroes": 78,
+        "healingPerPulseOnHeroes": 54.6
+      },
+      "townHallRequired": 17,
+      "laboratoryRequired": 15,
+      "cost": 17000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 13,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 2100,
+        "dps": -82,
+        "damagePerShot": -57.4,
+        "healingPerSecond": 82,
+        "healingPerPulse": 57.4,
+        "healingPerSecondOnHeroes": 88,
+        "healingPerPulseOnHeroes": 61.6
+      },
+      "townHallRequired": 18,
+      "laboratoryRequired": 16,
+      "cost": 28500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "healer",
+  "en_name": "Healer",
+  "barrackLevelRequired": 8
+}

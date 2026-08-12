@@ -1,0 +1,211 @@
+{
+  "id": "73000011",
+  "name": "水母",
+  "category": "pet",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "movementSpeed": 16,
+    "range": 1.5,
+    "attackSpeed": 0.75
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 112,
+        "damagePerShot": 84,
+        "brainwashDuration": 25,
+        "hp": 1450
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 121,
+        "damagePerShot": 90.75,
+        "brainwashDuration": 25,
+        "hp": 1525
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 150000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 130,
+        "damagePerShot": 97.5,
+        "brainwashDuration": 25,
+        "hp": 1600
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 139,
+        "damagePerShot": 104.25,
+        "brainwashDuration": 25,
+        "hp": 1675
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 170000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 148,
+        "damagePerShot": 111,
+        "brainwashDuration": 30,
+        "hp": 1750
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 180000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 157,
+        "damagePerShot": 117.75,
+        "brainwashDuration": 30,
+        "hp": 1825
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 190000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "dps": 166,
+        "damagePerShot": 124.5,
+        "brainwashDuration": 30,
+        "hp": 1900
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 200000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "dps": 175,
+        "damagePerShot": 131.25,
+        "brainwashDuration": 30,
+        "hp": 1975
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 210000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "dps": 184,
+        "damagePerShot": 138,
+        "brainwashDuration": 30,
+        "hp": 2050
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 220000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "dps": 193,
+        "damagePerShot": 144.75,
+        "brainwashDuration": 35,
+        "hp": 2125
+      },
+      "petHouseLevelRequired": 10,
+      "townHallRequired": 16,
+      "cost": 230000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "angry-jelly",
+  "en_name": "Angry Jelly",
+  "preferredTarget": "Hero's Target",
+  "attackType": "Single Target",
+  "petHouseLevelRequired": 10,
+  "specialAbility": "Brainwash"
+}

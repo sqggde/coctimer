@@ -1,0 +1,133 @@
+{
+  "id": "4000110",
+  "name": "根蔓骑士",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 12,
+    "housingSpace": 20,
+    "range": 1,
+    "attackSpeed": 2.2,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 30000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 10
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 6200,
+        "dps": 95,
+        "damagePerShot": 209
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 6350,
+        "dps": 105,
+        "damagePerShot": 231
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 15000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 6500,
+        "dps": 115,
+        "damagePerShot": 253
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 17600000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 6700,
+        "dps": 125,
+        "damagePerShot": 275
+      },
+      "townHallRequired": 18,
+      "laboratoryRequired": 16,
+      "cost": 30000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 16,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [
+    {
+      "name": "对墙",
+      "levels": [
+        {
+          "level": 1,
+          "stats": {
+            "dps": 10000,
+            "damagePerShot": 4000
+          }
+        },
+        {
+          "level": 2,
+          "stats": {
+            "dps": 10000,
+            "damagePerShot": 4000
+          }
+        },
+        {
+          "level": 3,
+          "stats": {
+            "dps": 10000,
+            "damagePerShot": 4000
+          }
+        },
+        {
+          "level": 4,
+          "stats": {
+            "dps": 10000,
+            "damagePerShot": 4000
+          }
+        }
+      ]
+    }
+  ],
+  "rawId": "root-rider",
+  "en_name": "Root Rider",
+  "wallAttackSpeed": 0.4,
+  "barrackLevelRequired": 17
+}

@@ -1,0 +1,509 @@
+{
+  "id": "28000005",
+  "name": "战斗直升机",
+  "category": "hero",
+  "base": "builder",
+  "traits": {
+    "movementSpeed": 14,
+    "range": 7,
+    "attackSpeed": 0.65
+  },
+  "levels": [
+    {
+      "level": 15,
+      "stats": {
+        "dps": 112,
+        "damagePerShot": 72.8,
+        "hp": 2857,
+        "abilityLevel": 1
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 2500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 16,
+      "stats": {
+        "dps": 116,
+        "damagePerShot": 75.4,
+        "hp": 2885,
+        "abilityLevel": 1
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 2600000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 17,
+      "stats": {
+        "dps": 119,
+        "damagePerShot": 77.35,
+        "hp": 2915,
+        "abilityLevel": 1
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 2700000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 18,
+      "stats": {
+        "dps": 123,
+        "damagePerShot": 79.95,
+        "hp": 2943,
+        "abilityLevel": 1
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 2800000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 19,
+      "stats": {
+        "dps": 126,
+        "damagePerShot": 81.9,
+        "hp": 2972,
+        "abilityLevel": 1
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 2900000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 20,
+      "stats": {
+        "dps": 130,
+        "damagePerShot": 84.5,
+        "hp": 3003,
+        "abilityLevel": 2
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3000000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 21,
+      "stats": {
+        "dps": 134,
+        "damagePerShot": 87.1,
+        "hp": 3032,
+        "abilityLevel": 2
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3100000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 22,
+      "stats": {
+        "dps": 137,
+        "damagePerShot": 89.05,
+        "hp": 3062,
+        "abilityLevel": 2
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3200000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 23,
+      "stats": {
+        "dps": 141,
+        "damagePerShot": 91.65,
+        "hp": 3094,
+        "abilityLevel": 2
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 24,
+      "stats": {
+        "dps": 144,
+        "damagePerShot": 93.6,
+        "hp": 3124,
+        "abilityLevel": 2
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 25,
+      "stats": {
+        "dps": 148,
+        "damagePerShot": 96.2,
+        "hp": 3155,
+        "abilityLevel": 3
+      },
+      "builderHallLevelRequired": 8,
+      "cost": 3500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 26,
+      "stats": {
+        "dps": 153,
+        "damagePerShot": 99.45,
+        "hp": 3187,
+        "abilityLevel": 3
+      },
+      "builderHallLevelRequired": 9,
+      "cost": 3600000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 27,
+      "stats": {
+        "dps": 157,
+        "damagePerShot": 102.05,
+        "hp": 3220,
+        "abilityLevel": 3
+      },
+      "builderHallLevelRequired": 9,
+      "cost": 3700000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 28,
+      "stats": {
+        "dps": 162,
+        "damagePerShot": 105.3,
+        "hp": 3252,
+        "abilityLevel": 3
+      },
+      "builderHallLevelRequired": 9,
+      "cost": 3800000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 29,
+      "stats": {
+        "dps": 166,
+        "damagePerShot": 107.9,
+        "hp": 3285,
+        "abilityLevel": 3
+      },
+      "builderHallLevelRequired": 9,
+      "cost": 3900000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 30,
+      "stats": {
+        "dps": 171,
+        "damagePerShot": 111.15,
+        "hp": 3318,
+        "abilityLevel": 4
+      },
+      "builderHallLevelRequired": 9,
+      "cost": 4000000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 31,
+      "stats": {
+        "dps": 175,
+        "damagePerShot": 113.75,
+        "hp": 3348,
+        "abilityLevel": 4
+      },
+      "builderHallLevelRequired": 10,
+      "cost": 4100000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 32,
+      "stats": {
+        "dps": 180,
+        "damagePerShot": 117,
+        "hp": 3375,
+        "abilityLevel": 4
+      },
+      "builderHallLevelRequired": 10,
+      "cost": 4200000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 33,
+      "stats": {
+        "dps": 184,
+        "damagePerShot": 119.6,
+        "hp": 3402,
+        "abilityLevel": 4
+      },
+      "builderHallLevelRequired": 10,
+      "cost": 4300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 34,
+      "stats": {
+        "dps": 189,
+        "damagePerShot": 122.85,
+        "hp": 3429,
+        "abilityLevel": 4
+      },
+      "builderHallLevelRequired": 10,
+      "cost": 4400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 35,
+      "stats": {
+        "dps": 193,
+        "damagePerShot": 125.45,
+        "hp": 3456,
+        "abilityLevel": 5
+      },
+      "builderHallLevelRequired": 10,
+      "cost": 4500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "battle-copter",
+  "en_name": "Battle Copter",
+  "preferredTarget": "None",
+  "attackType": "Ranged (Ground & Air)",
+  "specialAbility": "Bomb Rush",
+  "ability": {
+    "name": "Bomb Rush",
+    "cooldownPerChargeLevel": 14,
+    "movementSpeedDuringAbility": 56,
+    "levels": [
+      {
+        "abilityLevel": 1,
+        "chargeLevel1": {
+          "attackType": "Splash",
+          "damageRadius": 0.5,
+          "damage": 179,
+          "healthRecovery": 550
+        },
+        "chargeLevel2": {
+          "attackType": "Splash",
+          "damageRadius": 2,
+          "damage": 274,
+          "healthRecovery": 1100
+        },
+        "chargeLevel3": {
+          "attackType": "Splash",
+          "damageRadius": 4,
+          "damage": 368,
+          "healthRecovery": 1650
+        }
+      },
+      {
+        "abilityLevel": 2,
+        "chargeLevel1": {
+          "attackType": "Splash",
+          "damageRadius": 0.5,
+          "damage": 209,
+          "healthRecovery": 575
+        },
+        "chargeLevel2": {
+          "attackType": "Splash",
+          "damageRadius": 2,
+          "damage": 320,
+          "healthRecovery": 1150
+        },
+        "chargeLevel3": {
+          "attackType": "Splash",
+          "damageRadius": 4,
+          "damage": 430,
+          "healthRecovery": 1725
+        }
+      },
+      {
+        "abilityLevel": 3,
+        "chargeLevel1": {
+          "attackType": "Splash",
+          "damageRadius": 0.5,
+          "damage": 239,
+          "healthRecovery": 600
+        },
+        "chargeLevel2": {
+          "attackType": "Splash",
+          "damageRadius": 2,
+          "damage": 365,
+          "healthRecovery": 1200
+        },
+        "chargeLevel3": {
+          "attackType": "Splash",
+          "damageRadius": 4,
+          "damage": 491,
+          "healthRecovery": 1800
+        }
+      },
+      {
+        "abilityLevel": 4,
+        "chargeLevel1": {
+          "attackType": "Splash",
+          "damageRadius": 0.5,
+          "damage": 279,
+          "healthRecovery": 625
+        },
+        "chargeLevel2": {
+          "attackType": "Splash",
+          "damageRadius": 2,
+          "damage": 426,
+          "healthRecovery": 1250
+        },
+        "chargeLevel3": {
+          "attackType": "Splash",
+          "damageRadius": 4,
+          "damage": 573,
+          "healthRecovery": 1875
+        }
+      },
+      {
+        "abilityLevel": 5,
+        "chargeLevel1": {
+          "attackType": "Splash",
+          "damageRadius": 0.5,
+          "damage": 319,
+          "healthRecovery": 650
+        },
+        "chargeLevel2": {
+          "attackType": "Splash",
+          "damageRadius": 2,
+          "damage": 487,
+          "healthRecovery": 1300
+        },
+        "chargeLevel3": {
+          "attackType": "Splash",
+          "damageRadius": 4,
+          "damage": 655,
+          "healthRecovery": 1950
+        }
+      }
+    ]
+  }
+}

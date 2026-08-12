@@ -1,0 +1,220 @@
+{
+  "id": "90000006",
+  "name": "寻踪飞盾",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 40,
+        "projectileDamage": 1000
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 0
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 60,
+        "projectileDamage": 1000
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 80,
+        "projectileDamage": 1250
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 100,
+        "projectileDamage": 1250
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 120,
+        "projectileDamage": 1250
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 140,
+        "projectileDamage": 1500
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 160,
+        "projectileDamage": 1500
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 180,
+        "projectileDamage": 1500
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 200,
+        "projectileDamage": 1750
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 220,
+        "projectileDamage": 1750
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 240,
+        "projectileDamage": 1750
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 260,
+        "projectileDamage": 2000
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 280,
+        "projectileDamage": 2000
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 300,
+        "projectileDamage": 2000
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 320,
+        "projectileDamage": 2250
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 340,
+        "projectileDamage": 2250
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 360,
+        "projectileDamage": 2250
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 380,
+        "projectileDamage": 2500
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    }
+  ],
+  "abilities": [],
+  "rawId": "seeking-shield",
+  "en_name": "Seeking Shield",
+  "hero": "royal-champion",
+  "rarity": "Common",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Available by default"
+  ],
+  "ability": {
+    "numberOfTargets": 4,
+    "targets": "Ground & Air"
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "id": "90000059",
+  "name": "闪电獠牙",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 400,
+        "damagePerHit": 330,
+        "numberOfTargets": 1
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 650,
+        "damagePerHit": 330,
+        "numberOfTargets": 1
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 850,
+        "damagePerHit": 340,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 1000,
+        "damagePerHit": 340,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 1150,
+        "damagePerHit": 340,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 1300,
+        "damagePerHit": 350,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 1450,
+        "damagePerHit": 350,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 1600,
+        "damagePerHit": 350,
+        "numberOfTargets": 2
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 1750,
+        "damagePerHit": 360,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 1900,
+        "damagePerHit": 360,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 2000,
+        "damagePerHit": 360,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 2100,
+        "damagePerHit": 370,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 2200,
+        "damagePerHit": 370,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 2275,
+        "damagePerHit": 370,
+        "numberOfTargets": 3
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 2325,
+        "damagePerHit": 380,
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 2375,
+        "damagePerHit": 380,
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 2400,
+        "damagePerHit": 380,
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 2400,
+        "damagePerHit": 400,
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "electro-fangs",
+  "en_name": "Electro Fangs",
+  "hero": "dragon-duke",
+  "rarity": "Common",
+  "abilityType": "Passive",
+  "unlockRequirement": [
+    "Blacksmith level 10"
+  ],
+  "ability": {
+    "chainDamageDecay": "-20%",
+    "chainDistance": 3
+  }
+}

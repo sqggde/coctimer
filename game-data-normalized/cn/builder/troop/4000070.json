@@ -1,0 +1,142 @@
+{
+  "id": "4000070",
+  "name": "野猪飞骑",
+  "category": "troop",
+  "base": "builder",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 24,
+    "housingSpace": 12,
+    "range": 0.5,
+    "attackSpeed": 0.2
+  },
+  "levels": [
+    {
+      "level": 15,
+      "stats": {
+        "hp": 600,
+        "damagePerShot": 180,
+        "stunDuration": 5,
+        "unitsPerCamp": 2,
+        "dps": 900
+      },
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 0,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 650,
+        "damagePerShot": 220,
+        "stunDuration": 5,
+        "unitsPerCamp": 2,
+        "dps": 1100
+      },
+      "cost": 4000000,
+      "costResource": "Elixir2",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 650,
+        "damagePerShot": 220,
+        "stunDuration": 5,
+        "unitsPerCamp": 2,
+        "dps": 1100
+      },
+      "cost": 4200000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hp": 650,
+        "damagePerShot": 220,
+        "stunDuration": 6,
+        "unitsPerCamp": 2,
+        "dps": 1100
+      },
+      "cost": 4400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9,
+      "laboratoryRequired": 9
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hp": 650,
+        "damagePerShot": 220,
+        "stunDuration": 6,
+        "unitsPerCamp": 2,
+        "dps": 1100
+      },
+      "cost": 5400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10,
+      "laboratoryRequired": 10
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hp": 700,
+        "damagePerShot": 260,
+        "stunDuration": 6,
+        "unitsPerCamp": 2,
+        "dps": 1300
+      },
+      "cost": 5800000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10,
+      "laboratoryRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "hog-glider",
+  "en_name": "Hog Glider",
+  "builderBarracksRequired": 11,
+  "preferredTarget": "Defenses",
+  "specialAbility": "Stunning Glide"
+}

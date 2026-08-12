@@ -1,0 +1,236 @@
+{
+  "id": "1000058",
+  "name": "宝石矿井",
+  "category": "resource",
+  "base": "builder",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 300,
+        "capacity": 10,
+        "productionRate": 2.16
+      },
+      "cost": 120000,
+      "costResource": "Elixir2",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 60,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 350,
+        "capacity": 11,
+        "productionRate": 2.4
+      },
+      "cost": 180000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 84,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 400,
+        "capacity": 12,
+        "productionRate": 2.64
+      },
+      "cost": 240000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 460,
+        "capacity": 13,
+        "productionRate": 2.88
+      },
+      "cost": 450000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 169,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 550,
+        "capacity": 14,
+        "productionRate": 3.12
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 650,
+        "capacity": 15,
+        "productionRate": 3.36
+      },
+      "cost": 1500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 750,
+        "capacity": 16,
+        "productionRate": 3.84
+      },
+      "cost": 2500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 850,
+        "capacity": 17,
+        "productionRate": 4.32
+      },
+      "cost": 3500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1000,
+        "capacity": 18,
+        "productionRate": 4.8
+      },
+      "cost": 4500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1150,
+        "capacity": 19,
+        "productionRate": 5.04
+      },
+      "cost": 5500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "gem-mine",
+  "en_name": "Gem Mine",
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 1,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 2,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 3,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 1
+    }
+  ]
+}

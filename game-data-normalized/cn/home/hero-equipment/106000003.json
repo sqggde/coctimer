@@ -1,0 +1,234 @@
+{
+  "id": "106000003",
+  "name": "隐形药水瓶",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 80,
+        "abilityDuration": "4.2s",
+        "damagePerShotIncrease": 340
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 0
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 100,
+        "abilityDuration": "4.2s",
+        "damagePerShotIncrease": 440
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 120,
+        "abilityDuration": "4.8s",
+        "damagePerShotIncrease": 540
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 140,
+        "abilityDuration": "4.8s",
+        "damagePerShotIncrease": 640
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 170,
+        "abilityDuration": "4.8s",
+        "damagePerShotIncrease": 730
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 200,
+        "abilityDuration": "5.4s",
+        "damagePerShotIncrease": 820
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 250,
+        "abilityDuration": "5.4s",
+        "damagePerShotIncrease": 920
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 300,
+        "abilityDuration": "5.4s",
+        "damagePerShotIncrease": 1020
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 340,
+        "abilityDuration": "6.0s",
+        "damagePerShotIncrease": 1120
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 380,
+        "abilityDuration": "6.0s",
+        "damagePerShotIncrease": 1220
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 420,
+        "abilityDuration": "6.0s",
+        "damagePerShotIncrease": 1310
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 460,
+        "abilityDuration": "6.6s",
+        "damagePerShotIncrease": 1370
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 500,
+        "abilityDuration": "6.6s",
+        "damagePerShotIncrease": 1430
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 540,
+        "abilityDuration": "6.6s",
+        "damagePerShotIncrease": 1490
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 580,
+        "abilityDuration": "7.2s",
+        "damagePerShotIncrease": 1560
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 620,
+        "abilityDuration": "7.2s",
+        "damagePerShotIncrease": 1620
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 660,
+        "abilityDuration": "7.2s",
+        "damagePerShotIncrease": 1680
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 700,
+        "abilityDuration": "7.8s",
+        "damagePerShotIncrease": 1740
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    }
+  ],
+  "abilities": [],
+  "rawId": "invisibility-vial",
+  "en_name": "Invisibility Vial",
+  "hero": "archer-queen",
+  "rarity": "Common",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Available by default"
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "id": "1000050",
+  "name": "防空火箭(夜)",
+  "category": "defense",
+  "base": "builder",
+  "traits": {
+    "targetType": "空中",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 400,
+        "dps": 59,
+        "damagePerShot": 19
+      },
+      "cost": 40000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 15,
+        "seconds": 0
+      },
+      "xpGained": 30,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 460,
+        "dps": 65,
+        "damagePerShot": 21
+      },
+      "cost": 80000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 84,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 530,
+        "dps": 71,
+        "damagePerShot": 23
+      },
+      "cost": 120000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 120,
+      "builderHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 610,
+        "dps": 78,
+        "damagePerShot": 25
+      },
+      "cost": 300000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 700,
+        "dps": 84,
+        "damagePerShot": 27
+      },
+      "cost": 800000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 850,
+        "dps": 93,
+        "damagePerShot": 30
+      },
+      "cost": 1200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1000,
+        "dps": 103,
+        "damagePerShot": 33
+      },
+      "cost": 2000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1150,
+        "dps": 112,
+        "damagePerShot": 36
+      },
+      "cost": 3000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1300,
+        "dps": 125,
+        "damagePerShot": 40
+      },
+      "cost": 4000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1500,
+        "dps": 137,
+        "damagePerShot": 44
+      },
+      "cost": 5000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 881,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "firecrackers",
+  "en_name": "Firecrackers",
+  "modes": {
+    "normal": {
+      "range": 9,
+      "attackSpeed": 0.267,
+      "shotsPerBurst": 3,
+      "damageType": "single"
+    }
+  },
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 3,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 3
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 4
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 5
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 5
+    }
+  ]
+}

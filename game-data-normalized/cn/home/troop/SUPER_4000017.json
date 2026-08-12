@@ -1,0 +1,119 @@
+{
+  "id": "SUPER_4000017",
+  "name": "超级熔岩猎犬",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 20,
+    "housingSpace": 30,
+    "range": 0.25,
+    "attackSpeed": 2,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 675,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 15
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 7500,
+        "pupsOnOffense": 6,
+        "pupsOnDefense": 6,
+        "freezeTime": 3.75,
+        "dps": 2,
+        "damagePerShot": 4
+      },
+      "townHallRequired": 7
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 8000,
+        "pupsOnOffense": 7,
+        "pupsOnDefense": 7,
+        "freezeTime": 3.75,
+        "dps": 4,
+        "damagePerShot": 8
+      },
+      "townHallRequired": 9
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 8500,
+        "pupsOnOffense": 8,
+        "pupsOnDefense": 8,
+        "freezeTime": 3.75,
+        "dps": 6,
+        "damagePerShot": 12
+      },
+      "townHallRequired": 10
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 9000,
+        "pupsOnOffense": 9,
+        "pupsOnDefense": 9,
+        "freezeTime": 3.75,
+        "dps": 8,
+        "damagePerShot": 16
+      },
+      "townHallRequired": 11
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 9500,
+        "pupsOnOffense": 10,
+        "pupsOnDefense": 10,
+        "freezeTime": 3.75,
+        "dps": 10,
+        "damagePerShot": 20
+      },
+      "townHallRequired": 12
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 10000,
+        "pupsOnOffense": 12,
+        "pupsOnDefense": 11,
+        "freezeTime": 4.25,
+        "dps": 15,
+        "damagePerShot": 30
+      },
+      "townHallRequired": 13
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 10500,
+        "pupsOnOffense": 14,
+        "pupsOnDefense": 12,
+        "freezeTime": 4.75,
+        "dps": 20,
+        "damagePerShot": 40
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 11500,
+        "pupsOnOffense": 16,
+        "pupsOnDefense": 13,
+        "freezeTime": 5.25,
+        "dps": 25,
+        "damagePerShot": 50
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

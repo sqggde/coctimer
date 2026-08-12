@@ -1,0 +1,129 @@
+{
+  "id": "107000008",
+  "name": "滚木手",
+  "category": "guardian",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 8000,
+        "postHitRange": 5,
+        "dps": 230,
+        "damagePerShot": 575
+      },
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 9000,
+        "postHitRange": 5,
+        "dps": 260,
+        "damagePerShot": 650
+      },
+      "cost": 18000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 10000,
+        "postHitRange": 5,
+        "dps": 290,
+        "damagePerShot": 725
+      },
+      "cost": 22000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 11000,
+        "postHitRange": 6,
+        "dps": 320,
+        "damagePerShot": 800
+      },
+      "cost": 26000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 11,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 12000,
+        "postHitRange": 6,
+        "dps": 350,
+        "damagePerShot": 875
+      },
+      "cost": 28000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 13,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "modes": {
+    "normal": {
+      "attackSpeed": 2.5,
+      "damageType": "splash",
+      "range": 7,
+      "damageRadius": null,
+      "pushbackRange": 1.5,
+      "movementSpeed": 8,
+      "patrolRadius": 14,
+      "triggerRadius": 15
+    }
+  },
+  "rawId": "logger",
+  "en_name": "Logger",
+  "guardianType": "logger",
+  "specialAbility": "Knockback",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

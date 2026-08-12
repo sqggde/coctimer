@@ -1,0 +1,309 @@
+{
+  "id": "1000026",
+  "name": "暗黑训练营",
+  "category": "army",
+  "base": "home",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 500
+      },
+      "unlockedUnit": "Minion",
+      "cost": 200000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 169,
+      "townHallRequired": 7
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 550
+      },
+      "unlockedUnit": "Hog Rider",
+      "cost": 600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 7
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 600
+      },
+      "unlockedUnit": "Valkyrie",
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 360,
+      "townHallRequired": 8
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 650
+      },
+      "unlockedUnit": "Golem",
+      "cost": 1600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 8
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 700
+      },
+      "unlockedUnit": "Witch",
+      "cost": 2200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 464,
+      "townHallRequired": 9
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 750
+      },
+      "unlockedUnit": "Lava Hound",
+      "cost": 2900000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 9
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 800
+      },
+      "unlockedUnit": "Bowler",
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 10
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 850
+      },
+      "unlockedUnit": "Ice Golem",
+      "cost": 7000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "townHallRequired": 11
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 900
+      },
+      "unlockedUnit": "Headhunter",
+      "cost": 7200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 12
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 950
+      },
+      "unlockedUnit": "Apprentice Warden",
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 804,
+      "townHallRequired": 13
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1000
+      },
+      "unlockedUnit": "Druid",
+      "cost": 12000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 14
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1050
+      },
+      "unlockedUnit": "Furnace",
+      "cost": 20000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 881,
+      "townHallRequired": 15
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 1100
+      },
+      "unlockedUnit": "Ruin Witch",
+      "cost": 23000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 929,
+      "townHallRequired": 16
+    }
+  ],
+  "abilities": [],
+  "rawId": "dark-barracks",
+  "en_name": "Dark Barracks",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 1
+    },
+    {
+      "townHallLevel": 8,
+      "count": 1
+    },
+    {
+      "townHallLevel": 9,
+      "count": 1
+    },
+    {
+      "townHallLevel": 10,
+      "count": 1
+    },
+    {
+      "townHallLevel": 11,
+      "count": 1
+    },
+    {
+      "townHallLevel": 12,
+      "count": 1
+    },
+    {
+      "townHallLevel": 13,
+      "count": 1
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

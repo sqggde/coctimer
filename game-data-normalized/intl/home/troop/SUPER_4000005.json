@@ -1,0 +1,95 @@
+{
+  "id": "SUPER_4000005",
+  "name": "超级气球",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "地面",
+    "movementSpeed": 10,
+    "housingSpace": 5,
+    "range": 0.5,
+    "attackSpeed": 3,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 9000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 3
+    }
+  },
+  "levels": [
+    {
+      "level": 8,
+      "stats": {
+        "hp": 840,
+        "dps": 270,
+        "damagePerShot": 810,
+        "deathDamage": 580
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 940,
+        "dps": 280,
+        "damagePerShot": 840,
+        "deathDamage": 620
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1040,
+        "dps": 285,
+        "damagePerShot": 855,
+        "deathDamage": 650
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1140,
+        "dps": 290,
+        "damagePerShot": 870,
+        "deathDamage": 700
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1240,
+        "dps": 304,
+        "damagePerShot": 912,
+        "deathDamage": 730
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 1360,
+        "dps": 326,
+        "damagePerShot": 978,
+        "deathDamage": 760
+      },
+      "images": {
+        "normal": "images/home/troops/balloon/super/level-8.png"
+      }
+    }
+  ],
+  "abilities": []
+}
