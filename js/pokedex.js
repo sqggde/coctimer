@@ -83,6 +83,7 @@
         { key: 'laboratoryRequired', label: '实验室等级', icon: 'att_sys', group: 'level' },
         { key: 'townHallRequired', label: '大本营等级', group: 'level' },
         { key: 'builderHallRequired', label: '建筑大师大本营等级', group: 'level' },
+        { key: 'heroHallLevelRequired', label: '英雄殿堂等级', icon: 'att_yxdt', group: 'level' },
         { key: 'xpGained', label: '升级经验', icon: 'att_XP', group: 'level' },
         { key: 'capacity', label: '容量', group: 'level' },
         { key: 'productionRate', label: '生产效率', group: 'level' },
@@ -369,15 +370,64 @@
         box._tabs = tabs;
     }
 
+    // 累计升级时间/花费：从打开图鉴时的账号等级（accountLevel）到滑块目标等级的区间总和（含目标级一段）
+    // kind: 'time' 返回 fmtTime 字符串；'cost' 返回 fmtCost 字符串；无累计（滑块≤账号等级/账号超出实体满级）返回 null
+    function cumulative(kind) {
+        const levels = currentAbility ? currentAbility.levels : (currentEntity ? currentEntity.levels : []);
+        const to = Number(els.slider().value) || 1;
+        const from = accountLevel || 1;
+        if (to <= from) return null;
+        if (from < 1 || from >= levels.length) return null;
+        if (kind === 'time') {
+            let s = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+                const t = levels[i].time;
+                if (t) {
+                    s.days += t.days || 0;
+                    s.hours += t.hours || 0;
+                    s.minutes += t.minutes || 0;
+                    s.seconds += t.seconds || 0;
+                }
+            }
+            // 分项累计后进位归一化（秒→分→时→天）
+            s.minutes += Math.floor(s.seconds / 60); s.seconds %= 60;
+            s.hours += Math.floor(s.minutes / 60); s.minutes %= 60;
+            s.days += Math.floor(s.hours / 24); s.hours %= 24;
+            return fmtTime(s);
+        }
+        if (kind === 'cost') {
+            let sum = 0;
+            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+                const c = levels[i].cost;
+                if (typeof c === 'number') sum += c;
+            }
+            return fmtCost(sum);
+        }
+        // 装备矿石花费（蓝/紫/黄矿，与升级花费同口径 Xw 缩写）
+        if (ORE_KEYS.indexOf(kind) !== -1) {
+            let sum = 0;
+            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+                const v = levels[i][kind];
+                if (typeof v === 'number') sum += v;
+            }
+            return fmtCost(sum);
+        }
+        return null;
+    }
+
     function renderLevel(lv) {
         const d = collectLevel(lv);
         let html = '';
-        buildLevelMeta().forEach(f => {
+        // 稳定排序（组内保持 FIELD_META 原顺序）：属性 → 时间/花费 → 建筑等级 → 升级经验
+        const fields = buildLevelMeta().slice().sort((a, b) => levelFieldWeight(a) - levelFieldWeight(b));
+        fields.forEach(f => {
             const v = d[f.key];
             if (v === undefined || v === null) return;
+            const cum = (f.key === 'time' || f.key === 'cost' || ORE_KEYS.indexOf(f.key) !== -1) ? cumulative(f.key) : null;
             html += '<div class="item basic-item">' +
                 '<img class="basic-icon" src="img/icons/' + iconForField(f, v) + '.webp" alt="">' +
-                '<div class="basic-text"><span class="k">' + f.label + '</span><span class="v">' + formatValue(v, f.fmt) + '</span></div>' +
+                '<div class="basic-text"><span class="k">' + f.label + '</span><span class="v">' + formatValue(v, f.fmt) +
+                (cum ? '<span class="cum">' + cum + '</span>' : '') + '</span></div>' +
                 '</div>';
         });
         els.level().innerHTML = html;
@@ -389,12 +439,28 @@
         xpGained: 'att_XP',
         townHallRequired: 'att_bulid',
         builderHallRequired: 'att_bulid',
+        heroHallLevelRequired: 'att_yxdt',
         laboratoryRequired: 'att_sys',
         barrackLevelRequired: 'att_xly',
         spellFactoryLevelRequired: 'att_fsgc',
         petHouseLevelRequired: 'att_pets',
         blacksmithLevelRequired: 'att_tjp'
     };
+    // 建筑等级类字段集合（大本营等级独立后置；排序分组：属性 → 时间/花费 → 其他建筑 → 大本营 → 升级经验）
+    const LEVEL_BUILDING_REQ = ['townHallRequired', 'builderHallRequired', 'heroHallLevelRequired',
+        'laboratoryRequired', 'barrackLevelRequired', 'spellFactoryLevelRequired',
+        'petHouseLevelRequired', 'blacksmithLevelRequired'];
+    const LEVEL_TH_REQ = ['townHallRequired', 'builderHallRequired'];
+    // 装备矿石升级花费字段（蓝/紫/黄矿，累计统计同升级花费口径）
+    const ORE_KEYS = ['upgradeShinyOre', 'upgradeGlowingOre', 'upgradeStarryOre'];
+    // 等级属性卡片字段分组权重：属性 0 / 时间花费 1 / 其他建筑等级 2 / 大本营等级 3 / 升级经验 4（组内保持 FIELD_META 原顺序）
+    function levelFieldWeight(f) {
+        if (f.key === 'time' || f.key === 'cost') return 1;
+        if (LEVEL_TH_REQ.indexOf(f.key) !== -1) return 3;
+        if (LEVEL_BUILDING_REQ.indexOf(f.key) !== -1) return 2;
+        if (f.key === 'xpGained') return 4;
+        return 0;
+    }
     // 返回表头图标 HTML；无图标字段返回 null（调用方回退文字）
     function thIconHtml(f, levels) {
         let icon = TH_ICON[f.key];
@@ -427,11 +493,11 @@
             });
         });
         const cols = buildLevelMeta().filter(f => present[f.key]);
-        // 升级时间/升级花费排在最前两列（等级列之后），其余保持 FIELD_META 顺序
-        const PRIORITY = { time: 0, cost: 1 };
+        // 表格列序（等级列之后）：时间 → 花费 → 其他属性 → 其他建筑等级 → 大本营等级 → 升级经验
+        const PRIORITY = { time: 0, cost: 1, xpGained: 5, townHallRequired: 4, builderHallRequired: 4 };
         cols.sort((a, b) => {
-            const pa = PRIORITY[a.key] !== undefined ? PRIORITY[a.key] : 2;
-            const pb = PRIORITY[b.key] !== undefined ? PRIORITY[b.key] : 2;
+            const pa = PRIORITY[a.key] !== undefined ? PRIORITY[a.key] : (LEVEL_BUILDING_REQ.indexOf(a.key) !== -1 ? 3 : 2);
+            const pb = PRIORITY[b.key] !== undefined ? PRIORITY[b.key] : (LEVEL_BUILDING_REQ.indexOf(b.key) !== -1 ? 3 : 2);
             return pa - pb;
         });
 
