@@ -1,0 +1,255 @@
+{
+  "id": "90000009",
+  "name": "野猪骑士木偶",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 60,
+        "hpRecoveryIncrease": 180,
+        "summonedHogRiders": 8,
+        "hogRiderLevel": 5
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 90,
+        "hpRecoveryIncrease": 220,
+        "summonedHogRiders": 8,
+        "hogRiderLevel": 5
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 120,
+        "hpRecoveryIncrease": 270,
+        "summonedHogRiders": 8,
+        "hogRiderLevel": 6
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 150,
+        "hpRecoveryIncrease": 320,
+        "summonedHogRiders": 8,
+        "hogRiderLevel": 6
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 180,
+        "hpRecoveryIncrease": 370,
+        "summonedHogRiders": 8,
+        "hogRiderLevel": 6
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 210,
+        "hpRecoveryIncrease": 420,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 7
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 240,
+        "hpRecoveryIncrease": 470,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 7
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 270,
+        "hpRecoveryIncrease": 520,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 7
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 300,
+        "hpRecoveryIncrease": 560,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 8
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 330,
+        "hpRecoveryIncrease": 610,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 8
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 360,
+        "hpRecoveryIncrease": 660,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 8
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 390,
+        "hpRecoveryIncrease": 700,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 9
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 420,
+        "hpRecoveryIncrease": 750,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 9
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 450,
+        "hpRecoveryIncrease": 800,
+        "summonedHogRiders": 9,
+        "hogRiderLevel": 9
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 480,
+        "hpRecoveryIncrease": 850,
+        "summonedHogRiders": 10,
+        "hogRiderLevel": 10
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 510,
+        "hpRecoveryIncrease": 900,
+        "summonedHogRiders": 10,
+        "hogRiderLevel": 10
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 540,
+        "hpRecoveryIncrease": 950,
+        "summonedHogRiders": 10,
+        "hogRiderLevel": 10
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 570,
+        "hpRecoveryIncrease": 1000,
+        "summonedHogRiders": 10,
+        "hogRiderLevel": 12
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    }
+  ],
+  "abilities": [],
+  "rawId": "hog-rider-puppet",
+  "en_name": "Hog Rider Puppet",
+  "hero": "royal-champion",
+  "rarity": "Common",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Blacksmith level 7"
+  ],
+  "ability": {
+    "invisibility": "1s"
+  }
+}

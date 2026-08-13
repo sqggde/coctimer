@@ -1,0 +1,103 @@
+{
+  "id": "4000097",
+  "name": "守护者学徒",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 20,
+    "housingSpace": 20,
+    "range": 5,
+    "attackSpeed": 0.9,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 450,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 10
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 1500,
+        "auraHpIncrease": 20,
+        "dps": 170,
+        "damagePerShot": 153
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 1650,
+        "auraHpIncrease": 22,
+        "dps": 185,
+        "damagePerShot": 166.5
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 11,
+      "cost": 90000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 1800,
+        "auraHpIncrease": 24,
+        "dps": 200,
+        "damagePerShot": 180
+      },
+      "townHallRequired": 14,
+      "laboratoryRequired": 12,
+      "cost": 135000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1950,
+        "auraHpIncrease": 26,
+        "dps": 215,
+        "damagePerShot": 193.5
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "apprentice-warden",
+  "en_name": "Apprentice Warden",
+  "auraRange": 7,
+  "barrackLevelRequired": 10
+}

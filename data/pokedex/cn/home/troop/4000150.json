@@ -1,0 +1,103 @@
+{
+  "id": "4000150",
+  "name": "烈焰熔炉",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "无",
+    "targetType": "地面",
+    "movementSpeed": 0,
+    "housingSpace": 18,
+    "range": 0.01,
+    "attackSpeed": 0.8,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 405,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 9
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 1530,
+        "firemitesSpawned": 19,
+        "dps": 1,
+        "damagePerShot": 0.8
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 1620,
+        "firemitesSpawned": 20,
+        "dps": 2,
+        "damagePerShot": 1.6
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 200000,
+      "costResource": "DarkElixir",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 1710,
+        "firemitesSpawned": 21,
+        "dps": 3,
+        "damagePerShot": 2.4
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 260000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 11,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1800,
+        "firemitesSpawned": 22,
+        "dps": 4,
+        "damagePerShot": 3.2
+      },
+      "townHallRequired": 17,
+      "laboratoryRequired": 15,
+      "cost": 320000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "furnace",
+  "en_name": "Furnace",
+  "lifetime": 60,
+  "barrackLevelRequired": 12
+}

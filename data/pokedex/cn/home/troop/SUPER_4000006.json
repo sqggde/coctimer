@@ -1,0 +1,77 @@
+{
+  "id": "SUPER_4000006",
+  "name": "超级法师",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 16,
+    "housingSpace": 4,
+    "range": 3,
+    "attackSpeed": 1.5,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 6000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 2
+    }
+  },
+  "levels": [
+    {
+      "level": 9,
+      "stats": {
+        "hp": 545,
+        "dps": 220,
+        "damagePerShot": 440,
+        "chainDamagePerShot": 176
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 705,
+        "dps": 240,
+        "damagePerShot": 480,
+        "chainDamagePerShot": 192
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 760,
+        "dps": 265,
+        "damagePerShot": 530,
+        "chainDamagePerShot": 212
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 815,
+        "dps": 285,
+        "damagePerShot": 570,
+        "chainDamagePerShot": 228
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 870,
+        "dps": 305,
+        "damagePerShot": 610,
+        "chainDamagePerShot": 244
+      }
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 925,
+        "dps": 335,
+        "damagePerShot": 670,
+        "chainDamagePerShot": 268
+      }
+    }
+  ],
+  "abilities": []
+}

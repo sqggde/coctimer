@@ -1,0 +1,86 @@
+{
+  "id": "SUPER_4000022",
+  "name": "超级蓝胖",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "地面",
+    "movementSpeed": 14,
+    "housingSpace": 6,
+    "range": 3,
+    "attackSpeed": 2.2,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 135,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 3
+    }
+  },
+  "levels": [
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1600,
+        "dps": 170,
+        "damagePerShot": 374
+      },
+      "townHallRequired": 12
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1800,
+        "dps": 185,
+        "damagePerShot": 407
+      },
+      "townHallRequired": 13
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 2000,
+        "dps": 200,
+        "damagePerShot": 440
+      },
+      "townHallRequired": 14
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 2300,
+        "dps": 220,
+        "damagePerShot": 484
+      },
+      "townHallRequired": 15
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 2600,
+        "dps": 240,
+        "damagePerShot": 528
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 3000,
+        "dps": 270,
+        "damagePerShot": 594
+      },
+      "townHallRequired": 17
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 3600,
+        "dps": 300,
+        "damagePerShot": 660
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

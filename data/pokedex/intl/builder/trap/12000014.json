@@ -1,0 +1,219 @@
+{
+  "id": "12000014",
+  "name": "巨型地雷(夜)",
+  "category": "trap",
+  "base": "builder",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "damage": 250
+      },
+      "cost": 30000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 2,
+      "stats": {
+        "damage": 275
+      },
+      "cost": 40000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 60,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 3,
+      "stats": {
+        "damage": 300
+      },
+      "cost": 50000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 103,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 4,
+      "stats": {
+        "damage": 330
+      },
+      "cost": 80000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "damage": 360
+      },
+      "cost": 120000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 169,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "damage": 395
+      },
+      "cost": 300000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "damage": 430
+      },
+      "cost": 600000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 360,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "damage": 470
+      },
+      "cost": 1000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "damage": 510
+      },
+      "cost": 1400000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "damage": 550
+      },
+      "cost": 2500000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "mega-mine",
+  "en_name": "Mega Mine",
+  "triggerRadius": 3,
+  "damageRadius": 4,
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 1,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 2,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 3,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 2
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 3
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 4
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 4
+    }
+  ]
+}

@@ -1,0 +1,339 @@
+{
+  "id": "1000015",
+  "name": "工人小屋",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 250
+      },
+      "cost": 0,
+      "costResource": "Diamonds",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 1000,
+        "dps": 80,
+        "damagePerShot": 32,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 3000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 14
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 1300,
+        "dps": 100,
+        "damagePerShot": 40,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 14
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1600,
+        "dps": 120,
+        "damagePerShot": 48,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 6000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 14
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1800,
+        "dps": 135,
+        "damagePerShot": 54,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 7000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 15
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1900,
+        "dps": 150,
+        "damagePerShot": 60,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 8000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 7,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 689,
+      "townHallRequired": 16
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 2000,
+        "dps": 165,
+        "damagePerShot": 66,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 15500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 10,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 17
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 2100,
+        "dps": 180,
+        "damagePerShot": 72,
+        "range": 7,
+        "attackSpeed": 0.4
+      },
+      "cost": 24000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 13,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1059,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [
+    {
+      "name": "维修",
+      "levels": [
+        {
+          "level": 2,
+          "stats": {
+            "repairPerSecond": 50,
+            "repairPerHit": 37.5
+          }
+        },
+        {
+          "level": 3,
+          "stats": {
+            "repairPerSecond": 60,
+            "repairPerHit": 45
+          }
+        },
+        {
+          "level": 4,
+          "stats": {
+            "repairPerSecond": 70,
+            "repairPerHit": 52.5
+          }
+        },
+        {
+          "level": 5,
+          "stats": {
+            "repairPerSecond": 80,
+            "repairPerHit": 60
+          }
+        },
+        {
+          "level": 6,
+          "stats": {
+            "repairPerSecond": 85,
+            "repairPerHit": 63.75
+          }
+        },
+        {
+          "level": 7,
+          "stats": {
+            "repairPerSecond": 90,
+            "repairPerHit": 67.5
+          }
+        },
+        {
+          "level": 8,
+          "stats": {
+            "repairPerSecond": 95,
+            "repairPerHit": 71.25
+          }
+        }
+      ]
+    }
+  ],
+  "rawId": "builders-hut",
+  "en_name": "Builder's Hut",
+  "modes": {
+    "normal": {
+      "range": 7,
+      "attackSpeed": 0.4,
+      "damageType": "single"
+    },
+    "builder": {
+      "range": 7,
+      "repairSpeed": 0.75,
+      "movementSpeed": 20
+    }
+  },
+  "placementCosts": [
+    {
+      "instance": 1,
+      "cost": 0,
+      "costResource": "Gold"
+    },
+    {
+      "instance": 2,
+      "cost": 250,
+      "costResource": "Gems"
+    },
+    {
+      "instance": 3,
+      "cost": 500,
+      "costResource": "Gems"
+    },
+    {
+      "instance": 4,
+      "cost": 1000,
+      "costResource": "Gems"
+    },
+    {
+      "instance": 5,
+      "cost": 2000,
+      "costResource": "Gems"
+    }
+  ],
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 5
+    },
+    {
+      "townHallLevel": 2,
+      "count": 5
+    },
+    {
+      "townHallLevel": 3,
+      "count": 5
+    },
+    {
+      "townHallLevel": 4,
+      "count": 5
+    },
+    {
+      "townHallLevel": 5,
+      "count": 5
+    },
+    {
+      "townHallLevel": 6,
+      "count": 5
+    },
+    {
+      "townHallLevel": 7,
+      "count": 5
+    },
+    {
+      "townHallLevel": 8,
+      "count": 5
+    },
+    {
+      "townHallLevel": 9,
+      "count": 5
+    },
+    {
+      "townHallLevel": 10,
+      "count": 5
+    },
+    {
+      "townHallLevel": 11,
+      "count": 5
+    },
+    {
+      "townHallLevel": 12,
+      "count": 5
+    },
+    {
+      "townHallLevel": 13,
+      "count": 5
+    },
+    {
+      "townHallLevel": 14,
+      "count": 5
+    },
+    {
+      "townHallLevel": 15,
+      "count": 5
+    },
+    {
+      "townHallLevel": 16,
+      "count": 5
+    },
+    {
+      "townHallLevel": 17,
+      "count": 5
+    },
+    {
+      "townHallLevel": 18,
+      "count": 5
+    }
+  ]
+}

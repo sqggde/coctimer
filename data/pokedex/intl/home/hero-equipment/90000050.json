@@ -1,0 +1,373 @@
+{
+  "id": "90000050",
+  "name": "冷冽冰晶",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 50,
+        "projectileDamage": 105,
+        "slowDownDuration": "5.2s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 75,
+        "projectileDamage": 105,
+        "slowDownDuration": "5.2s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 100,
+        "projectileDamage": 126,
+        "slowDownDuration": "5.4s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 125,
+        "projectileDamage": 126,
+        "slowDownDuration": "5.4s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 150,
+        "projectileDamage": 126,
+        "slowDownDuration": "5.4s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 175,
+        "projectileDamage": 147,
+        "slowDownDuration": "5.6s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 200,
+        "projectileDamage": 147,
+        "slowDownDuration": "5.6s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 225,
+        "projectileDamage": 147,
+        "slowDownDuration": "5.6s",
+        "numberOfTargets": 4
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 250,
+        "projectileDamage": 168,
+        "slowDownDuration": "5.8s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 10,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 275,
+        "projectileDamage": 168,
+        "slowDownDuration": "5.8s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 300,
+        "projectileDamage": 168,
+        "slowDownDuration": "5.8s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 325,
+        "projectileDamage": 189,
+        "slowDownDuration": "6s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 20,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 350,
+        "projectileDamage": 189,
+        "slowDownDuration": "6s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 375,
+        "projectileDamage": 189,
+        "slowDownDuration": "6s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 400,
+        "projectileDamage": 210,
+        "slowDownDuration": "6.2s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 30,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 425,
+        "projectileDamage": 210,
+        "slowDownDuration": "6.2s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 450,
+        "projectileDamage": 210,
+        "slowDownDuration": "6.2s",
+        "numberOfTargets": 5
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 475,
+        "projectileDamage": 231,
+        "slowDownDuration": "6.4s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 50,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hitpointIncrease": 500,
+        "projectileDamage": 231,
+        "slowDownDuration": "6.4s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 2800,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hitpointIncrease": 525,
+        "projectileDamage": 231,
+        "slowDownDuration": "6.4s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 2900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 21,
+      "stats": {
+        "hitpointIncrease": 550,
+        "projectileDamage": 252,
+        "slowDownDuration": "6.6s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3000,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 100,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 22,
+      "stats": {
+        "hitpointIncrease": 575,
+        "projectileDamage": 252,
+        "slowDownDuration": "6.6s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3100,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 23,
+      "stats": {
+        "hitpointIncrease": 600,
+        "projectileDamage": 252,
+        "slowDownDuration": "6.6s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 24,
+      "stats": {
+        "hitpointIncrease": 625,
+        "projectileDamage": 273,
+        "slowDownDuration": "6.8s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3300,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 120,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 25,
+      "stats": {
+        "hitpointIncrease": 650,
+        "projectileDamage": 273,
+        "slowDownDuration": "6.8s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 26,
+      "stats": {
+        "hitpointIncrease": 675,
+        "projectileDamage": 273,
+        "slowDownDuration": "6.8s",
+        "numberOfTargets": 6
+      },
+      "upgradeShinyOre": 3500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 27,
+      "stats": {
+        "hitpointIncrease": 700,
+        "projectileDamage": 294,
+        "slowDownDuration": "7s",
+        "numberOfTargets": 7
+      },
+      "upgradeShinyOre": 3600,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 150,
+      "blacksmithLevelRequired": 9
+    }
+  ],
+  "abilities": [],
+  "rawId": "frost-flake",
+  "en_name": "Frost Flake",
+  "hero": "royal-champion",
+  "rarity": "Epic",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Buy in Meltdown Mayhem event for 3,100 Ember Medals",
+    "Purchasable from the Trader for 1,500 Gems"
+  ],
+  "ability": {
+    "slowDown": "100%"
+  }
+}

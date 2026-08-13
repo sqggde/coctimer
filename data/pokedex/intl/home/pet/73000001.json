@@ -1,0 +1,309 @@
+{
+  "id": "73000001",
+  "name": "大牦",
+  "category": "pet",
+  "base": "home",
+  "traits": {
+    "targetType": "地面",
+    "movementSpeed": 20,
+    "range": 1.2,
+    "attackSpeed": 2.1
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 60,
+        "damagePerShot": 126,
+        "damageVsWalls": 2520,
+        "hp": 3750
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 64,
+        "damagePerShot": 134.4,
+        "damageVsWalls": 2688,
+        "hp": 4000
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 40000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 68,
+        "damagePerShot": 142.8,
+        "damageVsWalls": 2856,
+        "hp": 4250
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 50000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 72,
+        "damagePerShot": 151.2,
+        "damageVsWalls": 3024,
+        "hp": 4500
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 60000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 76,
+        "damagePerShot": 159.6,
+        "damageVsWalls": 3192,
+        "hp": 4750
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 70000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 80,
+        "damagePerShot": 168,
+        "damageVsWalls": 3360,
+        "hp": 4950
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 80000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "dps": 84,
+        "damagePerShot": 176.4,
+        "damageVsWalls": 3528,
+        "hp": 5100
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 90000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "dps": 88,
+        "damagePerShot": 184.8,
+        "damageVsWalls": 3696,
+        "hp": 5250
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 100000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "dps": 92,
+        "damagePerShot": 193.2,
+        "damageVsWalls": 3864,
+        "hp": 5400
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 110000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "dps": 96,
+        "damagePerShot": 201.6,
+        "damageVsWalls": 4032,
+        "hp": 5550
+      },
+      "petHouseLevelRequired": 3,
+      "townHallRequired": 14,
+      "cost": 120000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "dps": 100,
+        "damagePerShot": 210,
+        "damageVsWalls": 4200,
+        "hp": 5700
+      },
+      "petHouseLevelRequired": 7,
+      "townHallRequired": 15,
+      "cost": 130000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "dps": 104,
+        "damagePerShot": 218.4,
+        "damageVsWalls": 4368,
+        "hp": 5850
+      },
+      "petHouseLevelRequired": 7,
+      "townHallRequired": 15,
+      "cost": 140000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "dps": 108,
+        "damagePerShot": 226.8,
+        "damageVsWalls": 4536,
+        "hp": 6000
+      },
+      "petHouseLevelRequired": 7,
+      "townHallRequired": 15,
+      "cost": 150000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 14,
+      "stats": {
+        "dps": 112,
+        "damagePerShot": 235.2,
+        "damageVsWalls": 4704,
+        "hp": 6150
+      },
+      "petHouseLevelRequired": 7,
+      "townHallRequired": 15,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 15,
+      "stats": {
+        "dps": 116,
+        "damagePerShot": 243.6,
+        "damageVsWalls": 4872,
+        "hp": 6300
+      },
+      "petHouseLevelRequired": 7,
+      "townHallRequired": 15,
+      "cost": 170000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "mighty-yak",
+  "en_name": "Mighty Yak",
+  "preferredTarget": "Within 7 tiles of Hero",
+  "attackType": "Single Target",
+  "petHouseLevelRequired": 3,
+  "specialAbility": "Wall Buster",
+  "rageDuration": 8,
+  "rageSpeedIncrease": 16,
+  "rageDamageIncreasePercent": 70
+}

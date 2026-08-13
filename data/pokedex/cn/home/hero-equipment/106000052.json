@@ -1,0 +1,255 @@
+{
+  "id": "106000052",
+  "name": "烈焰之心",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 900,
+        "damageOnDefeat": 1000,
+        "selfHealingPerSecond": 50,
+        "dpsIncrease": 10
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 0
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 1200,
+        "damageOnDefeat": 1000,
+        "selfHealingPerSecond": 50,
+        "dpsIncrease": 12
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 1450,
+        "damageOnDefeat": 1350,
+        "selfHealingPerSecond": 70,
+        "dpsIncrease": 14
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 1750,
+        "damageOnDefeat": 1350,
+        "selfHealingPerSecond": 70,
+        "dpsIncrease": 16
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 2000,
+        "damageOnDefeat": 1350,
+        "selfHealingPerSecond": 70,
+        "dpsIncrease": 18
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 2300,
+        "damageOnDefeat": 1700,
+        "selfHealingPerSecond": 90,
+        "dpsIncrease": 20
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 2600,
+        "damageOnDefeat": 1700,
+        "selfHealingPerSecond": 90,
+        "dpsIncrease": 22
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 2850,
+        "damageOnDefeat": 1700,
+        "selfHealingPerSecond": 90,
+        "dpsIncrease": 24
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 3150,
+        "damageOnDefeat": 2000,
+        "selfHealingPerSecond": 110,
+        "dpsIncrease": 26
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 3400,
+        "damageOnDefeat": 2000,
+        "selfHealingPerSecond": 110,
+        "dpsIncrease": 28
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 3700,
+        "damageOnDefeat": 2000,
+        "selfHealingPerSecond": 110,
+        "dpsIncrease": 30
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 4000,
+        "damageOnDefeat": 2350,
+        "selfHealingPerSecond": 130,
+        "dpsIncrease": 32
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 4250,
+        "damageOnDefeat": 2350,
+        "selfHealingPerSecond": 130,
+        "dpsIncrease": 34
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 4550,
+        "damageOnDefeat": 2350,
+        "selfHealingPerSecond": 130,
+        "dpsIncrease": 36
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 4800,
+        "damageOnDefeat": 2700,
+        "selfHealingPerSecond": 155,
+        "dpsIncrease": 38
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 5100,
+        "damageOnDefeat": 2700,
+        "selfHealingPerSecond": 155,
+        "dpsIncrease": 40
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 5450,
+        "damageOnDefeat": 2700,
+        "selfHealingPerSecond": 155,
+        "dpsIncrease": 42
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 5600,
+        "damageOnDefeat": 3000,
+        "selfHealingPerSecond": 175,
+        "dpsIncrease": 45
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    }
+  ],
+  "abilities": [],
+  "rawId": "fire-heart",
+  "en_name": "Fire Heart",
+  "hero": "dragon-duke",
+  "rarity": "Common",
+  "abilityType": "Passive",
+  "unlockRequirement": [
+    "Available by default"
+  ],
+  "ability": {
+    "damageRadius": "4 tiles"
+  }
+}

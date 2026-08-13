@@ -1,0 +1,250 @@
+{
+  "id": "1000059",
+  "name": "战车工坊",
+  "category": "army",
+  "base": "home",
+  "traits": {
+    "size": "4x4"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 1000
+      },
+      "unlockedSiegeMachine": "Wall Wrecker",
+      "siegeMachineCapacity": 1,
+      "cost": 2400000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 12
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 1100
+      },
+      "unlockedSiegeMachine": "Battle Blimp",
+      "siegeMachineCapacity": 2,
+      "cost": 3700000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 12
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 1200
+      },
+      "unlockedSiegeMachine": "Stone Slammer",
+      "siegeMachineCapacity": 3,
+      "cost": 5000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 549,
+      "townHallRequired": 12
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 1300
+      },
+      "unlockedSiegeMachine": "Siege Barracks",
+      "siegeMachineCapacity": 3,
+      "cost": 8700000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 13
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1400
+      },
+      "unlockedSiegeMachine": "Log Launcher",
+      "siegeMachineCapacity": 3,
+      "cost": 9000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 6,
+        "hours": 14,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 13
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1500
+      },
+      "unlockedSiegeMachine": "Flame Flinger",
+      "siegeMachineCapacity": 3,
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 9,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 689,
+      "townHallRequired": 14
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1600
+      },
+      "unlockedSiegeMachine": "Battle Drill",
+      "siegeMachineCapacity": 3,
+      "cost": 11000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "townHallRequired": 15
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1700
+      },
+      "unlockedSiegeMachine": "Troop Launcher",
+      "siegeMachineCapacity": 3,
+      "cost": 13000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 16
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1800
+      },
+      "unlockedSiegeMachine": "Sky Wagon",
+      "siegeMachineCapacity": 3,
+      "cost": 26000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 13,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1080,
+      "townHallRequired": 17
+    }
+  ],
+  "abilities": [],
+  "rawId": "workshop",
+  "en_name": "Workshop",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 0
+    },
+    {
+      "townHallLevel": 8,
+      "count": 0
+    },
+    {
+      "townHallLevel": 9,
+      "count": 0
+    },
+    {
+      "townHallLevel": 10,
+      "count": 0
+    },
+    {
+      "townHallLevel": 11,
+      "count": 0
+    },
+    {
+      "townHallLevel": 12,
+      "count": 1
+    },
+    {
+      "townHallLevel": 13,
+      "count": 1
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

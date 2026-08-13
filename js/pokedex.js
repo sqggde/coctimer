@@ -15,14 +15,14 @@
     // 数据中存在才显示（缺失即隐藏）；未定义 label 的字段不显示
     const FIELD_META = [
         // 基本属性
-        { key: 'size', label: '占地', fmt: 'size', group: 'basic' },
-        { key: 'range', label: '攻击距离', fmt: 'range', group: 'basic' },
+        { key: 'size', label: '占地', fmt: 'size', icon: 'att_Size', group: 'basic' },
+        { key: 'range', label: '攻击距离', fmt: 'range', icon: 'att_Range', group: 'basic' },
         { key: 'minRange', label: '最小射程', group: 'basic' },
-        { key: 'targetType', label: '目标类型', group: 'basic' },
-        { key: 'damageType', label: '伤害类型', enum: { single: '单个', splash: '溅射', area: '区域溅射', chain: '连锁', none: '无' }, group: 'basic' },
-        { key: 'attackSpeed', label: '攻速', group: 'basic' },
-        { key: 'numberOfTargets', label: '目标数量', group: 'basic' },
-        { key: 'splashRadius', label: '溅射半径', group: 'basic' },
+        { key: 'targetType', label: '目标类型', icon: 'att_Target', group: 'basic' },
+        { key: 'damageType', label: '伤害类型', enum: { single: '单个', splash: '溅射', area: '区域溅射', chain: '连锁', none: '无' }, icon: 'att_Damagetype', group: 'basic' },
+        { key: 'attackSpeed', label: '攻速', icon: 'att_Attackspeed', group: 'basic' },
+        { key: 'numberOfTargets', label: '目标数量', icon: 'att_Target', group: 'basic' },
+        { key: 'splashRadius', label: '溅射半径', icon: 'att_DamageRadius', group: 'basic' },
         { key: 'shotsPerBurst', label: '连发数量', group: 'basic' },
         { key: 'timeBetweenBursts', label: '连发间隔', group: 'basic' },
         { key: 'triggerRange', label: '触发范围', group: 'basic' },
@@ -37,7 +37,7 @@
         { key: 'rechargeTime', label: '充能时间', group: 'basic' },
         { key: 'poisonDuration', label: '毒药持续时间', fmt: 'sec', group: 'basic' },
         { key: 'detonationDelay', label: '引爆延迟', fmt: 'sec', group: 'basic' },
-        { key: 'attackType', label: '攻击类型', enum: {
+        { key: 'attackType', label: '攻击类型', icon: 'att_Damagetype', enum: {
             'Single Target': '单体', 'Single Target (Ground Only)': '单体（仅地面）',
             'Area Splash': '区域溅射', 'Area Splash (Ground Only)': '区域溅射（仅地面）',
             'Area Splash 1 and 3 tile Radius (Ground Only)': '区域溅射（1-3格，仅地面）',
@@ -47,47 +47,47 @@
             'Melee (with nearby air units)/Ranged (otherwise); (Ground & Air)': '近战/远程切换（陆空）'
         }, group: 'basic' },
         { key: 'guardianType', label: '守卫类型', enum: { longshot: '远袭', smasher: '粉碎', logger: '滚木' }, group: 'basic' },
-        { key: 'housingSpace', label: '空间', group: 'basic' },
-        { key: 'movementSpeed', label: '移速', group: 'basic' },
-        { key: 'preferredTarget', label: '攻击偏好', enum: {
+        { key: 'housingSpace', label: '空间', icon: 'att_kj', group: 'basic' },
+        { key: 'movementSpeed', label: '移速', icon: 'att_Speed', group: 'basic' },
+        { key: 'preferredTarget', label: '攻击偏好', icon: 'att_Target', enum: {
             'None': '无', 'Any': '任意', 'Defenses': '防御建筑', 'Resources': '资源建筑',
             'Walls': '城墙', 'Hero': '英雄', 'Heroes': '英雄', 'Heroes and Troops': '英雄和部队',
             "Hero's Target": '英雄的目标', 'Walls (Damage x4)': '城墙（4倍伤害）',
             'Within 2.5 tiles of Hero': '英雄周围2.5格', 'Within 4.5 tiles of Hero': '英雄周围4.5格',
             'Within 7 tiles of Hero': '英雄周围7格', 'Heroes (2x Damage)': '英雄（2倍伤害）'
         }, group: 'basic' },
-        { key: 'barrackLevelRequired', label: '训练营解锁等级', group: 'basic' },
-        { key: 'spellDuration', label: '持续时间', group: 'basic' },
-        { key: 'radius', label: '范围', group: 'basic' },
+        { key: 'barrackLevelRequired', label: '训练营解锁等级', icon: 'att_xly', group: 'basic' },
+        { key: 'spellDuration', label: '持续时间', icon: 'shijian', group: 'basic' },
+        { key: 'radius', label: '范围', icon: 'att_DamageRadius', group: 'basic' },
         { key: 'damageRadius', label: '伤害半径', group: 'basic' },
-        { key: 'searchRadius', label: '警戒范围', group: 'basic' },
+        { key: 'searchRadius', label: '警戒范围', icon: 'att_Range', group: 'basic' },
         { key: 'lifetime', label: '存活时间', fmt: 'sec', group: 'basic' },
         { key: 'wallRings', label: '城墙戒指', group: 'basic' },
         { key: 'postHitRange', label: '命中后射程', group: 'basic' },
-        { key: 'rarity', label: '稀有度', enum: { Common: '普通', Epic: '史诗' }, group: 'basic' },
-        { key: 'hero', label: '所属英雄', enum: {
+        { key: 'rarity', label: '稀有度', icon: 'att_xyd', enum: { Common: '普通', Epic: '史诗' }, group: 'basic' },
+        { key: 'hero', label: '所属英雄', icon: 'hero_icon', enum: {
             'barbarian-king': '蛮王', 'archer-queen': '女王', 'grand-warden': '永王',
             'royal-champion': '闰土', 'minion-prince': '王子', 'dragon-duke': '公爵',
             'battle-machine': '战斗机器', 'battle-copter': '战斗直升机'
         }, group: 'basic' },
-        { key: 'abilityType', label: '能力类型', enum: { Active: '主动', Passive: '被动' }, group: 'basic' },
+        { key: 'abilityType', label: '能力类型', icon: 'att_Spec', enum: { Active: '主动', Passive: '被动' }, group: 'basic' },
 
         // 等级属性（stats + 升级字段）
-        { key: 'dps', label: '每秒伤害', table: '秒伤', group: 'level' },
-        { key: 'damagePerShot', label: '单次伤害', group: 'level' },
-        { key: 'hp', label: '生命值', table: '生命', group: 'level' },
-        { key: 'damage', label: '伤害', group: 'level' },
+        { key: 'dps', label: '每秒伤害', table: '秒伤', icon: 'att_Damage', group: 'level' },
+        { key: 'damagePerShot', label: '单次伤害', icon: 'att_Damage', group: 'level' },
+        { key: 'hp', label: '生命值', table: '生命', icon: 'att_Hitpoint', group: 'level' },
+        { key: 'damage', label: '伤害', icon: 'att_Damage', group: 'level' },
         { key: 'deathDamage', label: '死亡伤害', group: 'level' },
         { key: 'cost', label: '升级花费', table: '升级花费', fmt: 'cost', group: 'level' },
-        { key: 'time', label: '升级时间', table: '升级时间', fmt: 'time', group: 'level' },
-        { key: 'laboratoryRequired', label: '实验室等级', group: 'level' },
+        { key: 'time', label: '升级时间', table: '升级时间', fmt: 'time', icon: 'shijian', group: 'level' },
+        { key: 'laboratoryRequired', label: '实验室等级', icon: 'att_sys', group: 'level' },
         { key: 'townHallRequired', label: '大本营等级', group: 'level' },
         { key: 'builderHallRequired', label: '建筑大师大本营等级', group: 'level' },
-        { key: 'xpGained', label: '升级经验', group: 'level' },
+        { key: 'xpGained', label: '升级经验', icon: 'att_XP', group: 'level' },
         { key: 'capacity', label: '容量', group: 'level' },
         { key: 'productionRate', label: '生产效率', group: 'level' },
-        { key: 'housingSpace', label: '空间', group: 'level' },
-        { key: 'clonedCapacity', label: '克隆容量', group: 'level' },
+        { key: 'housingSpace', label: '空间', icon: 'att_kj', group: 'level' },
+        { key: 'clonedCapacity', label: '克隆单位', icon: 'att_kl', group: 'level' },
         { key: 'springCapacity', label: '弹射容量', group: 'level' },
         { key: 'duration', label: '激活时长', group: 'level' },
         { key: 'poisonLevel', label: '毒药等级', group: 'level' },
@@ -97,69 +97,71 @@
     // 英雄装备专属等级属性（stats 里的额外字段）
     // 召唤类字段统一简化为「召唤数量」（野蛮人/弓箭手/野猪骑士等木偶共用，不区分类型）
     const EQUIPMENT_LABELS = [
-        { key: 'hitpointIncrease', label: '生命值提升' },
-        { key: 'hpRecoveryIncrease', label: '生命恢复提升' },
+        { key: 'healPerCounter', label: '每次反击治疗', icon: 'att_hp+' },
+        { key: 'counterDamage', label: '反击伤害', icon: 'att_Damage' },
+        { key: 'hitpointIncrease', label: '生命值提升', icon: 'att_Hitpoint' },
+        { key: 'hpRecoveryIncrease', label: '生命恢复', icon: 'att_hp+' },
         { key: 'hpIncreasePercent', label: '生命加成' },
-        { key: 'maxHpIncrease', label: '最大生命提升' },
-        { key: 'maxHealthIncrease', label: '最大生命提升' },
-        { key: 'dpsIncrease', label: '每秒伤害提升' },
-        { key: 'damageIncrease', label: '伤害加成' },
-        { key: 'damageIncreasePercent', label: '伤害加成' },
-        { key: 'maxDamageIncrease', label: '最大伤害提升' },
-        { key: 'damagePerShotIncrease', label: '单次伤害提升' },
-        { key: 'damagePerHit', label: '单次伤害' },
-        { key: 'abilityDamage', label: '技能伤害' },
-        { key: 'abilityTotalDamage', label: '技能总伤害' },
-        { key: 'abilityDuration', label: '技能持续时间', fmt: 'dur' },
-        { key: 'abilityAttackSpeedIncrease', label: '技能攻速提升' },
-        { key: 'attackSpeedIncrease', label: '攻速提升' },
-        { key: 'movementSpeedIncrease', label: '移速提升' },
-        { key: 'speedIncrease', label: '移速提升' },
-        { key: 'attackRange', label: '攻击距离' },
-        { key: 'damageRadius', label: '伤害半径', fmt: 'tiles' },
-        { key: 'healingPerSecond', label: '每秒治疗' },
-        { key: 'selfHealingPerSecond', label: '每秒自愈' },
-        { key: 'healPerHit', label: '单次治疗' },
-        { key: 'healthRecovery', label: '生命恢复' },
-        { key: 'damageReductionIncrease', label: '伤害减免' },
-        { key: 'incomingDamageReduction', label: '受到的伤害减免' },
-        { key: 'slowDown', label: '减速' },
-        { key: 'slowDownDuration', label: '减速持续时间', fmt: 'dur' },
-        { key: 'slowDownPercent', label: '减速百分比' },
-        { key: 'stunDuration', label: '眩晕持续时间', fmt: 'dur' },
-        { key: 'numberOfAttacks', label: '攻击次数' },
-        { key: 'numberOfTargets', label: '目标数量' },
-        { key: 'projectileDamage', label: '弹道伤害' },
-        { key: 'projectileDamagePerTarget', label: '每目标弹道伤害' },
-        { key: 'auraDps', label: '光环秒伤' },
-        { key: 'auraDamagePerHit', label: '光环单次伤害' },
-        { key: 'cooldownTime', label: '冷却时间', fmt: 'dur' },
+        { key: 'maxHpIncrease', label: '最大生命提升%', icon: 'att_Hitpoint' },
+        { key: 'maxHealthIncrease', label: '最大生命提升%', icon: 'att_Hitpoint' },
+        { key: 'dpsIncrease', label: '每秒伤害提升', icon: 'att_Damage' },
+        { key: 'damageIncrease', label: '伤害加成', icon: 'att_Damage' },
+        { key: 'damageIncreasePercent', label: '伤害加成', icon: 'att_Damage' },
+        { key: 'maxDamageIncrease', label: '最大伤害提升%', icon: 'att_Damage' },
+        { key: 'damagePerShotIncrease', label: '单次伤害提升', icon: 'att_Damage' },
+        { key: 'damagePerHit', label: '单次伤害', icon: 'att_Damage' },
+        { key: 'abilityDamage', label: '技能伤害', icon: 'att_Damage' },
+        { key: 'abilityTotalDamage', label: '技能总伤害', icon: 'att_Damage' },
+        { key: 'abilityDuration', label: '技能持续时间', icon: 'shijian', fmt: 'dur' },
+        { key: 'abilityAttackSpeedIncrease', label: '技能攻速提升', icon: 'att_Attackspeed' },
+        { key: 'attackSpeedIncrease', label: '攻速提升%', icon: 'att_Attackspeed' },
+        { key: 'movementSpeedIncrease', label: '移速提升', icon: 'att_Speed' },
+        { key: 'speedIncrease', label: '移速提升', icon: 'att_Speed' },
+        { key: 'attackRange', label: '攻击距离', icon: 'att_Range' },
+        { key: 'damageRadius', label: '伤害半径', icon: 'att_DamageRadius', fmt: 'tiles' },
+        { key: 'healingPerSecond', label: '每秒治疗', icon: 'att_hp+' },
+        { key: 'selfHealingPerSecond', label: '每秒自愈', icon: 'att_hp+' },
+        { key: 'healPerHit', label: '每次攻击治疗量', icon: 'att_hp+' },
+        { key: 'healthRecovery', label: '生命恢复', icon: 'att_Hitpoint' },
+        { key: 'damageReductionIncrease', label: '伤害减免%', icon: 'att_hp-' },
+        { key: 'incomingDamageReduction', label: '受到的伤害减免', icon: 'att_frost' },
+        { key: 'slowDown', label: '减速', icon: 'att_frost' },
+        { key: 'slowDownDuration', label: '减速持续时间', icon: 'shijian', fmt: 'dur' },
+        { key: 'slowDownPercent', label: '减速百分比', icon: 'att_frost' },
+        { key: 'stunDuration', label: '眩晕持续时间', icon: 'shijian', fmt: 'dur' },
+        { key: 'numberOfAttacks', label: '攻击次数', icon: 'cishu' },
+        { key: 'numberOfTargets', label: '目标数量', icon: 'att_Target' },
+        { key: 'projectileDamage', label: '弹道伤害', icon: 'att_Damage' },
+        { key: 'projectileDamagePerTarget', label: '每次反弹伤害', icon: 'att_Damage' },
+        { key: 'auraDps', label: '光环伤害', icon: 'att_DamageRadius' },
+        { key: 'auraDamagePerHit', label: '光环单次伤害', icon: 'att_Damage' },
+        { key: 'cooldownTime', label: '冷却时间', icon: 'shijian', fmt: 'dur' },
         { key: 'damageOnDefeat', label: '阵亡伤害' },
-        { key: 'buildingDamagePercent', label: '建筑伤害加成' },
-        { key: 'troopDamagePercent', label: '部队伤害加成' },
-        { key: 'barbarianDamageIncrease', label: '野蛮人伤害加成' },
-        { key: 'barbarianSpeedIncrease', label: '野蛮人移速加成' },
+        { key: 'buildingDamagePercent', label: '对建筑伤害%', icon: 'att_hp-' },
+        { key: 'troopDamagePercent', label: '对兵种伤害%', icon: 'att_hp-' },
+        { key: 'barbarianDamageIncrease', label: '野蛮人伤害加成', icon: 'att_Damage' },
+        { key: 'barbarianSpeedIncrease', label: '野蛮人移速加成', icon: 'att_Speed' },
         { key: 'clones', label: '克隆数量' },
         { key: 'cloneDps', label: '克隆秒伤' },
         { key: 'cloneHealth', label: '克隆生命' },
         { key: 'cloneDuration', label: '克隆持续时间', fmt: 'dur' },
-        { key: 'summonedBarbarians', label: '召唤数量' },
-        { key: 'summonedArchers', label: '召唤数量' },
-        { key: 'summonedHogRiders', label: '召唤数量' },
-        { key: 'summonedHealers', label: '召唤数量' },
-        { key: 'summonedLavaloons', label: '召唤数量' },
-        { key: 'maxSummonedSnakes', label: '召唤数量' },
-        { key: 'snakeLevel', label: '毒蛇等级' },
-        { key: 'healerLevel', label: '治疗者等级' },
-        { key: 'giantGiantLevel', label: '巨人等级' },
-        { key: 'hogRiderLevel', label: '野猪骑士等级' },
-        { key: 'lavaloonLevel', label: '熔岩气球等级' },
-        { key: 'henchmenLevel', label: '跟班等级' },
+        { key: 'summonedBarbarians', label: '召唤数量', icon: 'att_kl' },
+        { key: 'summonedArchers', label: '召唤数量', icon: 'att_kl' },
+        { key: 'summonedHogRiders', label: '召唤数量', icon: 'att_kl' },
+        { key: 'summonedHealers', label: '召唤数量', icon: 'att_kl' },
+        { key: 'summonedLavaloons', label: '召唤数量', icon: 'att_kl' },
+        { key: 'maxSummonedSnakes', label: '召唤数量', icon: 'att_kl' },
+        { key: 'snakeLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'healerLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'giantGiantLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'hogRiderLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'lavaloonLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'henchmenLevel', label: '召唤单位等级', icon: 'att_zhdj' },
         { key: 'archerInvisibilityDuration', label: '弓箭手隐身时长', fmt: 'dur' },
-        { key: 'blacksmithLevelRequired', label: '铁匠铺等级' },
-        { key: 'upgradeShinyOre', label: '闪亮矿石' },
-        { key: 'upgradeGlowingOre', label: '发光矿石' },
-        { key: 'upgradeStarryOre', label: '星光矿石' }
+        { key: 'blacksmithLevelRequired', label: '铁匠铺等级', icon: 'att_tjp' },
+        { key: 'upgradeShinyOre', label: '蓝矿', icon: 'Shiny_Ore' },
+        { key: 'upgradeGlowingOre', label: '紫矿', icon: 'Glowy_Ore' },
+        { key: 'upgradeStarryOre', label: '黄矿', icon: 'Starry_Ore' }
     ];
 
     function buildLevelMeta() {
@@ -180,6 +182,21 @@
     ];
 
     const RES_CN = { 'Elixir': '圣水', 'Gold': '金币', 'Dark Elixir': '暗黑重油', 'Builder Elixir': '夜圣水', 'Builder Gold': '夜金币', 'Gems': '宝石' };
+
+    // 资源类型 → 图标（costResource 动态取图，组合类型取首资源）
+    const RES_ICON = {
+        'Gold': 'Gold', 'Elixir': 'Elixir', 'Dark Elixir': 'Dark_Elixir', 'DarkElixir': 'Dark_Elixir',
+        'Builder Gold': 'Gold2', 'Builder Elixir': 'Elixir2', 'Gems': 'Gem', 'Diamonds': 'Gem'
+    };
+    // 大本营等级 → 统一建筑图标（主世界/夜世界一致，不做等级区服）
+    function iconForField(f, v) {
+        if (f.key === 'cost' && v && v.res) {
+            const res = String(v.res).split(' or ')[0].trim();
+            return RES_ICON[res] || 'info';
+        }
+        if (f.key === 'townHallRequired' || f.key === 'builderHallRequired') return 'att_bulid';
+        return f.icon || 'info';
+    }
 
     // ---------- DOM ----------
     function el(id) { return document.getElementById(id); }
@@ -292,7 +309,10 @@
                 v = staticData.minRange + '-' + v;
             }
             v = formatValue(v, f.fmt);
-            html += '<div class="item"><span class="k">' + f.label + '</span><span class="v">' + v + '</span></div>';
+            html += '<div class="item basic-item">' +
+                '<img class="basic-icon" src="img/icons/' + iconForField(f, staticData[f.key]) + '.webp" alt="">' +
+                '<div class="basic-text"><span class="k">' + f.label + '</span><span class="v">' + v + '</span></div>' +
+                '</div>';
         });
         els.basic().innerHTML = html;
     }
@@ -350,7 +370,10 @@
         buildLevelMeta().forEach(f => {
             const v = d[f.key];
             if (v === undefined || v === null) return;
-            html += '<div class="item"><span class="k">' + f.label + '</span><span class="v">' + formatValue(v, f.fmt) + '</span></div>';
+            html += '<div class="item basic-item">' +
+                '<img class="basic-icon" src="img/icons/' + iconForField(f, v) + '.webp" alt="">' +
+                '<div class="basic-text"><span class="k">' + f.label + '</span><span class="v">' + formatValue(v, f.fmt) + '</span></div>' +
+                '</div>';
         });
         els.level().innerHTML = html;
     }
@@ -529,6 +552,44 @@
         setSpinning(false);
     }
 
+    // index 无该 id 时的直连回退：按 ID 前缀推断已知类别路径（新增实体但 index 未更新的过渡期兜底）
+    function tryKnownCategory(server, id, finish, onFail) {
+        const idStr = String(id);
+        // ID 前缀 → 类别目录（与 game-data-normalized/{server}/home|builder/{category} 对应）
+        const CATEGORY_BY_PREFIX = [
+            ['900', 'hero-equipment'], ['106', 'hero-equipment'],
+            ['280', 'hero'], ['730', 'pet'], ['107', 'guardian'],
+            ['400', 'troop'], ['SUPER_400', 'troop'], ['260', 'spell'],
+            ['120', 'trap'], ['100', 'army'], ['103', 'crafted-defense'],
+            ['152', 'crafted-defense'], ['151', 'crafted-defense'], ['102', 'crafted-defense']
+        ];
+        let rel = null;
+        for (const [prefix, cat] of CATEGORY_BY_PREFIX) {
+            if (idStr.indexOf(prefix) === 0) { rel = 'home/' + cat; break; }
+        }
+        // 防御建筑（10000xx 在 defense）、建筑（defense/army/resource/other）等按常见分类尝试
+        if (!rel) {
+            if (/^10000(0[1-9]|[1-9]\d)/.test(idStr)) rel = 'home/defense';
+            else if (/^1000/.test(idStr)) rel = 'home/army';
+            else rel = 'home/' + (idStr.startsWith('10') && !idStr.startsWith('10000') ? 'other' : 'army');
+        }
+        // readAsset 优先，再服务器，再本地相对路径
+        if (window.AndroidApp && window.AndroidApp.readAsset) {
+            try {
+                const text = window.AndroidApp.readAsset('data/pokedex/' + server + '/' + rel + '/' + id + '.json');
+                if (text) { finish(JSON.parse(text)); return; }
+            } catch (e) { /* fallthrough */ }
+        }
+        fetchJson([
+            SERVER_DATA_BASE + '/' + server + '/' + rel + '/' + id + '.json',
+            'game-data-normalized/' + server + '/' + rel + '/' + id + '.json',
+            '../../../game-data-normalized/' + server + '/' + rel + '/' + id + '.json'
+        ], entity => {
+            if (entity) finish(entity);
+            else if (onFail) onFail();
+        }, forceReload ? 'reload' : 'no-cache');
+    }
+
     function open(id, curLevel, tag, modules) {
         currentTag = tag || state.currentAccount;
         const server = currentServer(currentTag);
@@ -546,15 +607,39 @@
                 getEntityData(server, id, finish);
                 return;
             }
-            // 本服索引确实无此实体（如账号 _server 判定错误、装备 ID 属于另一服）→ 尝试另一服
-            const alt = server === 'cn' ? 'intl' : 'cn';
-            loadIndex(alt, altIdx => {
-                if (!altIdx || !altIdx[String(id)]) { resetReload(); return; }
-                getEntityData(alt, id, finish);
+            // 本服索引无此实体：可能服务器 index.json 滞后于实体文件（新增实体只传了实体没更新索引）
+            // → 强制刷新索引重试一次（no-cache 已被浏览器 304 缓存时无效，用 reload 绕过）
+            const retryIndex = () => {
+                forceReload = true;
+                delete indexCache[server];
+                loadIndex(server, idx2 => {
+                    forceReload = false;
+                    if (!idx2) { resetReload(); return; }
+                    if (idx2[String(id)]) {
+                        getEntityData(server, id, finish);
+                        return;
+                    }
+                    tryKnownCategory(server, id, finish, () => {
+                        // 直连也失败：账号 _server 判定错误 / 装备 ID 属于另一服 → 尝试另一服
+                        const alt = server === 'cn' ? 'intl' : 'cn';
+                        loadIndex(alt, altIdx => {
+                            if (!altIdx || !altIdx[String(id)]) { resetReload(); return; }
+                            getEntityData(alt, id, finish);
+                        });
+                    });
+                });
+            };
+            if (!forceReload) { retryIndex(); return; }
+            forceReload = false;
+            tryKnownCategory(server, id, finish, () => {
+                const alt = server === 'cn' ? 'intl' : 'cn';
+                loadIndex(alt, altIdx => {
+                    if (!altIdx || !altIdx[String(id)]) { resetReload(); return; }
+                    getEntityData(alt, id, finish);
+                });
             });
         });
     }
-
     // 刷新：清除本服索引缓存并强制绕过浏览器缓存（cache:'reload'）重新拉取当前实体
     function refresh() {
         const id = currentEntity && currentEntity.id;

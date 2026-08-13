@@ -1,0 +1,253 @@
+{
+  "id": "1000020",
+  "name": "法术工厂",
+  "category": "army",
+  "base": "home",
+  "traits": {
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 425
+      },
+      "unlockedSpell": "Lightning Spell",
+      "spellStorageCapacity": 2,
+      "cost": 150000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 54,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "townHallRequired": 5
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 470
+      },
+      "unlockedSpell": "Healing Spell",
+      "spellStorageCapacity": 4,
+      "cost": 300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 17,
+        "minutes": 57,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "townHallRequired": 6
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 520
+      },
+      "unlockedSpell": "Rage Spell",
+      "spellStorageCapacity": 6,
+      "cost": 600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 7
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 600
+      },
+      "unlockedSpell": [
+        "Jump Spell",
+        "Freeze Spell"
+      ],
+      "spellStorageCapacity": 8,
+      "cost": 1200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 14,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 9
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 720
+      },
+      "unlockedSpell": "Clone Spell",
+      "spellStorageCapacity": 10,
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 10
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 840
+      },
+      "unlockedSpell": "Invisibility Spell",
+      "spellStorageCapacity": 10,
+      "cost": 3500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 11
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 960
+      },
+      "unlockedSpell": "Recall Spell",
+      "spellStorageCapacity": 10,
+      "cost": 9000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 7,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 13
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1080
+      },
+      "unlockedSpell": "Revive Spell",
+      "spellStorageCapacity": 10,
+      "cost": 14000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 15
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1150
+      },
+      "unlockedSpell": "Totem Spell",
+      "spellStorageCapacity": 10,
+      "cost": 24000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 881,
+      "townHallRequired": 16
+    }
+  ],
+  "abilities": [],
+  "rawId": "spell-factory",
+  "en_name": "Spell Factory",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 1
+    },
+    {
+      "townHallLevel": 6,
+      "count": 1
+    },
+    {
+      "townHallLevel": 7,
+      "count": 1
+    },
+    {
+      "townHallLevel": 8,
+      "count": 1
+    },
+    {
+      "townHallLevel": 9,
+      "count": 1
+    },
+    {
+      "townHallLevel": 10,
+      "count": 1
+    },
+    {
+      "townHallLevel": 11,
+      "count": 1
+    },
+    {
+      "townHallLevel": 12,
+      "count": 1
+    },
+    {
+      "townHallLevel": 13,
+      "count": 1
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

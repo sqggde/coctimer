@@ -1,0 +1,73 @@
+{
+  "id": "1000080",
+  "name": "重建战斗直升机",
+  "category": "army",
+  "base": "builder",
+  "traits": {
+    "housingSpace": 0,
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 250
+      },
+      "cost": 2500000,
+      "costResource": "Elixir2",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 250,
+      "builderHallRequired": 8
+    }
+  ],
+  "abilities": [],
+  "rawId": "battle-copter-altar",
+  "en_name": "Battle Copter Altar",
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 1,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 2,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 3,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 4,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 0
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 1
+    }
+  ]
+}

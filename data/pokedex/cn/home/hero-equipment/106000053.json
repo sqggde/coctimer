@@ -1,0 +1,372 @@
+{
+  "id": "106000053",
+  "name": "火箭背包",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 900,
+        "hpRecoveryIncrease": 300,
+        "abilityDamage": 575,
+        "dpsIncrease": 20
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 988,
+        "hpRecoveryIncrease": 380,
+        "abilityDamage": 575,
+        "dpsIncrease": 23
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 1077,
+        "hpRecoveryIncrease": 460,
+        "abilityDamage": 750,
+        "dpsIncrease": 26
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 1165,
+        "hpRecoveryIncrease": 540,
+        "abilityDamage": 750,
+        "dpsIncrease": 29
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 1254,
+        "hpRecoveryIncrease": 620,
+        "abilityDamage": 750,
+        "dpsIncrease": 32
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 1342,
+        "hpRecoveryIncrease": 700,
+        "abilityDamage": 950,
+        "dpsIncrease": 35
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 1431,
+        "hpRecoveryIncrease": 780,
+        "abilityDamage": 950,
+        "dpsIncrease": 38
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 1519,
+        "hpRecoveryIncrease": 860,
+        "abilityDamage": 950,
+        "dpsIncrease": 41
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 1608,
+        "hpRecoveryIncrease": 940,
+        "abilityDamage": 1125,
+        "dpsIncrease": 44
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 10,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 1696,
+        "hpRecoveryIncrease": 1020,
+        "abilityDamage": 1125,
+        "dpsIncrease": 47
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 1785,
+        "hpRecoveryIncrease": 1100,
+        "abilityDamage": 1125,
+        "dpsIncrease": 50
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 1873,
+        "hpRecoveryIncrease": 1180,
+        "abilityDamage": 1325,
+        "dpsIncrease": 53
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 20,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 1962,
+        "hpRecoveryIncrease": 1260,
+        "abilityDamage": 1325,
+        "dpsIncrease": 56
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 2050,
+        "hpRecoveryIncrease": 1340,
+        "abilityDamage": 1325,
+        "dpsIncrease": 59
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 2139,
+        "hpRecoveryIncrease": 1420,
+        "abilityDamage": 1500,
+        "dpsIncrease": 62
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 30,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 2227,
+        "hpRecoveryIncrease": 1500,
+        "abilityDamage": 1500,
+        "dpsIncrease": 64
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 2316,
+        "hpRecoveryIncrease": 1580,
+        "abilityDamage": 1500,
+        "dpsIncrease": 66
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 2404,
+        "hpRecoveryIncrease": 1660,
+        "abilityDamage": 1700,
+        "dpsIncrease": 68
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 50,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hitpointIncrease": 2493,
+        "hpRecoveryIncrease": 1740,
+        "abilityDamage": 1700,
+        "dpsIncrease": 70
+      },
+      "upgradeShinyOre": 2800,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hitpointIncrease": 2581,
+        "hpRecoveryIncrease": 1800,
+        "abilityDamage": 1700,
+        "dpsIncrease": 72
+      },
+      "upgradeShinyOre": 2900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 21,
+      "stats": {
+        "hitpointIncrease": 2670,
+        "hpRecoveryIncrease": 1860,
+        "abilityDamage": 1925,
+        "dpsIncrease": 74
+      },
+      "upgradeShinyOre": 3000,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 100,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 22,
+      "stats": {
+        "hitpointIncrease": 2758,
+        "hpRecoveryIncrease": 1910,
+        "abilityDamage": 1925,
+        "dpsIncrease": 76
+      },
+      "upgradeShinyOre": 3100,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 23,
+      "stats": {
+        "hitpointIncrease": 2847,
+        "hpRecoveryIncrease": 1950,
+        "abilityDamage": 1925,
+        "dpsIncrease": 78
+      },
+      "upgradeShinyOre": 3200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 24,
+      "stats": {
+        "hitpointIncrease": 2935,
+        "hpRecoveryIncrease": 1975,
+        "abilityDamage": 2050,
+        "dpsIncrease": 80
+      },
+      "upgradeShinyOre": 3300,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 120,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 25,
+      "stats": {
+        "hitpointIncrease": 3024,
+        "hpRecoveryIncrease": 1990,
+        "abilityDamage": 2050,
+        "dpsIncrease": 82
+      },
+      "upgradeShinyOre": 3400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 26,
+      "stats": {
+        "hitpointIncrease": 3112,
+        "hpRecoveryIncrease": 1995,
+        "abilityDamage": 2050,
+        "dpsIncrease": 84
+      },
+      "upgradeShinyOre": 3500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 27,
+      "stats": {
+        "hitpointIncrease": 3200,
+        "hpRecoveryIncrease": 2000,
+        "abilityDamage": 2200,
+        "dpsIncrease": 86
+      },
+      "upgradeShinyOre": 3600,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 150,
+      "blacksmithLevelRequired": 9
+    }
+  ],
+  "abilities": [],
+  "rawId": "rocket-backpack",
+  "en_name": "Rocket Backpack",
+  "hero": "dragon-duke",
+  "rarity": "Epic",
+  "abilityType": "Active",
+  "unlockRequirement": [
+    "Buy in Sound of Clash event for 3,100 Metal Medals"
+  ],
+  "ability": {
+    "damageArea": "4 tiles"
+  }
+}

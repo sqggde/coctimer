@@ -1,0 +1,381 @@
+{
+  "id": "4000033",
+  "name": "异变亡灵",
+  "category": "troop",
+  "base": "builder",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 38,
+    "housingSpace": 4,
+    "range": 4,
+    "attackSpeed": 1
+  },
+  "levels": [
+    {
+      "level": 3,
+      "stats": {
+        "hp": 200,
+        "dps": 60,
+        "damagePerShot": 60,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 4,
+        "powerShotDamagePerHit": 60
+      },
+      "cost": 0,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 0
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 200,
+        "dps": 60,
+        "damagePerShot": 60,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 4,
+        "powerShotDamagePerHit": 75
+      },
+      "cost": 50000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 3
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 220,
+        "dps": 65,
+        "damagePerShot": 65,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 4,
+        "powerShotDamagePerHit": 75
+      },
+      "cost": 110000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 3
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 220,
+        "dps": 65,
+        "damagePerShot": 65,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 75
+      },
+      "cost": 220000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 3
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 242,
+        "dps": 72,
+        "damagePerShot": 72,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 75
+      },
+      "cost": 330000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 4
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 242,
+        "dps": 72,
+        "damagePerShot": 72,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 90
+      },
+      "cost": 360000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 4
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 266,
+        "dps": 81,
+        "damagePerShot": 81,
+        "unitsPerCamp": 3,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 90
+      },
+      "cost": 900000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 266,
+        "dps": 81,
+        "damagePerShot": 81,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 90
+      },
+      "cost": 1100000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 293,
+        "dps": 90,
+        "damagePerShot": 90,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 90
+      },
+      "cost": 1300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 293,
+        "dps": 90,
+        "damagePerShot": 90,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 110
+      },
+      "cost": 1500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 322,
+        "dps": 99,
+        "damagePerShot": 99,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 5,
+        "powerShotDamagePerHit": 110
+      },
+      "cost": 2300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 322,
+        "dps": 99,
+        "damagePerShot": 99,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 6,
+        "powerShotDamagePerHit": 110
+      },
+      "cost": 2500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 355,
+        "dps": 108,
+        "damagePerShot": 108,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 6,
+        "powerShotDamagePerHit": 110
+      },
+      "cost": 3300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 355,
+        "dps": 108,
+        "damagePerShot": 108,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 6,
+        "powerShotDamagePerHit": 130
+      },
+      "cost": 3500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 390,
+        "dps": 117,
+        "damagePerShot": 117,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 6,
+        "powerShotDamagePerHit": 130
+      },
+      "cost": 4000000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hp": 390,
+        "dps": 117,
+        "damagePerShot": 117,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 7,
+        "powerShotDamagePerHit": 130
+      },
+      "cost": 4200000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hp": 429,
+        "dps": 126,
+        "damagePerShot": 126,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 7,
+        "powerShotDamagePerHit": 130
+      },
+      "cost": 4800000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hp": 429,
+        "dps": 126,
+        "damagePerShot": 126,
+        "unitsPerCamp": 4,
+        "powerShotAttacks": 7,
+        "powerShotDamagePerHit": 150
+      },
+      "cost": 5400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "beta-minion",
+  "en_name": "Beta Minion",
+  "builderBarracksRequired": 4,
+  "specialAbility": "Power Shot"
+}

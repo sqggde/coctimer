@@ -1,0 +1,358 @@
+{
+  "id": "4000041",
+  "name": "飞龙宝宝",
+  "category": "troop",
+  "base": "builder",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 24,
+    "housingSpace": 20,
+    "range": 2.5,
+    "attackSpeed": 1
+  },
+  "levels": [
+    {
+      "level": 5,
+      "stats": {
+        "hp": 1331,
+        "dps": 62,
+        "damagePerShot": 62,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 60,
+        "fierySneezeDamageMin": 80,
+        "fierySneezeDamageMax": 100
+      },
+      "cost": 0,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 0
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1331,
+        "dps": 62,
+        "damagePerShot": 62,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 70,
+        "fierySneezeDamageMin": 80,
+        "fierySneezeDamageMax": 100
+      },
+      "cost": 360000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 4
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1464,
+        "dps": 68,
+        "damagePerShot": 68,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 70,
+        "fierySneezeDamageMin": 80,
+        "fierySneezeDamageMax": 100
+      },
+      "cost": 380000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 0,
+        "hours": 20,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 4
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1464,
+        "dps": 68,
+        "damagePerShot": 68,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 70,
+        "fierySneezeDamageMin": 128,
+        "fierySneezeDamageMax": 160
+      },
+      "cost": 400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 4
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1611,
+        "dps": 75,
+        "damagePerShot": 75,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 70,
+        "fierySneezeDamageMin": 128,
+        "fierySneezeDamageMax": 160
+      },
+      "cost": 1000000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1611,
+        "dps": 75,
+        "damagePerShot": 75,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 80,
+        "fierySneezeDamageMin": 128,
+        "fierySneezeDamageMax": 160
+      },
+      "cost": 1200000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 5
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1772,
+        "dps": 83,
+        "damagePerShot": 83,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 80,
+        "fierySneezeDamageMin": 128,
+        "fierySneezeDamageMax": 160
+      },
+      "cost": 1400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1772,
+        "dps": 83,
+        "damagePerShot": 83,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 80,
+        "fierySneezeDamageMin": 220,
+        "fierySneezeDamageMax": 275
+      },
+      "cost": 1600000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 6
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 1949,
+        "dps": 91,
+        "damagePerShot": 91,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 80,
+        "fierySneezeDamageMin": 220,
+        "fierySneezeDamageMax": 275
+      },
+      "cost": 2400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 1949,
+        "dps": 91,
+        "damagePerShot": 91,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 90,
+        "fierySneezeDamageMin": 220,
+        "fierySneezeDamageMax": 275
+      },
+      "cost": 2600000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 4,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 7
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 2144,
+        "dps": 100,
+        "damagePerShot": 100,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 90,
+        "fierySneezeDamageMin": 220,
+        "fierySneezeDamageMax": 275
+      },
+      "cost": 3400000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hp": 2144,
+        "dps": 100,
+        "damagePerShot": 100,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 90,
+        "fierySneezeDamageMin": 320,
+        "fierySneezeDamageMax": 400
+      },
+      "cost": 3600000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 8
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hp": 2358,
+        "dps": 110,
+        "damagePerShot": 110,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 90,
+        "fierySneezeDamageMin": 320,
+        "fierySneezeDamageMax": 400
+      },
+      "cost": 4100000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hp": 2358,
+        "dps": 110,
+        "damagePerShot": 110,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 100,
+        "fierySneezeDamageMin": 320,
+        "fierySneezeDamageMax": 400
+      },
+      "cost": 4300000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 9
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hp": 2358,
+        "dps": 120,
+        "damagePerShot": 120,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 100,
+        "fierySneezeDamageMin": 320,
+        "fierySneezeDamageMax": 400
+      },
+      "cost": 5100000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hp": 2358,
+        "dps": 120,
+        "damagePerShot": 120,
+        "unitsPerCamp": 1,
+        "tantrumDamageBonus": 100,
+        "fierySneezeDamageMin": 440,
+        "fierySneezeDamageMax": 550
+      },
+      "cost": 5500000,
+      "costResource": "Builder Elixir",
+      "time": {
+        "days": 6,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "starLabRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "baby-dragon",
+  "en_name": "Baby Dragon",
+  "builderBarracksRequired": 6,
+  "specialAbility": "Fiery Tantrum",
+  "passiveAbility": "Tantrum"
+}

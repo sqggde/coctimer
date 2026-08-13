@@ -98,6 +98,12 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page .grid .item { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
 #pokedex-detail-page .grid .item .k { color: var(--text-sub); flex-shrink: 0; }
 #pokedex-detail-page .grid .item .v { font-weight: 500; text-align: right; }
+/* 基本属性项：图标 + 两行文字（标签小字/数值大字加粗），图标高度与右侧两行文字等高 */
+#pokedex-detail-page .grid .basic-item { align-items: center; justify-content: flex-start; gap: 8px; }
+#pokedex-detail-page .grid .basic-item .basic-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+#pokedex-detail-page .grid .basic-item .basic-text { display: flex; flex-direction: column; justify-content: center; line-height: 1.35; min-width: 0; }
+#pokedex-detail-page .grid .basic-item .basic-text .k { font-size: 8px; }
+#pokedex-detail-page .grid .basic-item .basic-text .v { font-size: 14px; font-weight: 700; text-align: left; }
 /* 滑块 */
 #pokedex-detail-page .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 #pokedex-detail-page .slider-row input[type=range] { flex: 1; accent-color: var(--accent); }

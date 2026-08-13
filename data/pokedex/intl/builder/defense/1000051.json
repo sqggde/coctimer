@@ -1,0 +1,232 @@
+{
+  "id": "1000051",
+  "name": "守卫哨岗",
+  "category": "defense",
+  "base": "builder",
+  "traits": {
+    "targetType": "地面",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 300
+      },
+      "troopLevel": 2,
+      "cost": 200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 120,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 350
+      },
+      "troopLevel": 4,
+      "cost": 240000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 169,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 400
+      },
+      "troopLevel": 6,
+      "cost": 280000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 460
+      },
+      "troopLevel": 8,
+      "cost": 320000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "builderHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 550
+      },
+      "troopLevel": 10,
+      "cost": 1000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 650
+      },
+      "troopLevel": 12,
+      "cost": 1400000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 750
+      },
+      "troopLevel": 14,
+      "cost": 2300000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "builderHallRequired": 7
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 850
+      },
+      "troopLevel": 16,
+      "cost": 3200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "builderHallRequired": 8
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1000
+      },
+      "troopLevel": 18,
+      "cost": 4100000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 929,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1150
+      },
+      "troopLevel": 20,
+      "cost": 5100000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 12,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1018,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "guard-post",
+  "en_name": "Guard Post",
+  "modes": {
+    "normal": {
+      "range": 0,
+      "attackSpeed": 0,
+      "damageType": "none"
+    }
+  },
+  "defendingTroops": [
+    {
+      "name": "Raged Barbarian",
+      "count": 1
+    },
+    {
+      "name": "Sneaky Archer",
+      "count": 1
+    }
+  ],
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 4,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 5,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 6,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 7,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 8,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 9,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 1
+    }
+  ]
+}

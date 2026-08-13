@@ -1,0 +1,326 @@
+{
+  "id": "1000000",
+  "name": "兵营",
+  "category": "army",
+  "base": "home",
+  "traits": {
+    "size": "4x4"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 100,
+        "housingSpace": 20
+      },
+      "cost": 200,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 1,
+        "seconds": 0
+      },
+      "xpGained": 7,
+      "townHallRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 150,
+        "housingSpace": 30
+      },
+      "cost": 2000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 5,
+        "seconds": 0
+      },
+      "xpGained": 17,
+      "townHallRequired": 2
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 200,
+        "housingSpace": 35
+      },
+      "cost": 10000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 30,
+        "seconds": 0
+      },
+      "xpGained": 42,
+      "townHallRequired": 3
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 250,
+        "housingSpace": 40
+      },
+      "cost": 100000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 84,
+      "townHallRequired": 4
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 300,
+        "housingSpace": 45
+      },
+      "cost": 250000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "townHallRequired": 5
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 330,
+        "housingSpace": 50
+      },
+      "cost": 500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "townHallRequired": 6
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 400,
+        "housingSpace": 55
+      },
+      "cost": 1500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 9
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 500,
+        "housingSpace": 60
+      },
+      "cost": 2500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 10
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 600,
+        "housingSpace": 65
+      },
+      "cost": 4200000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 549,
+      "townHallRequired": 11
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 700,
+        "housingSpace": 70
+      },
+      "cost": 4500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 12
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 800,
+        "housingSpace": 75
+      },
+      "cost": 7500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 13
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 850,
+        "housingSpace": 80
+      },
+      "cost": 10000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "townHallRequired": 15
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 900,
+        "housingSpace": 85
+      },
+      "cost": 17000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 7,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 804,
+      "townHallRequired": 17
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 950,
+        "housingSpace": 88
+      },
+      "cost": 26000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1138,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "army-camp",
+  "en_name": "Army Camp",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 1
+    },
+    {
+      "townHallLevel": 2,
+      "count": 1
+    },
+    {
+      "townHallLevel": 3,
+      "count": 2
+    },
+    {
+      "townHallLevel": 4,
+      "count": 2
+    },
+    {
+      "townHallLevel": 5,
+      "count": 3
+    },
+    {
+      "townHallLevel": 6,
+      "count": 3
+    },
+    {
+      "townHallLevel": 7,
+      "count": 4
+    },
+    {
+      "townHallLevel": 8,
+      "count": 4
+    },
+    {
+      "townHallLevel": 9,
+      "count": 4
+    },
+    {
+      "townHallLevel": 10,
+      "count": 4
+    },
+    {
+      "townHallLevel": 11,
+      "count": 4
+    },
+    {
+      "townHallLevel": 12,
+      "count": 4
+    },
+    {
+      "townHallLevel": 13,
+      "count": 4
+    },
+    {
+      "townHallLevel": 14,
+      "count": 4
+    },
+    {
+      "townHallLevel": 15,
+      "count": 4
+    },
+    {
+      "townHallLevel": 16,
+      "count": 4
+    },
+    {
+      "townHallLevel": 17,
+      "count": 4
+    },
+    {
+      "townHallLevel": 18,
+      "count": 4
+    }
+  ]
+}

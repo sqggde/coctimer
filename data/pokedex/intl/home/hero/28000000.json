@@ -1,0 +1,2000 @@
+{
+  "id": "28000000",
+  "name": "蛮王",
+  "category": "hero",
+  "base": "home",
+  "traits": {
+    "movementSpeed": 16,
+    "range": 1,
+    "attackSpeed": 1.2
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 102,
+        "damagePerShot": 122.4,
+        "hp": 1445,
+        "healthRecovery": 200
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 104,
+        "damagePerShot": 124.8,
+        "hp": 1481,
+        "healthRecovery": 200
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 5000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 105,
+        "damagePerShot": 126,
+        "hp": 1518,
+        "healthRecovery": 200
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 5500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 108,
+        "damagePerShot": 129.6,
+        "hp": 1556,
+        "healthRecovery": 200
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 6000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 8,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 110,
+        "damagePerShot": 132,
+        "hp": 1595,
+        "healthRecovery": 250
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 6500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 10,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 112,
+        "damagePerShot": 134.4,
+        "hp": 1635,
+        "healthRecovery": 250
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 7000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "dps": 115,
+        "damagePerShot": 138,
+        "hp": 1675,
+        "healthRecovery": 250
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 7500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 14,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "dps": 116,
+        "damagePerShot": 139.2,
+        "hp": 1717,
+        "healthRecovery": 250
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 8000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 16,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "dps": 119,
+        "damagePerShot": 142.8,
+        "hp": 1760,
+        "healthRecovery": 250
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 8500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "dps": 122,
+        "damagePerShot": 146.4,
+        "hp": 1805,
+        "healthRecovery": 310
+      },
+      "heroHallLevelRequired": 1,
+      "cost": 10000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 20,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "dps": 124,
+        "damagePerShot": 148.8,
+        "hp": 1850,
+        "healthRecovery": 310
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 10500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 22,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "dps": 127,
+        "damagePerShot": 152.4,
+        "hp": 1896,
+        "healthRecovery": 310
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 11000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "dps": 129,
+        "damagePerShot": 154.8,
+        "hp": 1943,
+        "healthRecovery": 310
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 11500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 14,
+      "stats": {
+        "dps": 132,
+        "damagePerShot": 158.4,
+        "hp": 1992,
+        "healthRecovery": 310
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 12000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 15,
+      "stats": {
+        "dps": 134,
+        "damagePerShot": 160.8,
+        "hp": 2042,
+        "healthRecovery": 375
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 12500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 16,
+      "stats": {
+        "dps": 137,
+        "damagePerShot": 164.4,
+        "hp": 2093,
+        "healthRecovery": 375
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 13000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 17,
+      "stats": {
+        "dps": 139,
+        "damagePerShot": 166.8,
+        "hp": 2145,
+        "healthRecovery": 375
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 13500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 18,
+      "stats": {
+        "dps": 143,
+        "damagePerShot": 171.6,
+        "hp": 2198,
+        "healthRecovery": 375
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 14000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 19,
+      "stats": {
+        "dps": 145,
+        "damagePerShot": 174,
+        "hp": 2253,
+        "healthRecovery": 375
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 14500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 20,
+      "stats": {
+        "dps": 148,
+        "damagePerShot": 177.6,
+        "hp": 2309,
+        "healthRecovery": 450
+      },
+      "heroHallLevelRequired": 2,
+      "cost": 15000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 21,
+      "stats": {
+        "dps": 151,
+        "damagePerShot": 181.2,
+        "hp": 2367,
+        "healthRecovery": 450
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 17000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 22,
+      "stats": {
+        "dps": 154,
+        "damagePerShot": 184.8,
+        "hp": 2427,
+        "healthRecovery": 450
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 19000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 23,
+      "stats": {
+        "dps": 157,
+        "damagePerShot": 188.4,
+        "hp": 2487,
+        "healthRecovery": 450
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 21000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 24,
+      "stats": {
+        "dps": 161,
+        "damagePerShot": 193.2,
+        "hp": 2549,
+        "healthRecovery": 450
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 23000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 25,
+      "stats": {
+        "dps": 164,
+        "damagePerShot": 196.8,
+        "hp": 2613,
+        "healthRecovery": 525
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 25000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 26,
+      "stats": {
+        "dps": 167,
+        "damagePerShot": 200.4,
+        "hp": 2678,
+        "healthRecovery": 525
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 27000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 27,
+      "stats": {
+        "dps": 170,
+        "damagePerShot": 204,
+        "hp": 2746,
+        "healthRecovery": 525
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 29000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 28,
+      "stats": {
+        "dps": 173,
+        "damagePerShot": 207.6,
+        "hp": 2814,
+        "healthRecovery": 525
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 31000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 29,
+      "stats": {
+        "dps": 177,
+        "damagePerShot": 212.4,
+        "hp": 2885,
+        "healthRecovery": 525
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 33000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 30,
+      "stats": {
+        "dps": 181,
+        "damagePerShot": 217.2,
+        "hp": 2956,
+        "healthRecovery": 625
+      },
+      "heroHallLevelRequired": 3,
+      "cost": 35000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 31,
+      "stats": {
+        "dps": 184,
+        "damagePerShot": 220.8,
+        "hp": 3030,
+        "healthRecovery": 625
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 37000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 32,
+      "stats": {
+        "dps": 188,
+        "damagePerShot": 225.6,
+        "hp": 3107,
+        "healthRecovery": 625
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 39000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 33,
+      "stats": {
+        "dps": 192,
+        "damagePerShot": 230.4,
+        "hp": 3184,
+        "healthRecovery": 625
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 41000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 34,
+      "stats": {
+        "dps": 196,
+        "damagePerShot": 235.2,
+        "hp": 3264,
+        "healthRecovery": 625
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 43000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 35,
+      "stats": {
+        "dps": 200,
+        "damagePerShot": 240,
+        "hp": 3346,
+        "healthRecovery": 725
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 45000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 36,
+      "stats": {
+        "dps": 203,
+        "damagePerShot": 243.6,
+        "hp": 3429,
+        "healthRecovery": 725
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 47000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 37,
+      "stats": {
+        "dps": 207,
+        "damagePerShot": 248.4,
+        "hp": 3515,
+        "healthRecovery": 725
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 49000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 38,
+      "stats": {
+        "dps": 212,
+        "damagePerShot": 254.4,
+        "hp": 3602,
+        "healthRecovery": 725
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 51000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 39,
+      "stats": {
+        "dps": 216,
+        "damagePerShot": 259.2,
+        "hp": 3692,
+        "healthRecovery": 725
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 53000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 40,
+      "stats": {
+        "dps": 220,
+        "damagePerShot": 264,
+        "hp": 3785,
+        "healthRecovery": 850
+      },
+      "heroHallLevelRequired": 4,
+      "cost": 55000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 41,
+      "stats": {
+        "dps": 234,
+        "damagePerShot": 280.8,
+        "hp": 3879,
+        "healthRecovery": 850
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 58000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 42,
+      "stats": {
+        "dps": 239,
+        "damagePerShot": 286.8,
+        "hp": 3976,
+        "healthRecovery": 850
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 61000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 43,
+      "stats": {
+        "dps": 244,
+        "damagePerShot": 292.8,
+        "hp": 4076,
+        "healthRecovery": 850
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 64000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 44,
+      "stats": {
+        "dps": 249,
+        "damagePerShot": 298.8,
+        "hp": 4178,
+        "healthRecovery": 850
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 67000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 45,
+      "stats": {
+        "dps": 254,
+        "damagePerShot": 304.8,
+        "hp": 4282,
+        "healthRecovery": 980
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 70000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 46,
+      "stats": {
+        "dps": 259,
+        "damagePerShot": 310.8,
+        "hp": 4389,
+        "healthRecovery": 980
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 73000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 47,
+      "stats": {
+        "dps": 265,
+        "damagePerShot": 318,
+        "hp": 4499,
+        "healthRecovery": 980
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 76000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 48,
+      "stats": {
+        "dps": 270,
+        "damagePerShot": 324,
+        "hp": 4611,
+        "healthRecovery": 980
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 79000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 49,
+      "stats": {
+        "dps": 276,
+        "damagePerShot": 331.2,
+        "hp": 4727,
+        "healthRecovery": 980
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 82000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 50,
+      "stats": {
+        "dps": 282,
+        "damagePerShot": 338.4,
+        "hp": 4845,
+        "healthRecovery": 1125
+      },
+      "heroHallLevelRequired": 5,
+      "cost": 85000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 51,
+      "stats": {
+        "dps": 288,
+        "damagePerShot": 345.6,
+        "hp": 4967,
+        "healthRecovery": 1125
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 86000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 52,
+      "stats": {
+        "dps": 294,
+        "damagePerShot": 352.8,
+        "hp": 5092,
+        "healthRecovery": 1125
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 87000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 53,
+      "stats": {
+        "dps": 300,
+        "damagePerShot": 360,
+        "hp": 5219,
+        "healthRecovery": 1125
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 88000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 54,
+      "stats": {
+        "dps": 307,
+        "damagePerShot": 368.4,
+        "hp": 5350,
+        "healthRecovery": 1125
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 89000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 55,
+      "stats": {
+        "dps": 314,
+        "damagePerShot": 376.8,
+        "hp": 5484,
+        "healthRecovery": 1300
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 90000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 56,
+      "stats": {
+        "dps": 320,
+        "damagePerShot": 384,
+        "hp": 5622,
+        "healthRecovery": 1300
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 93000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 57,
+      "stats": {
+        "dps": 327,
+        "damagePerShot": 392.4,
+        "hp": 5763,
+        "healthRecovery": 1300
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 96000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 58,
+      "stats": {
+        "dps": 334,
+        "damagePerShot": 400.8,
+        "hp": 5908,
+        "healthRecovery": 1300
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 99000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 59,
+      "stats": {
+        "dps": 341,
+        "damagePerShot": 409.2,
+        "hp": 6055,
+        "healthRecovery": 1300
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 102000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 60,
+      "stats": {
+        "dps": 349,
+        "damagePerShot": 418.8,
+        "hp": 6208,
+        "healthRecovery": 1490
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 105000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 61,
+      "stats": {
+        "dps": 355,
+        "damagePerShot": 426,
+        "hp": 6363,
+        "healthRecovery": 1490
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 107000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 62,
+      "stats": {
+        "dps": 362,
+        "damagePerShot": 434.4,
+        "hp": 6522,
+        "healthRecovery": 1490
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 109000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 63,
+      "stats": {
+        "dps": 370,
+        "damagePerShot": 444,
+        "hp": 6685,
+        "healthRecovery": 1490
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 111000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 64,
+      "stats": {
+        "dps": 377,
+        "damagePerShot": 452.4,
+        "hp": 6853,
+        "healthRecovery": 1490
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 113000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 65,
+      "stats": {
+        "dps": 385,
+        "damagePerShot": 462,
+        "hp": 7024,
+        "healthRecovery": 1700
+      },
+      "heroHallLevelRequired": 6,
+      "cost": 115000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 66,
+      "stats": {
+        "dps": 393,
+        "damagePerShot": 471.6,
+        "hp": 7200,
+        "healthRecovery": 1700
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 117000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 67,
+      "stats": {
+        "dps": 400,
+        "damagePerShot": 480,
+        "hp": 7378,
+        "healthRecovery": 1700
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 119000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 68,
+      "stats": {
+        "dps": 408,
+        "damagePerShot": 489.6,
+        "hp": 7557,
+        "healthRecovery": 1700
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 121000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 69,
+      "stats": {
+        "dps": 417,
+        "damagePerShot": 500.4,
+        "hp": 7735,
+        "healthRecovery": 1700
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 123000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 70,
+      "stats": {
+        "dps": 425,
+        "damagePerShot": 510,
+        "hp": 7905,
+        "healthRecovery": 1925
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 125000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 71,
+      "stats": {
+        "dps": 434,
+        "damagePerShot": 520.8,
+        "hp": 8075,
+        "healthRecovery": 1925
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 130000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 72,
+      "stats": {
+        "dps": 442,
+        "damagePerShot": 530.4,
+        "hp": 8245,
+        "healthRecovery": 1925
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 135000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 73,
+      "stats": {
+        "dps": 451,
+        "damagePerShot": 541.2,
+        "hp": 8415,
+        "healthRecovery": 1925
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 140000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 74,
+      "stats": {
+        "dps": 459,
+        "damagePerShot": 550.8,
+        "hp": 8585,
+        "healthRecovery": 1925
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 145000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 75,
+      "stats": {
+        "dps": 468,
+        "damagePerShot": 561.6,
+        "hp": 8755,
+        "healthRecovery": 2150
+      },
+      "heroHallLevelRequired": 7,
+      "cost": 150000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 76,
+      "stats": {
+        "dps": 475,
+        "damagePerShot": 570,
+        "hp": 8917,
+        "healthRecovery": 2150
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 155000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 77,
+      "stats": {
+        "dps": 483,
+        "damagePerShot": 579.6,
+        "hp": 9078,
+        "healthRecovery": 2150
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 160000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 78,
+      "stats": {
+        "dps": 490,
+        "damagePerShot": 588,
+        "hp": 9240,
+        "healthRecovery": 2150
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 165000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 79,
+      "stats": {
+        "dps": 498,
+        "damagePerShot": 597.6,
+        "hp": 9401,
+        "healthRecovery": 2150
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 170000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 80,
+      "stats": {
+        "dps": 506,
+        "damagePerShot": 607.2,
+        "hp": 9563,
+        "healthRecovery": 2350
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 175000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 81,
+      "stats": {
+        "dps": 513,
+        "damagePerShot": 615.6,
+        "hp": 9690,
+        "healthRecovery": 2350
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 180000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 82,
+      "stats": {
+        "dps": 519,
+        "damagePerShot": 622.8,
+        "hp": 9818,
+        "healthRecovery": 2350
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 185000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 83,
+      "stats": {
+        "dps": 526,
+        "damagePerShot": 631.2,
+        "hp": 9945,
+        "healthRecovery": 2350
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 195000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 84,
+      "stats": {
+        "dps": 533,
+        "damagePerShot": 639.6,
+        "hp": 10073,
+        "healthRecovery": 2350
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 205000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 85,
+      "stats": {
+        "dps": 540,
+        "damagePerShot": 648,
+        "hp": 10200,
+        "healthRecovery": 2500
+      },
+      "heroHallLevelRequired": 8,
+      "cost": 215000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 86,
+      "stats": {
+        "dps": 547,
+        "damagePerShot": 656.4,
+        "hp": 10328,
+        "healthRecovery": 2500
+      },
+      "heroHallLevelRequired": 9,
+      "cost": 220000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 87,
+      "stats": {
+        "dps": 553,
+        "damagePerShot": 663.6,
+        "hp": 10455,
+        "healthRecovery": 2500
+      },
+      "heroHallLevelRequired": 9,
+      "cost": 230000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 88,
+      "stats": {
+        "dps": 560,
+        "damagePerShot": 672,
+        "hp": 10583,
+        "healthRecovery": 2500
+      },
+      "heroHallLevelRequired": 9,
+      "cost": 240000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 89,
+      "stats": {
+        "dps": 567,
+        "damagePerShot": 680.4,
+        "hp": 10710,
+        "healthRecovery": 2500
+      },
+      "heroHallLevelRequired": 9,
+      "cost": 250000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 90,
+      "stats": {
+        "dps": 574,
+        "damagePerShot": 688.8,
+        "hp": 10838,
+        "healthRecovery": 2650
+      },
+      "heroHallLevelRequired": 9,
+      "cost": 255000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 91,
+      "stats": {
+        "dps": 581,
+        "damagePerShot": 697.2,
+        "hp": 10965,
+        "healthRecovery": 2650
+      },
+      "heroHallLevelRequired": 10,
+      "cost": 280000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 92,
+      "stats": {
+        "dps": 587,
+        "damagePerShot": 704.4,
+        "hp": 11093,
+        "healthRecovery": 2650
+      },
+      "heroHallLevelRequired": 10,
+      "cost": 290000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 93,
+      "stats": {
+        "dps": 594,
+        "damagePerShot": 712.8,
+        "hp": 11220,
+        "healthRecovery": 2650
+      },
+      "heroHallLevelRequired": 10,
+      "cost": 300000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 94,
+      "stats": {
+        "dps": 601,
+        "damagePerShot": 721.2,
+        "hp": 11348,
+        "healthRecovery": 2650
+      },
+      "heroHallLevelRequired": 10,
+      "cost": 310000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 95,
+      "stats": {
+        "dps": 608,
+        "damagePerShot": 729.6,
+        "hp": 11475,
+        "healthRecovery": 2800
+      },
+      "heroHallLevelRequired": 10,
+      "cost": 320000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 96,
+      "stats": {
+        "dps": 615,
+        "damagePerShot": 738,
+        "hp": 11600,
+        "healthRecovery": 2800
+      },
+      "heroHallLevelRequired": 11,
+      "cost": 340000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 97,
+      "stats": {
+        "dps": 622,
+        "damagePerShot": 746.4,
+        "hp": 11725,
+        "healthRecovery": 2800
+      },
+      "heroHallLevelRequired": 11,
+      "cost": 350000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 98,
+      "stats": {
+        "dps": 629,
+        "damagePerShot": 754.8,
+        "hp": 11850,
+        "healthRecovery": 2800
+      },
+      "heroHallLevelRequired": 11,
+      "cost": 360000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 99,
+      "stats": {
+        "dps": 636,
+        "damagePerShot": 763.2,
+        "hp": 11975,
+        "healthRecovery": 2800
+      },
+      "heroHallLevelRequired": 11,
+      "cost": 370000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 100,
+      "stats": {
+        "dps": 643,
+        "damagePerShot": 771.6,
+        "hp": 12100,
+        "healthRecovery": 2950
+      },
+      "heroHallLevelRequired": 11,
+      "cost": 380000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 101,
+      "stats": {
+        "dps": 650,
+        "damagePerShot": 780,
+        "hp": 12225,
+        "healthRecovery": 2950
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 400000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 102,
+      "stats": {
+        "dps": 657,
+        "damagePerShot": 788.4,
+        "hp": 12350,
+        "healthRecovery": 2950
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 410000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 103,
+      "stats": {
+        "dps": 664,
+        "damagePerShot": 796.8,
+        "hp": 12475,
+        "healthRecovery": 2950
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 420000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 104,
+      "stats": {
+        "dps": 671,
+        "damagePerShot": 805.2,
+        "hp": 12600,
+        "healthRecovery": 2950
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 430000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 105,
+      "stats": {
+        "dps": 678,
+        "damagePerShot": 813.6,
+        "hp": 12725,
+        "healthRecovery": 3100
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 450000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 106,
+      "stats": {
+        "dps": 685,
+        "damagePerShot": 822,
+        "hp": 12850,
+        "healthRecovery": 3100
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 460000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 107,
+      "stats": {
+        "dps": 692,
+        "damagePerShot": 830.4,
+        "hp": 12975,
+        "healthRecovery": 3100
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 470000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 108,
+      "stats": {
+        "dps": 699,
+        "damagePerShot": 838.8,
+        "hp": 13100,
+        "healthRecovery": 3100
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 475000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 109,
+      "stats": {
+        "dps": 706,
+        "damagePerShot": 847.2,
+        "hp": 13225,
+        "healthRecovery": 3100
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 485000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 110,
+      "stats": {
+        "dps": 713,
+        "damagePerShot": 855.6,
+        "hp": 13350,
+        "healthRecovery": 3250
+      },
+      "heroHallLevelRequired": 12,
+      "cost": 490000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "barbarian-king",
+  "en_name": "Barbarian King",
+  "preferredTarget": "None",
+  "attackType": "Melee (Ground Only)",
+  "searchRadius": 9,
+  "specialAbility": "Iron Fist"
+}

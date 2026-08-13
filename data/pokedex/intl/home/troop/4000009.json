@@ -1,0 +1,260 @@
+{
+  "id": "4000009",
+  "name": "皮卡",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 16,
+    "housingSpace": 25,
+    "range": 0.8,
+    "attackSpeed": 1.8,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 39000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 13
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 3000,
+        "dps": 260,
+        "damagePerShot": 468
+      },
+      "townHallRequired": 8,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 3500,
+        "dps": 290,
+        "damagePerShot": 522
+      },
+      "townHallRequired": 8,
+      "laboratoryRequired": 6,
+      "cost": 600000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 4000,
+        "dps": 320,
+        "damagePerShot": 576
+      },
+      "townHallRequired": 8,
+      "laboratoryRequired": 6,
+      "cost": 1300000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 4500,
+        "dps": 360,
+        "damagePerShot": 648
+      },
+      "townHallRequired": 9,
+      "laboratoryRequired": 7,
+      "cost": 2000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 5000,
+        "dps": 410,
+        "damagePerShot": 738
+      },
+      "townHallRequired": 10,
+      "laboratoryRequired": 8,
+      "cost": 2100000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 5500,
+        "dps": 470,
+        "damagePerShot": 846
+      },
+      "townHallRequired": 10,
+      "laboratoryRequired": 8,
+      "cost": 2500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 5900,
+        "dps": 540,
+        "damagePerShot": 972
+      },
+      "townHallRequired": 11,
+      "laboratoryRequired": 9,
+      "cost": 4500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 6300,
+        "dps": 610,
+        "damagePerShot": 1098
+      },
+      "townHallRequired": 12,
+      "laboratoryRequired": 10,
+      "cost": 5000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 6700,
+        "dps": 680,
+        "damagePerShot": 1224
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 11,
+      "cost": 5800000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 7200,
+        "dps": 750,
+        "damagePerShot": 1350
+      },
+      "townHallRequired": 15,
+      "laboratoryRequired": 13,
+      "cost": 10500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 5,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 7700,
+        "dps": 810,
+        "damagePerShot": 1458
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 12000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 8200,
+        "dps": 870,
+        "damagePerShot": 1566
+      },
+      "townHallRequired": 17,
+      "laboratoryRequired": 15,
+      "cost": 16000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 8800,
+        "dps": 940,
+        "damagePerShot": 1692
+      },
+      "townHallRequired": 18,
+      "laboratoryRequired": 16,
+      "cost": 28000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 14,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "pekka",
+  "en_name": "P.E.K.K.A",
+  "barrackLevelRequired": 10
+}

@@ -1,0 +1,140 @@
+{
+  "id": "1000077",
+  "name": "擎天巨柱",
+  "category": "defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 4747,
+        "dps": 150,
+        "damagePerShot": 225,
+        "range": 11,
+        "attackSpeed": 1.5
+      },
+      "cost": 200000,
+      "costResource": "DarkElixir",
+      "time": {
+        "days": 8,
+        "hours": 19,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "townHallRequired": 15
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 5050,
+        "dps": 175,
+        "damagePerShot": 262.5,
+        "range": 11,
+        "attackSpeed": 1.5
+      },
+      "cost": 250000,
+      "costResource": "Gold",
+      "time": {
+        "days": 9,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 15
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 5353,
+        "dps": 193,
+        "damagePerShot": 289.5,
+        "range": 11,
+        "attackSpeed": 1.5
+      },
+      "cost": 260000,
+      "costResource": "Gold",
+      "time": {
+        "days": 10,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 881,
+      "townHallRequired": 16
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 5656,
+        "dps": 209,
+        "damagePerShot": 313.5,
+        "range": 11,
+        "attackSpeed": 1.5
+      },
+      "cost": 300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 13,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 974,
+      "townHallRequired": 17
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 5959,
+        "dps": 225,
+        "damagePerShot": 337.5,
+        "range": 11,
+        "attackSpeed": 1.5
+      },
+      "cost": 470000,
+      "costResource": "Gold",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1138,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "monolith",
+  "en_name": "Monolith",
+  "modes": {
+    "normal": {
+      "range": 11,
+      "attackSpeed": 1.5,
+      "damageType": "single"
+    }
+  },
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}

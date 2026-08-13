@@ -1,0 +1,522 @@
+{
+  "id": "152000013",
+  "name": "蛋糕投掷器",
+  "category": "crafted-defense",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "size": "3x3",
+    "craftingPhase": 3,
+    "isCurrent": true
+  },
+  "levels": [],
+  "abilities": [
+    {
+      "name": "生命",
+      "levels": [
+        {
+          "level": 1,
+          "stats": {
+            "hp": 1600
+          },
+          "cost": 0,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 0,
+          "sparkyStones": 0
+        },
+        {
+          "level": 2,
+          "stats": {
+            "hp": 1800
+          },
+          "cost": 3000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 4,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 120,
+          "sparkyStones": 8
+        },
+        {
+          "level": 3,
+          "stats": {
+            "hp": 2150
+          },
+          "cost": 4000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 6,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 146,
+          "sparkyStones": 8
+        },
+        {
+          "level": 4,
+          "stats": {
+            "hp": 2500
+          },
+          "cost": 5000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 8,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 169,
+          "sparkyStones": 8
+        },
+        {
+          "level": 5,
+          "stats": {
+            "hp": 2700
+          },
+          "cost": 6000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 10,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 189,
+          "sparkyStones": 8
+        },
+        {
+          "level": 6,
+          "stats": {
+            "hp": 3150
+          },
+          "cost": 7000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 0,
+            "hours": 16,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 240,
+          "sparkyStones": 8
+        },
+        {
+          "level": 7,
+          "stats": {
+            "hp": 3800
+          },
+          "cost": 8000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 1,
+            "hours": 16,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 379,
+          "sparkyStones": 8
+        },
+        {
+          "level": 8,
+          "stats": {
+            "hp": 4300
+          },
+          "cost": 9000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 3,
+            "hours": 2,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 516,
+          "sparkyStones": 8
+        },
+        {
+          "level": 9,
+          "stats": {
+            "hp": 4950
+          },
+          "cost": 10000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 5,
+            "hours": 6,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 673,
+          "sparkyStones": 8
+        },
+        {
+          "level": 10,
+          "stats": {
+            "hp": 5800
+          },
+          "cost": 11000000,
+          "costResource": "Gold",
+          "time": {
+            "days": 9,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 881,
+          "sparkyStones": 8
+        }
+      ]
+    },
+    {
+      "name": "伤害",
+      "levels": [
+        {
+          "level": 1,
+          "stats": {
+            "damagePerShot": 195
+          },
+          "cost": 0,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 0,
+          "sparkyStones": 0
+        },
+        {
+          "level": 2,
+          "stats": {
+            "damagePerShot": 210
+          },
+          "cost": 35000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 6,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 146,
+          "sparkyStones": 8
+        },
+        {
+          "level": 3,
+          "stats": {
+            "damagePerShot": 225
+          },
+          "cost": 45000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 8,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 169,
+          "sparkyStones": 8
+        },
+        {
+          "level": 4,
+          "stats": {
+            "damagePerShot": 246
+          },
+          "cost": 55000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 10,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 189,
+          "sparkyStones": 8
+        },
+        {
+          "level": 5,
+          "stats": {
+            "damagePerShot": 264
+          },
+          "cost": 65000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 12,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 207,
+          "sparkyStones": 8
+        },
+        {
+          "level": 6,
+          "stats": {
+            "damagePerShot": 285
+          },
+          "cost": 75000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 0,
+            "hours": 18,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 254,
+          "sparkyStones": 8
+        },
+        {
+          "level": 7,
+          "stats": {
+            "damagePerShot": 315
+          },
+          "cost": 85000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 1,
+            "hours": 19,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 393,
+          "sparkyStones": 8
+        },
+        {
+          "level": 8,
+          "stats": {
+            "damagePerShot": 333
+          },
+          "cost": 95000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 3,
+            "hours": 8,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 536,
+          "sparkyStones": 8
+        },
+        {
+          "level": 9,
+          "stats": {
+            "damagePerShot": 354
+          },
+          "cost": 105000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 5,
+            "hours": 18,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 704,
+          "sparkyStones": 8
+        },
+        {
+          "level": 10,
+          "stats": {
+            "damagePerShot": 375
+          },
+          "cost": 115000,
+          "costResource": "Dark Elixir",
+          "time": {
+            "days": 9,
+            "hours": 12,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 905,
+          "sparkyStones": 8
+        }
+      ]
+    },
+    {
+      "name": "爆炸伤害",
+      "levels": [
+        {
+          "level": 1,
+          "stats": {
+            "explosionDamage": 400
+          },
+          "cost": 0,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 0,
+          "sparkyStones": 0
+        },
+        {
+          "level": 2,
+          "stats": {
+            "explosionDamage": 450
+          },
+          "cost": 4000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 8,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 169,
+          "sparkyStones": 8
+        },
+        {
+          "level": 3,
+          "stats": {
+            "explosionDamage": 480
+          },
+          "cost": 5000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 10,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 189,
+          "sparkyStones": 8
+        },
+        {
+          "level": 4,
+          "stats": {
+            "explosionDamage": 510
+          },
+          "cost": 6000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 11,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 198,
+          "sparkyStones": 8
+        },
+        {
+          "level": 5,
+          "stats": {
+            "explosionDamage": 530
+          },
+          "cost": 7500000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 13,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 216,
+          "sparkyStones": 8
+        },
+        {
+          "level": 6,
+          "stats": {
+            "explosionDamage": 550
+          },
+          "cost": 9000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 0,
+            "hours": 19,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 261,
+          "sparkyStones": 8
+        },
+        {
+          "level": 7,
+          "stats": {
+            "explosionDamage": 600
+          },
+          "cost": 10500000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 1,
+            "hours": 22,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 406,
+          "sparkyStones": 8
+        },
+        {
+          "level": 8,
+          "stats": {
+            "explosionDamage": 750
+          },
+          "cost": 12000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 3,
+            "hours": 11,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 546,
+          "sparkyStones": 8
+        },
+        {
+          "level": 9,
+          "stats": {
+            "explosionDamage": 900
+          },
+          "cost": 13500000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 6,
+            "hours": 4,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 729,
+          "sparkyStones": 8
+        },
+        {
+          "level": 10,
+          "stats": {
+            "explosionDamage": 950
+          },
+          "cost": 15000000,
+          "costResource": "Elixir",
+          "time": {
+            "days": 10,
+            "hours": 0,
+            "minutes": 0,
+            "seconds": 0
+          },
+          "xpGained": 929,
+          "sparkyStones": 8
+        }
+      ]
+    }
+  ],
+  "rawId": "cake-a-pult",
+  "en_name": "Cake-A-Pult",
+  "modes": {
+    "normal": {
+      "range": 12,
+      "minRange": 3,
+      "attackSpeed": 3,
+      "damageType": "splash",
+      "splashRadius": 2.5,
+      "detonationDelay": 3
+    }
+  }
+}

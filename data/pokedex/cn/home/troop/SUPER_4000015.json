@@ -1,0 +1,59 @@
+{
+  "id": "SUPER_4000015",
+  "name": "超级女巫",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "陆空兼顾",
+    "movementSpeed": 12,
+    "housingSpace": 12,
+    "range": 4,
+    "attackSpeed": 0.7,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 270,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 6
+    }
+  },
+  "levels": [
+    {
+      "level": 5,
+      "stats": {
+        "hp": 3200,
+        "dps": 360,
+        "damagePerShot": 252
+      },
+      "townHallRequired": 12
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 3400,
+        "dps": 390,
+        "damagePerShot": 273
+      },
+      "townHallRequired": 15
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 3750,
+        "dps": 430,
+        "damagePerShot": 301
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 4100,
+        "dps": 470,
+        "damagePerShot": 329
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

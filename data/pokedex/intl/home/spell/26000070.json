@@ -1,0 +1,103 @@
+{
+  "id": "26000070",
+  "name": "蔓生法术",
+  "category": "spell",
+  "base": "home",
+  "traits": {
+    "targetType": "陆空兼顾",
+    "housingSpace": 2,
+    "donationCost": {
+      "amount": 270,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 6
+    },
+    "spellType": "dark",
+    "radius": 6
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "spellDuration": 22
+      },
+      "laboratoryRequired": 0,
+      "townHallRequired": 11,
+      "cost": 0,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "spellDuration": 23
+      },
+      "laboratoryRequired": 10,
+      "townHallRequired": 12,
+      "cost": 62500,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "spellDuration": 24
+      },
+      "laboratoryRequired": 12,
+      "townHallRequired": 14,
+      "cost": 125000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 8,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "spellDuration": 25
+      },
+      "laboratoryRequired": 14,
+      "townHallRequired": 16,
+      "cost": 175000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "spellDuration": 26
+      },
+      "laboratoryRequired": 16,
+      "townHallRequired": 18,
+      "cost": 360000,
+      "costResource": "Dark Elixir",
+      "time": {
+        "days": 16,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "overgrowth-spell",
+  "en_name": "Overgrowth Spell",
+  "spellFactoryLevelRequired": 6
+}

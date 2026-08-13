@@ -1,0 +1,396 @@
+{
+  "id": "106000051",
+  "name": "木棍马驹",
+  "category": "hero-equipment",
+  "base": "home",
+  "traits": {},
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hitpointIncrease": 311,
+        "abilityDuration": "12s",
+        "movementSpeedIncrease": 9.5,
+        "attackSpeedIncrease": "+2%",
+        "dpsIncrease": 35
+      },
+      "upgradeShinyOre": 0,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hitpointIncrease": 482,
+        "abilityDuration": "12s",
+        "movementSpeedIncrease": 9.5,
+        "attackSpeedIncrease": "+2%",
+        "dpsIncrease": 38
+      },
+      "upgradeShinyOre": 120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hitpointIncrease": 653,
+        "abilityDuration": "14s",
+        "movementSpeedIncrease": 11.1,
+        "attackSpeedIncrease": "+5%",
+        "dpsIncrease": 42
+      },
+      "upgradeShinyOre": 240,
+      "upgradeGlowingOre": 20,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hitpointIncrease": 824,
+        "abilityDuration": "14s",
+        "movementSpeedIncrease": 11.1,
+        "attackSpeedIncrease": "+5%",
+        "dpsIncrease": 45
+      },
+      "upgradeShinyOre": 400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hitpointIncrease": 994,
+        "abilityDuration": "14s",
+        "movementSpeedIncrease": 11.1,
+        "attackSpeedIncrease": "+5%",
+        "dpsIncrease": 49
+      },
+      "upgradeShinyOre": 600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hitpointIncrease": 1165,
+        "abilityDuration": "16s",
+        "movementSpeedIncrease": 12.7,
+        "attackSpeedIncrease": "+8%",
+        "dpsIncrease": 52
+      },
+      "upgradeShinyOre": 840,
+      "upgradeGlowingOre": 100,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hitpointIncrease": 1336,
+        "abilityDuration": "16s",
+        "movementSpeedIncrease": 12.7,
+        "attackSpeedIncrease": "+8%",
+        "dpsIncrease": 55
+      },
+      "upgradeShinyOre": 1120,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hitpointIncrease": 1507,
+        "abilityDuration": "16s",
+        "movementSpeedIncrease": 12.7,
+        "attackSpeedIncrease": "+8%",
+        "dpsIncrease": 58
+      },
+      "upgradeShinyOre": 1440,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hitpointIncrease": 1678,
+        "abilityDuration": "18s",
+        "movementSpeedIncrease": 14.3,
+        "attackSpeedIncrease": "+11%",
+        "dpsIncrease": 65
+      },
+      "upgradeShinyOre": 1800,
+      "upgradeGlowingOre": 200,
+      "upgradeStarryOre": 10,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hitpointIncrease": 1849,
+        "abilityDuration": "18s",
+        "movementSpeedIncrease": 14.3,
+        "attackSpeedIncrease": "+11%",
+        "dpsIncrease": 76
+      },
+      "upgradeShinyOre": 1900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hitpointIncrease": 2020,
+        "abilityDuration": "18s",
+        "movementSpeedIncrease": 14.3,
+        "attackSpeedIncrease": "+11%",
+        "dpsIncrease": 88
+      },
+      "upgradeShinyOre": 2000,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hitpointIncrease": 2191,
+        "abilityDuration": "20s",
+        "movementSpeedIncrease": 16,
+        "attackSpeedIncrease": "+14%",
+        "dpsIncrease": 101
+      },
+      "upgradeShinyOre": 2100,
+      "upgradeGlowingOre": 400,
+      "upgradeStarryOre": 20,
+      "blacksmithLevelRequired": 1
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hitpointIncrease": 2361,
+        "abilityDuration": "20s",
+        "movementSpeedIncrease": 16,
+        "attackSpeedIncrease": "+14%",
+        "dpsIncrease": 112
+      },
+      "upgradeShinyOre": 2200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hitpointIncrease": 2532,
+        "abilityDuration": "20s",
+        "movementSpeedIncrease": 16,
+        "attackSpeedIncrease": "+14%",
+        "dpsIncrease": 124
+      },
+      "upgradeShinyOre": 2300,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hitpointIncrease": 2703,
+        "abilityDuration": "22s",
+        "movementSpeedIncrease": 17.5,
+        "attackSpeedIncrease": "+17%",
+        "dpsIncrease": 135
+      },
+      "upgradeShinyOre": 2400,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 30,
+      "blacksmithLevelRequired": 3
+    },
+    {
+      "level": 16,
+      "stats": {
+        "hitpointIncrease": 2874,
+        "abilityDuration": "22s",
+        "movementSpeedIncrease": 17.5,
+        "attackSpeedIncrease": "+17%",
+        "dpsIncrease": 148
+      },
+      "upgradeShinyOre": 2500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 17,
+      "stats": {
+        "hitpointIncrease": 3031,
+        "abilityDuration": "22s",
+        "movementSpeedIncrease": 17.5,
+        "attackSpeedIncrease": "+17%",
+        "dpsIncrease": 159
+      },
+      "upgradeShinyOre": 2600,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 18,
+      "stats": {
+        "hitpointIncrease": 3189,
+        "abilityDuration": "24s",
+        "movementSpeedIncrease": 19.1,
+        "attackSpeedIncrease": "+21%",
+        "dpsIncrease": 171
+      },
+      "upgradeShinyOre": 2700,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 50,
+      "blacksmithLevelRequired": 5
+    },
+    {
+      "level": 19,
+      "stats": {
+        "hitpointIncrease": 3346,
+        "abilityDuration": "24s",
+        "movementSpeedIncrease": 19.1,
+        "attackSpeedIncrease": "+21%",
+        "dpsIncrease": 176
+      },
+      "upgradeShinyOre": 2800,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 20,
+      "stats": {
+        "hitpointIncrease": 3504,
+        "abilityDuration": "24s",
+        "movementSpeedIncrease": 19.1,
+        "attackSpeedIncrease": "+21%",
+        "dpsIncrease": 182
+      },
+      "upgradeShinyOre": 2900,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 21,
+      "stats": {
+        "hitpointIncrease": 3661,
+        "abilityDuration": "26s",
+        "movementSpeedIncrease": 20.7,
+        "attackSpeedIncrease": "+25%",
+        "dpsIncrease": 188
+      },
+      "upgradeShinyOre": 3000,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 100,
+      "blacksmithLevelRequired": 7
+    },
+    {
+      "level": 22,
+      "stats": {
+        "hitpointIncrease": 3819,
+        "abilityDuration": "26s",
+        "movementSpeedIncrease": 20.7,
+        "attackSpeedIncrease": "+25%",
+        "dpsIncrease": 194
+      },
+      "upgradeShinyOre": 3100,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 23,
+      "stats": {
+        "hitpointIncrease": 3976,
+        "abilityDuration": "26s",
+        "movementSpeedIncrease": 20.7,
+        "attackSpeedIncrease": "+25%",
+        "dpsIncrease": 199
+      },
+      "upgradeShinyOre": 3200,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 24,
+      "stats": {
+        "hitpointIncrease": 4134,
+        "abilityDuration": "28s",
+        "movementSpeedIncrease": 22.3,
+        "attackSpeedIncrease": "+29%",
+        "dpsIncrease": 205
+      },
+      "upgradeShinyOre": 3300,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 120,
+      "blacksmithLevelRequired": 8
+    },
+    {
+      "level": 25,
+      "stats": {
+        "hitpointIncrease": 4291,
+        "abilityDuration": "28s",
+        "movementSpeedIncrease": 22.3,
+        "attackSpeedIncrease": "+29%",
+        "dpsIncrease": 211
+      },
+      "upgradeShinyOre": 3400,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 26,
+      "stats": {
+        "hitpointIncrease": 4449,
+        "abilityDuration": "28s",
+        "movementSpeedIncrease": 22.3,
+        "attackSpeedIncrease": "+29%",
+        "dpsIncrease": 217
+      },
+      "upgradeShinyOre": 3500,
+      "upgradeGlowingOre": 0,
+      "upgradeStarryOre": 0,
+      "blacksmithLevelRequired": 9
+    },
+    {
+      "level": 27,
+      "stats": {
+        "hitpointIncrease": 4606,
+        "abilityDuration": "30s",
+        "movementSpeedIncrease": 24,
+        "attackSpeedIncrease": "+33%",
+        "dpsIncrease": 222
+      },
+      "upgradeShinyOre": 3600,
+      "upgradeGlowingOre": 600,
+      "upgradeStarryOre": 150,
+      "blacksmithLevelRequired": 9
+    }
+  ],
+  "abilities": [],
+  "rawId": "stick-horse",
+  "en_name": "Stick Horse",
+  "hero": "barbarian-king",
+  "rarity": "Epic",
+  "abilityType": "Passive",
+  "unlockRequirement": [
+    "Buy in Wise Warriors event for 3,100 Res Grumpy Medals"
+  ]
+}

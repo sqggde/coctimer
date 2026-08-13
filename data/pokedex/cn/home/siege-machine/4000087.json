@@ -1,0 +1,152 @@
+{
+  "id": "4000087",
+  "name": "滚木车",
+  "category": "siege-machine",
+  "base": "home",
+  "traits": {
+    "movementSpeed": 6,
+    "housingSpace": 1,
+    "range": 1,
+    "attackSpeed": 3,
+    "donationCost": {
+      "amount": 45000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 15
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "dps": 140,
+        "damagePerShot": 420,
+        "damageVsWalls": 1680,
+        "pointBlankDamage": 2900,
+        "lifetime": 25.64,
+        "hp": 4000
+      },
+      "laboratoryRequired": 0,
+      "townHallRequired": 14,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "dps": 160,
+        "damagePerShot": 480,
+        "damageVsWalls": 1920,
+        "pointBlankDamage": 3000,
+        "lifetime": 28.2,
+        "hp": 4400
+      },
+      "laboratoryRequired": 10,
+      "townHallRequired": 14,
+      "cost": 3200000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "dps": 180,
+        "damagePerShot": 540,
+        "damageVsWalls": 2160,
+        "pointBlankDamage": 3100,
+        "lifetime": 30.76,
+        "hp": 4800
+      },
+      "laboratoryRequired": 10,
+      "townHallRequired": 14,
+      "cost": 4500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "dps": 200,
+        "damagePerShot": 600,
+        "damageVsWalls": 2400,
+        "pointBlankDamage": 3200,
+        "lifetime": 33.33,
+        "hp": 5200
+      },
+      "laboratoryRequired": 11,
+      "townHallRequired": 14,
+      "cost": 7500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "dps": 220,
+        "damagePerShot": 660,
+        "damageVsWalls": 2640,
+        "pointBlankDamage": 3400,
+        "lifetime": 35.25,
+        "hp": 5500
+      },
+      "laboratoryRequired": 14,
+      "townHallRequired": 16,
+      "cost": 18000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 12,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "dps": 230,
+        "damagePerShot": 690,
+        "damageVsWalls": 2760,
+        "pointBlankDamage": 3600,
+        "lifetime": 37.17,
+        "hp": 5800
+      },
+      "laboratoryRequired": 16,
+      "townHallRequired": 18,
+      "cost": 27000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 15,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "log-launcher",
+  "en_name": "Log Launcher",
+  "workshopLevelRequired": 5,
+  "preferredTarget": "Walls (Damage x4)",
+  "attackType": "Area Splash (Ground Only)",
+  "hpDecayPerSecond": 156
+}

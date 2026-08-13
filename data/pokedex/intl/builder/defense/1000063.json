@@ -1,0 +1,247 @@
+{
+  "id": "1000063",
+  "name": "熔岩发射器(夜)",
+  "category": "defense",
+  "base": "builder",
+  "traits": {
+    "targetType": "地面",
+    "size": "3x3"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 500,
+        "dps": 7.1,
+        "damagePerShot": 50,
+        "burnDps": 15,
+        "totalBurnDamage": 300,
+        "burnDamagePerTick": 6
+      },
+      "cost": 3000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 575,
+        "dps": 7.8,
+        "damagePerShot": 55,
+        "burnDps": 17.5,
+        "totalBurnDamage": 350,
+        "burnDamagePerTick": 7
+      },
+      "cost": 3100000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 660,
+        "dps": 8.7,
+        "damagePerShot": 61,
+        "burnDps": 20,
+        "totalBurnDamage": 400,
+        "burnDamagePerTick": 8
+      },
+      "cost": 3200000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 760,
+        "dps": 9.5,
+        "damagePerShot": 67,
+        "burnDps": 22.5,
+        "totalBurnDamage": 450,
+        "burnDamagePerTick": 9
+      },
+      "cost": 3400000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 875,
+        "dps": 10.4,
+        "damagePerShot": 73,
+        "burnDps": 25,
+        "totalBurnDamage": 500,
+        "burnDamagePerTick": 10
+      },
+      "cost": 3700000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 6,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 720,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 1050,
+        "dps": 11.5,
+        "damagePerShot": 81,
+        "burnDps": 27.5,
+        "totalBurnDamage": 550,
+        "burnDamagePerTick": 11
+      },
+      "cost": 4000000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 7,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 777,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 7,
+      "stats": {
+        "hp": 1250,
+        "dps": 12.7,
+        "damagePerShot": 89,
+        "burnDps": 30,
+        "totalBurnDamage": 600,
+        "burnDamagePerTick": 12
+      },
+      "cost": 4300000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 8,
+      "stats": {
+        "hp": 1450,
+        "dps": 13.8,
+        "damagePerShot": 97,
+        "burnDps": 32.5,
+        "totalBurnDamage": 650,
+        "burnDamagePerTick": 13
+      },
+      "cost": 4600000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 10,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 929,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 9,
+      "stats": {
+        "hp": 1650,
+        "dps": 15.2,
+        "damagePerShot": 107,
+        "burnDps": 35,
+        "totalBurnDamage": 700,
+        "burnDamagePerTick": 14
+      },
+      "cost": 4900000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 11,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 974,
+      "builderHallRequired": 9
+    },
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1850,
+        "dps": 16.8,
+        "damagePerShot": 118,
+        "burnDps": 37.5,
+        "totalBurnDamage": 750,
+        "burnDamagePerTick": 15
+      },
+      "cost": 5900000,
+      "costResource": "Builder Gold",
+      "time": {
+        "days": 12,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 1018,
+      "builderHallRequired": 10
+    }
+  ],
+  "abilities": [],
+  "rawId": "lava-launcher",
+  "en_name": "Lava Launcher",
+  "modes": {
+    "normal": {
+      "range": 13,
+      "minRange": 6,
+      "attackSpeed": 7,
+      "damageType": "splash",
+      "splashRadius": 3,
+      "lavaLifetime": 20,
+      "lavaRadius": 2.5,
+      "burnDamageTickRate": 0.4
+    }
+  },
+  "availablePerBuilderHall": [
+    {
+      "builderHallLevel": 9,
+      "count": 1
+    },
+    {
+      "builderHallLevel": 10,
+      "count": 1
+    }
+  ]
+}

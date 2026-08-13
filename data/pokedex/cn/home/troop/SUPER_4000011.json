@@ -1,0 +1,77 @@
+{
+  "id": "SUPER_4000011",
+  "name": "超级野猪骑士",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 24,
+    "housingSpace": 5,
+    "range": 0.6,
+    "attackSpeed": 1,
+    "troopType": "dark",
+    "donationCost": {
+      "amount": 135,
+      "resource": "Dark Elixir",
+      "gemsOrRaidMedals": 3
+    }
+  },
+  "levels": [
+    {
+      "level": 10,
+      "stats": {
+        "hp": 1500,
+        "dps": 180,
+        "damagePerShot": 180
+      },
+      "townHallRequired": 13
+    },
+    {
+      "level": 11,
+      "stats": {
+        "hp": 1600,
+        "dps": 200,
+        "damagePerShot": 200
+      },
+      "townHallRequired": 14
+    },
+    {
+      "level": 12,
+      "stats": {
+        "hp": 1750,
+        "dps": 230,
+        "damagePerShot": 230
+      },
+      "townHallRequired": 15
+    },
+    {
+      "level": 13,
+      "stats": {
+        "hp": 1900,
+        "dps": 250,
+        "damagePerShot": 250
+      },
+      "townHallRequired": 16
+    },
+    {
+      "level": 14,
+      "stats": {
+        "hp": 2100,
+        "dps": 270,
+        "damagePerShot": 270
+      },
+      "townHallRequired": 17
+    },
+    {
+      "level": 15,
+      "stats": {
+        "hp": 2350,
+        "dps": 300,
+        "damagePerShot": 300
+      },
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": []
+}

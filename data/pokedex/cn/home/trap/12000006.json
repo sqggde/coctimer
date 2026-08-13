@@ -1,0 +1,220 @@
+{
+  "id": "12000006",
+  "name": "黑雷",
+  "category": "trap",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "空中",
+    "size": "1x1"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "damage": 1500
+      },
+      "cost": 12000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 1
+    },
+    {
+      "level": 2,
+      "stats": {
+        "damage": 1800
+      },
+      "cost": 600000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "townHallRequired": 9
+    },
+    {
+      "level": 3,
+      "stats": {
+        "damage": 2100
+      },
+      "cost": 1200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 10
+    },
+    {
+      "level": 4,
+      "stats": {
+        "damage": 2500
+      },
+      "cost": 2500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 360,
+      "townHallRequired": 13
+    },
+    {
+      "level": 5,
+      "stats": {
+        "damage": 2800
+      },
+      "cost": 5000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 15
+    },
+    {
+      "level": 6,
+      "stats": {
+        "damage": 3000
+      },
+      "cost": 6500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 3,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 16
+    },
+    {
+      "level": 7,
+      "stats": {
+        "damage": 3200
+      },
+      "cost": 12000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 5,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 657,
+      "townHallRequired": 17
+    },
+    {
+      "level": 8,
+      "stats": {
+        "damage": 3350
+      },
+      "cost": 19000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 11,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 996,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "seeking-air-mine",
+  "en_name": "Seeking Air Mine",
+  "triggerRadius": 4,
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 1
+    },
+    {
+      "townHallLevel": 8,
+      "count": 2
+    },
+    {
+      "townHallLevel": 9,
+      "count": 4
+    },
+    {
+      "townHallLevel": 10,
+      "count": 5
+    },
+    {
+      "townHallLevel": 11,
+      "count": 5
+    },
+    {
+      "townHallLevel": 12,
+      "count": 6
+    },
+    {
+      "townHallLevel": 13,
+      "count": 7
+    },
+    {
+      "townHallLevel": 14,
+      "count": 8
+    },
+    {
+      "townHallLevel": 15,
+      "count": 8
+    },
+    {
+      "townHallLevel": 16,
+      "count": 8
+    },
+    {
+      "townHallLevel": 17,
+      "count": 9
+    },
+    {
+      "townHallLevel": 18,
+      "count": 9
+    }
+  ],
+  "damageRadius": 0
+}

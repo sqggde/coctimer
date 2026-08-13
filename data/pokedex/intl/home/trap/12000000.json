@@ -1,0 +1,316 @@
+{
+  "id": "12000000",
+  "name": "隐形炸弹",
+  "category": "trap",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "地面",
+    "size": "1x1"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "damage": 20
+      },
+      "cost": 400,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 3
+    },
+    {
+      "level": 2,
+      "stats": {
+        "damage": 24
+      },
+      "cost": 1000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 1,
+        "seconds": 0
+      },
+      "xpGained": 18,
+      "townHallRequired": 3
+    },
+    {
+      "level": 3,
+      "stats": {
+        "damage": 29
+      },
+      "cost": 10000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 5,
+        "seconds": 0
+      },
+      "xpGained": 34,
+      "townHallRequired": 5
+    },
+    {
+      "level": 4,
+      "stats": {
+        "damage": 35
+      },
+      "cost": 40000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 30,
+        "seconds": 0
+      },
+      "xpGained": 48,
+      "townHallRequired": 7
+    },
+    {
+      "level": 5,
+      "stats": {
+        "damage": 42
+      },
+      "cost": 100000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 60,
+      "townHallRequired": 8
+    },
+    {
+      "level": 6,
+      "stats": {
+        "damage": 54
+      },
+      "cost": 230000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 2,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 103,
+      "townHallRequired": 9
+    },
+    {
+      "level": 7,
+      "stats": {
+        "damage": 72
+      },
+      "cost": 330000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 134,
+      "townHallRequired": 10
+    },
+    {
+      "level": 8,
+      "stats": {
+        "damage": 92
+      },
+      "cost": 500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 146,
+      "townHallRequired": 11
+    },
+    {
+      "level": 9,
+      "stats": {
+        "damage": 125
+      },
+      "cost": 750000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 6,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "townHallRequired": 13
+    },
+    {
+      "level": 10,
+      "stats": {
+        "damage": 140
+      },
+      "cost": 1300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 14
+    },
+    {
+      "level": 11,
+      "stats": {
+        "damage": 155
+      },
+      "cost": 2500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 18,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 15
+    },
+    {
+      "level": 12,
+      "stats": {
+        "damage": 170
+      },
+      "cost": 4000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 509,
+      "townHallRequired": 16
+    },
+    {
+      "level": 13,
+      "stats": {
+        "damage": 185
+      },
+      "cost": 8500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 623,
+      "townHallRequired": 17
+    },
+    {
+      "level": 14,
+      "stats": {
+        "damage": 200
+      },
+      "cost": 14000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 8,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 831,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "bomb",
+  "en_name": "Bomb",
+  "triggerRadius": 1.5,
+  "damageRadius": 3,
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 2
+    },
+    {
+      "townHallLevel": 4,
+      "count": 2
+    },
+    {
+      "townHallLevel": 5,
+      "count": 4
+    },
+    {
+      "townHallLevel": 6,
+      "count": 4
+    },
+    {
+      "townHallLevel": 7,
+      "count": 6
+    },
+    {
+      "townHallLevel": 8,
+      "count": 6
+    },
+    {
+      "townHallLevel": 9,
+      "count": 6
+    },
+    {
+      "townHallLevel": 10,
+      "count": 6
+    },
+    {
+      "townHallLevel": 11,
+      "count": 6
+    },
+    {
+      "townHallLevel": 12,
+      "count": 6
+    },
+    {
+      "townHallLevel": 13,
+      "count": 7
+    },
+    {
+      "townHallLevel": 14,
+      "count": 8
+    },
+    {
+      "townHallLevel": 15,
+      "count": 8
+    },
+    {
+      "townHallLevel": 16,
+      "count": 8
+    },
+    {
+      "townHallLevel": 17,
+      "count": 8
+    },
+    {
+      "townHallLevel": 18,
+      "count": 8
+    }
+  ]
+}

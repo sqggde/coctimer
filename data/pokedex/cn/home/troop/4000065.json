@@ -1,0 +1,140 @@
+{
+  "id": "4000065",
+  "name": "龙骑",
+  "category": "troop",
+  "base": "home",
+  "traits": {
+    "damageType": "单个",
+    "targetType": "地面",
+    "movementSpeed": 20,
+    "housingSpace": 25,
+    "range": 3.5,
+    "attackSpeed": 1.2,
+    "troopType": "regular",
+    "donationCost": {
+      "amount": 39000,
+      "resource": "Elixir",
+      "gemsOrRaidMedals": 13
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "hp": 4100,
+        "dps": 340,
+        "damagePerShot": 408,
+        "deathDamage": 700
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 0,
+      "cost": 0,
+      "costResource": "Elixir",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 2,
+      "stats": {
+        "hp": 4400,
+        "dps": 370,
+        "damagePerShot": 444,
+        "deathDamage": 800
+      },
+      "townHallRequired": 13,
+      "laboratoryRequired": 11,
+      "cost": 7500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 6,
+        "hours": 21,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 3,
+      "stats": {
+        "hp": 4700,
+        "dps": 400,
+        "damagePerShot": 480,
+        "deathDamage": 900
+      },
+      "townHallRequired": 14,
+      "laboratoryRequired": 12,
+      "cost": 12000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 9,
+        "hours": 7,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 4,
+      "stats": {
+        "hp": 5100,
+        "dps": 430,
+        "damagePerShot": 516,
+        "deathDamage": 1000
+      },
+      "townHallRequired": 16,
+      "laboratoryRequired": 14,
+      "cost": 14500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 11,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 5,
+      "stats": {
+        "hp": 5600,
+        "dps": 470,
+        "damagePerShot": 564,
+        "deathDamage": 1100
+      },
+      "townHallRequired": 17,
+      "laboratoryRequired": 15,
+      "cost": 19000000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 12,
+        "hours": 23,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    {
+      "level": 6,
+      "stats": {
+        "hp": 6000,
+        "dps": 520,
+        "damagePerShot": 624,
+        "deathDamage": 1200
+      },
+      "townHallRequired": 18,
+      "laboratoryRequired": 16,
+      "cost": 29500000,
+      "costResource": "Elixir",
+      "time": {
+        "days": 15,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  ],
+  "abilities": [],
+  "rawId": "dragon-rider",
+  "en_name": "Dragon Rider",
+  "barrackLevelRequired": 15
+}

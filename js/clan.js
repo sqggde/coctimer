@@ -914,9 +914,9 @@
             var raw = localStorage.getItem(LEAGUE_MODE_KEY);
             if (raw) {
                 var p = JSON.parse(raw);
-                if (p && typeof p === 'object') _modeMap = p;
+                if (p && typeof p === 'object') _modeMap = shared._modeMap = p;
             }
-        } catch (e) { _modeMap = {}; }
+        } catch (e) { _modeMap = shared._modeMap = {}; }
     }
 
     function saveModeMap() {

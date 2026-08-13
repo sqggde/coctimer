@@ -1,0 +1,295 @@
+{
+  "id": "12000002",
+  "name": "巨型炸弹",
+  "category": "trap",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "地面",
+    "size": "2x2"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "damage": 175,
+        "damageRadius": 3
+      },
+      "cost": 12500,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 6
+    },
+    {
+      "level": 2,
+      "stats": {
+        "damage": 200,
+        "damageRadius": 3.5
+      },
+      "cost": 75000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 1,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 60,
+      "townHallRequired": 6
+    },
+    {
+      "level": 3,
+      "stats": {
+        "damage": 225,
+        "damageRadius": 3.5
+      },
+      "cost": 220000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 103,
+      "townHallRequired": 8
+    },
+    {
+      "level": 4,
+      "stats": {
+        "damage": 250,
+        "damageRadius": 4
+      },
+      "cost": 750000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 4,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 169,
+      "townHallRequired": 10
+    },
+    {
+      "level": 5,
+      "stats": {
+        "damage": 275,
+        "damageRadius": 4
+      },
+      "cost": 900000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 10,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 189,
+      "townHallRequired": 11
+    },
+    {
+      "level": 6,
+      "stats": {
+        "damage": 325,
+        "damageRadius": 4
+      },
+      "cost": 1300000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 11,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 198,
+      "townHallRequired": 13
+    },
+    {
+      "level": 7,
+      "stats": {
+        "damage": 375,
+        "damageRadius": 4
+      },
+      "cost": 1500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 207,
+      "townHallRequired": 13
+    },
+    {
+      "level": 8,
+      "stats": {
+        "damage": 400,
+        "damageRadius": 4
+      },
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 14
+    },
+    {
+      "level": 9,
+      "stats": {
+        "damage": 425,
+        "damageRadius": 4
+      },
+      "cost": 3200000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 15
+    },
+    {
+      "level": 10,
+      "stats": {
+        "damage": 450,
+        "damageRadius": 4
+      },
+      "cost": 5500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 464,
+      "townHallRequired": 16
+    },
+    {
+      "level": 11,
+      "stats": {
+        "damage": 475,
+        "damageRadius": 4
+      },
+      "cost": 10000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 4,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 587,
+      "townHallRequired": 17
+    },
+    {
+      "level": 12,
+      "stats": {
+        "damage": 490,
+        "damageRadius": 4.2
+      },
+      "cost": 17000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 10,
+        "hours": 12,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 952,
+      "townHallRequired": 18
+    }
+  ],
+  "abilities": [],
+  "rawId": "giant-bomb",
+  "en_name": "Giant Bomb",
+  "triggerRadius": 2,
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 1
+    },
+    {
+      "townHallLevel": 7,
+      "count": 2
+    },
+    {
+      "townHallLevel": 8,
+      "count": 3
+    },
+    {
+      "townHallLevel": 9,
+      "count": 4
+    },
+    {
+      "townHallLevel": 10,
+      "count": 5
+    },
+    {
+      "townHallLevel": 11,
+      "count": 5
+    },
+    {
+      "townHallLevel": 12,
+      "count": 6
+    },
+    {
+      "townHallLevel": 13,
+      "count": 6
+    },
+    {
+      "townHallLevel": 14,
+      "count": 7
+    },
+    {
+      "townHallLevel": 15,
+      "count": 7
+    },
+    {
+      "townHallLevel": 16,
+      "count": 7
+    },
+    {
+      "townHallLevel": 17,
+      "count": 8
+    },
+    {
+      "townHallLevel": 18,
+      "count": 8
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "id": "12000016",
+  "name": "飓风陷阱",
+  "category": "trap",
+  "base": "home",
+  "traits": {
+    "damageType": "溅射",
+    "targetType": "陆空兼顾",
+    "size": "1x1"
+  },
+  "levels": [
+    {
+      "level": 1,
+      "stats": {
+        "damage": 0,
+        "duration": 5
+      },
+      "cost": 1000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 0,
+      "townHallRequired": 11
+    },
+    {
+      "level": 2,
+      "stats": {
+        "damage": 0,
+        "duration": 6
+      },
+      "cost": 2000000,
+      "costResource": "Gold",
+      "time": {
+        "days": 1,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 293,
+      "townHallRequired": 11
+    },
+    {
+      "level": 3,
+      "stats": {
+        "damage": 0,
+        "duration": 7
+      },
+      "cost": 2500000,
+      "costResource": "Gold",
+      "time": {
+        "days": 2,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      },
+      "xpGained": 415,
+      "townHallRequired": 12
+    }
+  ],
+  "abilities": [],
+  "rawId": "tornado-trap",
+  "en_name": "Tornado Trap",
+  "triggerRadius": 3,
+  "damageRadius": 3,
+  "specialAbility": "Pulls in troops",
+  "availablePerTownHall": [
+    {
+      "townHallLevel": 1,
+      "count": 0
+    },
+    {
+      "townHallLevel": 2,
+      "count": 0
+    },
+    {
+      "townHallLevel": 3,
+      "count": 0
+    },
+    {
+      "townHallLevel": 4,
+      "count": 0
+    },
+    {
+      "townHallLevel": 5,
+      "count": 0
+    },
+    {
+      "townHallLevel": 6,
+      "count": 0
+    },
+    {
+      "townHallLevel": 7,
+      "count": 0
+    },
+    {
+      "townHallLevel": 8,
+      "count": 0
+    },
+    {
+      "townHallLevel": 9,
+      "count": 0
+    },
+    {
+      "townHallLevel": 10,
+      "count": 0
+    },
+    {
+      "townHallLevel": 11,
+      "count": 1
+    },
+    {
+      "townHallLevel": 12,
+      "count": 1
+    },
+    {
+      "townHallLevel": 13,
+      "count": 1
+    },
+    {
+      "townHallLevel": 14,
+      "count": 1
+    },
+    {
+      "townHallLevel": 15,
+      "count": 1
+    },
+    {
+      "townHallLevel": 16,
+      "count": 1
+    },
+    {
+      "townHallLevel": 17,
+      "count": 1
+    },
+    {
+      "townHallLevel": 18,
+      "count": 1
+    }
+  ]
+}
