@@ -135,7 +135,7 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page .tbl-wrap table th:first-child { z-index: 3; background: var(--table-head-bg); }
 #pokedex-detail-page .tbl-wrap table td:first-child { background: var(--bg); }
 /* 等级列内充能行：图标+序号（方案 B，inline-block 覆盖 Tailwind preflight 的 img block） */
-#pokedex-detail-page .lv-icon { display: inline-block; width: 16px; height: 16px; object-fit: contain; vertical-align: -3px; margin-right: 2px; }
-#pokedex-detail-page th .th-icon { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; display: block; margin: 0 auto; }
+#pokedex-detail-page .lv-icon { display: inline-block; width: 16px; height: 16px; max-width: none; object-fit: contain; vertical-align: -3px; margin-right: 2px; }
+#pokedex-detail-page th .th-icon { width: 20px; height: 20px; max-width: none; object-fit: contain; vertical-align: middle; display: block; margin: 0 auto; }
 #pokedex-detail-page tr.cur { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 #pokedex-detail-page tr.cur td { font-weight: 600; color: var(--accent); }
