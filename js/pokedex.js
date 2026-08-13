@@ -125,7 +125,7 @@
         { key: 'healPerHit', label: '每次攻击治疗量', icon: 'att_hp+' },
         { key: 'healthRecovery', label: '生命恢复', icon: 'att_Hitpoint' },
         { key: 'damageReductionIncrease', label: '伤害减免%', icon: 'att_hp-' },
-        { key: 'incomingDamageReduction', label: '受到的伤害减免', icon: 'att_frost' },
+        { key: 'incomingDamageReduction', label: '受到的伤害减免', icon: 'att_hp-' },
         { key: 'extraDamageUnder180', label: '额外伤害(<180)', icon: 'att_Damage' },
         { key: 'extraDamage180to250', label: '额外伤害(180-250)', icon: 'att_Damage' },
         { key: 'extraDamageOver250', label: '额外伤害(251+)', icon: 'att_Damage' },
