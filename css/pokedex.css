@@ -113,5 +113,18 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; color: var(--text); }
 #pokedex-detail-page th, #pokedex-detail-page td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
 #pokedex-detail-page th { background: var(--table-head-bg); font-weight: 600; color: var(--text-sub); }
+/* 冻结「等级」首列（横向滚动时保持可见） */
+#pokedex-detail-page .tbl-wrap table th:first-child,
+#pokedex-detail-page .tbl-wrap table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    border-right: 1px solid var(--border);
+}
+#pokedex-detail-page .tbl-wrap table th:first-child { z-index: 3; background: var(--table-head-bg); }
+#pokedex-detail-page .tbl-wrap table td:first-child { background: var(--bg); }
+/* 等级列内充能行：图标+序号（方案 B，inline-block 覆盖 Tailwind preflight 的 img block） */
+#pokedex-detail-page .lv-icon { display: inline-block; width: 16px; height: 16px; object-fit: contain; vertical-align: -3px; margin-right: 2px; }
+#pokedex-detail-page th .th-icon { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; display: block; margin: 0 auto; }
 #pokedex-detail-page tr.cur { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 #pokedex-detail-page tr.cur td { font-weight: 600; color: var(--accent); }

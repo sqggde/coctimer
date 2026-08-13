@@ -235,6 +235,11 @@
     function fmtCost(v) {
         if (v === undefined || v === null) return '—';
         // 资源名不显示（后续用图标示意，costResource 保留在数据中）
+        // ≥1 万缩写为 Xw（1 位小数），低于 1 万正常显示
+        if (v >= 10000) {
+            const w = Math.round((v / 10000) * 10) / 10;
+            return (w % 1 === 0 ? String(w) : w.toFixed(1)) + 'w';
+        }
         return v.toLocaleString();
     }
     function fmtTiles(v) {
@@ -378,6 +383,41 @@
         els.level().innerHTML = html;
     }
 
+    // 等级表格表头图标白名单（用户确认无歧义字段）：时间/花费/升级经验/各类建筑等级；其余列保留文字表头
+    const TH_ICON = {
+        time: 'shijian',
+        xpGained: 'att_XP',
+        townHallRequired: 'att_bulid',
+        builderHallRequired: 'att_bulid',
+        laboratoryRequired: 'att_sys',
+        barrackLevelRequired: 'att_xly',
+        spellFactoryLevelRequired: 'att_fsgc',
+        petHouseLevelRequired: 'att_pets',
+        blacksmithLevelRequired: 'att_tjp'
+    };
+    // 返回表头图标 HTML；无图标字段返回 null（调用方回退文字）
+    function thIconHtml(f, levels) {
+        let icon = TH_ICON[f.key];
+        if (f.key === 'cost') {
+            // 按该实体各等级出现最多的资源类型动态取图（组合类型取首资源）
+            const resCount = {};
+            levels.forEach(lv => {
+                const c = collectLevel(lv).cost;
+                if (c && c.res) {
+                    const r = String(c.res).split(' or ')[0].trim();
+                    resCount[r] = (resCount[r] || 0) + 1;
+                }
+            });
+            let best = null, bestN = 0;
+            for (const r in resCount) {
+                if (resCount[r] > bestN) { best = r; bestN = resCount[r]; }
+            }
+            icon = best ? (RES_ICON[best] || 'info') : 'info';
+        }
+        if (!icon) return null;
+        return '<img class="th-icon" src="img/icons/' + icon + '.webp" alt="">';
+    }
+
     function renderTable(levels) {
         const present = {};
         levels.forEach(lv => {
@@ -396,15 +436,24 @@
         });
 
         let head = '<tr><th>等级</th>';
-        cols.forEach(f => { head += '<th>' + (f.table || f.label) + '</th>'; });
+        cols.forEach(f => {
+            const ic = thIconHtml(f, levels);
+            head += '<th title="' + (f.table || f.label) + '">' + (ic || (f.table || f.label)) + '</th>';
+        });
         head += '</tr>';
         els.thead().innerHTML = head;
 
         const cur = Number(els.slider().value) || 1;
         let body = '';
-        levels.forEach(lv => {
+        let scIdx = 0;   // 充能序号（supercharge 条目按数组顺序编号，level 字段恒为 1）
+        levels.forEach((lv, i) => {
             const d = collectLevel(lv);
-            let row = '<tr' + (lv.level === cur ? ' class="cur"' : '') + '><td>' + lv.level + '</td>';
+            const isSc = !!(lv.stats && lv.stats.supercharge);
+            if (isSc) scIdx++;
+            const lvCell = isSc
+                ? '<img class="lv-icon" src="img/icons/Icon_Supercharge.webp" alt="">' + scIdx
+                : String(lv.level);
+            let row = '<tr' + (i + 1 === cur ? ' class="cur"' : '') + '><td>' + lvCell + '</td>';
             cols.forEach(f => {
                 const v = d[f.key];
                 row += '<td>' + ((v === undefined || v === null) ? '—' : formatValue(v, f.fmt)) + '</td>';
@@ -509,8 +558,10 @@
             } catch (e) { /* fallthrough */ }
         }
         // 默认 no-cache（条件请求 304，代价极低）；刷新按钮触发 reload（强制绕过浏览器缓存）
+        // 服务器 URL 带时间戳：nginx expires 30d immutable 会无视 no-cache，需 cache-bust 使数据更新立即生效
+        const ts = Date.now();
         fetchJson([
-            SERVER_DATA_BASE + '/' + server + '/index.json',
+            SERVER_DATA_BASE + '/' + server + '/index.json?_t=' + ts,
             'game-data-normalized/' + server + '/index.json',
             '../../../game-data-normalized/' + server + '/index.json'
         ], done, forceReload ? 'reload' : 'no-cache');
@@ -527,7 +578,7 @@
             } catch (e) { /* fallthrough */ }
         }
         fetchJson([
-            SERVER_DATA_BASE + '/' + server + '/' + rel + '/' + id + '.json',
+            SERVER_DATA_BASE + '/' + server + '/' + rel + '/' + id + '.json?_t=' + Date.now(),
             'game-data-normalized/' + server + '/' + rel + '/' + id + '.json',
             '../../../game-data-normalized/' + server + '/' + rel + '/' + id + '.json'
         ], cb, forceReload ? 'reload' : 'no-cache');
@@ -581,7 +632,7 @@
             } catch (e) { /* fallthrough */ }
         }
         fetchJson([
-            SERVER_DATA_BASE + '/' + server + '/' + rel + '/' + id + '.json',
+            SERVER_DATA_BASE + '/' + server + '/' + rel + '/' + id + '.json?_t=' + Date.now(),
             'game-data-normalized/' + server + '/' + rel + '/' + id + '.json',
             '../../../game-data-normalized/' + server + '/' + rel + '/' + id + '.json'
         ], entity => {
