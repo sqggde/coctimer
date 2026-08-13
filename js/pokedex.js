@@ -722,15 +722,24 @@
         const refreshBtn = els.refreshBtn();
         if (refreshBtn) refreshBtn.addEventListener('click', refresh);
         const slider = els.slider();
-        slider.addEventListener('input', () => {
+        // 统一应用滑块等级（clamp 1..maxLv）：更新滑块/标签/顶部等级卡片/表格行高亮
+        function applySliderLv(lv) {
             if (!currentEntity) return;
             const levels = currentAbility ? currentAbility.levels : currentEntity.levels;
-            const lv = Number(slider.value);
+            if (!levels.length) return;
+            lv = Math.min(Math.max(Math.round(lv) || 1, 1), levels.length);
+            slider.value = lv;
             els.lvLabel().textContent = lv;
             renderLevel(levels[lv - 1]);
             const rows = els.tbody().querySelectorAll('tr');
             rows.forEach((r, i) => { r.classList.toggle('cur', i === lv - 1); });
-        });
+        }
+        slider.addEventListener('input', () => applySliderLv(Number(slider.value)));
+        // 微调按钮：英雄上百级滑块难以精确控制
+        const minus = el('pokedex-lv-minus');
+        const plus = el('pokedex-lv-plus');
+        if (minus) minus.addEventListener('click', () => applySliderLv(Number(slider.value) - 1));
+        if (plus) plus.addEventListener('click', () => applySliderLv(Number(slider.value) + 1));
         const box = els.abilitySwitch();
         box.addEventListener('click', ev => {
             const btn = ev.target.closest('.e-btn');
