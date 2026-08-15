@@ -1489,7 +1489,7 @@
         var accName = (state.accountNotes && state.accountNotes[tag]) || data.tag || tag;
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
-        try { CocTool.showToast(next === 'th' ? '已切换：当前大本进度' : '已切换：满防进度'); } catch (e) {}
+        try { CocTool.ui.showToast(next === 'th' ? '已切换：当前大本进度' : '已切换：满防进度'); } catch (e) {}
     }
 
     CocTool.overviewDetail = Object.freeze({ initDetail: initDetail, openDetail: openDetail, goBack: goBack, showEpicTip: showEpicTip, closeEpicTip: closeEpicTip, toggleProgressMode: toggleProgressMode });
