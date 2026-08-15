@@ -376,8 +376,28 @@
             border-radius: 3px;
             background: #3b82f6;
         }
-        /* 满防模式进度 100%：进度条金色 */
-        .ov-bar-fill.ov-bar-full { background: #fdc367; }
+        /* 满防模式进度 100%：5 段金色渐变 + 双光泽错位流动（各 6s、第二道延迟 3s 半周期，任意时刻 1-2 道白条在条内，连续无断档） */
+        .ov-bar-fill.ov-bar-full {
+            background: linear-gradient(90deg, #fcd34d, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #fbbf24);
+            position: relative;
+            overflow: hidden;
+        }
+        .ov-bar-fill.ov-bar-full::before,
+        .ov-bar-fill.ov-bar-full::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.65) 50%, transparent 80%);
+            transform: translateX(-100%);
+            animation: ov-bar-shimmer 6s ease-in-out infinite;
+        }
+        .ov-bar-fill.ov-bar-full::after { animation-delay: 3s; }
+        @keyframes ov-bar-shimmer {
+            100% { transform: translateX(100%); }
+        }
         /* 进度明细弹窗行 */
         .ov-pg-row {
             display: flex;
