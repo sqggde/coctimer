@@ -615,8 +615,8 @@
         }
         importingGuard = false;
         detectAccountServer(tag, data);
-        if (CocTool.features.overview && CocTool.features.overview.rebuildCard) {
-            try { CocTool.features.overview.rebuildCard(tag); } catch (e) {}
+        if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
+            try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
         showToast(`${displayName}的信息已更新`, 1500);
     }

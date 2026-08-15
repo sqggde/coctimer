@@ -323,6 +323,20 @@
 
     CocTool.navigation = Object.freeze({ init: initNavigation, showPage });
 
+    // Android 后台切前台（MainActivity.onResume 经 evaluateJavascript 调用）：
+    // 停留在账号进度列表页（且未打开详情）时整页刷新——倒计时/时间排序/已完成项全部重算
+    CocTool.onAppResume = function () {
+        try {
+            if (!CocTool.features || !CocTool.features.overview) return;
+            var overviewPage = document.getElementById('overview-page');
+            var detailPage = document.getElementById('overview-detail-page');
+            if (overviewPage && !overviewPage.classList.contains('hidden') &&
+                (!detailPage || detailPage.style.display === 'none')) {
+                CocTool.features.overview.init();
+            }
+        } catch (e) {}
+    };
+
     CocTool.handleBack = function () {
         var openModal = document.querySelector('.modal-overlay:not(.hidden)');
         if (openModal) {

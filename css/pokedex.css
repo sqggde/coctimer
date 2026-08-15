@@ -103,7 +103,7 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page .grid .basic-item .basic-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
 #pokedex-detail-page .grid .basic-item .basic-text { display: flex; flex-direction: column; justify-content: center; line-height: 1.35; min-width: 0; }
 /* 累计升级时间/花费（账号等级→滑块目标等级的区间总和，蓝色） */
-#pokedex-detail-page .basic-text .cum { color: var(--accent); font-weight: 600; margin-left: 8px; }
+#pokedex-detail-page .basic-text .cum { color: var(--accent); font-weight: 600; margin-left: 8px; white-space: nowrap; }
 #pokedex-detail-page .grid .basic-item .basic-text .k { font-size: 8px; }
 #pokedex-detail-page .grid .basic-item .basic-text .v { font-size: 14px; font-weight: 700; text-align: left; }
 /* 滑块 */
@@ -123,7 +123,8 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page .tbl-wrap { overflow-x: auto; }
 #pokedex-detail-page table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; color: var(--text); }
 #pokedex-detail-page th, #pokedex-detail-page td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
-#pokedex-detail-page th { background: var(--table-head-bg); font-weight: 600; color: var(--text-sub); }
+#pokedex-detail-page th { background: var(--table-head-bg); font-weight: 600; color: var(--text-sub); font-size: 12px; }
+#pokedex-detail-page th.th-long { font-size: 8px; white-space: nowrap; }
 /* 冻结「等级」首列（横向滚动时保持可见） */
 #pokedex-detail-page .tbl-wrap table th:first-child,
 #pokedex-detail-page .tbl-wrap table td:first-child {

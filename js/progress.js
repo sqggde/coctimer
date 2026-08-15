@@ -515,7 +515,7 @@
     function updateBuilderMonthlyPassIcon(tag) {
         var passIcon = document.getElementById('builder-monthly-pass-icon');
         if (!passIcon) return;
-        // 仅国服有工人助手时才显示
+        // 仅国服账号显示（不检查工人助手是否存在）
         var data = accounts[state.currentAccount];
         if (!data) { passIcon.classList.add('hidden'); return; }
         var isCn = calc.isCnAccount(data);

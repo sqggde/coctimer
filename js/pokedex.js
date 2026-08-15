@@ -36,6 +36,7 @@
         { key: 'numberOfRounds', label: '弹数', group: 'basic' },
         { key: 'rechargeTime', label: '充能时间', group: 'basic' },
         { key: 'poisonDuration', label: '毒药持续时间', fmt: 'sec', group: 'basic' },
+        { key: 'stunTime', label: '眩晕时间', icon: 'att_xy', fmt: 'sec', group: 'basic' },
         { key: 'detonationDelay', label: '引爆延迟', fmt: 'sec', group: 'basic' },
         { key: 'attackType', label: '攻击类型', icon: 'att_Damagetype', enum: {
             'Single Target': '单体', 'Single Target (Ground Only)': '单体（仅地面）',
@@ -44,21 +45,20 @@
             'Melee (Ground Only)': '近战（仅地面）', 'Ranged (Ground & Air)': '远程（陆空）',
             'Ranged Single Target (Any target)': '远程单体（任意目标）',
             'Chain Lightning': '连锁闪电',
+            'Air': '空中',
             'Melee (with nearby air units)/Ranged (otherwise); (Ground & Air)': '近战/远程切换（陆空）'
         }, group: 'basic' },
         { key: 'guardianType', label: '守卫类型', enum: { longshot: '远袭', smasher: '粉碎', logger: '滚木' }, group: 'basic' },
         { key: 'housingSpace', label: '空间', icon: 'att_kj', group: 'basic' },
         { key: 'movementSpeed', label: '移速', icon: 'att_Speed', group: 'basic' },
-        { key: 'preferredTarget', label: '攻击偏好', icon: 'att_Target', enum: {
-            'None': '无', 'Any': '任意', 'Defenses': '防御建筑', 'Resources': '资源建筑',
-            'Walls': '城墙', 'Hero': '英雄', 'Heroes': '英雄', 'Heroes and Troops': '英雄和部队',
-            "Hero's Target": '英雄的目标', 'Walls (Damage x4)': '城墙（4倍伤害）',
-            'Within 2.5 tiles of Hero': '英雄周围2.5格', 'Within 4.5 tiles of Hero': '英雄周围4.5格',
-            'Within 7 tiles of Hero': '英雄周围7格', 'Heroes (2x Damage)': '英雄（2倍伤害）'
-        }, group: 'basic' },
+        { key: 'preferredTarget', label: '攻击偏好', icon: 'att_Target', group: 'basic' },
         { key: 'barrackLevelRequired', label: '训练营解锁等级', icon: 'att_xly', group: 'basic' },
-        { key: 'spellDuration', label: '持续时间', icon: 'shijian', group: 'basic' },
+        { key: 'spellDuration', label: '持续时间', icon: 'shijian', fmt: 'sec', group: 'basic' },
+        { key: 'evolveTime', label: '变身时间', icon: 'shijian', fmt: 'sec', group: 'basic' },
+        { key: 'spellDuration', label: '持续时间', table: '持续时间', icon: 'shijian', fmt: 'sec', group: 'level' },
+        { key: 'angerDuration', label: '激怒时间', table: '激怒时间', icon: 'shijian', fmt: 'sec', group: 'level' },
         { key: 'radius', label: '范围', icon: 'att_DamageRadius', group: 'basic' },
+        { key: 'radius', label: '范围', table: '范围', icon: 'att_DamageRadius', group: 'level' },
         { key: 'damageRadius', label: '伤害半径', group: 'basic' },
         { key: 'searchRadius', label: '警戒范围', icon: 'att_Range', group: 'basic' },
         { key: 'lifetime', label: '存活时间', fmt: 'sec', group: 'basic' },
@@ -77,7 +77,9 @@
         { key: 'damagePerShot', label: '单次伤害', icon: 'att_Damage', group: 'level' },
         { key: 'hp', label: '生命值', table: '生命', icon: 'att_Hitpoint', group: 'level' },
         { key: 'damage', label: '伤害', icon: 'att_Damage', group: 'level' },
-        { key: 'deathDamage', label: '死亡伤害', group: 'level' },
+        { key: 'totalHealing', label: '部队总治疗量', table: '部队总治疗', icon: 'att_hp+', group: 'level' },
+        { key: 'totalHealingOnHeroes', label: '英雄总治疗量', table: '英雄总治疗', icon: 'att_herohp+', group: 'level' },
+        { key: 'deathDamage', label: '死亡伤害', icon: 'att_Deathdamage', group: 'level' },
         { key: 'cost', label: '升级花费', table: '升级花费', fmt: 'cost', group: 'level' },
         { key: 'time', label: '升级时间', table: '升级时间', fmt: 'time', icon: 'shijian', group: 'level' },
         { key: 'laboratoryRequired', label: '实验室等级', icon: 'att_sys', group: 'level' },
@@ -89,6 +91,9 @@
         { key: 'productionRate', label: '生产效率', group: 'level' },
         { key: 'housingSpace', label: '空间', icon: 'att_kj', group: 'level' },
         { key: 'clonedCapacity', label: '克隆单位', icon: 'att_kl', group: 'level' },
+        { key: 'recalledCapacity', label: '可召回部队数量', table: '可召回部队', icon: 'att_kj', group: 'level' },
+        { key: 'heroHealPercent', label: '复活后生命值%', table: '复活生命', icon: 'att_herohp+', group: 'level' },
+        { key: 'clonedLifespan', label: '复制体存活时长', icon: 'shijian', fmt: 'sec', group: 'basic' },
         { key: 'springCapacity', label: '弹射容量', group: 'level' },
         { key: 'duration', label: '激活时长', group: 'level' },
         { key: 'poisonLevel', label: '毒药等级', group: 'level' },
@@ -106,7 +111,10 @@
         { key: 'maxHpIncrease', label: '最大生命提升%', icon: 'att_Hitpoint' },
         { key: 'maxHealthIncrease', label: '最大生命提升%', icon: 'att_Hitpoint' },
         { key: 'dpsIncrease', label: '每秒伤害提升', icon: 'att_Damage' },
-        { key: 'damageIncrease', label: '伤害加成', icon: 'att_Damage' },
+        { key: 'damageOverTime', label: '持续伤害', table: '持续伤害', icon: 'att_dy', group: 'level' },
+        { key: 'speedDecrease', label: '速度降低%', table: '速度降低', icon: 'att_frost', group: 'level' },
+        { key: 'attackRateDecrease', label: '攻速降低%', table: '攻速降低', icon: 'att_Attackspeed', group: 'level' },
+        { key: 'damageIncrease', label: '伤害加成%', icon: 'att_Damage' },
         { key: 'damageIncreasePercent', label: '伤害加成', icon: 'att_Damage' },
         { key: 'maxDamageIncrease', label: '最大伤害提升%', icon: 'att_Damage' },
         { key: 'damagePerShotIncrease', label: '单次伤害提升', icon: 'att_Damage' },
@@ -120,12 +128,15 @@
         { key: 'speedIncrease', label: '移速提升', icon: 'att_Speed' },
         { key: 'attackRange', label: '攻击距离', icon: 'att_Range' },
         { key: 'damageRadius', label: '伤害半径', icon: 'att_DamageRadius', fmt: 'tiles' },
-        { key: 'healingPerSecond', label: '每秒治疗', icon: 'att_hp+' },
+        { key: 'healingPerSecond', label: '每秒治疗量', icon: 'att_hp+' },
+        { key: 'healingPerPulse', label: '每次治疗量', icon: 'att_hp+' },
+        { key: 'healingPerSecondOnHeroes', label: '英雄每秒治疗量', icon: 'att_herohp+' },
+        { key: 'healingPerPulseOnHeroes', label: '英雄每次治疗量', icon: 'att_herohp+' },
         { key: 'selfHealingPerSecond', label: '每秒自愈', icon: 'att_hp+' },
         { key: 'healPerHit', label: '每次攻击治疗量', icon: 'att_hp+' },
         { key: 'healthRecovery', label: '生命恢复', icon: 'att_Hitpoint' },
         { key: 'damageReductionIncrease', label: '伤害减免%', icon: 'att_hp-' },
-        { key: 'incomingDamageReduction', label: '受到的伤害减免', icon: 'att_hp-' },
+        { key: 'incomingDamageReduction', label: '伤害减免%', icon: 'att_hp-' },
         { key: 'extraDamageUnder180', label: '额外伤害(<180)', icon: 'att_Damage' },
         { key: 'extraDamage180to250', label: '额外伤害(180-250)', icon: 'att_Damage' },
         { key: 'extraDamageOver250', label: '额外伤害(251+)', icon: 'att_Damage' },
@@ -149,18 +160,18 @@
         { key: 'cloneDps', label: '克隆秒伤' },
         { key: 'cloneHealth', label: '克隆生命' },
         { key: 'cloneDuration', label: '克隆持续时间', fmt: 'dur' },
-        { key: 'summonedBarbarians', label: '召唤数量', icon: 'att_kl' },
-        { key: 'summonedArchers', label: '召唤数量', icon: 'att_kl' },
-        { key: 'summonedHogRiders', label: '召唤数量', icon: 'att_kl' },
-        { key: 'summonedHealers', label: '召唤数量', icon: 'att_kl' },
-        { key: 'summonedLavaloons', label: '召唤数量', icon: 'att_kl' },
-        { key: 'maxSummonedSnakes', label: '召唤数量', icon: 'att_kl' },
-        { key: 'snakeLevel', label: '召唤单位等级', icon: 'att_zhdj' },
-        { key: 'healerLevel', label: '召唤单位等级', icon: 'att_zhdj' },
-        { key: 'giantGiantLevel', label: '召唤单位等级', icon: 'att_zhdj' },
-        { key: 'hogRiderLevel', label: '召唤单位等级', icon: 'att_zhdj' },
-        { key: 'lavaloonLevel', label: '召唤单位等级', icon: 'att_zhdj' },
-        { key: 'henchmenLevel', label: '召唤单位等级', icon: 'att_zhdj' },
+        { key: 'summoned', label: '召唤数量', icon: 'att_kl' },
+        { key: 'summonedPerSummon', label: '每次召唤数量', table: '每次召唤', icon: 'att_kl', group: 'level' },
+        { key: 'maxSummoned', label: '最大召唤数量', table: '最大召唤', icon: 'att_kl', group: 'level' },
+        { key: 'barrelCount', label: '召唤次数', table: '召唤次数', icon: 'att_kl', group: 'level' },
+        { key: 'summonedGiants', label: '巨人数量', table: '巨人', icon: 'att_kl', group: 'level' },
+        { key: 'summonedBarbarians', label: '野蛮人数量', table: '野蛮人', icon: 'att_kl', group: 'level' },
+        { key: 'summonedArchers', label: '弓箭手数量', table: '弓箭手', icon: 'att_kl', group: 'level' },
+        { key: 'summonedWallBreakers', label: '炸弹人数量', table: '炸弹人', icon: 'att_kl', group: 'level' },
+        { key: 'summonedMinions', label: '亡灵数量', table: '亡灵', icon: 'att_kl', group: 'level' },
+        { key: 'summonedBalloons', label: '气球数量', table: '气球', icon: 'att_kl', group: 'level' },
+        { key: 'summonedBabyDragons', label: '飞龙数量', table: '飞龙', icon: 'att_kl', group: 'level' },
+        { key: 'summonedLevel', label: '召唤单位等级', icon: 'att_zhdj' },
         { key: 'archerInvisibilityDuration', label: '弓箭手隐身时长', fmt: 'dur' },
         { key: 'blacksmithLevelRequired', label: '铁匠铺等级', icon: 'att_tjp' },
         { key: 'upgradeShinyOre', label: '蓝矿', icon: 'Shiny_Ore' },
@@ -182,7 +193,8 @@
         'summonCooldown', 'rageSpeedIncrease', 'numberOfTargets', 'auraRange',
         'favoriteTarget', 'springCapacity', 'aoeRadius', 'pushDistance',
         'triggerHousingSpace', 'workRate', 'recruitmentCost',
-        'rarity', 'hero', 'abilityType', 'unlockRequirement'
+        'rarity', 'hero', 'abilityType', 'unlockRequirement',
+        'stunTime', 'spellDuration', 'clonedLifespan', 'evolveTime'
     ];
 
     const RES_CN = { 'Elixir': '圣水', 'Gold': '金币', 'Dark Elixir': '暗黑重油', 'Builder Elixir': '夜圣水', 'Builder Gold': '夜金币', 'Gems': '宝石' };
@@ -383,7 +395,8 @@
         if (from < 1 || from >= levels.length) return null;
         if (kind === 'time') {
             let s = { days: 0, hours: 0, minutes: 0, seconds: 0 };
-            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+            // levels[i] = level i+1 的数据（time = 升到 level i+1 的时间）：从 from 级升到 to 级 = levels[from..to-1]
+            for (let i = from; i < to && i < levels.length; i++) {
                 const t = levels[i].time;
                 if (t) {
                     s.days += t.days || 0;
@@ -400,7 +413,7 @@
         }
         if (kind === 'cost') {
             let sum = 0;
-            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+            for (let i = from; i < to && i < levels.length; i++) {
                 const c = levels[i].cost;
                 if (typeof c === 'number') sum += c;
             }
@@ -409,7 +422,7 @@
         // 装备矿石花费（蓝/紫/黄矿，与升级花费同口径 Xw 缩写）
         if (ORE_KEYS.indexOf(kind) !== -1) {
             let sum = 0;
-            for (let i = from - 1; i < to - 1 && i < levels.length; i++) {
+            for (let i = from; i < to && i < levels.length; i++) {
                 const v = levels[i][kind];
                 if (typeof v === 'number') sum += v;
             }
@@ -447,7 +460,10 @@
         barrackLevelRequired: 'att_xly',
         spellFactoryLevelRequired: 'att_fsgc',
         petHouseLevelRequired: 'att_pets',
-        blacksmithLevelRequired: 'att_tjp'
+        blacksmithLevelRequired: 'att_tjp',
+        upgradeShinyOre: 'Shiny_Ore',
+        upgradeGlowingOre: 'Glowy_Ore',
+        upgradeStarryOre: 'Starry_Ore'
     };
     // 建筑等级类字段集合（大本营等级独立后置；排序分组：属性 → 时间/花费 → 其他建筑 → 大本营 → 升级经验）
     const LEVEL_BUILDING_REQ = ['townHallRequired', 'builderHallRequired', 'heroHallLevelRequired',
@@ -507,7 +523,9 @@
         let head = '<tr><th>等级</th>';
         cols.forEach(f => {
             const ic = thIconHtml(f, levels);
-            head += '<th title="' + (f.table || f.label) + '">' + (ic || (f.table || f.label)) + '</th>';
+            // 文字表头超 4 字缩小字号（th-long）节省列宽；图标表头不受影响
+            const label = f.table || f.label;
+            head += '<th title="' + label + '"' + (ic ? '' : (label.length > 4 ? ' class="th-long"' : '')) + '>' + (ic || label) + '</th>';
         });
         head += '</tr>';
         els.thead().innerHTML = head;
@@ -550,9 +568,10 @@
         if (cur > maxLv) cur = maxLv;
         if (cur < 1) cur = 1;
         els.slider().value = cur;
-        els.lvLabel().textContent = cur;
-        updateLvTitle();
         const levels = ability ? ability.levels : entity.levels;
+        // 滑块数字标签：形态/本体等级编号（如超级野蛮人显示 8-13 而非位置 1-6）
+        els.lvLabel().textContent = (levels[cur - 1] && levels[cur - 1].level !== undefined) ? levels[cur - 1].level : cur;
+        updateLvTitle();
         renderLevel(levels[cur - 1]);
         renderTable(levels);
     }
@@ -596,6 +615,19 @@
             }
         }
         return accountLevel || 1;
+    }
+
+    // 实体顶层自定义字段（如 stunTime 眩晕时间，非 stats/levels/元数据）注入每个 level，使 collectLevel 能取到
+    const RESERVED_TOP = ['id', 'dataId', 'name', 'description', 'base', 'category', 'spellType', 'traits', 'levels', 'abilities', 'rawId', 'en_name'];
+    function injectTopLevelFields(entity) {
+        if (!entity || !entity.levels) return;
+        const top = {};
+        Object.keys(entity).forEach(k => {
+            if (RESERVED_TOP.indexOf(k) === -1) top[k] = entity[k];
+        });
+        if (Object.keys(top).length) {
+            entity.levels.forEach(lv => { Object.assign(lv, top); });
+        }
     }
 
     // ---------- 数据加载 ----------
@@ -716,6 +748,7 @@
         const finish = entity => {
             resetReload();
             if (!entity) return;
+            injectTopLevelFields(entity);
             render(entity, curLevel || 1, modules);
             const page = els.page();
             page.style.display = 'flex';
@@ -798,7 +831,8 @@
             if (!levels.length) return;
             lv = Math.min(Math.max(Math.round(lv) || 1, 1), levels.length);
             slider.value = lv;
-            els.lvLabel().textContent = lv;
+            // 滑块标签显示等级编号（如超级气球 10-14 而非位置 1-5）
+            els.lvLabel().textContent = (levels[lv - 1] && levels[lv - 1].level !== undefined) ? levels[lv - 1].level : lv;
             renderLevel(levels[lv - 1]);
             const rows = els.tbody().querySelectorAll('tr');
             rows.forEach((r, i) => { r.classList.toggle('cur', i === lv - 1); });
@@ -826,6 +860,20 @@
             if (t.type === 'ability' && accountModules && accountModules.length) {
                 const mv = Number(accountModules[t.idx]) || 1;
                 if (mv > 0) els.slider().value = mv;
+            } else if (t.type === 'ability') {
+                // 超级形态等：等级编号与本体不同（如超级野蛮人 8-13），按账号等级匹配到对应编号项的位置
+                const abLevels = currentAbility ? currentAbility.levels : null;
+                if (abLevels && abLevels.length) {
+                    const al = accountLevel || 1;
+                    let pos = 1;
+                    for (let i = 0; i < abLevels.length; i++) {
+                        if ((abLevels[i].level || 0) >= al) { pos = i + 1; break; }
+                        pos = i + 1;
+                    }
+                    els.slider().value = pos;
+                } else {
+                    els.slider().value = accountLevel || 1;
+                }
             } else {
                 els.slider().value = accountLevel || 1;
             }

@@ -11,6 +11,7 @@
     var sortMode = (function () { try { return localStorage.getItem('ov_sort_mode') || 'default'; } catch (e) { return 'default'; } })();
     var sortDropdownBound = false;
 
+    // 排序键：该账号所有升级项目（含已完成）中完成时间最早的一个（用户规则：最早完成的升级项目）
     function getNextCompletionTs(data) {
         try {
             var pr = CocTool.features.progress;
@@ -84,44 +85,6 @@
         return 'cd-blue';
     }
 
-    function refreshCardCountdown(card) {
-        var tag = card.getAttribute('data-tag');
-        var data = state.accounts[tag];
-        if (!data) return;
-        try {
-            var pr = CocTool.features.progress;
-            var now = Math.floor(Date.now() / 1000);
-            var items = pr.extractUpgradingItems(data, now, true);
-            var bestItem = null, bestCts = Infinity;
-            for (var i = 0; i < items.length; i++) {
-                var cts = pr.calculateCompletionTimestamp(items[i], data);
-                if (cts < bestCts) { bestCts = cts; bestItem = items[i]; }
-            }
-            var timeSpan = card.querySelector('.acc-countdown');
-            var iconImg = card.querySelector('.acc-upgrade-icon');
-            if (!timeSpan) return;
-            if (bestItem) {
-                var rem = Math.max(0, Math.ceil(bestCts - now));
-                timeSpan.setAttribute('data-remaining', rem);
-                timeSpan.textContent = formatCountdown(rem);
-                timeSpan.className = 'acc-countdown ' + cdClass(rem);
-                if (iconImg) {
-                    var iconUrls = CocTool.calc.getItemIconUrl(bestItem);
-                    if (iconUrls && iconUrls[0]) {
-                        iconImg.src = iconUrls[0];
-                        if (iconUrls.length > 1) {
-                            iconImg.setAttribute('data-fallback', iconUrls.slice(1).join(','));
-                        }
-                    }
-                }
-            } else {
-                timeSpan.setAttribute('data-remaining', 0);
-                timeSpan.textContent = formatCountdown(0);
-                timeSpan.className = 'acc-countdown ' + cdClass(0);
-            }
-        } catch (e) {}
-    }
-
     function tickCountdowns() {
         var spans = el.cards ? el.cards.querySelectorAll('.acc-countdown') : [];
         for (var i = 0; i < spans.length; i++) {
@@ -130,7 +93,7 @@
             rem--;
             if (rem <= 0) {
                 var card = spans[i].closest('.account-card');
-                if (card) rebuildCard(card.getAttribute('data-tag'));
+                if (card) refreshCard(card.getAttribute('data-tag'));
             } else {
                 spans[i].setAttribute('data-remaining', rem);
                 spans[i].textContent = formatCountdown(rem);
@@ -181,8 +144,7 @@
                 var tag = order[i];
                 var data = state.accounts[tag];
                 if (!data) continue;
-                var cts = getNextCompletionTs(data);
-                tagTimes.push({ tag: tag, data: data, cts: cts });
+                tagTimes.push({ tag: tag, data: data, cts: getNextCompletionTs(data) });
             }
             tagTimes.sort(function (a, b) {
                 if (a.cts === null && b.cts === null) return 0;
@@ -250,8 +212,8 @@
         try {
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
-            var items = pr.extractUpgradingItems(data, now, true);
             var bestItem = null, bestRemaining = Infinity;
+            var items = pr.extractUpgradingItems(data, now, false);
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
                 var rem = cts - now;
@@ -388,5 +350,10 @@
         oldCard.parentNode.replaceChild(newCard, oldCard);
     }
 
-    CocTool.overviewList = Object.freeze({ el: el, init: init, rebuildCard: rebuildCard, findThLevel: findThLevel });
+    // 数据变更后的统一刷新入口：time 排序需重排（renderCards），默认排序只重建单卡
+    function refreshCard(tag) {
+        if (sortMode === 'time') { renderCards(); } else { rebuildCard(tag); }
+    }
+
+    CocTool.overviewList = Object.freeze({ el: el, init: init, rebuildCard: rebuildCard, refreshCard: refreshCard, findThLevel: findThLevel });
 })(window);

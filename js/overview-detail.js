@@ -272,8 +272,10 @@
     function imgEl(src, cls, level, maxLv, minLv, dataId, count, litOnly, fbSrc) {
         minLv = minLv || 1;
         var owned = litOnly ? true : (count !== undefined ? count > 0 : level >= minLv);
+        // 满级徽章：当前大本模式 = 蓝底（达到大本上限）；满防模式 = 金底（达到全量满级）
+        var maxedCls = progressMode === 'th' ? ' ov-th-max' : ' ov-maxed';
         var wrap = document.createElement('div');
-        wrap.className = 'ov-icon-wrap' + (owned ? '' : ' ov-locked') + (owned && !litOnly && level === maxLv ? ' ov-maxed' : '');
+        wrap.className = 'ov-icon-wrap' + (owned ? '' : ' ov-locked') + (owned && !litOnly && level === maxLv ? maxedCls : '');
         if (dataId !== undefined) {
             wrap.setAttribute('data-id', dataId);
             wrap.setAttribute('data-level', level || 0);
@@ -316,46 +318,60 @@
 
     // ===== 进度明细弹窗 =====
     // 子分组进度：等级% = Σ账号等级/Σ满级；时间% = Σ累计时间/Σ总时间（与 calcSingleProgress 口径一致）
-    function calcGroupProgress(name, ids, metaKey, uMap, m) {
+    function calcGroupProgress(name, ids, metaKey, uMap, m, mode, thLv) {
         var meta = m[metaKey];
         var curLv = 0, totalLv = 0, curTm = 0, totalTm = 0;
+        var isTh = mode === 'th';
         for (var i = 0; i < ids.length; i++) {
             var id = ids[i];
-            var uLv = uMap[id] || 0;
             var maxLv = meta.levels[id] || 0;
+            if (isTh) {
+                var tMax = thMaxLv(meta, id, thLv);
+                if (tMax !== null) maxLv = tMax;
+            }
+            var uLv = Math.min(uMap[id] || 0, maxLv);
             totalLv += maxLv;
-            curLv += maxLv ? Math.min(uLv, maxLv) : 0;
+            curLv += maxLv ? uLv : 0;
             if (meta.times && meta.times[id]) {
                 var cum = meta.times[id];
-                var uIdx = uLv < cum.length ? uLv : cum.length - 1;
-                curTm += cum[uIdx] || 0;
-                totalTm += cum[maxLv] || 0;
+                curTm += cum[uLv] || 0;
+                totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
             }
         }
         return {
             name: name,
             level: totalLv > 0 ? Math.min(curLv / totalLv * 100, 100) : 0,
-            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null
+            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null,
+            curTm: curTm,
+            totalTm: totalTm
         };
     }
 
     // 弹窗分组行（座数口径 + 合成折算）：grp = [名称, ids, meta键, cap表]
-    function calcGroupInstances(name, ids, metaKey, lvlList, m, caps, thLv) {
+    function calcGroupInstances(name, ids, metaKey, lvlList, m, caps, thLv, mode) {
         var meta = m && m[metaKey];
-        var r = calcInstances(ids, caps, meta, lvlList, MERGE_WEIGHT, thLv);
+        var r = calcInstances(ids, caps, meta, lvlList, MERGE_WEIGHT, thLv, mode);
         return {
             name: name,
             level: r.totalLv > 0 ? Math.min(r.curLv / r.totalLv * 100, 100) : 0,
-            time: r.totalTm > 0 ? Math.min(r.curTm / r.totalTm * 100, 100) : null
+            time: r.totalTm > 0 ? Math.min(r.curTm / r.totalTm * 100, 100) : null,
+            curTm: r.curTm,
+            totalTm: r.totalTm
         };
     }
 
-    function buildGroupRows(cfg, uMap, lvlList, m, server, thLv) {
+    function buildGroupRows(cfg, uMap, lvlList, m, server, thLv, mode) {
         var rows = [];
         if (cfg.groups) {
             for (var g = 0; g < cfg.groups.length; g++) {
                 var grp = cfg.groups[g];
-                rows.push(calcGroupInstances(grp[0], serverIds(grp[1], server), grp[2], lvlList, m, grp[3], thLv));
+                // 3 项（无 caps）= 每 id 一座实体（科技 units/spells/siege_machines，等级在 uMap，lvlList 不含此类）
+                // 4 项（有 caps）= 多座建筑（座数口径，等级在 lvlList）
+                if (grp.length === 3) {
+                    rows.push(calcGroupProgress(grp[0], serverIds(grp[1], server), grp[2], uMap, m, mode, thLv));
+                } else {
+                    rows.push(calcGroupInstances(grp[0], serverIds(grp[1], server), grp[2], lvlList, m, grp[3], thLv, mode));
+                }
             }
             return rows;
         }
@@ -363,25 +379,27 @@
         if (cfg.meta === 'heroes') {
             for (var i = 0; i < HOME_HEROES.length; i++) {
                 var hid = HOME_HEROES[i];
-                rows.push(calcGroupProgress(names.ITEM_NAMES[hid] || hid, [hid], 'heroes', uMap, m));
+                rows.push(calcGroupProgress(names.ITEM_NAMES[hid] || hid, [hid], 'heroes', uMap, m, mode, thLv));
             }
         } else if (cfg.meta === 'pets') {
             for (var j = 0; j < PETS.length; j++) {
                 var pid = PETS[j];
-                rows.push(calcGroupProgress(names.ITEM_NAMES[pid] || pid, [pid], 'pets', uMap, m));
+                rows.push(calcGroupProgress(names.ITEM_NAMES[pid] || pid, [pid], 'pets', uMap, m, mode, thLv));
             }
         } else if (cfg.meta === 'hero-equipment') {
-            // 装备按英雄分组明细
+            // 装备按英雄分组明细（国服装备 ID = 106 开头，翻译后再查 uMap/meta）
             for (var hk in EQ_MAP) {
-                rows.push(calcGroupProgress(names.ITEM_NAMES[hk] || hk, EQ_MAP[hk], 'hero-equipment', uMap, m));
+                var eqIds = EQ_MAP[hk];
+                if (server === 'cn') eqIds = eqIds.map(function (id) { return '106' + id.slice(2); });
+                rows.push(calcGroupProgress(names.ITEM_NAMES[hk] || hk, eqIds, 'hero-equipment', uMap, m, mode, thLv));
             }
         } else if (cfg.meta === 'heroes2') {
             for (var h2 = 0; h2 < BB_HEROES.length; h2++) {
-                rows.push(calcGroupProgress(names.ITEM_NAMES[BB_HEROES[h2]] || BB_HEROES[h2], [BB_HEROES[h2]], 'heroes2', uMap, m));
+                rows.push(calcGroupProgress(names.ITEM_NAMES[BB_HEROES[h2]] || BB_HEROES[h2], [BB_HEROES[h2]], 'heroes2', uMap, m, mode, thLv));
             }
         } else if (cfg.meta === 'units2') {
             for (var u2 = 0; u2 < BB_TROOPS.length; u2++) {
-                rows.push(calcGroupProgress(names.ITEM_NAMES[BB_TROOPS[u2]] || BB_TROOPS[u2], [BB_TROOPS[u2]], 'units2', uMap, m));
+                rows.push(calcGroupProgress(names.ITEM_NAMES[BB_TROOPS[u2]] || BB_TROOPS[u2], [BB_TROOPS[u2]], 'units2', uMap, m, mode, thLv));
             }
         }
         return rows;
@@ -396,12 +414,35 @@
         var uMap = buildUserLevelMap(data);
         var lvlList = buildUserLevelListMap(data);
         var thLv = CocTool.overviewList.findThLevel(data);
-        var rows = buildGroupRows(cfg, uMap, lvlList, m, data._server, thLv);
+        var rows = buildGroupRows(cfg, uMap, lvlList, m, data._server, thLv, progressMode);
         if (!rows.length) return;
         var titleEl = document.getElementById('ov-progress-modal-title');
         var bodyEl = document.getElementById('ov-progress-modal-body');
         if (titleEl) titleEl.textContent = cfg.title + ' · ' + (showTimeMode ? '时间' : '等级') + '进度明细';
-        var html = '';
+        // 弹窗顶部汇总：工人类（英雄/防御/其他，含夜世界）5 项（含工人数/预估）；科技/战宠 3 项（总时间/已完成/剩余）
+        var infoHtml = '';
+        var isWorkerCat = pgKey === 'heroes' || pgKey === 'defense' || pgKey === 'other' ||
+            pgKey === 'bHero' || pgKey === 'bDefense' || pgKey === 'bOther';
+        var is3ItemCat = pgKey === 'lab' || pgKey === 'pets';
+        if (isWorkerCat || is3ItemCat) {
+            var pp = currentProgress && currentProgress[pgKey];
+            if (pp && pp.time !== null) {
+                function pgCell(k, v) {
+                    return '<div class="ov-pg-cell"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+                }
+                var sum = pgCell('总时间', formatRemainTime(pp.totalTm, 0)) +
+                    pgCell('已完成', formatRemainTime(pp.curTm, 0)) +
+                    pgCell('剩余', formatRemainTime(pp.totalTm, pp.curTm));
+                if (isWorkerCat) {
+                    var workers = 0;
+                    try { workers = (CocTool.calc.getCategoryDenominators(data)[pgKey.charAt(0) === 'b' ? 'buildings2' : 'buildings']) || 0; } catch (e) {}
+                    sum += pgCell('工人数量', workers) +
+                        pgCell('预估剩余时间', formatRemainTime(pp.totalTm, pp.curTm, workers));
+                }
+                infoHtml = '<div class="ov-pg-summary">' + sum + '</div>';
+            }
+        }
+        var html = infoHtml;
         for (var i = 0; i < rows.length; i++) {
             var r = rows[i];
             // 等级/时间两种模式的弹窗分开：仅显示当前模式的进度
@@ -411,6 +452,7 @@
                 '<span class="ov-pg-name">' + escapeHtml(r.name) + '</span>' +
                 '<div class="ov-pg-track"><div class="ov-pg-fill" style="width:' + pct + '%"></div></div>' +
                 '<span class="ov-pg-pct">' + pct.toFixed(1) + '%</span>' +
+                '<span class="ov-pg-remain">' + (r.totalTm ? formatRemainTime(r.totalTm, r.curTm) : '') + '</span>' +
             '</div>';
         }
         if (bodyEl) bodyEl.innerHTML = html;
@@ -462,7 +504,7 @@
         var lit = Math.min(levels.length, icons);
         var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
         var fbSrc = iconPath(id, iconCat);
-        var maxLv = metaObj.levels[id];
+        var maxLv = mlv(metaObj, id);
         var row = document.createElement('div');
         row.className = 'ov-icon-row ov-icon-count-row';
         // 账号记录（等级降序）
@@ -497,7 +539,7 @@
             var levels = (lvlList[id] || []).slice().sort(function (a, b) { return b - a; });
             var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
             var fbSrc = iconPath(id, iconCat);
-            var maxLv = metaObj.levels[id];
+            var maxLv = mlv(metaObj, id);
             var icons = cap;
             var reduced = false;
             var merge = MERGE[id];
@@ -571,7 +613,7 @@
             for (var i = 0; i < levels.length; i++) byLv[levels[i]] = (byLv[levels[i]] || 0) + 1;
             var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
             Object.keys(byLv).forEach(function (lv) {
-                grid.appendChild(imgEl(base + lv + '.webp', 'ov-grid-icon', Number(lv), metaObj.levels[id], 1, id, byLv[lv]));
+                grid.appendChild(imgEl(base + lv + '.webp', 'ov-grid-icon', Number(lv), mlv(metaObj, id), 1, id, byLv[lv]));
             });
         }
         parent.appendChild(grid);
@@ -592,14 +634,14 @@
             var byLv = {};
             for (var i = 0; i < levels.length; i++) byLv[levels[i]] = (byLv[levels[i]] || 0) + 1;
             Object.keys(byLv).forEach(function (lv) {
-                grid.appendChild(imgEl(base + id + '_' + lv + '.webp', 'ov-grid-icon', Number(lv), metaObj.levels[id], 1, id, byLv[lv], false, iconPath(id, iconCat)));
+                grid.appendChild(imgEl(base + id + '_' + lv + '.webp', 'ov-grid-icon', Number(lv), mlv(metaObj, id), 1, id, byLv[lv], false, iconPath(id, iconCat)));
             });
         }
         parent.appendChild(grid);
     }
 
     // 防御区：守卫（网格）+ 防御建筑（行模式 + max=1 网格）+ 陷阱（折叠网格）
-    function renderDefenseSection(parent, p, uMap, countMap, lvlList, m, server) {
+    function renderDefenseSection(parent, p, uMap, countMap, lvlList, m, server, workers) {
         var sec = document.createElement('div');
         sec.className = 'ov-cat';
         sec.innerHTML =
@@ -608,6 +650,7 @@
                 '<span class="ov-cat-title">防御</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p ? p.level.toFixed(2) : '-') + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p && p.time !== null ? p.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(p, workers) +
             '</div>';
         var body = document.createElement('div');
         body.className = 'ov-cat-body';
@@ -621,7 +664,7 @@
         guardGrid.className = 'ov-icon-grid';
         var guardIds = serverIds(GUARDIANS, server);
         for (var g = 0; g < guardIds.length; g++) {
-            guardGrid.appendChild(imgEl(iconPath(guardIds[g], 'buildings'), 'ov-grid-icon', uMap[guardIds[g]] || 0, m.guardians.levels[guardIds[g]], 1, guardIds[g]));
+            guardGrid.appendChild(imgEl(iconPath(guardIds[g], 'buildings'), 'ov-grid-icon', uMap[guardIds[g]] || 0, mlv(m.guardians, guardIds[g]), 1, guardIds[g]));
         }
         body.appendChild(guardGrid);
 
@@ -651,7 +694,7 @@
             } else {
                 // max=1（天鹰/擎天巨柱/复仇塔/精制台）：网格 + 带等级图标（不同等级不同外观）
                 var dlv = uMap[did] || 0;
-                var eagleMaxLv = m.defense.levels[did];
+                var eagleMaxLv = mlv(m.defense, did);
                 if (did === '1000031' && (uMap['1000001'] || 0) >= 17) {
                     // 天鹰火炮在 16 本→17 本升级时被大本吸收：满级图片点亮、无等级角标
                     max1Grid.appendChild(imgEl('img/icons/buildings/' + did + '_' + eagleMaxLv + '.webp', 'ov-grid-icon', 0, eagleMaxLv, 1, did, countMap[did] || 0, true, iconPath(did, 'buildings')));
@@ -818,18 +861,92 @@
         return map;
     }
 
+    // ===== 当前大本进度模式 =====
+    // progressMode: 'full' 满防（默认，分母=全量满级）| 'th' 当前大本（分母=当前大本可达最高级）
+    var progressMode = 'full';
+    var currentThLv = 0;   // 当前渲染视图的大本等级（主世界/夜世界大本），供 mlv/thCap 使用
+
+    function getProgressMode(tag) {
+        try {
+            var m = JSON.parse(localStorage.getItem('clash_progress_mode') || '{}');
+            return m[tag] === 'th' ? 'th' : 'full';
+        } catch (e) { return 'full'; }
+    }
+    function saveProgressMode(tag, mode) {
+        try {
+            var m = JSON.parse(localStorage.getItem('clash_progress_mode') || '{}');
+            m[tag] = mode === 'th' ? 'th' : 'full';
+            localStorage.setItem('clash_progress_mode', JSON.stringify(m));
+        } catch (e) {}
+    }
+
+    // thReq 紧凑字符串（2 位/级，"00" = 该级无大本限制）→ 数组（0 = 无限制），就地缓存
+    function thReqArr(meta, id) {
+        var req = meta && meta.thReq && meta.thReq[id];
+        if (!req) return null;
+        if (typeof req === 'string') {
+            var arr = [];
+            for (var i = 0; i < req.length; i += 2) {
+                var v = req.substr(i, 2);
+                arr.push(v === '00' ? 0 : parseInt(v, 10));
+            }
+            meta.thReq[id] = arr;
+            return arr;
+        }
+        return req;
+    }
+    // 实体在当前大本（thLv）可达的最高等级；null = 无限制（调用方用满级）；0 = 当前大本未解锁
+    function thMaxLv(meta, id, thLv) {
+        var req = thReqArr(meta, id);
+        if (!req || !req.length) return null;
+        var max = 0;
+        for (var i = 0; i < req.length; i++) {
+            if (req[i] === 0 || req[i] <= thLv) max = i + 1;
+            else break;
+        }
+        return max;
+    }
+    // 实体在当前大本的座数（caps 紧凑数组 [lv,count] / [lv,count,countAfterMerges]）；
+    // null = 无 caps 表（调用方用全量 cap）；0 = 当前大本未解锁该建筑
+    function thCap(meta, id, thLv) {
+        var caps = meta && meta.caps && meta.caps[id];
+        if (!caps || !caps.length) return null;
+        var best = null;
+        for (var i = 0; i < caps.length; i++) {
+            if (caps[i][0] <= thLv) best = caps[i];
+            else break;
+        }
+        return best ? (best.length > 2 ? best[2] : best[1]) : 0;
+    }
+    // 模式感知满级：'th' 模式下返回当前大本可达等级（徽章/分母共用）
+    function mlv(meta, id) {
+        var base = meta.levels[id];
+        if (progressMode !== 'th') return base;
+        var t = thMaxLv(meta, id, currentThLv);
+        return t !== null ? t : base;
+    }
+
     // 座数口径进度：分母固定 = Σ(cap × 单座满级)（不含折算）；分子 = Σ(每座实际) + 合成折算（每座加 Σ 基础建筑满级）
     // 返回 { curLv, totalLv, curTm, totalTm } 原始值供合并；thLv 大本等级用于天鹰被吸收判定
-    function calcInstances(ids, caps, meta, lvlList, mergeWeight, thLv) {
+    function calcInstances(ids, caps, meta, lvlList, mergeWeight, thLv, mode) {
         var curLv = 0, totalLv = 0, curTm = 0, totalTm = 0;
         if (!meta) return { curLv: curLv, totalLv: totalLv, curTm: curTm, totalTm: totalTm };
+        var isTh = mode === 'th';
         for (var i = 0; i < ids.length; i++) {
             var id = ids[i];
-            var maxLv = meta.levels[id];
-            if (maxLv === undefined) continue;   // 无源数据（精工/限时）不计入
-            var cum = meta.times && meta.times[id];
-            var per = cum && cum.length ? cum[cum.length - 1] : 0;
+            var maxLvAll = meta.levels[id];
+            if (maxLvAll === undefined) continue;   // 无源数据（精工/限时）不计入
+            // 当前大本模式：满级 = 大本可达最高级；座数 = 大本解锁座数
+            var maxLv = maxLvAll;
             var cap = (caps && caps[id]) || 1;
+            if (isTh) {
+                var tMax = thMaxLv(meta, id, thLv);
+                if (tMax !== null) maxLv = tMax;
+                var tCap = thCap(meta, id, thLv);
+                if (tCap !== null) cap = tCap;
+            }
+            var cum = meta.times && meta.times[id];
+            var per = cum && maxLv > 0 && maxLv < cum.length ? cum[maxLv] : 0;
             totalLv += cap * maxLv;
             totalTm += cap * per;
             var lvls = lvlList[id] || [];
@@ -838,11 +955,17 @@
             if (w) {
                 for (var wi = 0; wi < w.length; wi++) {
                     var bid = w[wi][0], bn = w[wi][1];
-                    var bMax = meta.levels[bid];
-                    if (bMax === undefined) continue;
+                    var bMaxAll = meta.levels[bid];
+                    if (bMaxAll === undefined) continue;
+                    // 折算源满级：大本模式按当前大本可达截断（合成要求基础满级，满级即精确补偿）
+                    var bMax = bMaxAll;
+                    if (isTh) {
+                        var bT = thMaxLv(meta, bid, thLv);
+                        if (bT !== null) bMax = bT;
+                    }
                     lvAdd += bMax * bn;
                     var bcum = meta.times && meta.times[bid];
-                    if (bcum && bcum.length) tmAdd += bcum[bcum.length - 1] * bn;
+                    if (bcum && bcum.length && bMax > 0 && bMax < bcum.length) tmAdd += bcum[bMax] * bn;
                 }
             }
             // 天鹰火炮在 16 本→17 本升级时被大本吸收：视为已满级
@@ -852,7 +975,7 @@
                 tmAdd = 0;
             }
             for (var j = 0; j < lvls.length; j++) {
-                var uLv = lvls[j];
+                var uLv = Math.min(lvls[j], maxLv);   // 大本模式：超出上限截断
                 curLv += uLv + lvAdd;
                 if (cum) {
                     // cum[lv] = 升到 lv 级前的累计；当前级完成后 = cum[lv+1]（满级 = per，与分母一致）
@@ -865,11 +988,11 @@
     }
 
     // 分类进度 = BAR_GROUPS 子分组行的合并（顶部进度条与弹窗明细共用同一份配置与同一核心计算）
-    function calcCategoryProgress(cfg, lvlList, m, server, thLv) {
+    function calcCategoryProgress(cfg, lvlList, m, server, thLv, mode) {
         var curLv = 0, totalLv = 0, curTm = 0, totalTm = 0;
         for (var g = 0; cfg.groups && g < cfg.groups.length; g++) {
             var grp = cfg.groups[g];
-            var r = calcInstances(serverIds(grp[1], server), grp[3], m && m[grp[2]], lvlList, MERGE_WEIGHT, thLv);
+            var r = calcInstances(serverIds(grp[1], server), grp[3], m && m[grp[2]], lvlList, MERGE_WEIGHT, thLv, mode);
             curLv += r.curLv;
             totalLv += r.totalLv;
             curTm += r.curTm;
@@ -877,49 +1000,86 @@
         }
         return {
             level: totalLv > 0 ? Math.min(curLv / totalLv * 100, 100) : 0,
-            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null
+            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null,
+            curTm: curTm,
+            totalTm: totalTm
         };
     }
 
-    function calcSingleProgress(userMap, meta) {
-        if (!meta) return { level: 0, time: null };
-        var curLv = 0, curTm = 0;
+    function calcSingleProgress(userMap, meta, mode, thLv) {
+        if (!meta) return { level: 0, time: null, curTm: 0, totalTm: 0 };
+        var curLv = 0, totalLv = 0, curTm = 0, totalTm = 0;
+        var isTh = mode === 'th';
         var keys = Object.keys(meta.levels);
         for (var i = 0; i < keys.length; i++) {
-            var uLv = userMap[keys[i]] || 0;
+            var id = keys[i];
+            // 分母 = 满级（大本模式按当前大本可达截断）；分子 = 账号等级 clamp
+            var maxLv = meta.levels[id];
+            if (isTh) {
+                var tMax = thMaxLv(meta, id, thLv);
+                if (tMax !== null) maxLv = tMax;
+            }
+            var uLv = Math.min(userMap[id] || 0, maxLv);
             curLv += uLv;
-            if (meta.times && meta.times[keys[i]]) {
-                var cum = meta.times[keys[i]];
-                curTm += uLv < cum.length ? cum[uLv] : cum[cum.length - 1];
+            totalLv += maxLv;
+            if (meta.times && meta.times[id]) {
+                var cum = meta.times[id];
+                curTm += cum.length ? (cum[uLv] || 0) : 0;
+                totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
             }
         }
-        var lvPct = meta.totalLevel > 0 ? Math.min(curLv / meta.totalLevel * 100, 100) : 0;
-        var tmPct = meta.totalTime > 0 ? Math.min(curTm / meta.totalTime * 100, 100) : null;
-        return { level: lvPct, time: tmPct };
+        var lvPct = totalLv > 0 ? Math.min(curLv / totalLv * 100, 100) : 0;
+        var tmPct = totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null;
+        return { level: lvPct, time: tmPct, curTm: curTm, totalTm: totalTm };
     }
 
     // 单座口径多分类合并（科技/英雄等每 id 一座的实体用）
-    function combineSingle(userMap, metas) {
+    function combineSingle(userMap, metas, mode, thLv) {
         var curLv = 0, totalLv = 0, curTm = 0, totalTm = 0;
+        var isTh = mode === 'th';
         for (var i = 0; i < metas.length; i++) {
             var m = metas[i];
             if (!m) continue;
-            totalLv += m.totalLevel || 0;
-            totalTm += m.totalTime || 0;
             var keys = Object.keys(m.levels);
             for (var j = 0; j < keys.length; j++) {
-                var uLv = userMap[keys[j]] || 0;
+                var id = keys[j];
+                var maxLv = m.levels[id];
+                if (isTh) {
+                    var tMax = thMaxLv(m, id, thLv);
+                    if (tMax !== null) maxLv = tMax;
+                }
+                var uLv = Math.min(userMap[id] || 0, maxLv);
                 curLv += uLv;
-                if (m.times && m.times[keys[j]]) {
-                    var cum = m.times[keys[j]];
-                    curTm += uLv < cum.length ? cum[uLv] : cum[cum.length - 1];
+                totalLv += maxLv;
+                if (m.times && m.times[id]) {
+                    var cum = m.times[id];
+                    curTm += cum.length ? (cum[uLv] || 0) : 0;
+                    totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
                 }
             }
         }
         return {
             level: totalLv > 0 ? Math.min(curLv / totalLv * 100, 100) : 0,
-            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null
+            time: totalTm > 0 ? Math.min(curTm / totalTm * 100, 100) : null,
+            curTm: curTm,
+            totalTm: totalTm
         };
+    }
+
+    // 剩余时间文案：totalTm − curTm（单位：秒）→ 「X天Y时」（满级/全完成输出「0天0时」）
+    // workerCount > 1 时除以工人数（英雄/防御/其他依赖工人，多工人并行消化总工时）
+    function formatRemainTime(totalTm, curTm, workerCount) {
+        var sec = Math.max(0, Math.round(totalTm - curTm));
+        if (workerCount > 1) sec = Math.round(sec / workerCount);
+        var days = Math.floor(sec / 86400);
+        var hours = Math.round((sec % 86400) / 3600);
+        if (hours === 24) { days += 1; hours = 0; }
+        return days + '天' + hours + '时';
+    }
+
+    function remainEl(p, workerCount) {
+        if (!p || p.time === null) return '';
+        return '<span class="ov-cat-pct ov-cat-remain"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + formatRemainTime(p.totalTm, p.curTm, workerCount) + '</span>';
     }
 
     function refreshBars() {
@@ -948,19 +1108,26 @@
         if (!el.detailHome) return;
         var home = el.detailHome;
         var th = CocTool.overviewList.findThLevel(data);
+        progressMode = getProgressMode(currentDetailTag);
+        currentThLv = th;
         var thIcon = th ? 'img/icons/buildings/1000001_' + th + '.webp' : 'img/icons/20260627.webp';
         var m = data._server === 'cn' ? global.PROGRESS_META_CN : global.PROGRESS_META_INTL;
         var uMap = buildUserLevelMap(data);
         var lvlList = buildUserLevelListMap(data);
+        // 主世界工人数（工人小屋+B.O.B 小屋+月卡，与首页总览分母同源）：英雄/防御/其他剩余时间 ÷ 工人数
+        var workers = 0;
+        try { workers = (CocTool.calc.getCategoryDenominators(data).buildings) || 0; } catch (e) {}
+        var mode = progressMode;
         var p = currentProgress = {
-            heroes: calcSingleProgress(uMap, m && m.heroes),
-            equip: calcSingleProgress(uMap, m && m['hero-equipment']),
-            pets: calcSingleProgress(uMap, m && m.pets),
-            lab: combineSingle(uMap, [m && m.units, m && m.spells, m && m.siege_machines]),
-            defense: calcCategoryProgress(BAR_GROUPS.defense, lvlList, m, data._server, th),
-            other: calcCategoryProgress(BAR_GROUPS.other, lvlList, m, data._server, th)
+            heroes: calcSingleProgress(uMap, m && m.heroes, mode, th),
+            equip: calcSingleProgress(uMap, m && m['hero-equipment'], mode, th),
+            pets: calcSingleProgress(uMap, m && m.pets, mode, th),
+            lab: combineSingle(uMap, [m && m.units, m && m.spells, m && m.siege_machines], mode, th),
+            defense: calcCategoryProgress(BAR_GROUPS.defense, lvlList, m, data._server, th, mode),
+            other: calcCategoryProgress(BAR_GROUPS.other, lvlList, m, data._server, th, mode)
         };
         var showTime = false;
+        var modeBtn = '<button class="ov-mode-btn' + (mode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (mode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
         var html =
             '<div class="ov-top-row">' +
                 '<div class="ov-toggle-b">' +
@@ -972,6 +1139,7 @@
                 '<div class="ov-icon-col">' +
                     '<div class="ov-icon-name">' + escapeHtml(accName) + '</div>' +
                     '<img src="' + thIcon + '" class="ov-th-icon" onerror="this.style.display=\'none\'">' +
+                    modeBtn +
                 '</div>' +
                 '<div class="ov-right-col">' +
                     '<div class="ov-bar-col">' +
@@ -1004,6 +1172,7 @@
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.heroes.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.heroes.time !== null ? p.heroes.time.toFixed(2) + '%' : '-') + '</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Em_icon.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.equip.level.toFixed(2) + '%</span>' +
+                remainEl(p.heroes, workers) +
             '</div>';
         var heroBody = document.createElement('div');
         heroBody.className = 'ov-cat-body';
@@ -1012,14 +1181,14 @@
             if (!names.ITEM_NAMES[hk]) continue;
             var row = document.createElement('div');
             row.className = 'ov-hero-row';
-            row.appendChild(imgEl(iconPath(hk, 'heroes'), 'ov-hero-icon', uMap[hk] || 0, m.heroes.levels[hk], 1, hk));
+            row.appendChild(imgEl(iconPath(hk, 'heroes'), 'ov-hero-icon', uMap[hk] || 0, mlv(m.heroes, hk), 1, hk));
             var wrap = document.createElement('div');
             wrap.className = 'ov-eq-wrap';
             var eqs = eqMap[hk] || [];
             for (var j = 0; j < eqs.length; j++) {
                 var isEpic = epicEq.indexOf(eqs[j]) !== -1;
                 var eqCls = isEpic ? 'ov-eq-icon ov-eq-epic' : 'ov-eq-icon ov-eq-common';
-                wrap.appendChild(imgEl(iconPath(eqs[j], 'hero-equipment'), eqCls, uMap[eqs[j]] || 0, m['hero-equipment'].levels[eqs[j]], isEpic ? 2 : 1, eqs[j]));
+                wrap.appendChild(imgEl(iconPath(eqs[j], 'hero-equipment'), eqCls, uMap[eqs[j]] || 0, mlv(m['hero-equipment'], eqs[j]), isEpic ? 2 : 1, eqs[j]));
             }
             row.appendChild(wrap);
             heroBody.appendChild(row);
@@ -1036,11 +1205,12 @@
                 '<span class="ov-cat-title">战宠</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.pets.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.pets.time !== null ? p.pets.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(p.pets) +
             '</div>';
         var petBody = document.createElement('div');
         petBody.className = 'ov-cat-body ov-icon-row';
         for (var i = 0; i < petKeys.length; i++) {
-            petBody.appendChild(imgEl(iconPath(petKeys[i], 'pets'), 'ov-grid-icon', uMap[petKeys[i]] || 0, m.pets.levels[petKeys[i]], 1, petKeys[i]));
+            petBody.appendChild(imgEl(iconPath(petKeys[i], 'pets'), 'ov-grid-icon', uMap[petKeys[i]] || 0, mlv(m.pets, petKeys[i]), 1, petKeys[i]));
         }
         petSection.appendChild(petBody);
         sectionsDiv.appendChild(petSection);
@@ -1054,6 +1224,7 @@
                 '<span class="ov-cat-title">科技</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.lab.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.lab.time !== null ? p.lab.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(p.lab) +
             '</div>';
         var labBody = document.createElement('div');
         labBody.className = 'ov-cat-body';
@@ -1070,7 +1241,7 @@
                 grid.className = 'ov-icon-grid' + (r > 0 ? ' ov-icon-grid-next' : '');
                 var row = rows[r];
                 for (var i = 0; i < row.length; i++) {
-                    grid.appendChild(imgEl(iconPath(row[i], 'units'), 'ov-grid-icon', uMap[row[i]] || 0, metaObj.levels[row[i]], 1, row[i]));
+                    grid.appendChild(imgEl(iconPath(row[i], 'units'), 'ov-grid-icon', uMap[row[i]] || 0, mlv(metaObj, row[i]), 1, row[i]));
                 }
                 parent.appendChild(grid);
             }
@@ -1085,7 +1256,7 @@
         // 防御区：守卫 + 防御建筑（行模式/合成折算）+ 陷阱（折叠）
         var countMap = buildUserCountMap(data);
         var lvlList = buildUserLevelListMap(data);
-        renderDefenseSection(sectionsDiv, p.defense, uMap, countMap, lvlList, m, data._server);
+        renderDefenseSection(sectionsDiv, p.defense, uMap, countMap, lvlList, m, data._server, workers);
         // 其他区：资源建筑 + 军队建筑 + 其他（行模式）+ 墙（按等级分组）
         var otherSection = document.createElement('div');
         otherSection.className = 'ov-cat';
@@ -1095,6 +1266,7 @@
                 '<span class="ov-cat-title">其他</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other ? p.other.level.toFixed(2) : '-') + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other && p.other.time !== null ? p.other.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(p.other, workers) +
             '</div>';
         var otherBody = document.createElement('div');
         otherBody.className = 'ov-cat-body';
@@ -1128,16 +1300,23 @@
         var uMap = buildUserLevelMap(data);
         var lvlList = buildUserLevelListMap(data);
         if (currentProgress) {
-            currentProgress.bHero = calcSingleProgress(uMap, m && m.heroes2);
-            currentProgress.bTroop = calcSingleProgress(uMap, m && m.units2);
-            currentProgress.bDefense = calcCategoryProgress(BAR_GROUPS.bDefense, lvlList, m, data._server, bhLvl);
-            currentProgress.bOther = calcCategoryProgress(BAR_GROUPS.bOther, lvlList, m, data._server, bhLvl);
+            progressMode = getProgressMode(currentDetailTag);
+            currentThLv = bhLvl;
+            var mode = progressMode;
+            currentProgress.bHero = calcSingleProgress(uMap, m && m.heroes2, mode, bhLvl);
+            currentProgress.bTroop = calcSingleProgress(uMap, m && m.units2, mode, bhLvl);
+            currentProgress.bDefense = calcCategoryProgress(BAR_GROUPS.bDefense, lvlList, m, data._server, bhLvl, mode);
+            currentProgress.bOther = calcCategoryProgress(BAR_GROUPS.bOther, lvlList, m, data._server, bhLvl, mode);
         }
         var pBHero = currentProgress ? currentProgress.bHero : { level: 0, time: null };
         var pBTroop = currentProgress ? currentProgress.bTroop : { level: 0, time: null };
         var pBDefense = currentProgress ? currentProgress.bDefense : { level: 0, time: null };
         var pBOther = currentProgress ? currentProgress.bOther : { level: 0, time: null };
+        // 夜世界工人数（夜大本+夜工人小屋+OTTO 前哨，与首页总览分母同源）：夜英雄/防御/其他剩余时间 ÷ 工人数
+        var nightWorkers = 0;
+        try { nightWorkers = (CocTool.calc.getCategoryDenominators(data).buildings2) || 0; } catch (e) {}
         var bhIcon = bhLvl ? 'img/icons/buildings2/1000034_' + bhLvl + '.webp' : 'img/icons/20260627.webp';
+        var modeBtn = '<button class="ov-mode-btn' + (progressMode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (progressMode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
         var html =
             '<div class="ov-top-row">' +
                 '<div class="ov-toggle-b">' +
@@ -1149,6 +1328,7 @@
                 '<div class="ov-icon-col">' +
                     '<div class="ov-icon-name">' + escapeHtml(accName) + '</div>' +
                     '<img src="' + bhIcon + '" class="ov-th-icon" onerror="this.style.display=\'none\'">' +
+                    modeBtn +
                 '</div>' +
                 '<div class="ov-right-col">' +
                     '<div class="ov-bar-col">' +
@@ -1173,11 +1353,12 @@
                 '<span class="ov-cat-title">英雄</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBHero.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBHero.time !== null ? pBHero.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(pBHero, nightWorkers) +
             '</div>';
         var heroBody = document.createElement('div');
         heroBody.className = 'ov-cat-body ov-icon-row';
         for (var i = 0; i < bb.heroes.length; i++) {
-            heroBody.appendChild(imgEl(iconPath(bb.heroes[i], 'heroes2'), 'ov-grid-icon', uMap[bb.heroes[i]] || 0, m.heroes2.levels[bb.heroes[i]], 1, bb.heroes[i]));
+            heroBody.appendChild(imgEl(iconPath(bb.heroes[i], 'heroes2'), 'ov-grid-icon', uMap[bb.heroes[i]] || 0, mlv(m.heroes2, bb.heroes[i]), 1, bb.heroes[i]));
         }
         heroSection.appendChild(heroBody);
         sectionsDiv.appendChild(heroSection);
@@ -1190,11 +1371,12 @@
                 '<span class="ov-cat-title">兵种</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBTroop.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBTroop.time !== null ? pBTroop.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(pBTroop) +
             '</div>';
         var troopBody = document.createElement('div');
         troopBody.className = 'ov-cat-body ov-icon-row';
         for (var i = 0; i < bb.troops.length; i++) {
-            troopBody.appendChild(imgEl(iconPath(bb.troops[i], 'units2'), 'ov-grid-icon', uMap[bb.troops[i]] || 0, m.units2.levels[bb.troops[i]], 1, bb.troops[i]));
+            troopBody.appendChild(imgEl(iconPath(bb.troops[i], 'units2'), 'ov-grid-icon', uMap[bb.troops[i]] || 0, mlv(m.units2, bb.troops[i]), 1, bb.troops[i]));
         }
         troopSection.appendChild(troopBody);
         sectionsDiv.appendChild(troopSection);
@@ -1210,6 +1392,7 @@
                 '<span class="ov-cat-title">防御</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBDefense.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBDefense.time !== null ? pBDefense.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(pBDefense, nightWorkers) +
             '</div>';
         var defBody = document.createElement('div');
         defBody.className = 'ov-cat-body';
@@ -1253,6 +1436,7 @@
                 '<span class="ov-cat-title">其他</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBOther.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBOther.time !== null ? pBOther.time.toFixed(2) + '%' : '-') + '</span>' +
+                remainEl(pBOther, nightWorkers) +
             '</div>';
         var otherBody = document.createElement('div');
         otherBody.className = 'ov-cat-body';
@@ -1294,12 +1478,28 @@
         }
     }
 
-    CocTool.overviewDetail = Object.freeze({ initDetail: initDetail, openDetail: openDetail, goBack: goBack, showEpicTip: showEpicTip, closeEpicTip: closeEpicTip });
+    // 切换满防/当前大本模式：每账号记忆；切换后重渲染主+夜两个视图
+    function toggleProgressMode() {
+        var tag = currentDetailTag;
+        var data = tag ? state.accounts[tag] : null;
+        if (!data) return;
+        var next = progressMode === 'th' ? 'full' : 'th';
+        saveProgressMode(tag, next);
+        progressMode = next;
+        var accName = (state.accountNotes && state.accountNotes[tag]) || data.tag || tag;
+        renderHomeDetail(data, accName);
+        renderNightDetail(data, accName);
+        try { CocTool.showToast(next === 'th' ? '已切换：当前大本进度' : '已切换：满防进度'); } catch (e) {}
+    }
+
+    CocTool.overviewDetail = Object.freeze({ initDetail: initDetail, openDetail: openDetail, goBack: goBack, showEpicTip: showEpicTip, closeEpicTip: closeEpicTip, toggleProgressMode: toggleProgressMode });
     CocTool.features.overview = Object.freeze({
         init: function () { CocTool.overviewList.init(); },
         goBack: goBack,
         showEpicTip: showEpicTip,
         closeEpicTip: closeEpicTip,
-        rebuildCard: CocTool.overviewList.rebuildCard
+        toggleProgressMode: toggleProgressMode,
+        rebuildCard: CocTool.overviewList.rebuildCard,
+        refreshCard: CocTool.overviewList.refreshCard
     });
 })(window);
