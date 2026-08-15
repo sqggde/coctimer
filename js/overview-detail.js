@@ -423,7 +423,7 @@
         var infoHtml = '';
         var isWorkerCat = pgKey === 'heroes' || pgKey === 'defense' || pgKey === 'other' ||
             pgKey === 'bHero' || pgKey === 'bDefense' || pgKey === 'bOther';
-        var is3ItemCat = pgKey === 'lab' || pgKey === 'pets';
+        var is3ItemCat = pgKey === 'lab' || pgKey === 'pets' || pgKey === 'bTroop';
         if (isWorkerCat || is3ItemCat) {
             var pp = currentProgress && currentProgress[pgKey];
             if (pp && pp.time !== null) {
