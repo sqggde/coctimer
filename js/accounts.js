@@ -623,12 +623,18 @@
 
     function detectAccountServer(tag, data) {
         if (data._server) return;
+        // 检测完成后刷新卡片（导入流程的 refreshCard 在检测前已执行，异步检测后必须重渲染，否则界面停留在默认区服）
+        var refreshAfter = function () {
+            if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
+                try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
+            }
+        };
         // 通过助手 ID 判断区服（无需网络）
         var helpers = data.helpers || [];
         for (var hi = 0; hi < helpers.length; hi++) {
             var hid = String(helpers[hi].data);
-            if (hid.startsWith('124')) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} return; }
-            if (hid.startsWith('93')) { data._server = 'intl'; try { saveToLocalStorage(); } catch(e) {} return; }
+            if (hid.startsWith('124')) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
+            if (hid.startsWith('93')) { data._server = 'intl'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
         }
         // 无助手 → 请求 API + 英雄等级拟合
         var G = global.CocTool;
@@ -636,15 +642,17 @@
             headers: { 'X-App-Token': G.appToken }
         })
         .then(function(r) {
-            if (!r.ok) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} return; }
+            if (!r.ok) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
             r.json().then(function(apiData) {
                 data._server = compareHeroLevels(apiData, data) ? 'intl' : 'cn';
                 try { saveToLocalStorage(); } catch(e) {}
+                refreshAfter();
             });
         })
         .catch(function() {
             data._server = guessServerFromIds(data);
             if (data._server) { try { saveToLocalStorage(); } catch(e) {} }
+            refreshAfter();
         });
     }
 
