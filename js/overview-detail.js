@@ -308,10 +308,12 @@
 
     function progressBarHtml(label, iconSrc, p, modeIsTime, pgKey) {
         var pct = modeIsTime && p.time !== null ? p.time : p.level;
+        // 满防模式进度 100%：进度条金色
+        var fullCls = (pct >= 100 && progressMode === 'full') ? ' ov-bar-full' : '';
         return '<div class="ov-bar-row' + (pgKey ? ' ov-bar-clickable' : '') + '"' + (pgKey ? ' data-pg="' + pgKey + '"' : '') + '>' +
             '<img src="' + iconSrc + '" class="ov-bar-icon" onerror="this.style.display=\'none\'">' +
             '<span class="ov-bar-cat">' + label + '</span>' +
-            '<div class="ov-bar-track"><div class="ov-bar-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="ov-bar-track"><div class="ov-bar-fill' + fullCls + '" style="width:' + pct + '%"></div></div>' +
             '<span class="ov-bar-pct">' + pct.toFixed(2) + '%</span>' +
         '</div>';
     }
@@ -1098,7 +1100,11 @@
                 var pct = (keys[ri] === 'equip' || !showTime || p.time === null) ? p.level : p.time;
                 var fill = rows[ri].querySelector('.ov-bar-fill');
                 var pctEl = rows[ri].querySelector('.ov-bar-pct');
-                if (fill) fill.style.width = pct + '%';
+                if (fill) {
+                    fill.style.width = pct + '%';
+                    // 满防模式进度 100%：进度条金色（等级/时间切换同步）
+                    fill.classList.toggle('ov-bar-full', pct >= 100 && progressMode === 'full');
+                }
                 if (pctEl) pctEl.textContent = pct.toFixed(2) + '%';
             }
         }

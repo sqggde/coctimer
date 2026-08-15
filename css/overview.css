@@ -376,6 +376,8 @@
             border-radius: 3px;
             background: #3b82f6;
         }
+        /* 满防模式进度 100%：进度条金色 */
+        .ov-bar-fill.ov-bar-full { background: #fdc367; }
         /* 进度明细弹窗行 */
         .ov-pg-row {
             display: flex;
