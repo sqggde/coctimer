@@ -606,7 +606,8 @@
         try { saveToLocalStorage(); } catch (e) {}
         try { startBackgroundCheck(); } catch (e) {}
         // 清除已发记录放在 setSchedule 之后（见上方注释）：避免 Handler 轮询旧调度重复补发刚推送过的任务
-        if (window.AndroidApp) window.AndroidApp.clearAccountNotifications(displayName, tag);
+        // 守卫必须检查方法存在：网页版 shim 桩无 clearAccountNotifications，直接调用会抛错（2026-08-16 实测：导入成功但提示 json 数据不正确）
+        if (window.AndroidApp && window.AndroidApp.clearAccountNotifications) window.AndroidApp.clearAccountNotifications(displayName, tag);
         // 自动上传 WebDAV（延迟执行，避免 blocking UI 渲染）
         if (settings.webdavEnabled && settings.webdavAutoUpload && settings.webdavServer) {
             setTimeout(() => {
@@ -696,7 +697,9 @@
     function quickImportJsonData() {
         showLoading();
         let text = null;
-        if (window.AndroidApp) {
+        // 守卫必须检查方法存在：网页版 shim 桩只有 getVersionCode/getVersionName，
+        // 直接调用 readClipboard 会 TypeError 中断（2026-08-16 实测复现）
+        if (window.AndroidApp && window.AndroidApp.readClipboard) {
             text = window.AndroidApp.readClipboard();
             if (text) processImportText(text);
             else { hideLoading(); showToast('剪切板为空', 2000); }
@@ -708,7 +711,7 @@
                 else { hideLoading(); showToast('剪切板为空', 2000); }
             }).catch(err => {
                 clearTimeout(timeout);
-                showToast('json数据不正确', 2000);
+                showToast('剪贴板读取失败，请用「粘贴导入」', 2500);
                 hideLoading();
                 showJsonModal();
             });
@@ -745,7 +748,8 @@
         // 防重入：上一次导入后 3 秒内不重复执行
         if (lastAutoImport && Date.now() - lastAutoImport < 3000) return;
         lastAutoImport = Date.now();
-        if (window.AndroidApp) {
+        // 守卫检查方法存在（网页版 shim 桩无 readClipboard）
+        if (window.AndroidApp && window.AndroidApp.readClipboard) {
             const text = window.AndroidApp.readClipboard();
             if (text) {
                 try {
