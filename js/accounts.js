@@ -650,7 +650,7 @@
         .then(function(r) {
             if (!r.ok) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
             r.json().then(function(apiData) {
-                data._server = compareHeroLevels(apiData, data) ? 'intl' : 'cn';
+                data._server = compareAccountStats(apiData, data) ? 'intl' : 'cn';
                 try { saveToLocalStorage(); } catch(e) {}
                 refreshAfter();
             });
@@ -662,26 +662,39 @@
         });
     }
 
-    function compareHeroLevels(apiData, localData) {
-        var MAP = {
-            'Barbarian King': 28000000, 'Archer Queen': 28000001,
-            'Grand Warden': 28000002, 'Battle Machine': 28000003,
-            'Royal Champion': 28000004, 'Battle Copter': 28000005,
-            'Minion Prince': 28000006, 'Dragon Duke': 28000007
-        };
+    // API 全等判定：主大本营 + 夜大本营 + 野蛮人 + 弓箭手 + 哥布林 + 巨人 六项全部一致才判国际服
+    // （AND 关系，任一缺失/不等即 false；旧实现「任一英雄等级一致即判国际服」过松导致误判，未解锁英雄的账号尤甚）
+    function compareAccountStats(apiData, localData) {
+        var TROOP_MAP = { 'Barbarian': 4000000, 'Archer': 4000001, 'Goblin': 4000002, 'Giant': 4000003 };
+        var localBuildings = localData.buildings || [];
+        var localBuildings2 = localData.buildings2 || [];
+        var localUnits = localData.units || [];
+
+        // 主大本营（本地 buildings 1000001 / API townHallLevel）
+        var thLvl = null;
+        for (var i = 0; i < localBuildings.length; i++) {
+            if (localBuildings[i].data === 1000001) { thLvl = localBuildings[i].lvl || 0; break; }
+        }
+        if (thLvl === null || apiData.townHallLevel === undefined || thLvl !== apiData.townHallLevel) return false;
+
+        // 夜大本营（本地 buildings2 1000034 / API builderHallLevel）
+        var bhLvl = null;
+        for (var i = 0; i < localBuildings2.length; i++) {
+            if (localBuildings2[i].data === 1000034) { bhLvl = localBuildings2[i].lvl || 0; break; }
+        }
+        if (bhLvl === null || apiData.builderHallLevel === undefined || bhLvl !== apiData.builderHallLevel) return false;
+
+        // 四兵种等级全部一致（本地 units 4000000-3 / API troops 名称）
+        var apiLevels = {};
+        var apiTroops = apiData.troops || [];
+        for (var i = 0; i < apiTroops.length; i++) apiLevels[apiTroops[i].name] = apiTroops[i].level;
         var localLevels = {};
-        var localHeroes = localData.heroes || [];
-        for (var i = 0; i < localHeroes.length; i++) {
-            localLevels[localHeroes[i].data] = localHeroes[i].lvl;
+        for (var i = 0; i < localUnits.length; i++) localLevels[localUnits[i].data] = localUnits[i].lvl;
+        for (var name in TROOP_MAP) {
+            var id = TROOP_MAP[name];
+            if (apiLevels[name] === undefined || localLevels[id] === undefined || apiLevels[name] !== localLevels[id]) return false;
         }
-        var apiHeroes = apiData.heroes || [];
-        for (var i = 0; i < apiHeroes.length; i++) {
-            var id = MAP[apiHeroes[i].name];
-            if (id && localLevels[id] !== undefined && localLevels[id] === apiHeroes[i].level) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 
     function guessServerFromIds(data) {
