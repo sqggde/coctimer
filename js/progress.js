@@ -478,7 +478,6 @@
                 counts[g]++;
                 const completionTs = calc.calculateCompletionTimestamp(item, data);
                 const remainingSec = Math.max(0, completionTs - (Date.now()/1000));
-                const remainFmt = calc.formatRemainingTime(remainingSec);
                 const doneTimeFmt = calc.formatDoneTime(completionTs);
                 const name = calc.getItemName(item.data);
                 const originCat = CocTool.names.CATEGORY_NAMES[item.category] || item.category;
@@ -532,7 +531,7 @@
                 else lvLine = '等级 ' + item.lvl + ' → ' + (item.lvl + 1);
                 const noteMap = loadNotes();
                 const note = getNoteForItem(state.currentAccount, item, data, noteMap);
-                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>' + (note ? '<div class="card-note" style="font-size:11px;color:#b45309;display:flex;align-items:center;gap:2px;max-width:150px;overflow:hidden;white-space:nowrap;">📝<span style="overflow:hidden;text-overflow:ellipsis;">' + calc.escapeHtml(note) + '</span></div>' : '') + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainFmt + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
+                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>' + (note ? '<div class="card-note" style="font-size:11px;color:#b45309;display:flex;align-items:center;gap:2px;max-width:150px;overflow:hidden;white-space:nowrap;">📝<span style="overflow:hidden;text-overflow:ellipsis;">' + calc.escapeHtml(note) + '</span></div>' : '') + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
                 bindNoteLongPress(card);
@@ -553,15 +552,29 @@
     }
 
     // ========== 增量更新卡片倒计时（不重建 DOM，仅更新文本+颜色）==========
+    // 剩余时间渲染：数字与单位分开（.cr-digit/.cr-unit），单位字号小/黑色/不加粗
+    function remainHtml(sec) {
+        if (sec <= 0) return '就绪';
+        const d = Math.floor(sec / 86400);
+        const h = Math.floor((sec % 86400) / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = Math.floor(sec % 60);
+        let html = '';
+        if (d > 0) html += '<span class="cr-digit">' + d + '</span><span class="cr-unit">天</span>';
+        if (h > 0 || html) html += '<span class="cr-digit">' + h + '</span><span class="cr-unit">时</span>';
+        if (m > 0 || html) html += '<span class="cr-digit">' + m + '</span><span class="cr-unit">分</span>';
+        html += '<span class="cr-digit">' + s + '</span><span class="cr-unit">秒</span>';
+        return html;
+    }
     function updateCardTimers() {
         const now = Date.now() / 1000;
         document.querySelectorAll('.upgrade-card').forEach(card => {
             const completionTs = parseFloat(card.getAttribute('data-completion'));
             if (isNaN(completionTs)) return;
             const remainingSec = Math.max(0, completionTs - now);
-            const fmt = calc.formatRemainingTime(remainingSec);
+            const fmt = remainHtml(remainingSec);
             const remainSpan = card.querySelector('.card-remain');
-            if (remainSpan && remainSpan.textContent !== fmt) remainSpan.textContent = fmt;
+            if (remainSpan && remainSpan.innerHTML !== fmt) remainSpan.innerHTML = fmt;
 
             // 更新文字颜色 + 边框颜色（阈值链收敛在 calc.getRemainingClasses）
             const remCls = calc.getRemainingClasses(remainingSec);

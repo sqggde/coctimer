@@ -356,5 +356,8 @@
 }
 .boost-time-text { font-size:11px; font-weight:500; color:#374151; font-variant-numeric:tabular-nums; }
 .dark .boost-time-text { color:#fff !important; }
+/* 卡片倒计时单位：字号小/黑色/不加粗（数字保持 .card-time-container 现有颜色与粗细） */
+.cr-unit { font-size: 10px; color: #000; font-weight: 400; }
+.dark .cr-unit { color: #d1d5db; }
 #builder-boost-label { color:#374151; }
 .dark #builder-boost-label { color:#fff; }
