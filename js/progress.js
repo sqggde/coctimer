@@ -1032,6 +1032,12 @@
                 settings.builderBoostMode24[data.tag] = !current;
                 saveSettings();
                 updateBuilderBoostToggle(data);
+                // 倍率影响完成时间计算：立即重渲染卡片（data-completion 重算）+ 重调度通知，不等切换页面
+                refreshCurrentAccountDisplay();
+                try {
+                    const svc = CocTool.features.services;
+                    if (svc && svc.pushSchedule) svc.pushSchedule();
+                } catch (e) {}
             });
 
             // 建筑工人月卡图标点击 → 弹窗
