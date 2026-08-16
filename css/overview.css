@@ -459,8 +459,8 @@
         }
         .ov-cat-header .ov-bar-tip {
             position: absolute;
-            top: -13px;
-            right: 2px;
+            top: -15px;
+            right: -15px;
             z-index: 3;
             margin: 0;
         }
