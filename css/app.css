@@ -356,9 +356,8 @@
 }
 .boost-time-text { font-size:11px; font-weight:500; color:#374151; font-variant-numeric:tabular-nums; }
 .dark .boost-time-text { color:#fff !important; }
-/* 卡片倒计时单位：字号小/黑色/不加粗（数字保持 .card-time-container 现有颜色与粗细） */
-.cr-unit { font-size: 10px; color: #000; font-weight: 400; }
-.dark .cr-unit { color: #d1d5db; }
+/* 卡片倒计时单位：字号小/不加粗（颜色继承数字的剩余时间分级色） */
+.cr-unit { font-size: 10px; font-weight: 400; }
 /* 数字等宽：10→9、2→1 等跳变时倒计时宽度不变，避免跳动 */
 .cr-digit { font-variant-numeric: tabular-nums; }
 /* 时分秒固定占两位宽（不补零，单数字右对齐占位） */
