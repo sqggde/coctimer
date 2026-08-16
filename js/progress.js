@@ -545,7 +545,7 @@
                     if (lvShort) h3Inner += '<span class="card-lv"> ' + lvShort + '</span>';
                 }
                 const subLine = note
-                    ? '<p class="text-xs text-gray-500 card-note-line">📝 ' + calc.escapeHtml(note) + '</p>'
+                    ? '<p class="text-xs card-note-line" style="color:#b45309;">📝 ' + calc.escapeHtml(note) + '</p>'
                     : '<p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>';
                 card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + h3Inner + phaseIcon + '</h3>' + subLine + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
