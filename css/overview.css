@@ -458,7 +458,11 @@
             cursor: pointer;
         }
         .ov-cat-header .ov-bar-tip {
-            margin-left: 2px;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 3;
+            margin: 0;
         }
         .ov-tip-card { padding: 1.5rem; text-align: center; line-height: 1.6; }
         .ov-tip-text { font-size: 14px; margin: 0 0 1rem; color: #374151; }
@@ -485,6 +489,7 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
         .ov-cat-header {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 6px;

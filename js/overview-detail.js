@@ -1173,12 +1173,12 @@
                 '<img src="img/icons/hero_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<div class="ov-cat-title-wrap">' +
                     '<span class="ov-cat-title">英雄</span>' +
-                    '<img src="img/icons/tip.webp" class="ov-bar-tip" onclick="CocTool.features.overview.showEpicTip()">' +
                 '</div>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.heroes.level.toFixed(2) + '%</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.heroes.time !== null ? p.heroes.time.toFixed(2) + '%' : '-') + '</span>' +
                 '<span class="ov-cat-pct"><img src="img/icons/Em_icon.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.equip.level.toFixed(2) + '%</span>' +
                 remainEl(p.heroes, workers) +
+                '<img src="img/icons/tip.webp" class="ov-bar-tip" onclick="CocTool.features.overview.showEpicTip()">' +
             '</div>';
         var heroBody = document.createElement('div');
         heroBody.className = 'ov-cat-body';
