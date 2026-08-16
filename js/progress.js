@@ -387,19 +387,26 @@
         ta.value = current;
         setTimeout(() => { try { ta.focus(); } catch (e) {} }, 100);
         function close() { overlay.remove(); }
+        // 保存/清除后：刷新首页渲染 + 立即重调度通知（通知 message 第三行备忘即时生效，不等 5 分钟周期）
+        function applyAndClose() {
+            close();
+            refreshCurrentAccountDisplay();
+            try {
+                const svc = CocTool.features.services;
+                if (svc && svc.pushSchedule) svc.pushSchedule();
+            } catch (e) {}
+        }
         overlay.querySelector('.__note-save').addEventListener('click', () => {
             const text = ta.value.trim();
             if (text) { if (!notes[tag]) notes[tag] = {}; notes[tag][key] = text; }
             else if (notes[tag]) delete notes[tag][key];
             saveNotes(notes);
-            close();
-            refreshCurrentAccountDisplay();
+            applyAndClose();
         });
         overlay.querySelector('.__note-clear')?.addEventListener('click', () => {
             if (notes[tag]) delete notes[tag][key];
             saveNotes(notes);
-            close();
-            refreshCurrentAccountDisplay();
+            applyAndClose();
         });
         overlay.querySelector('.__note-cancel').addEventListener('click', close);
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });

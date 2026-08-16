@@ -587,7 +587,8 @@
     }
 
     function pushSchedule() {
-        if (window.AndroidApp) {
+        // 守卫检查方法存在（网页版 shim 桩无 setNotificationSchedule）
+        if (window.AndroidApp && window.AndroidApp.setNotificationSchedule) {
             var json = buildNotificationSchedule();
             window.AndroidApp.setNotificationSchedule(json);
         }
