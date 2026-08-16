@@ -359,5 +359,7 @@
 /* 卡片倒计时单位：字号小/黑色/不加粗（数字保持 .card-time-container 现有颜色与粗细） */
 .cr-unit { font-size: 10px; color: #000; font-weight: 400; }
 .dark .cr-unit { color: #d1d5db; }
+/* 数字等宽：10→9、2→1 等跳变时倒计时宽度不变，避免跳动 */
+.cr-digit { font-variant-numeric: tabular-nums; }
 #builder-boost-label { color:#374151; }
 .dark #builder-boost-label { color:#fff; }
