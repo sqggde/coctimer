@@ -538,7 +538,16 @@
                 else lvLine = '等级 ' + item.lvl + ' → ' + (item.lvl + 1);
                 const noteMap = loadNotes();
                 const note = getNoteForItem(state.currentAccount, item, data, noteMap);
-                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>' + (note ? '<div class="card-note" style="font-size:11px;color:#b45309;display:flex;align-items:center;gap:2px;max-width:150px;overflow:hidden;white-space:nowrap;">📝<span style="overflow:hidden;text-overflow:ellipsis;">' + calc.escapeHtml(note) + '</span></div>' : '') + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
+                // 有备忘时：说明行被备忘覆盖，等级信息挪到名称后（lvShort，改装无等级则不显示）
+                let h3Inner = calc.escapeHtml(name);
+                if (note) {
+                    const lvShort = isGear ? '' : (isSC ? sc + '→' + (sc + 1) : isWp ? wp + '→' + (wp + 1) : item.lvl + '→' + (item.lvl + 1));
+                    if (lvShort) h3Inner += '<span class="card-lv"> ' + lvShort + '</span>';
+                }
+                const subLine = note
+                    ? '<p class="text-xs text-gray-500 card-note-line">📝 ' + calc.escapeHtml(note) + '</p>'
+                    : '<p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>';
+                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + h3Inner + phaseIcon + '</h3>' + subLine + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
                 bindNoteLongPress(card);

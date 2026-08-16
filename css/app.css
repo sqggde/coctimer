@@ -362,5 +362,7 @@
 .cr-digit { font-variant-numeric: tabular-nums; }
 /* 时分秒固定占两位宽（不补零，单数字右对齐占位） */
 .cr-digit-fixed { display: inline-block; min-width: 2ch; text-align: right; }
+/* 有备忘卡片：名称后的等级（如 100→101），小字灰色 */
+.card-lv { font-size: 11px; color: #6b7280; font-weight: 400; }
 #builder-boost-label { color:#374151; }
 .dark #builder-boost-label { color:#fff; }
