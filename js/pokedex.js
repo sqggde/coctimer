@@ -74,6 +74,8 @@
 
         // 等级属性（stats + 升级字段）
         { key: 'dps', label: '每秒伤害', table: '秒伤', icon: 'att_Damage', group: 'level' },
+        { key: 'dpsBonus', label: '伤害加成', table: '伤害加成', icon: 'att_Damage', group: 'level', fmt: 'percent' },
+        { key: 'hpBonus', label: '生命加成', table: '生命加成', icon: 'att_Hitpoint', group: 'level', fmt: 'percent' },
         { key: 'damagePerShot', label: '单次伤害', icon: 'att_Damage', group: 'level' },
         { key: 'hp', label: '生命值', table: '生命', icon: 'att_Hitpoint', group: 'level' },
         { key: 'damage', label: '伤害', icon: 'att_Damage', group: 'level' },
@@ -284,6 +286,7 @@
         if (fmt === 'cost') return fmtCost(v.v, v.res);
         if (fmt === 'dur') return fmtDur(v);
         if (fmt === 'tiles') return fmtTiles(v);
+        if (fmt === 'percent') return v + '%';
         return v;
     }
     function enumVal(v, table) {
