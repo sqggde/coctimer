@@ -635,68 +635,63 @@
                 try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
             }
         };
-        // 通过助手 ID 判断区服（无需网络）
-        var helpers = data.helpers || [];
-        for (var hi = 0; hi < helpers.length; hi++) {
-            var hid = String(helpers[hi].data);
-            if (hid.startsWith('124')) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
-            if (hid.startsWith('93')) { data._server = 'intl'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
-        }
-        // 无助手 → 请求 API + 英雄等级拟合
-        var G = global.CocTool;
-        fetch(G.apiBase + '/api/coc/player/' + tag.replace(/^#/, ''), {
-            headers: { 'X-App-Token': G.appToken }
-        })
-        .then(function(r) {
-            if (!r.ok) { data._server = 'cn'; try { saveToLocalStorage(); } catch(e) {} refreshAfter(); return; }
-            r.json().then(function(apiData) {
-                data._server = compareAccountStats(apiData, data) ? 'intl' : 'cn';
-                try { saveToLocalStorage(); } catch(e) {}
-                refreshAfter();
-            });
-        })
-        .catch(function() {
-            data._server = guessServerFromIds(data);
-            if (data._server) { try { saveToLocalStorage(); } catch(e) {} }
+        // 物品 ID 判断（助手 + 建筑/兵种 ID），无需网络、不走 API
+        var s = detectServerFromIds(data);
+        if (s) {
+            data._server = s;
+            try { saveToLocalStorage(); } catch (e) {}
             refreshAfter();
+            return;
+        }
+        // 无法判断 → 模态弹窗询问用户（手动选择，不回退 API）
+        showServerPicker(tag, data, refreshAfter);
+    }
+
+    // 物品 ID → 区服：助手 124*/93* 优先，其余物品 ID 前缀兜底；无法判断返回 null
+    function detectServerFromIds(data) {
+        var helpers = data.helpers || [];
+        for (var i = 0; i < helpers.length; i++) {
+            var hid = String(helpers[i].data);
+            if (hid.startsWith('124')) return 'cn';
+            if (hid.startsWith('93')) return 'intl';
+        }
+        return guessServerFromIds(data);
+    }
+
+    // 区服选择弹窗：国际服（紫）/ 国服（蓝），选择后落盘并刷新渲染
+    function showServerPicker(tag, data, refreshAfter) {
+        var overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML =
+            '<div class="modal-card w-xs">' +
+                '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">无法自动判断区服</h3>' +
+                '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">由于大本等级偏低，无法自动判断区服，请手动选择：</p>' +
+                '<div class="flex flex-col space-y-2">' +
+                    '<button class="__server-intl w-full px-3 py-2 text-white rounded-lg transition-all duration-200 text-sm" style="background:#8b5cf6;">国际服</button>' +
+                    '<button class="__server-cn w-full px-3 py-2 text-white rounded-lg transition-all duration-200 text-sm" style="background:#3b82f6;">国服</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        function pickServer(s) {
+            data._server = s;
+            try { saveToLocalStorage(); } catch (e) {}
+            overlay.remove();
+            refreshAfter();
+            // 区服影响首页/总览/进度渲染，选择后重刷当前账号
+            if (state.currentAccount === tag && CocTool.features.progress && CocTool.features.progress.refresh) {
+                try { CocTool.features.progress.refresh(); } catch (e) {}
+            }
+            showToast((s === 'intl' ? '国际服' : '国服') + ' · 已保存', 1500);
+        }
+        overlay.querySelector('.__server-intl').addEventListener('click', function () { pickServer('intl'); });
+        overlay.querySelector('.__server-cn').addEventListener('click', function () { pickServer('cn'); });
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.remove();
         });
     }
 
     // API 全等判定：主大本营 + 夜大本营 + 野蛮人 + 弓箭手 + 哥布林 + 巨人 六项全部一致才判国际服
     // （AND 关系，任一缺失/不等即 false；旧实现「任一英雄等级一致即判国际服」过松导致误判，未解锁英雄的账号尤甚）
-    function compareAccountStats(apiData, localData) {
-        var TROOP_MAP = { 'Barbarian': 4000000, 'Archer': 4000001, 'Goblin': 4000002, 'Giant': 4000003 };
-        var localBuildings = localData.buildings || [];
-        var localBuildings2 = localData.buildings2 || [];
-        var localUnits = localData.units || [];
-
-        // 主大本营（本地 buildings 1000001 / API townHallLevel）
-        var thLvl = null;
-        for (var i = 0; i < localBuildings.length; i++) {
-            if (localBuildings[i].data === 1000001) { thLvl = localBuildings[i].lvl || 0; break; }
-        }
-        if (thLvl === null || apiData.townHallLevel === undefined || thLvl !== apiData.townHallLevel) return false;
-
-        // 夜大本营（本地 buildings2 1000034 / API builderHallLevel）
-        var bhLvl = null;
-        for (var i = 0; i < localBuildings2.length; i++) {
-            if (localBuildings2[i].data === 1000034) { bhLvl = localBuildings2[i].lvl || 0; break; }
-        }
-        if (bhLvl === null || apiData.builderHallLevel === undefined || bhLvl !== apiData.builderHallLevel) return false;
-
-        // 四兵种等级全部一致（本地 units 4000000-3 / API troops 名称）
-        var apiLevels = {};
-        var apiTroops = apiData.troops || [];
-        for (var i = 0; i < apiTroops.length; i++) apiLevels[apiTroops[i].name] = apiTroops[i].level;
-        var localLevels = {};
-        for (var i = 0; i < localUnits.length; i++) localLevels[localUnits[i].data] = localUnits[i].lvl;
-        for (var name in TROOP_MAP) {
-            var id = TROOP_MAP[name];
-            if (apiLevels[name] === undefined || localLevels[id] === undefined || apiLevels[name] !== localLevels[id]) return false;
-        }
-        return true;
-    }
-
     function guessServerFromIds(data) {
         var fields = ['buildings','buildings2','heroes','heroes2','units','units2','spells','siege_machines','pets','traps','traps2','guardians','equipment'];
         for (var fi = 0; fi < fields.length; fi++) {
