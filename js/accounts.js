@@ -183,7 +183,6 @@
     function onSortResize() {
         if (isSortMode) updateSortListHeight();
     }
-
     function exitSortMode(applyChanges = false) {
         isSortMode = false;
         window.removeEventListener('resize', onSortResize);
@@ -202,11 +201,17 @@
             }
         }
         rebuildAllTabs();
-        if (state.currentAccount && accounts[state.currentAccount]) {
+        if (state.currentAccount &&
+            accounts[state.currentAccount]) {
             switchAccount(state.currentAccount);
         } else if (accountOrder.length) {
             switchAccount(accountOrder[0]);
         }
+    }
+
+    // 仅在排序模式激活时退出（供 core.js 切换页面时调用，避免非排序状态重复重建）
+    function exitSortModeIfActive() {
+        if (isSortMode) exitSortMode(false);
     }
 
     function renderSortList() {
@@ -822,6 +827,7 @@
         updateMainTitle,
         updateDataInfo,
         showEmptyState,
-        isImporting
+        isImporting,
+        exitSortModeIfActive
     });
 })(window);

@@ -324,6 +324,10 @@
 
     function showPage(page) {
         closeDetailOverlays();
+        // 切出首页时若处于排序模式则取消（等同点取消，不应用变更）；排序面板是独立容器，不会随页面隐藏
+        if (page !== 'progress' && CocTool.features.accounts && CocTool.features.accounts.exitSortModeIfActive) {
+            CocTool.features.accounts.exitSortModeIfActive();
+        }
         const navButtons = document.querySelectorAll('.nav-btn');
         const progressPage = document.getElementById('main-display-area');
         const helpPage = document.getElementById('help-page');
