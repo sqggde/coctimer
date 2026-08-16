@@ -591,6 +591,19 @@
         return 0;
     }
 
+    function priorityToBorderClass(priority, defaultCls) {
+        return { 5: 'border-success', 4: 'border-danger_red', 3: 'border-warning_orangered', 2: 'border-warning_orange', 1: 'border-warning_yellow', 0: defaultCls }[priority] || defaultCls;
+    }
+
+    // 剩余时间 → 文字+边框颜色类（阈值与 getColorPriority 同源，禁止在业务层再硬编码阈值链）
+    function getRemainingClasses(remainingSec, defaults) {
+        const priority = getColorPriority(remainingSec);
+        return {
+            text: priorityToColorClass(priority, (defaults && defaults.text) || 'text-primary'),
+            border: priorityToBorderClass(priority, (defaults && defaults.border) || 'border-primary')
+        };
+    }
+
     function priorityToColorClass(priority, defaultColor) {
         return { 5: 'text-success', 4: 'text-danger_red', 3: 'text-warning_orangered', 2: 'text-warning_orange', 1: 'text-warning_yellow', 0: defaultColor }[priority] || defaultColor;
     }
@@ -813,6 +826,8 @@
         getItemIconUrl,
         getColorPriority,
         priorityToColorClass,
+        priorityToBorderClass,
+        getRemainingClasses,
         filterNightWorld,
         getAccountTabColor,
         getRemainingColor,

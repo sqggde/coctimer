@@ -238,7 +238,44 @@
         global.setTimeout(() => toast.classList.add('hidden'), duration || 2000);
     }
 
-    CocTool.ui = Object.freeze({ showToast });
+    // 通用确认弹窗：动态创建 .modal-overlay/.modal-card（与 index.html 静态模态同一套样式），避免原生 confirm
+    let confirmModalEl = null;
+    function closeConfirm() {
+        if (confirmModalEl) {
+            confirmModalEl.remove();
+            confirmModalEl = null;
+        }
+    }
+    function showConfirm(options) {
+        const opts = options || {};
+        closeConfirm();
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML =
+            '<div class="modal-card w-xs">' +
+                '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + (opts.title || '确认') + '</h3>' +
+                '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">' + (opts.text || '') + '</p>' +
+                '<div class="flex flex-col space-y-2">' +
+                    '<button class="__confirm-ok w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">' + (opts.confirmText || '确定') + '</button>' +
+                    '<button class="__confirm-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">' + (opts.cancelText || '取消') + '</button>' +
+                '</div>' +
+            '</div>';
+        confirmModalEl = overlay;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.__confirm-ok').addEventListener('click', () => {
+            closeConfirm();
+            if (typeof opts.onConfirm === 'function') opts.onConfirm();
+        });
+        overlay.querySelector('.__confirm-cancel').addEventListener('click', () => {
+            closeConfirm();
+            if (typeof opts.onCancel === 'function') opts.onCancel();
+        });
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeConfirm();
+        });
+    }
+
+    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm });
 
     let navigationBound = false;
 

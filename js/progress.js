@@ -55,7 +55,10 @@
             return;
         }
         image.style.display = 'none';
-        image.nextElementSibling.style.display = 'flex';
+        // 兜底 fa 图标在图标容器内查找（不依赖兄弟节点顺序）
+        const container = image.parentElement;
+        const fallbackIcon = container ? container.querySelector('i.fa') : null;
+        if (fallbackIcon) fallbackIcon.style.display = 'flex';
     }
 
     function saveToLocalStorage() {
@@ -292,6 +295,42 @@
         });
     }
 
+    // 完成卡片删除统一绑定（渲染路径与缓存恢复补绑定共用同一实现；确认用程序模态弹窗，非原生 confirm）
+    // 幂等标记用 JS property 而非 data-* 属性：data-* 会被缓存 innerHTML 序列化带走，恢复后误判为已绑定（曾导致缓存路径删除失效）
+    function bindCardDelete(card) {
+        if (card.__delBound) return;
+        card.__delBound = true;
+        card.classList.add('cursor-pointer');
+        card.addEventListener('click', function () {
+            const cat = this.getAttribute('data-cat');
+            const id = this.getAttribute('data-item-id');
+            const timer = this.getAttribute('data-item-timer');
+            const lvl = this.getAttribute('data-item-lvl');
+            const nameEl = this.querySelector('.card-name');
+            const name = nameEl ? nameEl.textContent : '';
+            CocTool.ui.showConfirm({
+                title: '删除已完成项目',
+                text: '确认删除已完成项目「' + name + '」？',
+                confirmText: '删除',
+                onConfirm: function () {
+                    const d = accounts[state.currentAccount];
+                    if (!d) return;
+                    const arr = d[cat];
+                    if (arr && Array.isArray(arr)) {
+                        const idx = arr.findIndex(function (a) {
+                            return Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl);
+                        });
+                        if (idx !== -1) {
+                            arr.splice(idx, 1);
+                            saveToLocalStorage();
+                            refreshCurrentAccountDisplay();
+                        }
+                    }
+                }
+            });
+        });
+    }
+
     // 单实例检查
     function displayUpgradingItems(items, data) {
         // 刷新容器引用（hydrateCache 可能已替换 DOM 节点）
@@ -323,38 +362,18 @@
                 const name = calc.getItemName(item.data);
                 const originCat = CocTool.names.CATEGORY_NAMES[item.category] || item.category;
                 const icon = CocTool.names.CATEGORY_ICONS[item.category] || "fa-question";
-                let textColor = 'text-primary', borderClr = 'border-primary';
-                if (remainingSec <= 0) { textColor = 'text-success'; borderClr = 'border-success'; }
-                else if (remainingSec < 1800) { textColor = 'text-danger_red'; borderClr = 'border-danger_red'; }
-                else if (remainingSec < 3600) { textColor = 'text-warning_orangered'; borderClr = 'border-warning_orangered'; }
-                else if (remainingSec < 14400) { textColor = 'text-warning_orange'; borderClr = 'border-warning_orange'; }
-                else if (remainingSec < 28800) { textColor = 'text-warning_yellow'; borderClr = 'border-warning_yellow'; }
+                const remCls = calc.getRemainingClasses(remainingSec);
+                const textColor = remCls.text, borderClr = remCls.border;
                 const card = document.createElement('div');
                 card.style.minHeight = '46px';
-                card.className = `upgrade-card bg-gray-50 rounded-lg p-1 border-l-4 border-r-4 ${borderClr} flex items-center justify-between ${remainingSec <= 0 ? 'cursor-pointer' : ''}${calc.isInSleepRange(completionTs) ? ' sleep-highlight' : ''}`;
+                card.className = `upgrade-card bg-gray-50 rounded-lg p-1 border-l-4 border-r-4 ${borderClr} flex items-center justify-between ${calc.isInSleepRange(completionTs) ? ' sleep-highlight' : ''}`;
                 card.setAttribute('data-unique', item.uniqueId);
                 card.setAttribute('data-completion', completionTs);
                 card.setAttribute('data-cat', item.category);
                 card.setAttribute('data-item-id', item.data);
                 card.setAttribute('data-item-timer', item.timer);
                 card.setAttribute('data-item-lvl', item.lvl);
-                if (remainingSec <= 0) {
-                    card.setAttribute('data-del-listener', '1');
-                    card.addEventListener('click', () => {
-                        if (confirm(`确认删除已完成项目「${name}」？`)) {
-                            const cat = item.category;
-                            const arr = data[cat];
-                            if (arr && Array.isArray(arr)) {
-                                const idx = arr.findIndex(a => a.data === item.data && a.timer === item.timer && a.lvl === item.lvl);
-                                if (idx !== -1) {
-                                    arr.splice(idx, 1);
-                                    saveToLocalStorage();
-                                    refreshCurrentAccountDisplay();
-                                }
-                            }
-                        }
-                    });
-                }
+                if (remainingSec <= 0) bindCardDelete(card);
                 const phaseIcon = calc.getItemPhaseIcon(item, data);
                 const iconUrls = calc.getItemIconUrl(item);
                 // 图标URL缓存：避免反复尝试不存在的等级图标导致频闪（上限200项防泄漏）
@@ -389,7 +408,7 @@
                 else if (isWp) lvLine = '等级' + wp + '→' + (wp + 1);
                 else if (isGear) lvLine = '';
                 else lvLine = '等级 ' + item.lvl + ' → ' + (item.lvl + 1);
-                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p></div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainFmt + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
+                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p></div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainFmt + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
                 if (categoryContainers[g]) categoryContainers[g].appendChild(card);
@@ -409,7 +428,6 @@
     }
 
     // ========== 增量更新卡片倒计时（不重建 DOM，仅更新文本+颜色）==========
-    const BORDER_COLORS = ['border-success','border-danger_red','border-warning_orangered','border-warning_orange','border-warning_yellow','border-primary'];
     function updateCardTimers() {
         const now = Date.now() / 1000;
         document.querySelectorAll('.upgrade-card').forEach(card => {
@@ -420,73 +438,48 @@
             const remainSpan = card.querySelector('.card-remain');
             if (remainSpan && remainSpan.textContent !== fmt) remainSpan.textContent = fmt;
 
-            // 更新文字颜色 + 边框颜色
-            let textColor = 'text-primary', borderClr = 'border-primary';
-            if (remainingSec <= 0) { textColor = 'text-success'; borderClr = 'border-success'; }
-            else if (remainingSec < 1800) { textColor = 'text-danger_red'; borderClr = 'border-danger_red'; }
-            else if (remainingSec < 3600) { textColor = 'text-warning_orangered'; borderClr = 'border-warning_orangered'; }
-            else if (remainingSec < 14400) { textColor = 'text-warning_orange'; borderClr = 'border-warning_orange'; }
-            else if (remainingSec < 28800) { textColor = 'text-warning_yellow'; borderClr = 'border-warning_yellow'; }
+            // 更新文字颜色 + 边框颜色（阈值链收敛在 calc.getRemainingClasses）
+            const remCls = calc.getRemainingClasses(remainingSec);
             const tc = card.querySelector('.card-time-container');
             if (tc) {
-                tc.className = tc.className.replace(/\btext-\S+/g, '').trim() + ' ' + textColor + ' card-time-container';
+                tc.className = tc.className.replace(/\btext-\S+/g, '').trim() + ' ' + remCls.text + ' card-time-container';
             }
-            BORDER_COLORS.forEach(cls => card.classList.remove(cls));
-            card.classList.add(borderClr);
+            card.classList.remove('border-success', 'border-danger_red', 'border-warning_orangered', 'border-warning_orange', 'border-warning_yellow', 'border-primary');
+            card.classList.add(remCls.border);
 
             // 更新睡眠高亮
             card.classList.toggle('sleep-highlight', calc.isInSleepRange(completionTs));
 
-            // 更新完成项目的 cursor-pointer + 绑定删除事件
-            if (remainingSec <= 0) {
-                card.classList.add('cursor-pointer');
-                if (!card.hasAttribute('data-del-listener')) {
-                    card.setAttribute('data-del-listener', '1');
-                    card.addEventListener('click', function () {
-                        const cat = this.getAttribute('data-cat');
-                        const id = this.getAttribute('data-item-id');
-                        const timer = this.getAttribute('data-item-timer');
-                        const lvl = this.getAttribute('data-item-lvl');
-                        const nameEl = this.querySelector('.card-name');
-                        const name = nameEl ? nameEl.textContent : '';
-                        if (confirm('确认删除已完成项目「' + name + '」？')) {
-                            const d = accounts[state.currentAccount];
-                            if (!d) return;
-                            const arr = d[cat];
-                            if (arr && Array.isArray(arr)) {
-                                const idx = arr.findIndex(function (a) {
-                                    return Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl);
-                                });
-                                if (idx !== -1) {
-                                    arr.splice(idx, 1);
-                                    saveToLocalStorage();
-                                    refreshCurrentAccountDisplay();
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-            else { card.classList.remove('cursor-pointer'); }
+            // 完成项目补绑定删除事件（缓存恢复路径由此生效）
+            if (remainingSec <= 0) bindCardDelete(card);
+            else card.classList.remove('cursor-pointer');
         });
     }
 
     // ========== 轻量定时刷新（每秒调用，不重建 DOM）==========
+    // 分层原则：tick 只做秒级变化项（倒计时/时钟/完成态）；结构项（挡位/月卡/摘要/分类计数）在 render/refresh 时更新，
+    // tab 颜色与标题节流到 10 秒（其变化只发生在项目完成瞬间，秒级全量遍历 N 个账号成本过高）
+    let lastTabTitleTick = 0;
     function updateTimersOnly() {
         if (!state.currentAccount || !accounts[state.currentAccount]) return;
+        const now = Date.now();
         const data = accounts[state.currentAccount];
-        const nowTs = Math.floor(Date.now() / 1000);
+        const nowTs = Math.floor(now / 1000);
         updateCardTimers();
         updateSortTimers();
         updateCurrentTime();
-        const upgradingItems = calc.extractUpgradingItems(data, nowTs, true);
-        updateCategorySummary(calc.getCategoryCounts(upgradingItems), calc.getCategoryDenominators(data), calc.getCategoryCompletedCounts(upgradingItems, data));
-        updateBuilderBoostToggle(data);
-        updateAllAccountTabColors();
-        updateMainTitle();
         renderHelperOverview(data);
         updateBoostTimers(data);
-        renderEventBoostSelector(data);
+        if (now - lastTabTitleTick >= 10000) {
+            lastTabTitleTick = now;
+            updateAllAccountTabColors();
+            updateMainTitle();
+        }
+        // 活动结束轻量检查：隐藏挡位选择器（完整渲染由 render 负责）
+        if (nowTs >= calc.EVENT_END) {
+            const selector = document.getElementById('event-boost-selector');
+            if (selector && !selector.classList.contains('hidden')) selector.classList.add('hidden');
+        }
     }
 
     function updateBuilderBoostToggle(data) {
@@ -532,24 +525,14 @@
 
     function refreshCurrentAccountDisplay() {
         if (!state.currentAccount || !accounts[state.currentAccount]) return;
-        const data = accounts[state.currentAccount];
-        const upgradingItems = calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
-        displayUpgradingItems(upgradingItems, data);
-        updateCategorySummary(calc.getCategoryCounts(upgradingItems), calc.getCategoryDenominators(data), calc.getCategoryCompletedCounts(upgradingItems, data));
-        updateBuilderBoostToggle(data);
-        updateAllAccountTabColors();
-        updateMainTitle();
-        renderHelperOverview(data); // 每秒更新助手/钟楼倒计时
-        updateBoostTimers(data);
-        renderEventBoostSelector(data);
+        render(accounts[state.currentAccount]);
     }
 
     // ========== 活动加速挡位选择器 ==========
     function renderEventBoostSelector(data) {
         const container = document.getElementById('event-boost-selector');
-        if (!container) { console.log('[DBG] 容器null'); return; }
+        if (!container) return;
 
-        console.log('[DBG] 时间', Math.floor(Date.now()/1000), 'END', calc.EVENT_END);
         if (Math.floor(Date.now() / 1000) >= calc.EVENT_END) {
             container.classList.add('hidden');
             return;
@@ -587,6 +570,26 @@
         }
     }
 
+    // boost 计时元素引用缓存（避免每秒扫描 DOM / 依赖兄弟顺序）
+    const boostTimerRefs = new Map();
+    function getBoostTimerEl(headingId) {
+        let ref = boostTimerRefs.get(headingId);
+        if (ref && ref.countEl && ref.countEl.isConnected && ref.timerEl && ref.timerEl.isConnected) return ref;
+        const countEl = document.getElementById(headingId);
+        if (!countEl) return null;
+        let timerEl = null;
+        if (ref && ref.timerEl && ref.timerEl.isConnected) timerEl = ref.timerEl;
+        else {
+            timerEl = document.createElement('span');
+            timerEl.className = 'boost-timer';
+            timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px;margin-left:6px';
+            countEl.parentNode.insertBefore(timerEl, countEl.nextSibling);
+        }
+        ref = { countEl, timerEl };
+        boostTimerRefs.set(headingId, ref);
+        return ref;
+    }
+
     // ========== 升级列表分类标题旁显示加速道具剩余时间 ==========
     function updateBoostTimers(data) {
         const boosts = data.boosts || {};
@@ -617,17 +620,9 @@
         if (boosts.clocktower_boost) { cats[3].boostKey = 'clocktower_boost'; cats[3].iconFile = 'clocktower_boost.webp'; cats[4].boostKey = 'clocktower_boost'; cats[4].iconFile = 'clocktower_boost.webp'; }
 
         cats.forEach(cat => {
-            const countEl = document.getElementById(cat.headingId);
-            if (!countEl) return;
-            // 查找或创建 boost-timer 元素（紧跟在 count 后面）
-            let timerEl = countEl.nextElementSibling;
-            if (timerEl && !timerEl.classList.contains('boost-timer')) timerEl = null;
-            if (!timerEl) {
-                timerEl = document.createElement('span');
-                timerEl.className = 'boost-timer';
-                timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px;margin-left:6px';
-                countEl.parentNode.insertBefore(timerEl, countEl.nextSibling);
-            }
+            const ref = getBoostTimerEl(cat.headingId);
+            if (!ref) return;
+            const timerEl = ref.timerEl;
 
             if (cat.boostKey) {
                 const boostVal = boosts[cat.boostKey];
@@ -641,44 +636,67 @@
                     let timeSpan = timerEl.querySelector('.boost-time-text');
                     if (!timeSpan) {
                         timerEl.innerHTML = '<img src="img/icons/' + cat.iconFile + '" width="16" height="16" style="vertical-align:middle;display:inline-block"><span class="boost-time-text">' + timeStr + '</span>';
-                    } else {
+                    } else if (timeSpan.textContent !== timeStr) {
                         timeSpan.textContent = timeStr;
                     }
                 } else {
                     timerEl.remove();
+                    boostTimerRefs.delete(cat.headingId);
                 }
             } else {
                 timerEl.remove();
+                boostTimerRefs.delete(cat.headingId);
             }
         });
     }
 
+    // 摘要元素引用缓存（避免每次渲染重复 getElementById）
+    let summaryEls = null;
+    function getSummaryEls() {
+        if (summaryEls && summaryEls.card && summaryEls.card.isConnected) return summaryEls;
+        summaryEls = {
+            card: document.getElementById('category-summary-card'),
+            els: {}, badges: {}, redBadges: {}, icons: {}
+        };
+        ['buildings', 'lab', 'pets', 'buildings2', 'units2'].forEach(key => {
+            summaryEls.els[key] = document.getElementById('summary-' + key);
+            summaryEls.badges[key] = document.getElementById('summary-badge-' + key);
+            summaryEls.redBadges[key] = document.getElementById('summary-badge-red-' + key);
+            summaryEls.icons[key] = document.getElementById('summary-icon-' + key);
+        });
+        return summaryEls;
+    }
+
     function updateCategorySummary(counts, denominators, completedCounts) {
-        const card = document.getElementById('category-summary-card');
-        if (!card) return;
-        card.classList.remove('hidden');
+        const refs = getSummaryEls();
+        if (!refs.card) return;
+        refs.card.classList.remove('hidden');
         const keys = ['buildings', 'lab', 'pets', 'buildings2', 'units2'];
         keys.forEach(key => {
-            const el = document.getElementById('summary-' + key);
-            if (el) el.textContent = (counts[key] || 0) + '/' + (denominators[key] || 0);
-            const greenBadge = document.getElementById('summary-badge-' + key);
+            const el = refs.els[key];
+            if (el) {
+                const text = (counts[key] || 0) + '/' + (denominators[key] || 0);
+                if (el.textContent !== text) el.textContent = text;
+            }
+            const greenBadge = refs.badges[key];
             if (greenBadge) {
                 const completed = (completedCounts && completedCounts[key]) || 0;
                 if (completed > 0) {
-                    greenBadge.textContent = '' + completed;
+                    if (greenBadge.textContent !== String(completed)) greenBadge.textContent = String(completed);
                     greenBadge.style.display = 'flex';
                 } else {
                     greenBadge.style.display = 'none';
                 }
             }
-            const redBadge = document.getElementById('summary-badge-red-' + key);
+            const redBadge = refs.redBadges[key];
             if (redBadge) {
                 const c = counts[key] || 0;
                 const d = denominators[key] || 0;
                 const isDismissed = (sessionDismissedCategories[state.currentAccount] && sessionDismissedCategories[state.currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount] && settings.dismissedCategories[state.currentAccount][key]);
-                redBadge.style.opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
+                const opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
+                if (redBadge.style.opacity !== opacity) redBadge.style.opacity = opacity;
             }
-            const iconEl = document.getElementById('summary-icon-' + key);
+            const iconEl = refs.icons[key];
             if (iconEl) {
                 iconEl.src = calc.getSummaryIconUrl(key);
             }
@@ -731,6 +749,8 @@
             if (cached && cached.html && cached.time && Date.now() - cached.time < 86400000) {
                 elUpgrades.innerHTML = cached.html;
                 elUpgrades.classList.remove('hidden');
+                // 恢复后重新绑定图标 error 监听（fallback 链依赖事件绑定，innerHTML 恢复不会自带）
+                elUpgrades.querySelectorAll('img[data-cachekey]').forEach(img => img.addEventListener('error', handleIconError));
                 elLoad.classList.add('hidden');
                 if (elBadge) {
                     elBadge.classList.remove('hidden');
@@ -910,6 +930,8 @@
         updateBoostTimers(data);
         updateBuilderBoostToggle(data);
         renderEventBoostSelector(data);
+        updateAllAccountTabColors();
+        updateMainTitle();
     }
 
     CocTool.features.progress = Object.freeze({

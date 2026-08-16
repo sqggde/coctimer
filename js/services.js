@@ -595,7 +595,8 @@
     function startBackgroundCheck() {
         if (updateTimer) { clearInterval(updateTimer); updateTimer = null; }
         notificationMonitor.log('服务', '启动后台检测');
-        if (window.AndroidApp) window.AndroidApp.startBackgroundService();
+        // 守卫检查方法存在（网页版 shim 桩无 startBackgroundService）
+        if (window.AndroidApp && window.AndroidApp.startBackgroundService) window.AndroidApp.startBackgroundService();
         lastReschedule = Date.now();
         try { pushSchedule(); } catch (e) { notificationMonitor.log('错误', `pushSchedule: ${e.message}`); }
         updateTimer = setInterval(() => {
@@ -612,7 +613,7 @@
     function stopBackgroundCheck() {
         notificationMonitor.log('服务', '停止后台检测');
         if (updateTimer) { clearInterval(updateTimer); updateTimer = null; }
-        if (window.AndroidApp) window.AndroidApp.stopBackgroundService();
+        if (window.AndroidApp && window.AndroidApp.stopBackgroundService) window.AndroidApp.stopBackgroundService();
     }
 
     function pauseTicker() {
