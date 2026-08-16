@@ -726,27 +726,8 @@
         }
     }
 
-    // boost 计时元素引用缓存（避免每秒扫描 DOM / 依赖兄弟顺序）
-    const boostTimerRefs = new Map();
-    function getBoostTimerEl(headingId) {
-        let ref = boostTimerRefs.get(headingId);
-        if (ref && ref.countEl && ref.countEl.isConnected && ref.timerEl && ref.timerEl.isConnected) return ref;
-        const countEl = document.getElementById(headingId);
-        if (!countEl) return null;
-        let timerEl = null;
-        if (ref && ref.timerEl && ref.timerEl.isConnected) timerEl = ref.timerEl;
-        else {
-            timerEl = document.createElement('span');
-            timerEl.className = 'boost-timer';
-            timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px;margin-left:6px';
-            countEl.parentNode.insertBefore(timerEl, countEl.nextSibling);
-        }
-        ref = { countEl, timerEl };
-        boostTimerRefs.set(headingId, ref);
-        return ref;
-    }
-
     // ========== 升级列表分类标题旁显示加速道具剩余时间 ==========
+    // 每轮扫描 countEl 后的 boost-timer（复用第一个/清理孤儿），不依赖元素引用缓存
     function updateBoostTimers(data) {
         const boosts = data.boosts || {};
         const now = Math.floor(Date.now() / 1000);
@@ -776,32 +757,49 @@
         if (boosts.clocktower_boost) { cats[3].boostKey = 'clocktower_boost'; cats[3].iconFile = 'clocktower_boost.webp'; cats[4].boostKey = 'clocktower_boost'; cats[4].iconFile = 'clocktower_boost.webp'; }
 
         cats.forEach(cat => {
-            const ref = getBoostTimerEl(cat.headingId);
-            if (!ref) return;
-            const timerEl = ref.timerEl;
-
-            if (cat.boostKey) {
-                const boostVal = boosts[cat.boostKey];
-                const remaining = Math.max(0, boostVal - elapsed);
-                if (remaining > 0) {
-                    const h = Math.floor(remaining / 3600);
-                    const m = Math.floor((remaining % 3600) / 60);
-                    const s = Math.floor(remaining % 60);
-                    const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-                    // 首次创建包含完整结构，后续只更新文字
-                    let timeSpan = timerEl.querySelector('.boost-time-text');
-                    if (!timeSpan) {
-                        timerEl.innerHTML = '<img src="img/icons/' + cat.iconFile + '" width="16" height="16" style="vertical-align:middle;display:inline-block"><span class="boost-time-text">' + timeStr + '</span>';
-                    } else if (timeSpan.textContent !== timeStr) {
-                        timeSpan.textContent = timeStr;
-                    }
+            const countEl = document.getElementById(cat.headingId);
+            if (!countEl) return;
+            // 每轮扫描 countEl 后的 boost-timer：复用第一个，移除多余孤儿
+            // （hydrateCache 恢复的 HTML 自带旧 boost-timer，不清理会残留定格图标且药水结束后不消失）
+            let timerEl = null;
+            let s = countEl.nextElementSibling;
+            while (s && s !== countEl.parentElement) {
+                const next = s.nextElementSibling;
+                if (s.classList && s.classList.contains('boost-timer')) {
+                    if (!timerEl) timerEl = s;
+                    else s.remove();
+                }
+                s = next;
+            }
+            // 无对应 boost → 移除并结束
+            if (!cat.boostKey) {
+                if (timerEl) timerEl.remove();
+                    return;
+            }
+            const boostVal = boosts[cat.boostKey];
+            const remaining = Math.max(0, boostVal - elapsed);
+            if (remaining > 0) {
+                if (!timerEl) {
+                    timerEl = document.createElement('span');
+                    timerEl.className = 'boost-timer';
+                    timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px;margin-left:6px';
+                    countEl.parentNode.insertBefore(timerEl, countEl.nextSibling);
+                }
+                const h = Math.floor(remaining / 3600);
+                const m = Math.floor((remaining % 3600) / 60);
+                const sec = Math.floor(remaining % 60);
+                const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+                // 图标类型变化（缓存恢复的旧 HTML 图标可能不匹配）→ 重建完整结构；否则只更新文字
+                const img = timerEl.querySelector('img');
+                if (!img || img.src.indexOf(cat.iconFile) === -1) {
+                    timerEl.innerHTML = '<img src="img/icons/' + cat.iconFile + '" width="16" height="16" style="vertical-align:middle;display:inline-block"><span class="boost-time-text">' + timeStr + '</span>';
                 } else {
-                    timerEl.remove();
-                    boostTimerRefs.delete(cat.headingId);
+                    const timeSpan = timerEl.querySelector('.boost-time-text');
+                    if (timeSpan && timeSpan.textContent !== timeStr) timeSpan.textContent = timeStr;
                 }
             } else {
-                timerEl.remove();
-                boostTimerRefs.delete(cat.headingId);
+                // 药水结束：移除全部（含缓存恢复的孤儿）
+                if (timerEl) timerEl.remove();
             }
         });
     }
