@@ -604,6 +604,75 @@
         };
     }
 
+    // ========== 升级卡片备忘：完成时刻 = 实例身份 ==========
+    // 键 = 分类_data_lvl_绝对完成时刻（timestamp+timer）。不用药水/助手时跨导入稳定；
+    // 药水/助手改变时刻 → 由 reconcileNoteKeys 在剩余池按最近时刻归位。
+    function getNoteKey(item, data) {
+        return (item.category || 'x') + '_' + item.data + '_' + (item.lvl || 0) + '_' + ((data.timestamp || 0) + (item.timer || 0));
+    }
+    function noteKeyBase(key) {
+        const i = key.lastIndexOf('_');
+        return i > 0 ? key.slice(0, i) : key;
+    }
+    function noteKeyTs(key) {
+        const i = key.lastIndexOf('_');
+        return parseInt(i > 0 ? key.slice(i + 1) : '0', 10) || 0;
+    }
+    // 导入后重对齐（纯函数）：oldMap = 旧备忘 {键:文本}，oldKeys = 旧实例键（按旧数据数组顺序），
+    // newKeys = 新实例键（按新数据数组顺序），now = 当前秒
+    // 规则：1) 精确匹配（同前缀 + 时刻差 <60s）优先锁定；2) 时刻已过去的旧键 → 完成清理删除；
+    //       3) 剩余旧键与剩余新实例按「同前缀分组 + 保持各自顺序」一一对应（药水全体加速/顺序不变时零错配）；
+    //       4) 无新实例可配且时刻在未来 → 保守保留（悬空，显示层兜底）。
+    function reconcileNoteKeys(oldMap, oldKeys, newKeys, now) {
+        const result = {};
+        const used = {};
+        const oldKeyList = (oldKeys || []).filter(k => Object.prototype.hasOwnProperty.call(oldMap, k));
+        if (!oldKeyList.length) return { map: result, removed: 0 };
+        let removed = 0;
+        // 1. 精确匹配锁定（同前缀 + 时刻差 <60s）
+        const unmatchedOld = [];
+        oldKeyList.forEach(k => {
+            const base = noteKeyBase(k);
+            const ts = noteKeyTs(k);
+            let hit = -1;
+            for (let i = 0; i < newKeys.length; i++) {
+                if (used[i] || noteKeyBase(newKeys[i]) !== base) continue;
+                if (Math.abs(ts - noteKeyTs(newKeys[i])) < 60) { hit = i; break; }
+            }
+            if (hit !== -1) { used[hit] = true; result[newKeys[hit]] = oldMap[k]; }
+            else unmatchedOld.push(k);
+        });
+        // 2. 时刻已过去的旧键 → 完成清理（不可能匹配任何未完成实例）
+        const pendingOld = [];
+        unmatchedOld.forEach(k => {
+            if (noteKeyTs(k) < now) removed++;
+            else pendingOld.push(k);
+        });
+        // 3. 剩余按前缀分组，组内按顺序一一对应
+        const unmatchedNew = [];
+        newKeys.forEach((k, i) => { if (!used[i]) unmatchedNew.push({ k, i }); });
+        const groups = {};
+        pendingOld.forEach(k => {
+            const b = noteKeyBase(k);
+            if (!groups[b]) groups[b] = { old: [], news: [] };
+            groups[b].old.push(k);
+        });
+        unmatchedNew.forEach(x => {
+            const b = noteKeyBase(x.k);
+            if (!groups[b]) groups[b] = { old: [], news: [] };
+            groups[b].news.push(x);
+        });
+        Object.keys(groups).forEach(b => {
+            const g = groups[b];
+            g.old.forEach((k, idx) => {
+                const x = g.news[idx];
+                if (x) { used[x.i] = true; result[x.k] = oldMap[k]; }
+                else result[k] = oldMap[k]; // 4. 保守保留（悬空）
+            });
+        });
+        return { map: result, removed };
+    }
+
     function priorityToColorClass(priority, defaultColor) {
         return { 5: 'text-success', 4: 'text-danger_red', 3: 'text-warning_orangered', 2: 'text-warning_orange', 1: 'text-warning_yellow', 0: defaultColor }[priority] || defaultColor;
     }
@@ -828,6 +897,10 @@
         priorityToColorClass,
         priorityToBorderClass,
         getRemainingClasses,
+        getNoteKey,
+        noteKeyBase,
+        noteKeyTs,
+        reconcileNoteKeys,
         filterNightWorld,
         getAccountTabColor,
         getRemainingColor,

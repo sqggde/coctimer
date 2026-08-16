@@ -589,6 +589,7 @@
         const tag = data.tag || `账号_${Date.now()}`;
         // 如果 timestamp 和上次相同，跳过解析更新
         if (accounts[tag] && accounts[tag].timestamp === data.timestamp) return;
+        const oldData = accounts[tag] || null;
         const progressModule = progress();
         if (progressModule) progressModule.resetIconCache();
         importingGuard = true;
@@ -620,6 +621,10 @@
             }, 1500);
         }
         importingGuard = false;
+        // 数据更新后备忘键重对齐（完成清理/药水归位/歧义保守）
+        if (oldData && progressModule && progressModule.reconcileNotes) {
+            try { progressModule.reconcileNotes(tag, oldData, data); } catch (e) {}
+        }
         detectAccountServer(tag, data);
         if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}

@@ -536,6 +536,11 @@
                         } else {
                             msg = accountName + '\n' + name + ' 已升级为 ' + (item.lvl + 1) + '级';
                         }
+                        // 第三行追加备忘（仅当该项目有备忘）
+                        const note = CocTool.features.progress && CocTool.features.progress.getNoteForItem
+                            ? CocTool.features.progress.getNoteForItem(tag, item, data)
+                            : '';
+                        if (note) msg += '\n' + note;
                         schedule.push({ timestamp: applyAdvance(completionTs, advanceThreshold, now), message: msg, id: item.uniqueId });
                         var itemMeta = { timer: item.timer };
                         if (item.helper_timer && item.helper_timer > 0) itemMeta.helper_timer = item.helper_timer;

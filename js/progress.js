@@ -295,6 +295,116 @@
         });
     }
 
+    // ========== 升级卡片备忘（长按编辑，本地存储 clash_upgrade_notes） ==========
+    const NOTES_KEY = 'clash_upgrade_notes';
+    function loadNotes() {
+        try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function saveNotes(notes) {
+        try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch (e) {}
+    }
+    // 精确键匹配；歧义保守保留的悬空键不显示（数据保留，下次导入顺序配对归位）
+    function getNoteForItem(tag, item, data, notesMap) {
+        const notes = notesMap || loadNotes();
+        const map = notes[tag];
+        if (!map) return '';
+        return map[calc.getNoteKey(item, data)] || '';
+    }
+    // 导入数据更新后重对齐备忘键（accounts.js 调用）
+    function reconcileNotes(tag, oldData, newData) {
+        const notes = loadNotes();
+        const map = notes[tag];
+        if (!map || !Object.keys(map).length) return;
+        const now = Math.floor(Date.now() / 1000);
+        const oldItems = oldData ? calc.extractUpgradingItems(oldData, now, true) : [];
+        const oldKeys = oldItems.map(it => calc.getNoteKey(it, oldData));
+        const items = calc.extractUpgradingItems(newData, now, true);
+        const newKeys = items.map(it => calc.getNoteKey(it, newData));
+        const r = calc.reconcileNoteKeys(map, oldKeys, newKeys, now);
+        // 兜底清理：悬空且完成时刻已过去的键（数据中已不存在）
+        Object.keys(r.map).forEach(k => {
+            if (!newKeys.includes(k) && calc.noteKeyTs(k) < now) delete r.map[k];
+        });
+        notes[tag] = r.map;
+        saveNotes(notes);
+    }
+
+    // 长按卡片（touch/mouse 通用，500ms，位移>10px 取消）→ 备忘编辑模态；长按后抑制本次 click（删除弹窗不弹出）
+    function bindNoteLongPress(card) {
+        if (card.__noteBound) return;
+        card.__noteBound = true;
+        let timer = null, startX = 0, startY = 0;
+        function start(e) {
+            const pt = e.touches ? e.touches[0] : e;
+            startX = pt.clientX; startY = pt.clientY;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                card.__noteLongPress = true;
+                openNoteModal(card);
+            }, 500);
+        }
+        function move(e) {
+            if (!timer) return;
+            const pt = e.touches ? e.touches[0] : e;
+            if (Math.abs(pt.clientX - startX) > 10 || Math.abs(pt.clientY - startY) > 10) cancel();
+        }
+        function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
+        card.addEventListener('touchstart', start, { passive: true });
+        card.addEventListener('touchmove', move, { passive: true });
+        card.addEventListener('touchend', cancel);
+        card.addEventListener('touchcancel', cancel);
+        card.addEventListener('mousedown', start);
+        card.addEventListener('mousemove', move);
+        card.addEventListener('mouseup', cancel);
+        card.addEventListener('mouseleave', cancel);
+        card.addEventListener('click', function (e) {
+            if (card.__noteLongPress) { card.__noteLongPress = false; e.preventDefault(); e.stopPropagation(); }
+        });
+    }
+
+    function openNoteModal(card) {
+        const tag = state.currentAccount;
+        const key = card.getAttribute('data-note-key');
+        if (!key || !tag) return;
+        const notes = loadNotes();
+        const map = notes[tag] || {};
+        const current = map[key] || '';
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML =
+            '<div class="modal-card w-xs">' +
+                '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">备忘</h3>' +
+                '<textarea class="w-full border border-gray-300 rounded-lg p-2 text-sm mb-4" style="min-height:80px;resize:vertical;box-sizing:border-box;" maxlength="100" placeholder="输入备忘内容（最多100字）"></textarea>' +
+                '<div class="flex flex-col space-y-2">' +
+                    (current ? '<button class="__note-clear w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">清除备忘</button>' : '') +
+                    '<button class="__note-save w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm">保存</button>' +
+                    '<button class="__note-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        const ta = overlay.querySelector('textarea');
+        ta.value = current;
+        setTimeout(() => { try { ta.focus(); } catch (e) {} }, 100);
+        function close() { overlay.remove(); }
+        overlay.querySelector('.__note-save').addEventListener('click', () => {
+            const text = ta.value.trim();
+            if (text) { if (!notes[tag]) notes[tag] = {}; notes[tag][key] = text; }
+            else if (notes[tag]) delete notes[tag][key];
+            saveNotes(notes);
+            close();
+            refreshCurrentAccountDisplay();
+        });
+        overlay.querySelector('.__note-clear')?.addEventListener('click', () => {
+            if (notes[tag]) delete notes[tag][key];
+            saveNotes(notes);
+            close();
+            refreshCurrentAccountDisplay();
+        });
+        overlay.querySelector('.__note-cancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    }
+
     // 完成卡片删除统一绑定（渲染路径与缓存恢复补绑定共用同一实现；确认用程序模态弹窗，非原生 confirm）
     // 幂等标记用 JS property 而非 data-* 属性：data-* 会被缓存 innerHTML 序列化带走，恢复后误判为已绑定（曾导致缓存路径删除失效）
     function bindCardDelete(card) {
@@ -302,6 +412,8 @@
         card.__delBound = true;
         card.classList.add('cursor-pointer');
         card.addEventListener('click', function () {
+            if (this.__noteLongPress) return;
+            const self = this;
             const cat = this.getAttribute('data-cat');
             const id = this.getAttribute('data-item-id');
             const timer = this.getAttribute('data-item-timer');
@@ -323,6 +435,15 @@
                         if (idx !== -1) {
                             arr.splice(idx, 1);
                             saveToLocalStorage();
+                            // 删除卡片的同时清理该实例备忘（实例结束）
+                            const noteKey = self.getAttribute('data-note-key');
+                            if (noteKey) {
+                                const notes = loadNotes();
+                                if (notes[state.currentAccount]) {
+                                    delete notes[state.currentAccount][noteKey];
+                                    saveNotes(notes);
+                                }
+                            }
                             refreshCurrentAccountDisplay();
                         }
                     }
@@ -373,6 +494,7 @@
                 card.setAttribute('data-item-id', item.data);
                 card.setAttribute('data-item-timer', item.timer);
                 card.setAttribute('data-item-lvl', item.lvl);
+                card.setAttribute('data-note-key', calc.getNoteKey(item, data));
                 if (remainingSec <= 0) bindCardDelete(card);
                 const phaseIcon = calc.getItemPhaseIcon(item, data);
                 const iconUrls = calc.getItemIconUrl(item);
@@ -408,9 +530,12 @@
                 else if (isWp) lvLine = '等级' + wp + '→' + (wp + 1);
                 else if (isGear) lvLine = '';
                 else lvLine = '等级 ' + item.lvl + ' → ' + (item.lvl + 1);
-                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p></div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainFmt + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
+                const noteMap = loadNotes();
+                const note = getNoteForItem(state.currentAccount, item, data, noteMap);
+                card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + calc.escapeHtml(name) + phaseIcon + '</h3><p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>' + (note ? '<div class="card-note" style="font-size:11px;color:#b45309;display:flex;align-items:center;gap:2px;max-width:150px;overflow:hidden;white-space:nowrap;">📝<span style="overflow:hidden;text-overflow:ellipsis;">' + calc.escapeHtml(note) + '</span></div>' : '') + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainFmt + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
+                bindNoteLongPress(card);
                 if (categoryContainers[g]) categoryContainers[g].appendChild(card);
             });
         }
@@ -453,6 +578,8 @@
             // 完成项目补绑定删除事件（缓存恢复路径由此生效）
             if (remainingSec <= 0) bindCardDelete(card);
             else card.classList.remove('cursor-pointer');
+            // 补绑长按备忘监听（缓存恢复路径由此生效）
+            bindNoteLongPress(card);
         });
     }
 
@@ -953,6 +1080,8 @@
         hasSleepHighlight: calc.hasSleepHighlight,
         invalidateSleepRange: calc.invalidateSleepRange,
         hasRecurrentItem: calc.hasRecurrentItem,
-        resetIconCache
+        resetIconCache,
+        getNoteForItem,
+        reconcileNotes
     });
 })(window);
