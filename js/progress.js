@@ -561,9 +561,9 @@
         const s = Math.floor(sec % 60);
         let html = '';
         if (d > 0) html += '<span class="cr-digit">' + d + '</span><span class="cr-unit">天</span>';
-        if (h > 0 || html) html += '<span class="cr-digit">' + h + '</span><span class="cr-unit">时</span>';
-        if (m > 0 || html) html += '<span class="cr-digit">' + m + '</span><span class="cr-unit">分</span>';
-        html += '<span class="cr-digit">' + s + '</span><span class="cr-unit">秒</span>';
+        if (h > 0 || html) html += '<span class="cr-digit cr-digit-fixed">' + h + '</span><span class="cr-unit">时</span>';
+        if (m > 0 || html) html += '<span class="cr-digit cr-digit-fixed">' + m + '</span><span class="cr-unit">分</span>';
+        html += '<span class="cr-digit cr-digit-fixed">' + s + '</span><span class="cr-unit">秒</span>';
         return html;
     }
     function updateCardTimers() {

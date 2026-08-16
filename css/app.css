@@ -361,5 +361,7 @@
 .dark .cr-unit { color: #d1d5db; }
 /* 数字等宽：10→9、2→1 等跳变时倒计时宽度不变，避免跳动 */
 .cr-digit { font-variant-numeric: tabular-nums; }
+/* 时分秒固定占两位宽（不补零，单数字右对齐占位） */
+.cr-digit-fixed { display: inline-block; min-width: 2ch; text-align: right; }
 #builder-boost-label { color:#374151; }
 .dark #builder-boost-label { color:#fff; }
