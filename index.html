@@ -347,7 +347,10 @@
         </div>
 
         <!-- 账号操作按钮区域 -->
-        <div id="account-actions" class="mb-1 flex justify-center space-x-2 hidden">
+        <div id="account-actions" class="relative mb-1 flex justify-center items-center space-x-2 hidden" style="position:relative;">
+            <button id="launch-game-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:14px; background:#6b7280;" title="打开游戏">
+                <i class="fa fa-play"></i>
+            </button>
             <button id="set-note-btn" class="px-3 py-0.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">备注</button>
             <button id="remove-account-btn" class="px-3 py-0.5 bg-danger hover:bg-danger/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">删除</button>
         </div>

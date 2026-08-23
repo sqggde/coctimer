@@ -554,7 +554,8 @@
             return pa - pb;
         });
 
-        let head = '<tr><th>等级</th>';
+        // 数量型实体（instances 多条）：表格首列语义为"建筑数量"
+        let head = '<tr><th>' + (currentEntity && currentEntity.instances && currentEntity.instances.length > 1 ? '数量' : '等级') + '</th>';
         cols.forEach(f => {
             const ic = thIconHtml(f, levels);
             // 文字表头超 4 字缩小字号（th-long）节省列宽；图标表头不受影响
@@ -610,9 +611,10 @@
         renderTable(levels);
     }
 
-    // 标题里的「当前：X级」固定为打开图鉴时的账号等级，不随滑块变化
+    // 标题里的「当前：X级」固定为打开图鉴时的账号等级，不随滑块变化；数量型实体显示「当前：X个」
     function updateLvTitle() {
-        const title = '等级属性（当前：' + accountLevel + '级）' + (currentAbility ? ' · ' + currentAbility.name : '');
+        const isInst = currentEntity && currentEntity.instances && currentEntity.instances.length > 1;
+        const title = '等级属性（当前：' + accountLevel + (isInst ? '个' : '级') + '）' + (currentAbility ? ' · ' + currentAbility.name : '');
         els.lvSecTitle().textContent = title;
     }
 
@@ -784,6 +786,31 @@
             resetReload();
             if (!entity) return;
             injectTopLevelFields(entity);
+            // 数量型实体（夜世界兵营/预备营等 instances 多条）：升级数据按"建筑数量"组织，
+            // 构造伪 levels 复用等级表格渲染（数量 1..N → 时间/花费/大本等级/经验）
+            if (entity.instances && entity.instances.length > 1) {
+                entity.levels = entity.instances.map(function (ins, i) {
+                    return {
+                        level: i + 1,
+                        buildTime: ins.buildTime,
+                        cost: ins.buildCost,
+                        costResource: ins.buildCostResource,
+                        builderHallRequired: ins.builderHallRequired,
+                        xpGained: ins.xpGained,
+                        stats: (entity.levels && entity.levels[0] && entity.levels[0].stats) ? entity.levels[0].stats : undefined
+                    };
+                });
+                // 当前数量：账号 buildings2 中该实体 cnt
+                try {
+                    const acc = accounts[currentTag];
+                    const arr = acc && acc.buildings2;
+                    if (Array.isArray(arr)) {
+                        for (const it of arr) {
+                            if (String(it.data) === String(id)) { curLevel = it.cnt || 1; break; }
+                        }
+                    }
+                } catch (e) {}
+            }
             render(entity, curLevel || 1, modules);
             const page = els.page();
             page.style.display = 'flex';

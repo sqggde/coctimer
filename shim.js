@@ -83,6 +83,9 @@
         hideEl('notify-settings-btn');
         hideEl('notify-log-btn');
 
+        // 链式启动按钮（网页版无启动外部 App 能力）
+        hideEl('launch-game-btn');
+
         // 后台隐身行（无 id 的 div，位于 select-icon-btn 与 webdav-settings-btn 之间）
         var stealthRow = document.getElementById('webdav-settings-btn');
         if (stealthRow) {

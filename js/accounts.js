@@ -31,6 +31,7 @@
     const tabContainer = document.getElementById('tab-container');
     const accountActionsDiv = document.getElementById('account-actions');
     const setNoteBtn = document.getElementById('set-note-btn');
+    const launchGameBtn = document.getElementById('launch-game-btn');
     const removeAccountBtn = document.getElementById('remove-account-btn');
     const sortContent = document.getElementById('sort-content');
     const sortListContainer = document.getElementById('sort-list-container');
@@ -53,6 +54,41 @@
 
     function saveToLocalStorage() { return storage.saveAccounts(); }
     function saveSettings() { return storage.saveSettings(); }
+    // 链式启动按钮：背景色随当前账号区服（国际服紫 / 国服蓝 / 未设置灰）
+    function updateLaunchGameBtn() {
+        if (!launchGameBtn) return;
+        var color = '#6b7280';
+        const data = state.currentAccount ? accounts[state.currentAccount] : null;
+        if (data && data._server === 'cn') color = '#3b82f6';
+        else if (data && data._server === 'intl') color = '#8b5cf6';
+        launchGameBtn.style.background = color;
+    }
+
+    function doLaunchGame(server) {
+        if (!window.AndroidApp || typeof window.AndroidApp.launchGame !== 'function') return;
+        var srvName = server === 'cn' ? '国服' : '国际服';
+        var ok = false;
+        try { ok = window.AndroidApp.launchGame(server); } catch (e) {}
+        if (!ok) {
+            // 延迟提示避免被选服弹窗的「已保存」toast 覆盖
+            setTimeout(function () { showToast('未安装' + srvName + '部落冲突', 2000); }, 600);
+        }
+    }
+
+    // 链式启动：按当前账号区服打开游戏；区服未设置时弹选服弹窗，选定后启动
+    function launchGameForCurrent() {
+        const tag = state.currentAccount;
+        const data = tag ? accounts[tag] : null;
+        if (!data) return;
+        if (data._server) { doLaunchGame(data._server); return; }
+        showServerPicker(tag, data, function () {
+            if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
+                try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
+            }
+            doLaunchGame(data._server);
+        });
+    }
+
     function showToast(message, duration) { CocTool.ui.showToast(message, duration); }
     function startBackgroundCheck() {
         const module = services();
@@ -475,6 +511,7 @@
         updateMainTitle();
         applySettings();
         accountActionsDiv.classList.remove('hidden');
+        updateLaunchGameBtn();
     }
 
     function rebuildAllTabs() {
@@ -636,6 +673,7 @@
         if (data._server) return;
         // 检测完成后刷新卡片（导入流程的 refreshCard 在检测前已执行，异步检测后必须重渲染，否则界面停留在默认区服）
         var refreshAfter = function () {
+            updateLaunchGameBtn();
             if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
                 try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
             }
@@ -681,6 +719,7 @@
             data._server = s;
             try { saveToLocalStorage(); } catch (e) {}
             overlay.remove();
+            updateLaunchGameBtn();
             refreshAfter();
             // 区服影响首页/总览/进度渲染，选择后重刷当前账号
             if (state.currentAccount === tag && CocTool.features.progress && CocTool.features.progress.refresh) {
@@ -792,6 +831,7 @@
         document.getElementById('json-modal-close').addEventListener('click', hideJsonModal);
         document.getElementById('note-modal-close').addEventListener('click', () => { document.getElementById('note-modal').classList.add('hidden'); });
         setNoteBtn.addEventListener('click', () => { if(state.currentAccount) setAccountNote(state.currentAccount); });
+        if (launchGameBtn) launchGameBtn.addEventListener('click', launchGameForCurrent);
         removeAccountBtn.addEventListener('click', () => {
             if (!state.currentAccount) return;
             CocTool.ui.showConfirm({

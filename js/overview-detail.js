@@ -928,6 +928,9 @@
     }
     // 实体在当前大本的座数（caps 紧凑数组 [lv,count] / [lv,count,countAfterMerges]）；
     // null = 无 caps 表（调用方用全量 cap）；0 = 当前大本未解锁该建筑
+    // 注意：必须取合并前座数（第二元素）——合成折算只加分子、分母不含折算，
+    // 被合成消耗的建筑（如加农炮全部合成弹跳后合并后座数为 0）必须保留分母价值，
+    // 否则折算分子溢出导致等级进度虚高（如全合成账号等级 100% 而时间仅 60% 的假象）
     function thCap(meta, id, thLv) {
         var caps = meta && meta.caps && meta.caps[id];
         if (!caps || !caps.length) return null;
@@ -936,7 +939,7 @@
             if (caps[i][0] <= thLv) best = caps[i];
             else break;
         }
-        return best ? (best.length > 2 ? best[2] : best[1]) : 0;
+        return best ? best[1] : 0;
     }
     // 模式感知满级：'th' 模式下返回当前大本可达等级（徽章/分母共用）
     function mlv(meta, id) {
@@ -989,8 +992,11 @@
                     if (bcum && bcum.length && bMax > 0) tmAdd += bcum[bMax + 1 < bcum.length ? bMax + 1 : bcum.length - 1] * bn;
                 }
             }
-            // 天鹰火炮在 16 本→17 本升级时被大本吸收：视为已满级
-            if (thLv >= 17 && id === '1000031' && !lvls.length) {
+            // 天鹰火炮在 16 本→17 本升级时被大本吸收：17+ 本无天鹰需求（分母剔除，大本/满防两模式口径一致，
+            // 否则大本模式分母 0 白得 7 级、满防模式分母保留，18 本两模式进度不一致），已升级价值视为满级
+            if (thLv >= 17 && id === '1000031') {
+                totalLv -= cap * maxLv;
+                totalTm -= cap * per;
                 lvls = [maxLv];
                 lvAdd = 0;
                 tmAdd = 0;
