@@ -27,13 +27,7 @@
         if (module) module.performAutoImport();
     }
     function refreshCurrentAccountDisplay() { var p = progress(); if (p) p.refresh(); }
-    function extractUpgradingItems(...args) { return calc.extractUpgradingItems(...args); }
     function escapeHtml(...args) { return calc.escapeHtml(...args); }
-    function displayUpgradingItems(items, data) { var p = progress(); if (p) p.renderItems(items, data); }
-    function updateDataInfo(data) {
-        const module = accountModule();
-        if (module) module.updateDataInfo(data);
-    }
     function rebuildAllTabs() {
         const module = accountModule();
         if (module) module.rebuildTabs();
@@ -475,8 +469,7 @@
             saveSettings();
             applySettings();
             if (state.currentAccount && accounts[state.currentAccount]) {
-                displayUpgradingItems(extractUpgradingItems(accounts[state.currentAccount]), accounts[state.currentAccount]);
-                updateDataInfo(accounts[state.currentAccount]);
+                refreshCurrentAccountDisplay();
             }
             rebuildAllTabs();
             updateMainTitle();
@@ -612,6 +605,246 @@
             if (services && services.exportNotificationLog) services.exportNotificationLog();
         });
 
+        // ===== 小组件管理 =====
+        var widgetListPage = document.getElementById('widget-list-page');
+        var widgetListBackBtn = document.getElementById('widget-list-back-btn');
+        var widgetListContainer = document.getElementById('widget-list-container');
+        var widgetConfigPage = document.getElementById('widget-config-page');
+        var widgetConfigBackBtn = document.getElementById('widget-config-back-btn');
+        var widgetConfigTitle = document.getElementById('widget-config-title');
+        var widgetConfigList = document.getElementById('widget-config-list');
+        var widgetConfigCancelBtn = document.getElementById('widget-config-cancel-btn');
+        var widgetConfigSaveBtn = document.getElementById('widget-config-save-btn');
+        var widgetSettingsBtn = document.getElementById('widget-settings-btn');
+
+        var widgetSelectedAccounts = [];
+        var currentWidgetType = null;
+
+        var WIDGET_TYPES = [
+            { id: 'timeline', name: '横向时间轴', desc: '显示6个升级节点，自动滑动', storageKey: 'widget_selected_accounts' }
+        ];
+
+        function loadWidgetAccounts(storageKey) {
+            try {
+                var saved = localStorage.getItem(storageKey);
+                return saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveWidgetAccounts(storageKey, accounts) {
+            localStorage.setItem(storageKey, JSON.stringify(accounts));
+            if (window.AndroidApp && typeof window.AndroidApp.syncWidgetData === 'function' && typeof CocTool.syncWidgetData === 'function') {
+                CocTool.syncWidgetData();
+            }
+        }
+
+        function renderWidgetListPage() {
+            widgetListContainer.innerHTML = '';
+            WIDGET_TYPES.forEach(function(wt) {
+                var item = document.createElement('button');
+                item.className = 'w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer text-left';
+                item.style.fontSize = '14px';
+                item.innerHTML = '<span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-th-large text-orange-600" style="font-size: 15px;"></i></span><span class="flex-1 text-left"><span class="text-gray-800 block">' + wt.name + '</span><span class="text-xs text-gray-400">' + wt.desc + '</span></span><i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>';
+                item.addEventListener('click', function() {
+                    openWidgetConfig(wt);
+                });
+                widgetListContainer.appendChild(item);
+            });
+        }
+
+        function renderWidgetConfigPage(wt) {
+            widgetConfigTitle.textContent = wt.name + ' - 账号选择';
+            var accountList = (state && state.accounts) || {};
+            var accountOrder = (state && state.accountOrder) || [];
+            var notes = (state && state.accountNotes) || {};
+            widgetSelectedAccounts = loadWidgetAccounts(wt.storageKey);
+            if (widgetSelectedAccounts.length === 0) {
+                widgetSelectedAccounts = accountOrder.slice();
+            }
+            widgetConfigList.innerHTML = '';
+            if (accountOrder.length === 0) {
+                widgetConfigList.innerHTML = '<div class="text-center text-gray-500 text-sm py-4">暂无账号数据</div>';
+            } else {
+                accountOrder.forEach(function(tag) {
+                    var account = accountList[tag];
+                    if (!account) return;
+                    var displayName = notes[tag] || account.name || tag;
+                    var isSelected = widgetSelectedAccounts.indexOf(tag) !== -1;
+                    var item = document.createElement('div');
+                    item.className = 'bg-white rounded-xl shadow-md overflow-hidden flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 transition-all duration-200';
+                    item.innerHTML = '<input type="checkbox" class="w-4 h-4 rounded border-gray-300 mr-3" ' + (isSelected ? 'checked' : '') + '><span class="flex-1 text-sm text-gray-700">' + displayName + '</span><span class="text-xs text-gray-400">' + tag + '</span>';
+                    item.addEventListener('click', function(e) {
+                        var cb = item.querySelector('input[type="checkbox"]');
+                        if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
+                        if (cb.checked) {
+                            if (widgetSelectedAccounts.indexOf(tag) === -1) widgetSelectedAccounts.push(tag);
+                        } else {
+                            widgetSelectedAccounts = widgetSelectedAccounts.filter(function(t) { return t !== tag; });
+                        }
+                    });
+                    widgetConfigList.appendChild(item);
+                });
+            }
+        }
+
+        // ===== 小组件多级页面统一开关（对齐 overview/clan：状态 + goBack + 切 tab 自动关）=====
+        function openWidgetList() {
+            closeWidgetConfig();
+            renderWidgetListPage();
+            if (widgetListPage) widgetListPage.classList.remove('hidden');
+        }
+        function closeWidgetList() {
+            if (widgetListPage) widgetListPage.classList.add('hidden');
+        }
+        function openWidgetConfig(wt) {
+            currentWidgetType = wt;
+            renderWidgetConfigPage(wt);
+            if (widgetConfigPage) widgetConfigPage.classList.remove('hidden');
+        }
+        function closeWidgetConfig() {
+            if (widgetConfigPage) widgetConfigPage.classList.add('hidden');
+            currentWidgetType = null;
+        }
+        // 供 handleBack 逐级关闭：配置页 → 列表页 → 未处理
+        function widgetGoBack() {
+            if (widgetConfigPage && !widgetConfigPage.classList.contains('hidden')) {
+                closeWidgetConfig();
+                return true;
+            }
+            if (widgetListPage && !widgetListPage.classList.contains('hidden')) {
+                closeWidgetList();
+                return true;
+            }
+            return false;
+        }
+        // 供切 tab 时全部关闭（closeDetailOverlays）
+        function closeWidgetOverlays() {
+            closeWidgetConfig();
+            closeWidgetList();
+        }
+
+        if (widgetSettingsBtn) {
+            widgetSettingsBtn.addEventListener('click', function() { openWidgetList(); });
+        }
+        if (widgetListBackBtn) {
+            widgetListBackBtn.addEventListener('click', closeWidgetList);
+        }
+        if (widgetConfigBackBtn) {
+            widgetConfigBackBtn.addEventListener('click', closeWidgetConfig);
+        }
+        if (widgetConfigCancelBtn) {
+            widgetConfigCancelBtn.addEventListener('click', closeWidgetConfig);
+        }
+        if (widgetConfigSaveBtn) {
+            widgetConfigSaveBtn.addEventListener('click', function() {
+                if (currentWidgetType) saveWidgetAccounts(currentWidgetType.storageKey, widgetSelectedAccounts);
+                closeWidgetConfig();
+                showToast('小组件账号设置已保存', 1500);
+            });
+        }
+
+        // 供 core.js handleBack / closeDetailOverlays 调用（init 内闭包函数，须在此挂载）
+        CocTool.widgetManager = Object.freeze({
+            openList: openWidgetList,
+            openConfig: openWidgetConfig,
+            goBack: widgetGoBack,
+            closeAll: closeWidgetOverlays
+        });
+
+        // ===== 小组件日志 =====
+        var widgetLogBtn = document.getElementById('widget-log-btn');
+        var widgetLogModal = document.getElementById('widget-log-modal');
+        var widgetLogCloseBtn = document.getElementById('widget-log-close-btn');
+        var widgetLogRefreshBtn = document.getElementById('widget-log-refresh-btn');
+        var widgetLogClearBtn = document.getElementById('widget-log-clear-btn');
+        var widgetLogContent = document.getElementById('widget-log-content');
+
+        function getJavaWidgetLog() {
+            if (window.AndroidApp && typeof window.AndroidApp.getWidgetLog === 'function') {
+                try { return window.AndroidApp.getWidgetLog() || ''; } catch (e) { return ''; }
+            }
+            return '';
+        }
+
+        function buildWidgetLogText() {
+            var parts = [];
+            if (CocTool.widgetLog && typeof CocTool.widgetLog.getFormatted === 'function') {
+                var jsLog = CocTool.widgetLog.getFormatted();
+                parts.push('===== 前端(JS) =====');
+                parts.push(jsLog || '(暂无)');
+            }
+            var javaLog = getJavaWidgetLog();
+            parts.push('');
+            parts.push('===== 原生(Java) =====');
+            parts.push(javaLog || '(暂无)');
+            return parts.join('\n');
+        }
+
+        function refreshWidgetLog() {
+            if (!widgetLogContent) return;
+            widgetLogContent.textContent = buildWidgetLogText();
+        }
+
+        function exportWidgetLog() {
+            var text = '===== 小组件日志 =====\n导出时间: ' + new Date().toLocaleString('zh-CN') + '\n\n' + buildWidgetLogText();
+            if (window.AndroidApp && typeof window.AndroidApp.exportLogToFile === 'function') {
+                try {
+                    window.AndroidApp.exportLogToFile(text);
+                    showToast('日志已导出', 1200);
+                    return;
+                } catch (e) {}
+            }
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('日志已复制', 1200);
+            } catch (e2) {
+                showToast('导出失败', 1200);
+            }
+        }
+
+        if (widgetLogBtn) {
+            widgetLogBtn.addEventListener('click', function() {
+                refreshWidgetLog();
+                if (widgetLogModal) widgetLogModal.classList.remove('hidden');
+            });
+        }
+        var widgetLogExportBtn = document.getElementById('widget-log-export-btn');
+        if (widgetLogExportBtn) {
+            widgetLogExportBtn.addEventListener('click', exportWidgetLog);
+        }
+        if (widgetLogCloseBtn) {
+            widgetLogCloseBtn.addEventListener('click', function() {
+                if (widgetLogModal) widgetLogModal.classList.add('hidden');
+            });
+        }
+        if (widgetLogRefreshBtn) {
+            widgetLogRefreshBtn.addEventListener('click', refreshWidgetLog);
+        }
+        if (widgetLogClearBtn) {
+            widgetLogClearBtn.addEventListener('click', function() {
+                if (CocTool.widgetLog && typeof CocTool.widgetLog.clear === 'function') CocTool.widgetLog.clear();
+                if (window.AndroidApp && typeof window.AndroidApp.clearWidgetLog === 'function') {
+                    try { window.AndroidApp.clearWidgetLog(); } catch (e) {}
+                }
+                refreshWidgetLog();
+                showToast('小组件日志已清空', 1200);
+            });
+        }
+        if (widgetLogModal) {
+            widgetLogModal.addEventListener('click', function(e) {
+                if (e.target === widgetLogModal) widgetLogModal.classList.add('hidden');
+            });
+        }
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState !== 'visible') return;
             checkAutoDarkMode();
@@ -620,5 +853,8 @@
         });
     }
 
-    CocTool.features.settings = Object.freeze({ init, apply: applySettings });
+    CocTool.features.settings = Object.freeze({
+        init,
+        apply: applySettings
+    });
 })(window);

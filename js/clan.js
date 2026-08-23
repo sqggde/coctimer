@@ -1413,7 +1413,44 @@
         }
     }
 
+    // ====== 云端恢复部落（services.js 调用）：仅补缺失的国际服部落 ======
+    // tags: 备份中的国际服部落标签数组；已存在跳过，缺失的逐个拉 API 添加
+    function restoreClansFromTags(tags) {
+        if (!Array.isArray(tags) || tags.length === 0) return Promise.resolve(0);
+        if (!_initialized) initClan();   // 确保 clanList 已从 storage 加载，"已存在"判断才准确
+        var missing = [];
+        for (var i = 0; i < tags.length; i++) {
+            var tag = tags[i];
+            if (!tag) continue;
+            var exists = false;
+            for (var j = 0; j < clanList.length; j++) {
+                if (clanList[j].tag === tag) { exists = true; break; }
+            }
+            if (!exists) missing.push(tag);
+        }
+        if (missing.length === 0) return Promise.resolve(0);
+        var pending = missing.map(function(tag) {
+            var cleanTag = tag.replace(/^#/, '');
+            return fetch(CLAN_API_BASE + '/api/coc/clan/' + encodeURIComponent(cleanTag),
+                { headers: { 'X-App-Token': APP_TOKEN } })
+                .then(function(resp) { return resp.ok ? resp.json() : null; })
+                .then(function(data) {
+                    if (data && data.tag && data.name) {
+                        addClan(data);
+                        return 1;
+                    }
+                    return 0;
+                })
+                .catch(function() { return 0; });
+        });
+        return Promise.all(pending).then(function(results) {
+            var added = 0;
+            for (var k = 0; k < results.length; k++) added += results[k];
+            return added;
+        });
+    }
+
     function parseCocTime(str){return CocTool.warView.parseCocTime(str)}
 
-    CocTool.features.clan = Object.freeze({ init: initClan, goBack: goBack });
+    CocTool.features.clan = Object.freeze({ init: initClan, goBack: goBack, restoreClansFromTags: restoreClansFromTags });
 })(window);

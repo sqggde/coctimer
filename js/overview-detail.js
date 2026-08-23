@@ -84,6 +84,8 @@
     };
     // 陷阱最大可建造数量（availablePerTownHall 最大 count）
     var TRAP_CAPS = { '12000000': 8, '12000001': 9, '12000002': 8, '12000005': 8, '12000006': 9, '12000008': 4, '12000016': 1, '12000020': 1 };
+    // 夜世界陷阱最大可建造数量（availablePerBuilderHall 最大 count）
+    var BB_TRAP_CAPS = { '12000010': 6, '12000011': 5, '12000013': 6, '12000014': 4 };
     // 弹窗子分组配置：progress 键 → 标题 + 子组列表（名称 + ID 数组 + meta 键 + cap 表）
     // groups 为 null 时弹窗显示该分类全部实体明细
     var BAR_GROUPS = {
@@ -112,7 +114,7 @@
         bTroop: { title: '夜兵种', meta: 'units2', groups: null },
         bDefense: { title: '夜防御', meta: 'defenses2', groups: [
             ['防御建筑', BB_DEFENSES, 'defenses2', BB_BUILDING_CAPS],
-            ['陷阱', BB_TRAPS, 'traps2', BB_BUILDING_CAPS]
+            ['陷阱', BB_TRAPS, 'traps2', BB_TRAP_CAPS]
         ]},
         bOther: { title: '夜其他', meta: 'resources2', groups: [
             ['资源建筑', BB_RESOURCES, 'resources2', BB_BUILDING_CAPS],
@@ -148,6 +150,17 @@
         if (el.tabNight) el.tabNight.addEventListener('click', function () { switchTab('night'); });
 
         if (el.detailScroll) {
+            // 等级/时间切换（事件委托：renderHomeDetail/renderNightDetail 重建 innerHTML 后事件不丢失）
+            el.detailScroll.addEventListener('click', function (e) {
+                var seg = e.target.closest ? e.target.closest('.ov-toggle-b .ov-seg') : null;
+                if (!seg) return;
+                e.stopPropagation();
+                var parent = seg.parentNode;
+                parent.querySelectorAll('.ov-seg').forEach(function (b) { b.classList.remove('active'); });
+                seg.classList.add('active');
+                showTimeMode = seg.textContent === '时间';
+                refreshBars();
+            });
             // 进度条点击 → 进度明细弹窗
             el.detailScroll.addEventListener('click', function (e) {
                 var row = e.target.closest ? e.target.closest('.ov-bar-row[data-pg]') : null;
@@ -221,7 +234,6 @@
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
         if (el.detailScroll) el.detailScroll.scrollTop = 0;
-        bindToggles();
     }
 
     function switchTab(tab) {
@@ -239,22 +251,6 @@
             var activeTab = currentTab === 'home' ? el.tabHome : el.tabNight;
             el.tabIndicator.style.width = activeTab.offsetWidth + 'px';
             el.tabIndicator.style.transform = 'translateX(' + activeTab.offsetLeft + 'px)';
-        }
-    }
-
-    function bindToggles() {
-        var segGroups = document.querySelectorAll('.ov-toggle-b');
-        for (var i = 0; i < segGroups.length; i++) {
-            var btns = segGroups[i].querySelectorAll('.ov-seg');
-            for (var j = 0; j < btns.length; j++) {
-                btns[j].addEventListener('click', function () {
-                    var parent = this.parentNode;
-                    parent.querySelectorAll('.ov-seg').forEach(function (b) { b.classList.remove('active'); });
-                    this.classList.add('active');
-                    showTimeMode = this.textContent === '时间';
-                    refreshBars();
-                });
-            }
         }
     }
 
@@ -336,8 +332,9 @@
             curLv += maxLv ? uLv : 0;
             if (meta.times && meta.times[id]) {
                 var cum = meta.times[id];
-                curTm += cum[uLv] || 0;
-                totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
+                // 分子 = 当前级完成后 cum[uLv+1]、分母 = 满级 cum[maxLv+1]（与座数口径同规约）
+                curTm += cum.length ? (cum[uLv + 1 < cum.length ? uLv + 1 : cum.length - 1] || 0) : 0;
+                totalTm += maxLv > 0 ? (cum[maxLv + 1 < cum.length ? maxLv + 1 : cum.length - 1] || 0) : 0;
             }
         }
         return {
@@ -786,6 +783,7 @@
                 if (id.startsWith('900')) { var cn = '106' + id.slice(2); if (map[cn] === undefined) map[cn] = map[id]; }
                 if (id.startsWith('9300000')) { var cn = '124' + id.slice(2); if (map[cn] === undefined) map[cn] = map[id]; }
                 if (id.startsWith('107')) { var cn = '161' + id.slice(3); if (map[cn] === undefined) map[cn] = map[id]; }
+                if (id.startsWith('103')) { var cn = '152' + id.slice(3); if (map[cn] === undefined) map[cn] = map[id]; }
             }
         }
         return map;
@@ -825,6 +823,8 @@
             for (var id in map) {
                 if (id.startsWith('900')) { var cn = '106' + id.slice(2); (map[cn] = map[cn] || []).push.apply(map[cn], map[id]); }
                 if (id.startsWith('9300000')) { var cn = '124' + id.slice(2); (map[cn] = map[cn] || []).push.apply(map[cn], map[id]); }
+                if (id.startsWith('107')) { var cn = '161' + id.slice(3); (map[cn] = map[cn] || []).push.apply(map[cn], map[id]); }
+                if (id.startsWith('103')) { var cn = '152' + id.slice(3); (map[cn] = map[cn] || []).push.apply(map[cn], map[id]); }
             }
         }
         return map;
@@ -858,6 +858,7 @@
             for (var id in map) {
                 if (id.startsWith('900')) { var cn = '106' + id.slice(2); map[cn] = (map[cn] || 0) + map[id]; }
                 if (id.startsWith('9300000')) { var cn = '124' + id.slice(2); map[cn] = (map[cn] || 0) + map[id]; }
+                if (id.startsWith('103')) { var cn = '152' + id.slice(3); map[cn] = (map[cn] || 0) + map[id]; }
             }
         }
         return map;
@@ -879,6 +880,23 @@
             var m = JSON.parse(localStorage.getItem('clash_progress_mode') || '{}');
             m[tag] = mode === 'th' ? 'th' : 'full';
             localStorage.setItem('clash_progress_mode', JSON.stringify(m));
+        } catch (e) {}
+    }
+
+    // ===== 升级时间折扣（每账号记忆：0|5|10|15|20 百分数）=====
+    var upgradeDiscount = 0;   // 当前详情账号折扣（0-20，百分数）；时间显示统一 ×(1-折扣/100)
+    function getUpgradeDiscount(tag) {
+        try {
+            var m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
+            var v = parseInt(m[tag], 10);
+            return (v === 5 || v === 10 || v === 15 || v === 20) ? v : 0;
+        } catch (e) { return 0; }
+    }
+    function saveUpgradeDiscount(tag, pct) {
+        try {
+            var m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
+            m[tag] = (pct === 5 || pct === 10 || pct === 15 || pct === 20) ? pct : 0;
+            localStorage.setItem('clash_upgrade_discount', JSON.stringify(m));
         } catch (e) {}
     }
 
@@ -948,7 +966,8 @@
                 if (tCap !== null) cap = tCap;
             }
             var cum = meta.times && meta.times[id];
-            var per = cum && maxLv > 0 && maxLv < cum.length ? cum[maxLv] : 0;
+            // cum[lv] = 升到 lv 级前累计：单座满级 = cum[maxLv+1]（含满级本级升级，与分子 cum[uLv+1] 同口径）
+            var per = cum && maxLv > 0 ? cum[maxLv + 1 < cum.length ? maxLv + 1 : cum.length - 1] : 0;
             totalLv += cap * maxLv;
             totalTm += cap * per;
             var lvls = lvlList[id] || [];
@@ -967,7 +986,7 @@
                     }
                     lvAdd += bMax * bn;
                     var bcum = meta.times && meta.times[bid];
-                    if (bcum && bcum.length && bMax > 0 && bMax < bcum.length) tmAdd += bcum[bMax] * bn;
+                    if (bcum && bcum.length && bMax > 0) tmAdd += bcum[bMax + 1 < bcum.length ? bMax + 1 : bcum.length - 1] * bn;
                 }
             }
             // 天鹰火炮在 16 本→17 本升级时被大本吸收：视为已满级
@@ -1026,8 +1045,9 @@
             totalLv += maxLv;
             if (meta.times && meta.times[id]) {
                 var cum = meta.times[id];
-                curTm += cum.length ? (cum[uLv] || 0) : 0;
-                totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
+                // 分子 = 当前级完成后 cum[uLv+1]、分母 = 满级 cum[maxLv+1]（与座数口径同规约）
+                curTm += cum.length ? (cum[uLv + 1 < cum.length ? uLv + 1 : cum.length - 1] || 0) : 0;
+                totalTm += maxLv > 0 ? (cum[maxLv + 1 < cum.length ? maxLv + 1 : cum.length - 1] || 0) : 0;
             }
         }
         var lvPct = totalLv > 0 ? Math.min(curLv / totalLv * 100, 100) : 0;
@@ -1055,8 +1075,9 @@
                 totalLv += maxLv;
                 if (m.times && m.times[id]) {
                     var cum = m.times[id];
-                    curTm += cum.length ? (cum[uLv] || 0) : 0;
-                    totalTm += maxLv > 0 && maxLv < cum.length ? (cum[maxLv] || 0) : 0;
+                    // 分子 = 当前级完成后 cum[uLv+1]、分母 = 满级 cum[maxLv+1]（与座数口径同规约）
+                    curTm += cum.length ? (cum[uLv + 1 < cum.length ? uLv + 1 : cum.length - 1] || 0) : 0;
+                    totalTm += maxLv > 0 ? (cum[maxLv + 1 < cum.length ? maxLv + 1 : cum.length - 1] || 0) : 0;
                 }
             }
         }
@@ -1070,8 +1091,10 @@
 
     // 剩余时间文案：totalTm − curTm（单位：秒）→ 「X天Y时」（满级/全完成输出「0天0时」）
     // workerCount > 1 时除以工人数（英雄/防御/其他依赖工人，多工人并行消化总工时）
+    // 账号升级时间折扣：总时间/已完成/剩余统一 ×(1-折扣%)（分子分母同乘，百分比不变）
     function formatRemainTime(totalTm, curTm, workerCount) {
-        var sec = Math.max(0, Math.round(totalTm - curTm));
+        var factor = 1 - upgradeDiscount / 100;
+        var sec = Math.max(0, Math.round((totalTm - curTm) * factor));
         if (workerCount > 1) sec = Math.round(sec / workerCount);
         var days = Math.floor(sec / 86400);
         var hours = Math.round((sec % 86400) / 3600);
@@ -1115,6 +1138,8 @@
         var home = el.detailHome;
         var th = CocTool.overviewList.findThLevel(data);
         progressMode = getProgressMode(currentDetailTag);
+        upgradeDiscount = getUpgradeDiscount(currentDetailTag);
+        showTimeMode = false;   // 重建后按钮复位为「等级」active，状态同步
         currentThLv = th;
         var thIcon = th ? 'img/icons/buildings/1000001_' + th + '.webp' : 'img/icons/20260627.webp';
         var m = data._server === 'cn' ? global.PROGRESS_META_CN : global.PROGRESS_META_INTL;
@@ -1134,12 +1159,14 @@
         };
         var showTime = false;
         var modeBtn = '<button class="ov-mode-btn' + (mode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (mode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
+        var discHtml = discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
                 '<div class="ov-toggle-b">' +
                     '<button class="ov-seg active" data-mode="level">等级</button>' +
                     '<button class="ov-seg" data-mode="time">时间</button>' +
                 '</div>' +
+                discHtml +
             '</div>' +
             '<div class="ov-body">' +
                 '<div class="ov-icon-col">' +
@@ -1307,6 +1334,8 @@
         var lvlList = buildUserLevelListMap(data);
         if (currentProgress) {
             progressMode = getProgressMode(currentDetailTag);
+            upgradeDiscount = getUpgradeDiscount(currentDetailTag);
+            showTimeMode = false;   // 重建后按钮复位为「等级」active，状态同步
             currentThLv = bhLvl;
             var mode = progressMode;
             currentProgress.bHero = calcSingleProgress(uMap, m && m.heroes2, mode, bhLvl);
@@ -1323,12 +1352,14 @@
         try { nightWorkers = (CocTool.calc.getCategoryDenominators(data).buildings2) || 0; } catch (e) {}
         var bhIcon = bhLvl ? 'img/icons/buildings2/1000034_' + bhLvl + '.webp' : 'img/icons/20260627.webp';
         var modeBtn = '<button class="ov-mode-btn' + (progressMode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (progressMode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
+        var discHtml = discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
                 '<div class="ov-toggle-b">' +
                     '<button class="ov-seg active">等级</button>' +
                     '<button class="ov-seg">时间</button>' +
                 '</div>' +
+                discHtml +
             '</div>' +
             '<div class="ov-body">' +
                 '<div class="ov-icon-col">' +
@@ -1498,6 +1529,50 @@
         try { CocTool.ui.showToast(next === 'th' ? '已切换：当前大本进度' : '已切换：满防进度'); } catch (e) {}
     }
 
+    // ===== 升级时间折扣按钮（底框：左侧图标 + 右侧折扣数）=====
+    var DISCOUNT_OPTIONS = [0, 5, 10, 15, 20];
+    function discountBtnHtml() {
+        var pct = upgradeDiscount;
+        return '<div class="ov-disc-wrap">' +
+            '<button class="ov-disc-btn" onclick="CocTool.features.overview.toggleDiscountMenu()" title="升级时间折扣">' +
+                '<img src="img/icons/icon_goldmodel.webp" class="ov-disc-icon" onerror="this.style.display=\'none\'">' +
+                '<span class="ov-disc-val">' + pct + '%</span>' +
+            '</button>' +
+            '<div class="ov-disc-menu" style="display:none;">' +
+                DISCOUNT_OPTIONS.map(function (p) {
+                    return '<div class="ov-disc-opt' + (p === pct ? ' active' : '') + '" data-pct="' + p + '" onclick="CocTool.features.overview.setDiscount(event, ' + p + ')">' + p + '%</div>';
+                }).join('') +
+            '</div>' +
+        '</div>';
+    }
+    function toggleDiscountMenu() {
+        var wrap = event.target ? event.target.closest('.ov-disc-wrap') : null;
+        if (!wrap) wrap = document.querySelector('.ov-disc-wrap');
+        var menu = wrap ? wrap.querySelector('.ov-disc-menu') : null;
+        if (!menu) return;
+        var showing = menu.style.display !== 'none';
+        document.querySelectorAll('.ov-disc-menu').forEach(function (m) { m.style.display = 'none'; });
+        menu.style.display = showing ? 'none' : '';
+        if (!showing) document.addEventListener('click', dismissDiscountMenu);
+    }
+    function dismissDiscountMenu(e) {
+        if (e.target && e.target.closest && e.target.closest('.ov-disc-wrap')) return;
+        document.querySelectorAll('.ov-disc-menu').forEach(function (m) { m.style.display = 'none'; });
+        document.removeEventListener('click', dismissDiscountMenu);
+    }
+    function setDiscount(e, pct) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        var tag = currentDetailTag;
+        var data = tag ? state.accounts[tag] : null;
+        if (!data) return;
+        upgradeDiscount = pct;
+        saveUpgradeDiscount(tag, pct);
+        var accName = (state.accountNotes && state.accountNotes[tag]) || data.tag || tag;
+        renderHomeDetail(data, accName);
+        renderNightDetail(data, accName);
+        try { CocTool.ui.showToast('已设置升级时间折扣 ' + pct + '%'); } catch (e2) {}
+    }
+
     CocTool.overviewDetail = Object.freeze({ initDetail: initDetail, openDetail: openDetail, goBack: goBack, showEpicTip: showEpicTip, closeEpicTip: closeEpicTip, toggleProgressMode: toggleProgressMode });
     CocTool.features.overview = Object.freeze({
         init: function () { CocTool.overviewList.init(); },
@@ -1505,6 +1580,8 @@
         showEpicTip: showEpicTip,
         closeEpicTip: closeEpicTip,
         toggleProgressMode: toggleProgressMode,
+        toggleDiscountMenu: toggleDiscountMenu,
+        setDiscount: setDiscount,
         rebuildCard: CocTool.overviewList.rebuildCard,
         refreshCard: CocTool.overviewList.refreshCard
     });

@@ -81,6 +81,9 @@
         };
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+            if (typeof CocTool.syncWidgetData === 'function') {
+                setTimeout(function() { CocTool.syncWidgetData(); }, 500);
+            }
             return true;
         } catch (error) {
             console.warn('保存账号数据失败', error);
@@ -147,6 +150,113 @@
         loadSettings,
         saveSettings
     });
+
+    // ========== 小组件诊断日志（独立于通知日志，localStorage 持久化） ==========
+    CocTool.widgetLog = (function() {
+        var KEY = 'clash_widget_log';
+        var MAX = 300;
+        var logs = [];
+        function load() {
+            try {
+                var raw = localStorage.getItem(KEY);
+                if (raw) logs = JSON.parse(raw);
+            } catch (e) { logs = []; }
+        }
+        function persist() {
+            try { localStorage.setItem(KEY, JSON.stringify(logs.slice(-MAX))); } catch (e) {}
+        }
+        function fmtTime(ts) {
+            var d = new Date(ts);
+            return String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' +
+                   String(d.getHours()).padStart(2, '0') + ':' +
+                   String(d.getMinutes()).padStart(2, '0') + ':' +
+                   String(d.getSeconds()).padStart(2, '0');
+        }
+        load();
+        return {
+            log: function(detail) {
+                logs.push({ ts: Date.now(), detail: String(detail) });
+                if (logs.length > MAX) logs.shift();
+                persist();
+            },
+            getLogs: function() { return logs.slice(); },
+            getFormatted: function() {
+                var lines = [];
+                for (var i = 0; i < logs.length; i++) {
+                    lines.push('[' + fmtTime(logs[i].ts) + '] ' + logs[i].detail);
+                }
+                return lines.join('\n');
+            },
+            clear: function() { logs = []; persist(); }
+        };
+    })();
+
+    CocTool.syncWidgetData = function() {
+        if (!window.AndroidApp || typeof window.AndroidApp.syncWidgetData !== 'function') {
+            CocTool.widgetLog.log('桥接不可用：window.AndroidApp.syncWidgetData 未注册');
+            return;
+        }
+
+        try {
+            var accounts = state.accounts || {};
+            var selectedJson = localStorage.getItem('widget_selected_accounts') || '[]';
+            var selectedAccounts = JSON.parse(selectedJson);
+
+            // If no accounts selected, use all accounts
+            var accountsToSync = selectedAccounts.length > 0 ? selectedAccounts : Object.keys(accounts);
+            var settings = state.settings || {};
+            var calc = CocTool.calc;
+
+            var upgradeData = {};
+            var totalUpgrades = 0;
+            var nowSec = Math.floor(Date.now() / 1000);
+            for (var i = 0; i < accountsToSync.length; i++) {
+                var tag = accountsToSync[i];
+                var account = accounts[tag];
+                if (!account) continue;
+
+                // 复用权威提取逻辑（含加速/精工台/递归处理）；includeCompleted=true 以区分已完成节点（绿色）；屏蔽夜世界时过滤夜世界分类
+                var items = calc.filterNightWorld(calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true));
+                var upgrades = [];
+                for (var j = 0; j < items.length; j++) {
+                    var item = items[j];
+                    var completionSec = calc.calculateCompletionTimestamp(item, account, settings);
+
+                    var iconPath = null;
+                    var iconCandidates = calc.getItemIconUrl(item);
+                    if (iconCandidates && iconCandidates.length) {
+                        iconPath = iconCandidates[0].replace(/^img\/icons\//, '');
+                    }
+
+                    upgrades.push({
+                        id: item.uniqueId || (item.category + '_' + item.data + '_' + item.timer + '_' + item.lvl),
+                        building: calc.getItemName(item.data),
+                        icon: iconPath || '',
+                        fromLevel: item.lvl,
+                        toLevel: item.lvl + 1,
+                        finishTime: completionSec * 1000,
+                        completed: completionSec <= nowSec
+                    });
+                }
+
+                upgrades.sort(function(a, b) { return a.finishTime - b.finishTime; });
+
+                var noteName = (state.accountNotes && state.accountNotes[tag]) || '';
+                upgradeData[tag] = {
+                    name: noteName || account.name || tag,
+                    upgrades: upgrades.slice(0, 50)
+                };
+                totalUpgrades += upgradeData[tag].upgrades.length;
+            }
+
+            var jsonStr = JSON.stringify(upgradeData);
+            CocTool.widgetLog.log('同步：账号 ' + Object.keys(upgradeData).length + ' 个，升级节点 ' + totalUpgrades + ' 个，数据 ' + (jsonStr.length / 1024).toFixed(1) + 'KB');
+            window.AndroidApp.syncWidgetData(selectedJson, jsonStr);
+            CocTool.widgetLog.log('已调用 AndroidApp.syncWidgetData 提交给 Java');
+        } catch (e) {
+            CocTool.widgetLog.log('同步异常：' + (e && e.message ? e.message : e));
+        }
+    };
 
     function hasAndroidMethod(name) {
         return Boolean(global.AndroidApp && typeof global.AndroidApp[name] === 'function');
@@ -282,6 +392,10 @@
     // 关闭所有详情覆盖层（与 handleBack 关闭顺序一致）：
     // 对战详情 → 对战日志 → 部落详情 → 图鉴 → 账号详情
     function closeDetailOverlays() {
+        // 小组件管理覆盖层（设置页内多级页面）
+        if (CocTool.widgetManager && CocTool.widgetManager.closeAll) {
+            CocTool.widgetManager.closeAll();
+        }
         var hd = document.getElementById('war-history-detail');
         if (hd && hd.style.display !== 'none') {
             hd.style.display = 'none'; hd.classList.add('hidden');
@@ -383,6 +497,10 @@
         if (openModal) {
             openModal.classList.add('hidden');
             return 'true';
+        }
+        // 小组件管理覆盖层：配置页 → 列表页 → 未开则继续（对齐账号进度/部落逐级返回）
+        if (CocTool.widgetManager && CocTool.widgetManager.goBack) {
+            if (CocTool.widgetManager.goBack()) return 'true';
         }
         var hd = document.getElementById('war-history-detail');
         if (hd && hd.style.display !== 'none') {

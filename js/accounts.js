@@ -143,7 +143,7 @@
             document.getElementById('upgrade-title-text').textContent = '正在升级的项目';
         }
         exportTimeSpan.textContent = formatExportTime(data.timestamp);
-        dataInfoDiv.classList.remove('hidden');
+        dataInfoDiv.classList.toggle('hidden', settings.hideDataInfo);
         const chestEl = document.getElementById('chest-notification');
         if (chestEl) {
             const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);
@@ -792,7 +792,16 @@
         document.getElementById('json-modal-close').addEventListener('click', hideJsonModal);
         document.getElementById('note-modal-close').addEventListener('click', () => { document.getElementById('note-modal').classList.add('hidden'); });
         setNoteBtn.addEventListener('click', () => { if(state.currentAccount) setAccountNote(state.currentAccount); });
-        removeAccountBtn.addEventListener('click', () => { if(state.currentAccount && confirm('删除当前账号？')) removeAccount(state.currentAccount); });
+        removeAccountBtn.addEventListener('click', () => {
+            if (!state.currentAccount) return;
+            CocTool.ui.showConfirm({
+                title: '删除账号',
+                text: '删除当前账号？',
+                confirmText: '删除',
+                cancelText: '取消',
+                onConfirm: () => removeAccount(state.currentAccount)
+            });
+        });
         sortApplyBtn.addEventListener('click', () => exitSortMode(true));
         sortCancelBtn.addEventListener('click', () => exitSortMode(false));
 
@@ -841,6 +850,7 @@
         updateDataInfo,
         showEmptyState,
         isImporting,
-        exitSortModeIfActive
+        exitSortModeIfActive,
+        quickImportJsonData
     });
 })(window);

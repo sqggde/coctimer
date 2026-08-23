@@ -870,6 +870,31 @@
         return { start: startK + (n - K) * DAY, end: startK + (n - K + 1) * DAY };
     }
 
+    // ========== 前台通知统计 ==========
+    function getStatsForNotification() {
+        let completedCount = 0;
+        let nextCompletionTime = '--';
+        let earliestTs = Infinity;
+        const now = Math.floor(Date.now() / 1000);
+
+        // state.accounts 是对象，需要遍历其值
+        const accounts = Object.values(state.accounts);
+        for (const account of accounts) {
+            const items = extractUpgradingItems(account, now, true);
+            for (const item of items) {
+                const completionTs = calculateCompletionTimestamp(item, account);
+                if (completionTs <= now) {
+                    completedCount++;
+                } else if (completionTs < earliestTs) {
+                    earliestTs = completionTs;
+                    nextCompletionTime = formatDoneTime(completionTs);
+                }
+            }
+        }
+
+        return { completedCount, nextCompletionTime };
+    }
+
     CocTool.calc = Object.freeze({
         EVENT_END,
         getEventPeriod,
@@ -916,6 +941,7 @@
         hasSleepHighlight,
         invalidateSleepRange,
         leaguePhaseInfo,
-        leagueRoundTimes
+        leagueRoundTimes,
+        getStatsForNotification
     });
 })(window);

@@ -1006,6 +1006,23 @@
                 </button>
             </div>
             <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
+                <button id="widget-settings-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                    <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fa fa-th-large text-orange-600" style="font-size: 15px;"></i>
+                    </span>
+                    <span class="flex-1 text-left text-gray-800">小组件管理</span>
+                    <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
+                </button>
+                <hr class="border-gray-100 m-0">
+                <button id="widget-log-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                    <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fa fa-file-text-o text-orange-600" style="font-size: 15px;"></i>
+                    </span>
+                    <span class="flex-1 text-left text-gray-800">小组件日志</span>
+                    <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
+                </button>
+            </div>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
                 <button id="copy-web-link-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-link text-green-600" style="font-size: 15px;"></i>
@@ -1041,6 +1058,51 @@
             </div>
             <p class="text-xs text-gray-400 text-center mt-3">当前版本 <span id="current-version-text">--</span></p>
             <p class="text-xs text-center mt-1"><button id="about-btn" class="text-blue-500 hover:underline bg-transparent border-none cursor-pointer p-0" style="font-size: 12px;">关于部落小工具</button></p>
+        </div>
+
+        <!-- ===== 小组件管理页面 ===== -->
+        <div id="widget-list-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+            <div class="flex items-center mb-3">
+                <button id="widget-list-back-btn" class="mr-2 p-1 text-gray-600 hover:text-gray-800"><i class="fa fa-arrow-left text-lg"></i></button>
+                <h2 class="font-semibold text-gray-800" style="font-size: 16px;">小组件管理</h2>
+            </div>
+            <div id="widget-list-container" class="bg-white rounded-xl shadow-md overflow-hidden">
+            </div>
+        </div>
+
+        <!-- ===== 小组件配置页面 ===== -->
+        <div id="widget-config-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+            <div class="flex items-center mb-3">
+                <button id="widget-config-back-btn" class="mr-2 p-1 text-gray-600 hover:text-gray-800"><i class="fa fa-arrow-left text-lg"></i></button>
+                <h2 id="widget-config-title" class="font-semibold text-gray-800" style="font-size: 16px;">账号选择</h2>
+            </div>
+            <div id="widget-config-list" class="space-y-2">
+            </div>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button id="widget-config-cancel-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 text-sm">取消</button>
+                <button id="widget-config-save-btn" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 小组件日志弹窗 ===== -->
+    <div id="widget-log-modal" class="modal-overlay hidden">
+        <div class="modal-card w-sm h-tall">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800" style="font-size: 15px;">小组件日志</h3>
+                <button id="widget-log-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                    <i class="fa fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-gray-400">前端(JS) + 原生(Java) 记录</span>
+                <div class="flex space-x-2">
+                    <button id="widget-log-export-btn" class="px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-blue-100 text-blue-600 hover:bg-blue-200" style="font-size: 12px;">导出</button>
+                    <button id="widget-log-refresh-btn" class="px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-gray-200 text-gray-600 hover:bg-gray-300" style="font-size: 12px;">刷新</button>
+                    <button id="widget-log-clear-btn" class="px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-red-100 text-red-600 hover:bg-red-200" style="font-size: 12px;">清空</button>
+                </div>
+            </div>
+            <div class="text-xs text-gray-600 bg-gray-50 rounded-lg p-2 font-mono" style="white-space: pre-wrap; word-break: break-all; max-height: 60vh; overflow-y: auto;" id="widget-log-content">加载中...</div>
         </div>
     </div>
 

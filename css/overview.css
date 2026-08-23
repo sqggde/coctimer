@@ -317,10 +317,67 @@
             border-radius: 12px;
         }
         .ov-top-row {
-            padding: 12px 48px 0;
+            padding: 12px 16px 0 48px;
             display: flex;
             gap: 16px;
+            align-items: center;
         }
+        /* 升级时间折扣按钮（底框：左侧图标 + 右侧折扣数）+ 下拉选项 */
+        .ov-disc-wrap {
+            position: relative;
+            align-self: flex-start;
+            margin-left: auto;   /* 推到行尾（右上角），不受 toggle 居中 padding 限制 */
+        }
+        .ov-disc-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .ov-disc-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+        .ov-disc-val {
+            font-size: 12px;
+            font-weight: 600;
+            color: #b45309;
+            line-height: 1;
+        }
+        .ov-disc-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;   /* 右对齐按钮右缘，避免靠右时下拉溢出屏幕 */
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            z-index: 30;
+            min-width: 64px;
+            overflow: hidden;
+        }
+        .ov-disc-opt {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #374151;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .ov-disc-opt:hover { background: #f3f4f6; }
+        .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
+        .dark .ov-disc-btn { background: #2d2d44; border-color: #3d3d5c; }
+        .dark .ov-disc-val { color: #f59e0b; }
+        .dark .ov-disc-menu { background: #2d2d44; border-color: #3d3d5c; }
+        .dark .ov-disc-opt { color: #e5e7eb; }
+        .dark .ov-disc-opt:hover { background: #3d3d5c; }
+        .dark .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
         .ov-top-row::before {
             content: '';
             min-width: 80px;

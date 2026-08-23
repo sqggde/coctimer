@@ -236,6 +236,23 @@
     let accountLevel = 1;   // 打开图鉴时的账号等级（标题固定值，滑块变化不影响）
     let accountModules = null;   // 精工形态的模块等级数组（[lvl,...]，与 abilities 顺序对应，各 tab 定位用）
     let forceReload = false;    // 刷新按钮：强制绕过浏览器缓存重新拉取
+    let discountFactor = 1;     // 当前账号升级时间折扣因子（1 − 折扣%/100）；仅时间与花费生效，矿石/宝石不打折
+
+    // 账号升级时间折扣（0|5|10|15|20 百分数，与进度页共用 clash_upgrade_discount 键）
+    function loadDiscountFactor(tag) {
+        try {
+            const m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
+            const v = parseInt(m[tag], 10);
+            discountFactor = (v === 5 || v === 10 || v === 15 || v === 20) ? 1 - v / 100 : 1;
+        } catch (e) { discountFactor = 1; }
+    }
+    // 时间对象 × 折扣因子 → 同结构对象（秒级取整）
+    function scaleTime(t) {
+        if (discountFactor >= 1 || !t) return t;
+        const total = ((t.days || 0) * 86400 + (t.hours || 0) * 3600 + (t.minutes || 0) * 60 + (t.seconds || 0)) * discountFactor;
+        const secs = Math.round(total);
+        return { days: Math.floor(secs / 86400), hours: Math.floor(secs % 86400 / 3600), minutes: Math.floor(secs % 3600 / 60), seconds: secs % 60 };
+    }
 
     // ---------- 格式化 ----------
     function fmtTime(t) {
@@ -278,13 +295,20 @@
         return v;
     }
     function formatValue(v, fmt) {
-        if (fmt === 'time') return fmtTime(v);
+        if (fmt === 'time') return fmtTime(scaleTime(v));
         if (fmt === 'sec') return v + '秒';
         if (fmt === 'size' && typeof v === 'string') return v === 'N/A' ? '—' : v.replace('x', '×');
-        if (fmt === 'cost') return fmtCost(v.v, v.res);
+        if (fmt === 'cost') return fmtCost(discountedCost(v), v.res);
         if (fmt === 'dur') return fmtDur(v);
         if (fmt === 'tiles') return fmtTiles(v);
         return v;
+    }
+    // 升级花费 × 折扣（矿石字段不经过此处；宝石 Gems 不打折，其余资源含双资源 Gold or Elixir 均打折）
+    function discountedCost(v) {
+        if (discountFactor >= 1 || !v || typeof v.v !== 'number') return v.v;
+        const res = String(v.res || '');
+        if (res === 'Gems') return v.v;
+        return Math.round(v.v * discountFactor);
     }
     function enumVal(v, table) {
         return (table && v !== undefined && table[v] !== undefined) ? table[v] : v;
@@ -405,6 +429,8 @@
                     s.seconds += t.seconds || 0;
                 }
             }
+            // 折扣：累计总时间 ×(1-折扣%)
+            s = scaleTime(s);
             // 分项累计后进位归一化（秒→分→时→天）
             s.minutes += Math.floor(s.seconds / 60); s.seconds %= 60;
             s.hours += Math.floor(s.minutes / 60); s.minutes %= 60;
@@ -416,6 +442,14 @@
             for (let i = from; i < to && i < levels.length; i++) {
                 const c = levels[i].cost;
                 if (typeof c === 'number') sum += c;
+            }
+            // 折扣：累计花费 ×(1-折扣%)（宝石实体不打折：costResource 为 Gems 时保持原值）
+            if (discountFactor < 1) {
+                let isGems = true;
+                for (let i = from; i < to && i < levels.length; i++) {
+                    if (String(levels[i].costResource || '').indexOf('Gems') === -1) { isGems = false; break; }
+                }
+                if (!isGems) sum = Math.round(sum * discountFactor);
             }
             return fmtCost(sum);
         }
@@ -744,6 +778,7 @@
 
     function open(id, curLevel, tag, modules) {
         currentTag = tag || state.currentAccount;
+        loadDiscountFactor(currentTag);
         const server = currentServer(currentTag);
         const finish = entity => {
             resetReload();

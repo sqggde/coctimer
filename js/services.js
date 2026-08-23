@@ -592,6 +592,10 @@
             var json = buildNotificationSchedule();
             window.AndroidApp.setNotificationSchedule(json);
         }
+        // 更新前台通知统计信息（每次调度重建时同步更新）
+        if (typeof CocTool.updateForegroundNotificationFromCalc === 'function') {
+            CocTool.updateForegroundNotificationFromCalc();
+        }
         // 更新重调度节流时间戳：导入等流程直接调 pushSchedule 时，避免下一秒的 5 分钟 tick 再次重复推送
         lastReschedule = Date.now();
     }
@@ -683,15 +687,16 @@
 
         async function webdavUpload(silent) {
             try {
-                const backupData = {
-                    version: 1,
-                    exportDate: new Date().toISOString(),
-                    accounts,
-                    accountNotes,
-                    accountOrder,
-                    currentAccount: state.currentAccount,
-                    settings: { ...settings }
-                };
+const backupData = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                accounts,
+                accountNotes,
+                accountOrder,
+                currentAccount: state.currentAccount,
+                settings: { ...settings },
+                clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
+            };
                 const jsonStr = JSON.stringify(backupData, null, 2);
                 const filename = 'webdav_backup.json';
                 try { await ensureWebdavFolder(); } catch (folderErr) {
@@ -905,15 +910,22 @@
                         btn.innerHTML = '导入备份';
                         return;
                     }
-                    if (!confirm('导入备份将覆盖当前所有数据，确定继续？')) {
-                        btn.disabled = false;
-                        btn.innerHTML = '导入备份';
-                        return;
-                    }
-                    localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(backup.data));
-                    localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings));
-                    showToast('备份导入成功！即将刷新', 1500);
-                    setTimeout(() => location.reload(), 1500);
+                    CocTool.ui.showConfirm({
+                        title: '导入备份',
+                        text: '导入备份将覆盖当前所有数据，确定继续？',
+                        confirmText: '继续导入',
+                        cancelText: '取消',
+                        onConfirm: () => {
+                            localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(backup.data));
+                            localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings));
+                            showToast('备份导入成功！即将刷新', 1500);
+                            setTimeout(() => location.reload(), 1500);
+                        },
+                        onCancel: () => {
+                            btn.disabled = false;
+                            btn.innerHTML = '导入备份';
+                        }
+                    });
                 } catch (err) {
                     showToast('文件解析失败：' + err.message, 3000);
                     btn.disabled = false;
@@ -966,13 +978,19 @@
         // 点击登录文字/邮箱
         cloudLoginText.addEventListener('click', () => {
             if (authData && authData.email) {
-                if (confirm('是否退出当前账号？')) {
-                    localStorage.removeItem(AUTH_KEY);
-                    localStorage.removeItem('coc_cloud_pwd');
-                    authData = null;
-                    updateLoginUI();
-                    showToast('已退出登录', 1500);
-                }
+                CocTool.ui.showConfirm({
+                    title: '退出登录',
+                    text: '是否退出当前账号？',
+                    confirmText: '退出',
+                    cancelText: '取消',
+                    onConfirm: () => {
+                        localStorage.removeItem(AUTH_KEY);
+                        localStorage.removeItem('coc_cloud_pwd');
+                        authData = null;
+                        updateLoginUI();
+                        showToast('已退出登录', 1500);
+                    }
+                });
             } else {
                 loginEmail.value = '';
                 loginPassword.value = '';
@@ -1104,7 +1122,8 @@
                 accountNotes,
                 accountOrder,
                 currentAccount: state.currentAccount,
-                settings: { ...settings }
+                settings: { ...settings },
+                clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
             };
 
             const btn = document.getElementById('cloud-backup-btn');
@@ -1139,14 +1158,22 @@
         });
 
         // 云端恢复
-        document.getElementById('cloud-restore-btn').addEventListener('click', async () => {
+        document.getElementById('cloud-restore-btn').addEventListener('click', () => {
             if (!authData || !authData.email) {
                 showToast('请先登录账号', 2000);
                 return;
             }
+            // 统一风格确认弹窗（替代原生 confirm）
+            CocTool.ui.showConfirm({
+                title: '云端恢复',
+                text: '云端恢复将覆盖当前所有本地数据，确定继续？',
+                confirmText: '继续恢复',
+                cancelText: '取消',
+                onConfirm: doCloudRestore
+            });
+        });
 
-            if (!confirm('云端恢复将覆盖当前所有本地数据，确定继续？')) return;
-
+        async function doCloudRestore() {
             const password = localStorage.getItem('coc_cloud_pwd');
             if (!password) {
                 showToast('登录信息已过期，请重新登录', 2000);
@@ -1172,8 +1199,18 @@
                     if (backup.settings || dataToRestore.settings) {
                         localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
                     }
-                    showToast('云端恢复成功！即将刷新', 1500);
-                    setTimeout(() => location.reload(), 1500);
+                    // 恢复国际服部落：仅补本地缺失的（备份只带标签，逐个拉 API 添加详情）
+                    var clanTags = dataToRestore.clans || [];
+                    var addedClans = 0;
+                    if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
+                        try {
+                            addedClans = await CocTool.features.clan.restoreClansFromTags(clanTags);
+                        } catch (e) { addedClans = 0; }
+                    }
+                    showToast(addedClans > 0
+                        ? ('云端恢复成功！已补 ' + addedClans + ' 个部落，即将刷新')
+                        : '云端恢复成功！即将刷新', 1800);
+                    setTimeout(() => location.reload(), 1800);
                 } else {
                     if (result.error && result.error.includes('密码错误')) {
                         localStorage.removeItem('coc_cloud_pwd');
@@ -1188,7 +1225,21 @@
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
             }
-        });
+        }
+
+        // 读取国际服部落标签（clash_clan_list，仅 tag 数组）
+        function getIntlClanTags() {
+            try {
+                var list = JSON.parse(localStorage.getItem('clash_clan_list') || '[]');
+                var tags = [];
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i] && list[i].tag) tags.push(list[i].tag);
+                }
+                return tags;
+            } catch (e) {
+                return [];
+            }
+        }
         advancePickerCloseBtn.addEventListener('click', () => advancePickerModal.classList.add('hidden'));
         advancePickerModal.addEventListener('click', (e) => {
             if (e.target === advancePickerModal) advancePickerModal.classList.add('hidden');

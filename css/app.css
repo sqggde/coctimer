@@ -366,3 +366,7 @@
 .card-lv { font-size: 11px; color: #6b7280; font-weight: 400; }
 #builder-boost-label { color:#374151; }
 .dark #builder-boost-label { color:#fff; }
+/* 深色模式下开关开启态用亮紫色（primary 蓝在深色背景上对比度低、不明显） */
+html.dark .peer:checked ~ .peer-checked\:bg-primary {
+    background-color: #a78bfa !important;
+}

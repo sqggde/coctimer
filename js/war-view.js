@@ -51,7 +51,8 @@ function gfl(v){for(var i=0;i<_fopts.length;i++){if(_fopts[i].v===v)return _fopt
 function createFilterBar(){
     var bar=document.createElement('div');bar.className='member-filter-bar';bar.style.cssText='display:flex;align-items:center;justify-content:center;padding:8px 0;position:relative;';
     var btn=document.createElement('button');
-    btn.style.cssText='display:flex;align-items:center;gap:4px;font-size:13px;padding:4px 12px;background:#f3f4f6;border:none;border-radius:6px;color:#374151;cursor:pointer;';
+    var fDark=document.documentElement.classList.contains('dark');
+    btn.style.cssText='display:flex;align-items:center;gap:4px;font-size:13px;padding:4px 12px;background:'+(fDark?'#3d3d5c':'#f3f4f6')+';border:none;border-radius:6px;color:'+(fDark?'#e5e7eb':'#374151')+';cursor:pointer;';
     var lbl=document.createElement('span');lbl.className='filter-label';lbl.textContent=gfl(_memberFilter);
     var ico=document.createElement('i');ico.className='fa fa-chevron-down';ico.style.fontSize='10px';
     btn.appendChild(lbl);btn.appendChild(ico);
@@ -76,33 +77,36 @@ function createFilterBar(){
 function _renderMemberList(){return renderMemberList.apply(this,arguments)}
 function renderDetailTo(ct,data){
   if(!ct)return;ct.innerHTML='';var cl=data.clan||{},op=data.opponent||{},rs=data.result||'';if(!rs){var cs=(cl.stars||0),os=(op.stars||0);if(cs>os)rs='win';else if(cs<os)rs='lose';else{var cd=(cl.destructionPercentage||0),od=(op.destructionPercentage||0);if(cd>od)rs='win';else if(cd<od)rs='lose';else rs='draw'}}var inf=function(r){if(r==='win')return{text:'胜利',color:'#10b981'};if(r==='lose')return{text:'失败',color:'#f59e0b'};return{text:'平局',color:'#3b82f6'}}(rs);
+  // 深色适配：内联样式动态设色（CSS 属性选择器 [style*=...] 匹配不到规范化后的 rgb() 值）
+  var isDark=document.documentElement.classList.contains('dark');
+  var cMain=isDark?'#e5e7eb':'#1f2937',cStrong=isDark?'#e5e7eb':'#000',cVal=isDark?'#a0aec0':'#374151',cBar=isDark?'#3d3d5c':'#e5e7eb';
   var wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;align-items:center;padding:20px 5px;';
   // Badge row
   var br=document.createElement('div');br.style.cssText='display:flex;align-items:center;gap:20px;margin-bottom:8px;';
   var hDiv=document.createElement('div');hDiv.style.cssText='text-align:center;flex:1;min-width:0;';
   var hImg=document.createElement('img');hImg.src=(cl.badgeUrls&&cl.badgeUrls.large)||'';hImg.style.cssText='width:64px;height:64px;border-radius:12px;margin-bottom:6px;';hImg.onerror=function(){this.style.display='none'};
-  var hNm=document.createElement('p');hNm.textContent=cl.name||'';hNm.style.cssText='font-size:14px;font-weight:600;color:#1f2937;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';hDiv.appendChild(hImg);hDiv.appendChild(hNm);
+  var hNm=document.createElement('p');hNm.textContent=cl.name||'';hNm.style.cssText='font-size:14px;font-weight:600;color:'+cMain+';max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';hDiv.appendChild(hImg);hDiv.appendChild(hNm);
   var stDiv=document.createElement('div');stDiv.style.cssText='text-align:center;flex:1;min-width:0;';
-  var et=data.endTime||'';var stY=document.createElement('p');stY.textContent=et.slice(0,4);stY.style.cssText='font-size:14px;font-weight:700;color:#000;margin-bottom:0;line-height:1.2;';
-  var stD=document.createElement('p');stD.textContent=parseInt(et.slice(4,6),10)+'/'+parseInt(et.slice(6,8),10);stD.style.cssText='font-size:14px;font-weight:600;color:#000;margin-bottom:4px;';
+  var et=data.endTime||'';var stY=document.createElement('p');stY.textContent=et.slice(0,4);stY.style.cssText='font-size:14px;font-weight:700;color:'+cStrong+';margin-bottom:0;line-height:1.2;';
+  var stD=document.createElement('p');stD.textContent=parseInt(et.slice(4,6),10)+'/'+parseInt(et.slice(6,8),10);stD.style.cssText='font-size:14px;font-weight:600;color:'+cStrong+';margin-bottom:4px;';
   var rb=document.createElement('span');rb.textContent=inf.text;rb.style.cssText='font-size:12px;font-weight:700;color:#fff;background:'+inf.color+';padding:2px 12px;border-radius:10px;line-height:1.2;';
-  var ts=document.createElement('p');ts.textContent=(data.teamSize||0)+' vs '+(data.teamSize||0);ts.style.cssText='font-size:14px;font-weight:600;color:#1f2937;margin-top:4px;';stDiv.appendChild(stY);stDiv.appendChild(stD);stDiv.appendChild(rb);stDiv.appendChild(ts);
+  var ts=document.createElement('p');ts.textContent=(data.teamSize||0)+' vs '+(data.teamSize||0);ts.style.cssText='font-size:14px;font-weight:600;color:'+cMain+';margin-top:4px;';stDiv.appendChild(stY);stDiv.appendChild(stD);stDiv.appendChild(rb);stDiv.appendChild(ts);
   var aDiv=document.createElement('div');aDiv.style.cssText='text-align:center;flex:1;min-width:0;';
   var aImg=document.createElement('img');aImg.src=(op.badgeUrls&&op.badgeUrls.large)||'';aImg.style.cssText='width:64px;height:64px;border-radius:12px;margin-bottom:6px;';aImg.onerror=function(){this.style.display='none'};
-  var aNm=document.createElement('p');aNm.textContent=op.name||'';aNm.style.cssText='font-size:14px;font-weight:600;color:#1f2937;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';aDiv.appendChild(aImg);aDiv.appendChild(aNm);
+  var aNm=document.createElement('p');aNm.textContent=op.name||'';aNm.style.cssText='font-size:14px;font-weight:600;color:'+cMain+';max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';aDiv.appendChild(aImg);aDiv.appendChild(aNm);
   br.appendChild(hDiv);br.appendChild(stDiv);br.appendChild(aDiv);wrap.appendChild(br);
   // Stats (三行：星数 | 摧毁率 | 出刀数)
   var sm=(data.teamSize||1)*3,am=(data.teamSize||1)*(data.attacksPerMember||2);
   var gw=function(p){return(Math.round((p||0)*100)/100)+'%'};
   function mkStatRow(hv,hp,av,ap,icon,color){
     var r=document.createElement('div');r.style.cssText='display:flex;align-items:center;gap:4px;margin-top:4px;width:100%;max-width:400px;';
-    var hc=document.createElement('span');hc.textContent=hv;hc.style.cssText='font-size:13px;color:#374151;width:52px;text-align:right;flex-shrink:0;';
-    var hb=document.createElement('div');hb.style.cssText='flex:1;height:8px;background:#e5e7eb;border-radius:4px 0 0 4px;overflow:hidden;';
+    var hc=document.createElement('span');hc.textContent=hv;hc.style.cssText='font-size:13px;color:'+cVal+';width:52px;text-align:right;flex-shrink:0;';
+    var hb=document.createElement('div');hb.style.cssText='flex:1;height:8px;background:'+cBar+';border-radius:4px 0 0 4px;overflow:hidden;';
     var hbf=document.createElement('div');hbf.style.cssText='height:100%;border-radius:4px 0 0 4px;float:right;background:'+color+';';hbf.style.width=Math.min(100,Math.max(0,(hp||0))*100)+'%';hb.appendChild(hbf);
     var ic=document.createElement('img');ic.src=icon;ic.style.cssText='width:13px;height:13px;flex-shrink:0;';
-    var ab=document.createElement('div');ab.style.cssText='flex:1;height:8px;background:#e5e7eb;border-radius:0 4px 4px 0;overflow:hidden;';
+    var ab=document.createElement('div');ab.style.cssText='flex:1;height:8px;background:'+cBar+';border-radius:0 4px 4px 0;overflow:hidden;';
     var abf=document.createElement('div');abf.style.cssText='height:100%;border-radius:0 4px 4px 0;background:'+color+';';abf.style.width=Math.min(100,Math.max(0,(ap||0))*100)+'%';ab.appendChild(abf);
-    var ac=document.createElement('span');ac.textContent=av;ac.style.cssText='font-size:13px;color:#374151;width:52px;text-align:left;flex-shrink:0;';
+    var ac=document.createElement('span');ac.textContent=av;ac.style.cssText='font-size:13px;color:'+cVal+';width:52px;text-align:left;flex-shrink:0;';
     r.appendChild(hc);r.appendChild(hb);r.appendChild(ic);r.appendChild(ab);r.appendChild(ac);return r
   }
   wrap.appendChild(mkStatRow((cl.stars||0)+'/'+sm,(cl.stars||0)/sm,(op.stars||0)+'/'+sm,(op.stars||0)/sm,'img/icons/star.webp','#f59e0b'));
@@ -113,7 +117,7 @@ function renderDetailTo(ct,data){
   var hw=document.createElement('div');hw.style.cssText='display:flex;gap:12px;margin-top:16px;width:100%;';
   var hCol=document.createElement('div');hCol.style.cssText='flex:1;min-width:0;';
   var hMem=document.createElement('div');hMem.style.cssText='display:flex;flex-direction:column;gap:2px;';hCol.appendChild(hMem);
-  var sep=document.createElement('div');sep.style.cssText='width:1px;background:#e5e7eb;flex-shrink:0;';
+  var sep=document.createElement('div');sep.style.cssText='width:1px;background:'+cBar+';flex-shrink:0;';
   var aCol=document.createElement('div');aCol.style.cssText='flex:1;min-width:0;';
   var aMem=document.createElement('div');aMem.style.cssText='display:flex;flex-direction:column;gap:2px;';aCol.appendChild(aMem);
   hw.appendChild(hCol);hw.appendChild(sep);hw.appendChild(aCol);wrap.appendChild(hw);

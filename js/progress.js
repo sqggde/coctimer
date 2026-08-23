@@ -1054,8 +1054,16 @@
                 // 刷新总览卡片显示
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
-                    const items = calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
-                    updateCategorySummary(calc.getCategoryCounts(items), calc.getCategoryDenominators(data), calc.getCategoryCompletedCounts(items, data));
+                    const items = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
+                    const counts = calc.getCategoryCounts(items);
+                    const denominators = calc.getCategoryDenominators(data);
+                    const completed = calc.getCategoryCompletedCounts(items, data);
+                    if (settings.hideNightWorld) {
+                        counts.buildings2 = 0; counts.units2 = 0;
+                        denominators.buildings2 = 0; denominators.units2 = 0;
+                        completed.buildings2 = 0; completed.units2 = 0;
+                    }
+                    updateCategorySummary(counts, denominators, completed);
                 }
                 document.getElementById('builder-monthly-pass-modal').classList.add('hidden');
             });
@@ -1069,8 +1077,16 @@
                 // 刷新总览卡片显示
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
-                    const items = calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
-                    updateCategorySummary(calc.getCategoryCounts(items), calc.getCategoryDenominators(data), calc.getCategoryCompletedCounts(items, data));
+                    const items = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
+                    const counts = calc.getCategoryCounts(items);
+                    const denominators = calc.getCategoryDenominators(data);
+                    const completed = calc.getCategoryCompletedCounts(items, data);
+                    if (settings.hideNightWorld) {
+                        counts.buildings2 = 0; counts.units2 = 0;
+                        denominators.buildings2 = 0; denominators.units2 = 0;
+                        completed.buildings2 = 0; completed.units2 = 0;
+                    }
+                    updateCategorySummary(counts, denominators, completed);
                 }
                 document.getElementById('builder-monthly-pass-modal').classList.add('hidden');
             });
@@ -1083,9 +1099,17 @@
     }
 
     function render(data) {
-        const upgradingItems = calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
+        const upgradingItems = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
         displayUpgradingItems(upgradingItems, data);
-        updateCategorySummary(calc.getCategoryCounts(upgradingItems), calc.getCategoryDenominators(data), calc.getCategoryCompletedCounts(upgradingItems, data));
+        const counts = calc.getCategoryCounts(upgradingItems);
+        const denominators = calc.getCategoryDenominators(data);
+        const completed = calc.getCategoryCompletedCounts(upgradingItems, data);
+        if (settings.hideNightWorld) {
+            counts.buildings2 = 0; counts.units2 = 0;
+            denominators.buildings2 = 0; denominators.units2 = 0;
+            completed.buildings2 = 0; completed.units2 = 0;
+        }
+        updateCategorySummary(counts, denominators, completed);
         renderHelperOverview(data);
         updateBoostTimers(data);
         updateBuilderBoostToggle(data);

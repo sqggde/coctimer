@@ -31,6 +31,17 @@
         }
     }
 
+    function updateForegroundNotificationFromCalc() {
+        if (!window.AndroidApp || !window.AndroidApp.updateForegroundNotification) return;
+
+        try {
+            const stats = global.CocTool.calc.getStatsForNotification();
+            window.AndroidApp.updateForegroundNotification(stats.completedCount, stats.nextCompletionTime);
+        } catch (e) {
+            console.error('updateForegroundNotificationFromCalc failed:', e);
+        }
+    }
+
     function init() {
         const CocTool = requireModules();
         const progress = CocTool.features.progress;
@@ -60,6 +71,9 @@
         run('通知权限', () => requestNotificationPermission(CocTool));
         setTimeout(function() { CocTool.checkForUpdate(); }, 3000);
         setInterval(function() { CocTool.checkForUpdate(); }, 30 * 60 * 1000);
+        setTimeout(function() { updateForegroundNotificationFromCalc(); }, 1000);
+        setTimeout(function() { if (typeof CocTool.syncWidgetData === 'function') CocTool.syncWidgetData(); }, 2000);
+        CocTool.updateForegroundNotificationFromCalc = updateForegroundNotificationFromCalc;
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) CocTool.checkForUpdate();
         });
