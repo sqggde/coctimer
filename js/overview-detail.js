@@ -1001,6 +1001,18 @@
                 lvAdd = 0;
                 tmAdd = 0;
             }
+            // 数量型实体（夜世界兵营/预备营等 instances 多条，meta.instances 标记）：
+            // 等级 = 数量占比（每座 1 级，totalLv 开头已加 cap×1 = 总数量）；时间 = 前 N 实例累计 / 全部实例累计
+            // （times = 实例时间前缀数组；撤销开头按等级口径预加的 cap×per）
+            if (meta.instances && meta.instances[id]) {
+                totalTm -= cap * per;
+                totalTm += cum && cum.length ? (cum[Math.min(cap, cum.length - 1)] || 0) : 0;
+                curLv += lvls.length;
+                if (cum && cum.length) {
+                    curTm += cum[Math.min(lvls.length, cum.length - 1)] || 0;
+                }
+                continue;
+            }
             for (var j = 0; j < lvls.length; j++) {
                 var uLv = Math.min(lvls[j], maxLv);   // 大本模式：超出上限截断
                 curLv += uLv + lvAdd;
