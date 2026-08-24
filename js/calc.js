@@ -842,7 +842,7 @@
     function hasSleepHighlight(data) {
         if (!settings.nightMode || !data) return false;
         const now = Math.floor(Date.now() / 1000);
-        const items = extractUpgradingItems(data, now, true);
+        const items = filterNightWorld(extractUpgradingItems(data, now, true));
         for (const item of items) {
             const completionTs = calculateCompletionTimestamp(item, data);
             if (isInSleepRange(completionTs)) return true;
@@ -880,7 +880,7 @@
         // state.accounts 是对象，需要遍历其值
         const accounts = Object.values(state.accounts);
         for (const account of accounts) {
-            const items = extractUpgradingItems(account, now, true);
+            const items = filterNightWorld(extractUpgradingItems(account, now, true));
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, account);
                 if (completionTs <= now) {

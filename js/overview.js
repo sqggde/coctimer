@@ -17,6 +17,7 @@
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
             var items = pr.extractUpgradingItems(data, now, true);
+            if (CocTool.calc && CocTool.calc.filterNightWorld) items = CocTool.calc.filterNightWorld(items);
             var best = Infinity;
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
@@ -31,6 +32,7 @@
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
             var all = pr.extractUpgradingItems(data, now, true);
+            if (CocTool.calc && CocTool.calc.filterNightWorld) all = CocTool.calc.filterNightWorld(all);
             var done = [];
             for (var i = 0; i < all.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(all[i], data);
@@ -214,6 +216,7 @@
             var now = Math.floor(Date.now() / 1000);
             var bestItem = null, bestRemaining = Infinity;
             var items = pr.extractUpgradingItems(data, now, false);
+            if (CocTool.calc && CocTool.calc.filterNightWorld) items = CocTool.calc.filterNightWorld(items);
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
                 var rem = cts - now;
