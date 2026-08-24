@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
     <script src="css/tailwind.min.js"></script>
-    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/icons.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
     <link href="css/help.css" rel="stylesheet">
     <link href="css/clan.css" rel="stylesheet">
@@ -349,8 +349,9 @@
         <!-- 账号操作按钮区域 -->
         <div id="account-actions" class="relative mb-1 flex justify-center items-center space-x-2 hidden" style="position:relative;">
             <button id="launch-game-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:14px; background:#6b7280;" title="打开游戏">
-                <i class="fa fa-play"></i>
+                <i class="fa fa-launch-game" style="font-size:20px;"></i>
             </button>
+            <button id="duration-search-btn" class="px-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="升级时长搜索"><i class="fa fa-search" style="font-size:16px;"></i></button>
             <button id="set-note-btn" class="px-3 py-0.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">备注</button>
             <button id="remove-account-btn" class="px-3 py-0.5 bg-danger hover:bg-danger/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">删除</button>
         </div>
@@ -432,7 +433,7 @@
                 </div>
                 <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 10px"></div>
 
-            </div>
+</div>
 
             <div class="mt-1">
                 <div class="bg-white rounded-lg shadow-md p-0.5">
@@ -1415,6 +1416,8 @@
     <script src="js/warlog.js"></script>
     <script defer src="js/progress-meta-intl.js"></script>
     <script defer src="js/progress-meta-cn.js"></script>
+    <script defer src="js/svg-icons.js"></script>
+    <script defer src="js/duration-search.js"></script>
 <script defer src="js/overview.js"></script>
 <script defer src="js/overview-detail.js"></script>
 <script defer src="js/pokedex.js"></script>

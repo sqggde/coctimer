@@ -63,6 +63,8 @@
             return true;
         });
         run('导航模块', () => CocTool.navigation.init());
+        run('图标水合', () => CocTool.svgIcons.init());
+        run('时长搜索', () => CocTool.durationSearch.init());
 
         const hasAccounts = run('账号启动', () => accounts.start());
         run('设置应用', () => settings.apply());

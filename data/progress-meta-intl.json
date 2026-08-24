@@ -525,7 +525,15 @@
       "28000007": "15151515151515151515161616161617171717171818181818"
     },
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "28000000": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "28000001": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "28000002": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "28000004": "ddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "28000006": "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "28000007": "ddddddddddddddddddddddddd"
+    }
   },
   "hero-equipment": {
     "totalLevel": 918,
@@ -1708,6 +1716,50 @@
     },
     "caps": {},
     "instances": {},
+    "resources": {
+      "90000000": "xxxxxxxxxxxxxxxxxx",
+      "90000001": "xxxxxxxxxxxxxxxxxx",
+      "90000002": "xxxxxxxxxxxxxxxxxx",
+      "90000003": "xxxxxxxxxxxxxxxxxx",
+      "90000004": "xxxxxxxxxxxxxxxxxx",
+      "90000005": "xxxxxxxxxxxxxxxxxx",
+      "90000006": "xxxxxxxxxxxxxxxxxx",
+      "90000007": "xxxxxxxxxxxxxxxxxx",
+      "90000008": "xxxxxxxxxxxxxxxxxx",
+      "90000009": "xxxxxxxxxxxxxxxxxx",
+      "90000010": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000011": "xxxxxxxxxxxxxxxxxx",
+      "90000012": "xxxxxxxxxxxxxxxxxx",
+      "90000013": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000014": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000015": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000016": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000017": "xxxxxxxxxxxxxxxxxx",
+      "90000019": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000020": "xxxxxxxxxxxxxxxxxx",
+      "90000022": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000024": "xxxxxxxxxxxxxxxxxx",
+      "90000032": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000034": "xxxxxxxxxxxxxxxxxx",
+      "90000035": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000039": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000040": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000041": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000042": "xxxxxxxxxxxxxxxxxx",
+      "90000043": "xxxxxxxxxxxxxxxxxx",
+      "90000044": "xxxxxxxxxxxxxxxxxx",
+      "90000047": "xxxxxxxxxxxxxxxxxx",
+      "90000048": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000049": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000050": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000051": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000052": "xxxxxxxxxxxxxxxxxx",
+      "90000053": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "90000056": "xxxxxxxxxxxxxxxxxx",
+      "90000057": "xxxxxxxxxxxxxxxxxx",
+      "90000059": "xxxxxxxxxxxxxxxxxx",
+      "90000060": "xxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
     "eqHeroMap": {
       "28000000": [
         "90000000",
@@ -1997,7 +2049,21 @@
       "73000017": "18181818181818181818"
     },
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "73000000": "ddddddddddddddd",
+      "73000001": "ddddddddddddddd",
+      "73000002": "ddddddddddddddd",
+      "73000003": "ddddddddddddddd",
+      "73000004": "dddddddddd",
+      "73000007": "ddddddddddddddd",
+      "73000008": "dddddddddd",
+      "73000009": "ddddddddddddddd",
+      "73000010": "dddddddddd",
+      "73000011": "dddddddddd",
+      "73000016": "dddddddddd",
+      "73000017": "dddddddddd"
+    }
   },
   "units": {
     "totalLevel": 305,
@@ -2506,7 +2572,41 @@
       "4000177": "171718"
     },
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "4000000": "eeeeeeeeeeeee",
+      "4000001": "eeeeeeeeeeeeee",
+      "4000002": "eeeeeeeeee",
+      "4000003": "eeeeeeeeeeeeee",
+      "4000004": "eeeeeeeeeeeeee",
+      "4000005": "eeeeeeeeeeeee",
+      "4000006": "eeeeeeeeeeeeee",
+      "4000007": "eeeeeeeeeee",
+      "4000008": "eeeeeeeeeeeee",
+      "4000009": "eeeeeeeeeeeee",
+      "4000010": "dddddddddddddd",
+      "4000011": "ddddddddddddddd",
+      "4000012": "dddddddddddd",
+      "4000013": "ddddddddddddddd",
+      "4000015": "dddddddd",
+      "4000017": "dddddddd",
+      "4000022": "dddddddddd",
+      "4000023": "eeeeeeeeeeee",
+      "4000024": "eeeeeeeeeeee",
+      "4000053": "eeeeeeee",
+      "4000058": "ddddddddd",
+      "4000059": "eeeeeeeee",
+      "4000065": "eeeeee",
+      "4000082": "dddd",
+      "4000095": "eeeee",
+      "4000097": "dddd",
+      "4000109": "dddd",
+      "4000110": "eeee",
+      "4000123": "dddddd",
+      "4000132": "eeee",
+      "4000150": "dddd",
+      "4000177": "eee"
+    }
   },
   "spells": {
     "totalLevel": 132,
@@ -2758,7 +2858,27 @@
       "26000123": "15161718"
     },
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "26000000": "eeeeeeeeeeeee",
+      "26000001": "eeeeeeeeeeee",
+      "26000002": "eeeeeee",
+      "26000003": "eeeee",
+      "26000005": "eeeeeeee",
+      "26000009": "dddddddddddd",
+      "26000010": "dddddddd",
+      "26000011": "ddddddd",
+      "26000016": "eeeeeeeee",
+      "26000017": "dddddddd",
+      "26000028": "dddddddd",
+      "26000035": "eeee",
+      "26000053": "eeeeeee",
+      "26000070": "ddddd",
+      "26000098": "eeeee",
+      "26000109": "dddddd",
+      "26000120": "eeee",
+      "26000123": "dddd"
+    }
   },
   "siege_machines": {
     "totalLevel": 49,
@@ -2873,7 +2993,18 @@
       "4000188": "17171818"
     },
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "4000051": "eeeeee",
+      "4000052": "eeeeee",
+      "4000062": "eeeeee",
+      "4000075": "eeeeee",
+      "4000087": "eeeeee",
+      "4000091": "eeeee",
+      "4000092": "eeeeee",
+      "4000135": "eeee",
+      "4000188": "eeee"
+    }
   },
   "defense": {
     "totalLevel": 277,
@@ -4753,7 +4884,42 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000008": "ggggggggggggggggggggg",
+      "1000009": "ggggggggggggggggggggg",
+      "1000011": "ggggggggggggggggg",
+      "1000012": "gggggggggggggggg",
+      "1000013": "gggggggggggggggggg",
+      "1000015": "gggggggg",
+      "1000019": "ggggggggggggggggg",
+      "1000021": "ggggggggggggg",
+      "1000027": "gggggggggggg",
+      "1000028": "ggggggg",
+      "1000031": "ggggggg",
+      "1000032": "ggggggggggggg",
+      "1000067": "ggggggg",
+      "1000072": "gggg",
+      "1000077": "ddddd",
+      "1000079": "ggg",
+      "1000084": "gggg",
+      "1000085": "gggg",
+      "1000086": "dd",
+      "1000089": "ggg",
+      "1000097": "g",
+      "1000102": "gg",
+      "12000000": "gggggggggggggg",
+      "12000001": "ggggggggggggg",
+      "12000002": "gggggggggggg",
+      "12000005": "ggggggggggggg",
+      "12000006": "gggggggg",
+      "12000008": "ggggg",
+      "12000016": "ggg",
+      "12000020": "gggg",
+      "103000011": "",
+      "103000012": "",
+      "103000013": ""
+    }
   },
   "buildings": {
     "totalLevel": 292,
@@ -6681,7 +6847,33 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000000": "eeeeeeeeeeeeee",
+      "1000001": "gggggggggggggggggg",
+      "1000002": "ggggggggggggggggg",
+      "1000003": "ggggggggggggggggggg",
+      "1000004": "eeeeeeeeeeeeeeeee",
+      "1000005": "eeeeeeeeeeeeeeeeeee",
+      "1000006": "eeeeeeeeeeeeeeeeeee",
+      "1000007": "eeeeeeeeeeeeeeee",
+      "1000010": "ggggfffffffffffffff",
+      "1000014": "eeeeeeeeeeeeee",
+      "1000020": "eeeeeeeee",
+      "1000023": "eeeeeeeeeee",
+      "1000024": "eeeeeeeeeeeee",
+      "1000026": "eeeeeeeeeeeee",
+      "1000029": "eeeeeeee",
+      "1000059": "eeeeeeeee",
+      "1000064": "g",
+      "1000068": "eeeeeeeeeeee",
+      "1000070": "eeeeeeeeee",
+      "1000071": "eeeeeeeeeeee",
+      "1000093": "e",
+      "93000000": "xxxxxxxx",
+      "93000001": "xxxxxxxxxxxx",
+      "93000002": "x"
+    }
   },
   "guardians": {
     "totalLevel": 15,
@@ -6745,7 +6937,12 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "107000000": "eeeee",
+      "107000001": "eeeee",
+      "107000008": "eeeee"
+    }
   },
   "defense_buildings": {
     "totalLevel": 205,
@@ -7913,7 +8110,34 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000008": "ggggggggggggggggggggg",
+      "1000009": "ggggggggggggggggggggg",
+      "1000011": "ggggggggggggggggg",
+      "1000012": "gggggggggggggggg",
+      "1000013": "gggggggggggggggggg",
+      "1000015": "gggggggg",
+      "1000019": "ggggggggggggggggg",
+      "1000021": "ggggggggggggg",
+      "1000027": "gggggggggggg",
+      "1000028": "ggggggg",
+      "1000031": "ggggggg",
+      "1000032": "ggggggggggggg",
+      "1000067": "ggggggg",
+      "1000072": "gggg",
+      "1000077": "ddddd",
+      "1000079": "ggg",
+      "1000084": "gggg",
+      "1000085": "gggg",
+      "1000086": "dd",
+      "1000089": "ggg",
+      "1000097": "g",
+      "1000102": "gg",
+      "103000011": "",
+      "103000012": "",
+      "103000013": ""
+    }
   },
   "traps": {
     "totalLevel": 72,
@@ -8638,7 +8862,17 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "12000000": "gggggggggggggg",
+      "12000001": "ggggggggggggg",
+      "12000002": "gggggggggggg",
+      "12000005": "ggggggggggggg",
+      "12000006": "gggggggg",
+      "12000008": "ggggg",
+      "12000016": "ggg",
+      "12000020": "gggg"
+    }
   },
   "resources": {
     "totalLevel": 110,
@@ -9321,7 +9555,16 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000002": "ggggggggggggggggg",
+      "1000003": "ggggggggggggggggggg",
+      "1000004": "eeeeeeeeeeeeeeeee",
+      "1000005": "eeeeeeeeeeeeeeeeeee",
+      "1000014": "eeeeeeeeeeeeee",
+      "1000023": "eeeeeeeeeee",
+      "1000024": "eeeeeeeeeeeee"
+    }
   },
   "army": {
     "totalLevel": 106,
@@ -10160,7 +10403,18 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000000": "eeeeeeeeeeeeee",
+      "1000006": "eeeeeeeeeeeeeeeeeee",
+      "1000020": "eeeeeeeee",
+      "1000026": "eeeeeeeeeeeee",
+      "1000029": "eeeeeeee",
+      "1000059": "eeeeeeeee",
+      "1000068": "eeeeeeeeeeee",
+      "1000070": "eeeeeeeeee",
+      "1000071": "eeeeeeeeeeee"
+    }
   },
   "other": {
     "totalLevel": 23,
@@ -10374,7 +10628,14 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000064": "g",
+      "1000093": "e",
+      "93000000": "xxxxxxxx",
+      "93000001": "xxxxxxxxxxxx",
+      "93000002": "x"
+    }
   },
   "town_hall": {
     "totalLevel": 18,
@@ -10408,7 +10669,10 @@
     },
     "thReq": {},
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000001": "gggggggggggggggggg"
+    }
   },
   "research": {
     "totalLevel": 16,
@@ -10517,7 +10781,10 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000007": "eeeeeeeeeeeeeeee"
+    }
   },
   "wall": {
     "totalLevel": 19,
@@ -10629,7 +10896,10 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000010": "ggggfffffffffffffff"
+    }
   },
   "heroes2": {
     "totalLevel": 70,
@@ -10720,7 +10990,11 @@
     },
     "thReq": {},
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "28000003": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "28000005": "xxxxxxxxxxxxxxeeeeeeeeeeeeeeeeeeeee"
+    }
   },
   "units2": {
     "totalLevel": 240,
@@ -11031,7 +11305,21 @@
     },
     "thReq": {},
     "caps": {},
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "4000031": "eeeeeeeeeeeeeeeeeeee",
+      "4000032": "eeeeeeeeeeeeeeeeeeee",
+      "4000033": "xxeeeeeeeeeeeeeeeeee",
+      "4000034": "xxeeeeeeeeeeeeeeeeee",
+      "4000035": "xxxxeeeeeeeeeeeeeeee",
+      "4000036": "xxxxxxxxxxxxeeeeeeee",
+      "4000037": "xxxxxxeeeeeeeeeeeeee",
+      "4000038": "xxxxxxxxxxeeeeeeeeee",
+      "4000041": "xxxxeeeeeeeeeeeeeeee",
+      "4000042": "xxxxxxxxeeeeeeeeeeee",
+      "4000070": "xxxxxxxxxxxxxxeeeeee",
+      "4000106": "xxxxxxxxxxxxxxxxeeee"
+    }
   },
   "buildings2": {
     "totalLevel": 262,
@@ -12524,6 +12812,39 @@
     "instances": {
       "1000042": 6,
       "1000049": 2
+    },
+    "resources": {
+      "1000033": "ggggggffff",
+      "1000034": "gggggggggg",
+      "1000035": "gggggggggg",
+      "1000036": "gggggggggg",
+      "1000037": "eeeeeeeeee",
+      "1000038": "eeeeeeeeee",
+      "1000039": "gggggggggg",
+      "1000040": "eeeeeeeeeeee",
+      "1000041": "gggggggggg",
+      "1000042": "eeeeee",
+      "1000043": "gggggggggg",
+      "1000044": "gggggggggg",
+      "1000045": "gggggggggg",
+      "1000046": "eeeeeeeeee",
+      "1000048": "gggggggggg",
+      "1000049": "ee",
+      "1000050": "gggggggggg",
+      "1000051": "gggggggggg",
+      "1000052": "gggggggggg",
+      "1000053": "e",
+      "1000054": "gggggggggg",
+      "1000055": "gggggggggg",
+      "1000056": "gggggggggg",
+      "1000057": "gggggggggg",
+      "1000058": "eeeeeeeeee",
+      "1000063": "gggggggggg",
+      "1000065": "ggggg",
+      "1000078": "gggggggggg",
+      "1000080": "e",
+      "1000081": "ggggg",
+      "1000082": "eeeeee"
     }
   },
   "traps2": {
@@ -12764,7 +13085,13 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "12000010": "ggggg",
+      "12000011": "gggggggggg",
+      "12000013": "gggggggggg",
+      "12000014": "gggggggggg"
+    }
   },
   "defenses2": {
     "totalLevel": 145,
@@ -13410,7 +13737,24 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000041": "gggggggggg",
+      "1000043": "gggggggggg",
+      "1000044": "gggggggggg",
+      "1000045": "gggggggggg",
+      "1000048": "gggggggggg",
+      "1000050": "gggggggggg",
+      "1000051": "gggggggggg",
+      "1000052": "gggggggggg",
+      "1000054": "gggggggggg",
+      "1000055": "gggggggggg",
+      "1000056": "gggggggggg",
+      "1000057": "gggggggggg",
+      "1000063": "gggggggggg",
+      "1000078": "gggggggggg",
+      "1000081": "ggggg"
+    }
   },
   "resources2": {
     "totalLevel": 55,
@@ -13766,7 +14110,15 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000035": "gggggggggg",
+      "1000036": "gggggggggg",
+      "1000037": "eeeeeeeeee",
+      "1000038": "eeeeeeeeee",
+      "1000058": "eeeeeeeeee",
+      "1000065": "ggggg"
+    }
   },
   "army2": {
     "totalLevel": 32,
@@ -14152,6 +14504,15 @@
     "instances": {
       "1000042": 6,
       "1000049": 2
+    },
+    "resources": {
+      "1000040": "eeeeeeeeeeee",
+      "1000042": "eeeeee",
+      "1000046": "eeeeeeeeee",
+      "1000049": "ee",
+      "1000053": "e",
+      "1000080": "e",
+      "1000082": "eeeeee"
     }
   },
   "other2": {
@@ -14238,7 +14599,11 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000034": "gggggggggg",
+      "1000039": "gggggggggg"
+    }
   },
   "wall2": {
     "totalLevel": 10,
@@ -14309,6 +14674,9 @@
         ]
       ]
     },
-    "instances": {}
+    "instances": {},
+    "resources": {
+      "1000033": "ggggggffff"
+    }
   }
 }

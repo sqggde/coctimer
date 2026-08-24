@@ -181,7 +181,7 @@
         }
 
         /* 弹窗遮罩 */
-        #clan-page .modal-overlay {
+#clan-page .modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.45);
@@ -189,6 +189,7 @@
             align-items: center;
             justify-content: center;
             z-index: 300;
+            overscroll-behavior: contain;
         }
         #clan-page .modal-box,
         #china-war-modal > .modal-box,

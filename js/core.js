@@ -434,6 +434,10 @@
                 overviewDetail.style.display = 'none';
             }
         }
+        var dsModal = document.getElementById('duration-search-modal');
+        if (dsModal && !dsModal.classList.contains('hidden')) {
+            dsModal.classList.add('hidden');
+        }
     }
 
     function showPage(page) {

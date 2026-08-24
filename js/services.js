@@ -362,7 +362,7 @@
         }
         const ts = (data.timestamp || now) + cooldown;
         if (ts > now) {
-            schedule.push({ timestamp: applyAdvance(ts, threshold, now), message: `${accountName}\n${label} 已就绪`, id: accountName + '_' + label });
+            schedule.push({ timestamp: applyAdvance(ts, threshold, now), message: `${accountName}\n${label} 已就绪`, id: accountName + '_' + label, type: 'other' });
             notificationMonitor.log('调度', label + ' 已就绪 于 ' + fmtClock(applyAdvance(ts, threshold, now)), { account: accountName, meta: { helper_cooldown: cooldown } });
         }
         // ts <= now（快照过期，实际已就绪）→ 不通知
@@ -376,7 +376,7 @@
     }
     function addWarNotification(tsMs, msg, id, nowMs, schedule) {
         if (tsMs > nowMs) {
-            schedule.push({ timestamp: Math.floor(tsMs / 1000), message: msg, id: id });
+            schedule.push({ timestamp: Math.floor(tsMs / 1000), message: msg, id: id, type: 'other' });
             var nl = msg.indexOf('\n');
             notificationMonitor.log('调度', (nl > 0 ? msg.slice(nl + 1) : msg) + ' 于 ' + fmtClock(Math.floor(tsMs / 1000)), { account: nl > 0 ? msg.slice(0, nl) : '' });
         }
@@ -541,7 +541,7 @@
                             ? CocTool.features.progress.getNoteForItem(tag, item, data)
                             : '';
                         if (note) msg += '\n' + note;
-                        schedule.push({ timestamp: applyAdvance(completionTs, advanceThreshold, now), message: msg, id: item.uniqueId });
+                        schedule.push({ timestamp: applyAdvance(completionTs, advanceThreshold, now), message: msg, id: item.uniqueId, type: 'upgrade' });
                         var itemMeta = { timer: item.timer };
                         if (item.helper_timer && item.helper_timer > 0) itemMeta.helper_timer = item.helper_timer;
                         if (item.helper_recurrent === true) itemMeta.recurrent = true;
@@ -565,7 +565,7 @@
                 } else {
                     const cooldownEnd = timestamp + clockCooldown;
                     if (cooldownEnd > now) {
-                        schedule.push({ timestamp: applyAdvance(cooldownEnd, advanceThreshold, now), message: `${accountName}\n时光钟楼 已就绪`, id: accountName + '_clocktower' });
+                        schedule.push({ timestamp: applyAdvance(cooldownEnd, advanceThreshold, now), message: `${accountName}\n时光钟楼 已就绪`, id: accountName + '_clocktower', type: 'other' });
                         notificationMonitor.log('调度', '时光钟楼 已就绪 于 ' + fmtClock(applyAdvance(cooldownEnd, advanceThreshold, now)), { account: accountName });
                     }
                     // cooldownEnd <= now（快照过期，实际已就绪）→ 不通知

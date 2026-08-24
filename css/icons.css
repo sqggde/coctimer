@@ -1,0 +1,31 @@
+/* 功能图标 SVG 化：JS 水合方案（svg-icons.js 内建 ICON_PATHS 路径表，readAsset 桥接读取 svg 文本内联到 <i> 内；
+   真机走 readAsset，网页版走 fetch，file:// 预览无桥接时回退 <img> 直显）。
+   currentColor 继承颜色、1em 联动 font-size、fa-spin 动画保留。不再使用 CSS mask（WebView file:// 下 mask-image url() 被 CORS 拒绝）。 */
+.fa {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+}
+
+.fa svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.fa img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.fa-spin {
+    animation: fa-spin 2s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
