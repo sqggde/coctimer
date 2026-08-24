@@ -230,12 +230,6 @@
         if (el.detailTitle) el.detailTitle.textContent = accName;
         if (el.detailPage) el.detailPage.style.display = 'flex';
         currentTab = 'home';
-        // 设置屏蔽夜世界：隐藏夜世界 tab（区块渲染已由 renderNightDetail 处理）
-        if (CocTool.state.settings.hideNightWorld && el.tabNight) {
-            el.tabNight.style.display = 'none';
-        } else if (el.tabNight) {
-            el.tabNight.style.display = '';
-        }
         updateTabUI();
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
@@ -244,7 +238,6 @@
 
     function switchTab(tab) {
         if (tab === currentTab) return;
-        if (tab === 'night' && CocTool.state.settings.hideNightWorld) return; // 屏蔽夜世界时不可切换
         currentTab = tab;
         updateTabUI();
     }
@@ -1348,11 +1341,6 @@
     function renderNightDetail(data, accName) {
         if (!el.detailNight) return;
         var night = el.detailNight;
-        // 设置屏蔽夜世界：不渲染夜世界区块
-        if (CocTool.state.settings.hideNightWorld) {
-            night.innerHTML = '<div class="ov-hidden-tip" style="padding:16px;text-align:center;color:#9ca3af;font-size:13px;">已屏蔽夜世界（设置）</div>';
-            return;
-        }
         var bhLvl = 0;
         if (data.buildings2) {
             for (var i = 0; i < data.buildings2.length; i++) {
