@@ -791,9 +791,16 @@ let initialized = false;
             }
         });
         // 快捷导入分体按钮：左 70% 执行当前模式，右 30%（▾）切换模式（持久化 settings.quickImportMode）
+        // 模式视觉：快捷导入=紫、粘贴导入=蓝（按钮背景随模式变化）
         function updateQuickImportMode() {
             if (!quickImportLabel) return;
             quickImportLabel.textContent = settings.quickImportMode === 'paste' ? '粘贴导入' : '快捷导入';
+            quickImportBtn.classList.remove('bg-violet-500', 'bg-blue-500', 'hover:bg-violet-600', 'hover:bg-blue-600');
+            if (settings.quickImportMode === 'paste') {
+                quickImportBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            } else {
+                quickImportBtn.classList.add('bg-violet-500', 'hover:bg-violet-600');
+            }
         }
         updateQuickImportMode();
         quickImportBtn.addEventListener('click', () => {
