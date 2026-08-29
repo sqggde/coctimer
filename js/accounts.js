@@ -17,7 +17,6 @@
 
     const jsonModal = document.getElementById('json-modal');
     const jsonInput = document.getElementById('json-input');
-    const importBtn = document.getElementById('import-btn');
     const parseBtn = document.getElementById('parse-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const tabContainer = document.getElementById('tab-container');
@@ -755,8 +754,6 @@ let initialized = false;
         if (initialized) return;
         initialized = true;
         updateCurrentTime();
-        importBtn.addEventListener('click', showJsonModal);
-        document.getElementById('quick-import-btn').addEventListener('click', quickImportJsonData);
         parseBtn.addEventListener('click', parseJsonData);
         cancelBtn.addEventListener('click', hideJsonModal);
         jsonModal.addEventListener('click', (e) => { if(e.target === jsonModal) hideJsonModal(); });
