@@ -47,6 +47,7 @@
         'plus': 'img/svg/progress/plus.svg',
         'picture-o': 'img/svg/progress/picture-o.svg',
         'sort': 'img/svg/progress/sort.svg',
+        'more': 'img/svg/progress/more.svg',
         'list-alt': 'img/svg/progress/list-alt.svg',
         'filter': 'img/svg/progress/filter.svg',
         'chevron-right': 'img/svg/progress/chevron-right.svg',

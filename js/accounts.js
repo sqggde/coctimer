@@ -25,6 +25,8 @@
     const setNoteBtn = document.getElementById('set-note-btn');
     const launchGameBtn = document.getElementById('launch-game-btn');
     const removeAccountBtn = document.getElementById('remove-account-btn');
+    const moreBtn = document.getElementById('more-btn');
+    const moreMenu = document.getElementById('more-menu');
     const sortModal = document.getElementById('sort-modal');
     const sortListContainer = document.getElementById('sort-list-container');
     const sortApplyBtn = document.getElementById('sort-apply-btn');
@@ -770,6 +772,19 @@ let initialized = false;
         sortApplyBtn.addEventListener('click', () => exitSortMode(true));
         sortCancelBtn.addEventListener('click', () => exitSortMode(false));
         sortBtn.addEventListener('click', () => { if (!isSortMode) enterSortMode(); });
+        // 更多操作展开菜单：点击切换显隐，点菜单项/外部/账号切换时收起
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            moreMenu.classList.toggle('hidden');
+        });
+        moreMenu.addEventListener('click', (e) => {
+            if (e.target.closest('button')) moreMenu.classList.add('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (!moreMenu.classList.contains('hidden') && !e.target.closest('.more-wrap')) {
+                moreMenu.classList.add('hidden');
+            }
+        });
         // 点击遮罩关闭排序弹窗（等同取消，不应用变更）
         sortModal.addEventListener('click', (e) => {
             if (e.target === sortModal) exitSortMode(false);

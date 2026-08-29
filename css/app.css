@@ -261,6 +261,50 @@
     background-color: #252540 !important;
     border-color: #3d3d5c !important;
 }
+
+/* ===== 更多操作展开菜单（备注/删除等低频键折叠；未来新键直接加 .more-menu-item） ===== */
+.more-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 96px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 4px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.more-menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 13px;
+    text-align: left;
+    color: #374151;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.more-menu-item:active {
+    background: #f3f4f6;
+}
+.more-menu-danger {
+    color: #dc2626;
+}
+.dark .more-menu {
+    background: #252540 !important;
+}
+.dark .more-menu-item {
+    color: #e2e8f0 !important;
+}
+.dark .more-menu-item:active {
+    background: #3d3d5c !important;
+}
 .dark #main-display-area .bg-white {
     background-color: #2d2d44 !important;
 }

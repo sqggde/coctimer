@@ -355,8 +355,15 @@
                 <img src="img/svg/progress/sort.svg" width="16" height="16" style="filter:brightness(0) invert(1);" alt="排序">
             </button>
             <button id="duration-search-btn" class="px-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="升级时长搜索"><i class="fa fa-search" style="font-size:16px;"></i></button>
-            <button id="set-note-btn" class="px-3 py-0.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">备注</button>
-            <button id="remove-account-btn" class="px-3 py-0.5 bg-danger hover:bg-danger/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">删除</button>
+            <div class="more-wrap" style="position:relative;">
+                <button id="more-btn" class="px-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="更多操作">
+                    <img src="img/svg/progress/more.svg" width="16" height="16" style="filter:brightness(0) invert(1);" alt="更多">
+                </button>
+                <div id="more-menu" class="more-menu hidden">
+                    <button id="set-note-btn" class="more-menu-item">备注</button>
+                    <button id="remove-account-btn" class="more-menu-item more-menu-danger">删除</button>
+                </div>
+            </div>
         </div>
         </div>
 
