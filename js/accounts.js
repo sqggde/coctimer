@@ -26,11 +26,7 @@
     const removeAccountBtn = document.getElementById('remove-account-btn');
     const moreBtn = document.getElementById('more-btn');
     const moreMenu = document.getElementById('more-menu');
-    const quickImportWrap = document.querySelector('.quick-import-wrap');
-    const quickImportBtn = document.getElementById('quick-import-btn');
-    const quickImportLabel = document.getElementById('quick-import-label');
-    const quickImportCaret = document.getElementById('quick-import-caret');
-    const quickImportMenu = document.getElementById('quick-import-menu');
+    const quickImportWraps = Array.from(document.querySelectorAll('.quick-import-wrap'));
     const sortModal = document.getElementById('sort-modal');
     const sortListContainer = document.getElementById('sort-list-container');
     const sortApplyBtn = document.getElementById('sort-apply-btn');
@@ -786,43 +782,57 @@ let initialized = false;
             if (!moreMenu.classList.contains('hidden') && !e.target.closest('.more-wrap')) {
                 moreMenu.classList.add('hidden');
             }
-            if (quickImportMenu && !quickImportMenu.classList.contains('hidden') && !e.target.closest('.quick-import-wrap')) {
-                quickImportMenu.classList.add('hidden');
-            }
+            if (e.target.closest('.quick-import-wrap')) return;
+            quickImportWraps.forEach(wrap => {
+                const menu = wrap.querySelector('.qi-menu');
+                if (menu && !menu.classList.contains('hidden')) menu.classList.add('hidden');
+            });
         });
-        // 快捷导入分体按钮：左 70% 执行当前模式，右 30%（▾）切换模式（持久化 settings.quickImportMode）
+        // 快捷导入分体按钮（首页 header + 账号进度页顶部多处实例共享）：左 80% 执行当前模式，右 20%（▾）切换模式（持久化 settings.quickImportMode）
         // 模式视觉：快捷导入=紫、粘贴导入=蓝（按钮背景随模式变化）
         function updateQuickImportMode() {
-            if (!quickImportLabel) return;
-            quickImportLabel.textContent = settings.quickImportMode === 'paste' ? '粘贴导入' : '快捷导入';
-            quickImportBtn.classList.remove('bg-violet-500', 'bg-blue-500', 'hover:bg-violet-600', 'hover:bg-blue-600');
-            if (settings.quickImportMode === 'paste') {
-                quickImportBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-            } else {
-                quickImportBtn.classList.add('bg-violet-500', 'hover:bg-violet-600');
-            }
-        }
-        updateQuickImportMode();
-        quickImportBtn.addEventListener('click', () => {
-            if (settings.quickImportMode === 'paste') showJsonModal();
-            else quickImportJsonData();
-        });
-        quickImportCaret.addEventListener('click', (e) => {
-            e.stopPropagation();
-            quickImportMenu.classList.toggle('hidden');
-        });
-        quickImportMenu.addEventListener('click', (e) => {
-            const item = e.target.closest('.more-menu-item');
-            if (item) {
-                const mode = item.getAttribute('data-quick-mode');
-                if (mode && settings.quickImportMode !== mode) {
-                    settings.quickImportMode = mode;
-                    saveSettings();
-                    updateQuickImportMode();
+            quickImportWraps.forEach(wrap => {
+                const label = wrap.querySelector('.qi-label');
+                const btn = wrap.querySelector('.qi-btn');
+                if (!label || !btn) return;
+                label.textContent = settings.quickImportMode === 'paste' ? '粘贴导入' : '快捷导入';
+                btn.classList.remove('bg-violet-500', 'bg-blue-500', 'hover:bg-violet-600', 'hover:bg-blue-600');
+                if (settings.quickImportMode === 'paste') {
+                    btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                } else {
+                    btn.classList.add('bg-violet-500', 'hover:bg-violet-600');
                 }
-            }
-            quickImportMenu.classList.add('hidden');
-        });
+            });
+        }
+        function bindQuickImport(wrap) {
+            const btn = wrap.querySelector('.qi-btn');
+            const label = wrap.querySelector('.qi-label');
+            const caret = wrap.querySelector('.qi-caret');
+            const menu = wrap.querySelector('.qi-menu');
+            if (!btn || !label || !caret || !menu) return;
+            btn.addEventListener('click', () => {
+                if (settings.quickImportMode === 'paste') showJsonModal();
+                else quickImportJsonData();
+            });
+            caret.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('hidden');
+            });
+            menu.addEventListener('click', (e) => {
+                const item = e.target.closest('.more-menu-item');
+                if (item) {
+                    const mode = item.getAttribute('data-quick-mode');
+                    if (mode && settings.quickImportMode !== mode) {
+                        settings.quickImportMode = mode;
+                        saveSettings();
+                        updateQuickImportMode();
+                    }
+                }
+                menu.classList.add('hidden');
+            });
+        }
+        quickImportWraps.forEach(wrap => bindQuickImport(wrap));
+        updateQuickImportMode();
         // 点击遮罩关闭排序弹窗（等同取消，不应用变更）
         sortModal.addEventListener('click', (e) => {
             if (e.target === sortModal) exitSortMode(false);
