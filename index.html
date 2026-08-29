@@ -351,6 +351,9 @@
             <button id="launch-game-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:14px; background:#6b7280;" title="打开游戏">
                 <i class="fa fa-launch-game" style="font-size:20px;"></i>
             </button>
+            <button id="sort-btn" class="px-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="调整账号顺序">
+                <img src="img/svg/progress/sort.svg" width="16" height="16" style="filter:brightness(0) invert(1);" alt="排序">
+            </button>
             <button id="duration-search-btn" class="px-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="升级时长搜索"><i class="fa fa-search" style="font-size:16px;"></i></button>
             <button id="set-note-btn" class="px-3 py-0.5 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">备注</button>
             <button id="remove-account-btn" class="px-3 py-0.5 bg-danger hover:bg-danger/90 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg" style="font-size: 14px;">删除</button>
@@ -358,15 +361,6 @@
         </div>
 
         <div class="space-y-2 pb-2">
-            <div id="sort-content" class="bg-white rounded-lg shadow-md p-2 hidden">
-                <h2 class="font-semibold text-gray-800 mb-2 flex items-center" style="font-size: 14px;"><i class="fa fa-sort mr-2 text-primary"></i><span style="font-size: 14px;">调整账号顺序</span></h2>
-                <div class="text-xs text-gray-500 mb-2">拖拽 <i class="fa fa-bars"></i> 图标调整顺序</div>
-                <div id="sort-list-container" class="overflow-y-auto"></div>
-                <div class="flex justify-end space-x-2 mt-2 pt-2 border-t border-gray-200">
-                    <button id="sort-cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
-                    <button id="sort-apply-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">应用排序</button>
-                </div>
-            </div>
             <div id="main-display-area">
             <div>
                 <div id="data-info" class="bg-white rounded-lg shadow-md px-1 py-0.5">
@@ -451,6 +445,8 @@
                 </div>
             </div>
             </div>
+            </div>
+        </div>
         </div>
 
 
@@ -924,6 +920,19 @@
         <div id="clan-toast" class="hidden">
             <div id="clan-toast-text"></div>
         </div>
+        </div>
+
+        <!-- 排序弹窗 -->
+        <div id="sort-modal" class="modal-overlay hidden">
+            <div class="modal-card w-sm">
+                <h2 class="font-semibold text-gray-800 mb-2 flex items-center" style="font-size: 15px;"><i class="fa fa-sort mr-2 text-primary"></i><span>调整账号顺序</span></h2>
+                <div class="text-xs text-gray-500 mb-2">拖拽 <i class="fa fa-bars"></i> 图标调整顺序</div>
+                <div id="sort-list-container" class="overflow-y-auto" style="max-height:60vh;"></div>
+                <div class="flex justify-end space-x-2 mt-2 pt-2 border-t border-gray-200">
+                    <button id="sort-cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <button id="sort-apply-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">应用排序</button>
+                </div>
+            </div>
         </div>
 
         <!-- 屏蔽提醒弹窗 -->
@@ -1403,6 +1412,7 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
+    <script src="js/vendor/Sortable.min.js"></script>
     <script src="js/core.js"></script>
     <script src="js/names.js"></script>
     <script src="js/calc.js"></script>

@@ -20,29 +20,31 @@
     const importBtn = document.getElementById('import-btn');
     const parseBtn = document.getElementById('parse-btn');
     const cancelBtn = document.getElementById('cancel-btn');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const emptyState = document.getElementById('empty-state');
-    const upgradesContainer = document.getElementById('upgrades-container');
-    const upgradesCountBadge = document.getElementById('upgrades-count-badge');
-    const dataInfoDiv = document.getElementById('data-info');
-    const accountTagSpan = document.getElementById('account-tag');
-    const exportTimeSpan = document.getElementById('export-time');
-    const currentTimeSpan = document.getElementById('current-time');
     const tabContainer = document.getElementById('tab-container');
     const accountActionsDiv = document.getElementById('account-actions');
     const setNoteBtn = document.getElementById('set-note-btn');
     const launchGameBtn = document.getElementById('launch-game-btn');
     const removeAccountBtn = document.getElementById('remove-account-btn');
-    const sortContent = document.getElementById('sort-content');
+    const sortModal = document.getElementById('sort-modal');
     const sortListContainer = document.getElementById('sort-list-container');
     const sortApplyBtn = document.getElementById('sort-apply-btn');
     const sortCancelBtn = document.getElementById('sort-cancel-btn');
+    const sortBtn = document.getElementById('sort-btn');
     const mainDisplayArea = document.getElementById('main-display-area');
 
-    let initialized = false;
+let initialized = false;
     let sortTimer = null;
     let importingGuard = false;
     let lastAutoImport = 0;
+
+    // 渲染目标：单份 DOM（Swiper 方案已回退——真机 WebView 多页克隆卡手且拖慢启动）
+    function getActiveSlide() {
+        return document;
+    }
+
+    function slideEl(id) {
+        return document.getElementById(id);
+    }
 
     function progress() {
         return CocTool.features.progress;
@@ -170,17 +172,23 @@
     }
 
     function updateDataInfo(data) {
+        const root = getActiveSlide();
+        const tagSpan = root.querySelector('#account-tag');
+        const expSpan = root.querySelector('#export-time');
+        const infoDiv = root.querySelector('#data-info');
         if (data.tag) {
             const note = accountNotes[data.tag] || data.tag;
-            accountTagSpan.textContent = `${note} (${data.tag})`;
-            document.getElementById('upgrade-title-text').textContent = `${note}的升级项目`;
+            if (tagSpan) tagSpan.textContent = `${note} (${data.tag})`;
+            const titleEl = root.querySelector('#upgrade-title-text');
+            if (titleEl) titleEl.textContent = `${note}的升级项目`;
         } else {
-            accountTagSpan.textContent = "未知账号";
-            document.getElementById('upgrade-title-text').textContent = '正在升级的项目';
+            if (tagSpan) tagSpan.textContent = "未知账号";
+            const titleEl = root.querySelector('#upgrade-title-text');
+            if (titleEl) titleEl.textContent = '正在升级的项目';
         }
-        exportTimeSpan.textContent = formatExportTime(data.timestamp);
-        dataInfoDiv.classList.toggle('hidden', settings.hideDataInfo);
-        const chestEl = document.getElementById('chest-notification');
+        if (expSpan) expSpan.textContent = formatExportTime(data.timestamp);
+        if (infoDiv) infoDiv.classList.toggle('hidden', settings.hideDataInfo);
+        const chestEl = root.querySelector('#chest-notification');
         if (chestEl) {
             const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);
             chestEl.classList.toggle('hidden', !hasChest);
@@ -189,46 +197,27 @@
     // ========== 排序功能 ==========
     let isSortMode = false;
     let sortModalOrder = [];
-    let sortDragCleanup = null;
+    let sortableInstance = null;
 
     function enterSortMode() {
         isSortMode = true;
         sortModalOrder = [...accountOrder];
         const serviceModule = services();
         if (serviceModule) serviceModule.pauseTicker();
-        dataInfoDiv.classList.add('hidden');
-        accountActionsDiv.classList.add('hidden');
-        mainDisplayArea.classList.add('hidden');
-        sortContent.classList.remove('hidden');
-        updateSortListHeight();
-        window.addEventListener('resize', onSortResize);
+        sortModal.classList.remove('hidden');
         renderSortList();
         rebuildAllTabs();
         if (sortTimer) clearInterval(sortTimer);
         sortTimer = setInterval(updateSortTimers, 1000);
     }
 
-    function updateSortListHeight() {
-        const sortRect = sortContent.getBoundingClientRect();
-        const bottomArea = sortListContainer.nextElementSibling;
-        const bottomHeight = bottomArea ? bottomArea.offsetHeight : 48;
-        const availableHeight = (window.innerHeight*0.85) - sortRect.top - bottomHeight - 8;
-        sortListContainer.style.maxHeight = Math.max(100, availableHeight) + 'px';
-    }
-
-    function onSortResize() {
-        if (isSortMode) updateSortListHeight();
-    }
     function exitSortMode(applyChanges = false) {
         isSortMode = false;
-        window.removeEventListener('resize', onSortResize);
-        if (sortDragCleanup) { sortDragCleanup(); sortDragCleanup = null; }
         if (sortTimer) { clearInterval(sortTimer); sortTimer = null; }
+        if (sortableInstance) { sortableInstance.destroy(); sortableInstance = null; }
         const serviceModule = services();
         if (serviceModule) serviceModule.resumeTicker();
-        sortContent.classList.add('hidden');
-        mainDisplayArea.classList.remove('hidden');
-        dataInfoDiv.classList.remove('hidden');
+        sortModal.classList.add('hidden');
         if (applyChanges) {
             accountOrder.splice(0, accountOrder.length, ...sortModalOrder);
             saveToLocalStorage();
@@ -251,7 +240,6 @@
     }
 
     function renderSortList() {
-        if (sortDragCleanup) { sortDragCleanup(); sortDragCleanup = null; }
         sortListContainer.innerHTML = '';
         const now = Math.floor(Date.now() / 1000);
         sortModalOrder.forEach(tag => {
@@ -259,6 +247,7 @@
             const div = document.createElement('div');
             const sortSleepClass = hasSleepHighlight(accounts[tag]) ? ' sleep-highlight' : '';
             div.className = `sort-item bg-gray-50 rounded-lg p-2 mb-1 flex items-center border border-gray-200${sortSleepClass}`;
+            div.style.position = 'relative';
             div.setAttribute('data-account', tag);
             const colorClass = accounts[tag] ? getAccountTabColor(accounts[tag]) : '';
 
@@ -311,14 +300,27 @@
                 }
             }
 
-            div.innerHTML = `<i class="fa fa-bars text-gray-400 mr-2"></i><span class="text-sm font-medium ${colorClass || 'text-gray-800'}">${escapeHtml(note)}</span>${rightHtml}`;
+            div.innerHTML = `<div class="sort-drag-area" style="position:absolute;left:0;top:0;bottom:0;width:33.3%;display:flex;align-items:center;padding-left:10px;cursor:grab;"><i class="fa fa-bars text-gray-400"></i></div><span class="text-sm font-medium ${colorClass || 'text-gray-800'}" style="padding-left:30px;">${escapeHtml(note)}</span>${rightHtml}`;
             sortListContainer.appendChild(div);
         });
-        sortDragCleanup = initSortDrag();
+        // SortableJS 拖拽排序（成熟开源库：自动处理移动端触摸 touch-action/滚动/pointer 冲突）
+        // 左侧 1/3 区域为拖拽手柄，右侧区域保留滚动（对齐原自研版左右分区交互）
+        if (typeof Sortable !== 'undefined') {
+            if (sortableInstance) sortableInstance.destroy();
+            sortableInstance = Sortable.create(sortListContainer, {
+                handle: '.sort-drag-area',
+                animation: 150,
+                ghostClass: 'sort-ghost',
+                onEnd: function () {
+                    sortModalOrder = Array.from(sortListContainer.querySelectorAll('.sort-item'))
+                        .map(el => el.getAttribute('data-account')).filter(Boolean);
+                }
+            });
+        }
     }
 
     function updateSortTimers() {
-        if (sortContent.classList.contains('hidden')) return;
+        if (!sortModal || sortModal.classList.contains('hidden')) return;
         const now = Date.now() / 1000;
         document.querySelectorAll('.sort-timer').forEach(el => {
             const completionTs = parseFloat(el.getAttribute('data-completion'));
@@ -337,135 +339,8 @@
         });
     }
 
-    function initSortDrag() {
-        const container = sortListContainer;
-        if (!container) return null;
-        let dragElement = null, startY = 0, currentIndex = -1, hasMoved = false;
-        const MOVE_THRESHOLD = 5;
-
-        function getSortItems() {
-            return Array.from(container.querySelectorAll('.sort-item:not(.drag-placeholder)'));
-        }
-
-        function onPointerDown(e) {
-            const item = e.target.closest('.sort-item');
-            if (!item) return;
-            const rect = item.getBoundingClientRect();
-            const xInItem = e.clientX - rect.left;
-            if (xInItem > rect.width / 3) return;
-            dragElement = item;
-            startY = e.clientY;
-            currentIndex = getSortItems().indexOf(item);
-            hasMoved = false;
-            item.setPointerCapture(e.pointerId);
-            e.preventDefault();
-        }
-
-        function onPointerMove(e) {
-            if (!dragElement) return;
-            const dy = e.clientY - startY;
-            if (!hasMoved && Math.abs(dy) > MOVE_THRESHOLD) {
-                hasMoved = true;
-                container.style.overflowY = 'hidden';
-                dragElement.classList.add('dragging');
-                const placeholder = document.createElement('div');
-                placeholder.className = 'sort-item drag-placeholder bg-gray-50 rounded-lg p-2 mb-1 border border-dashed border-primary';
-                placeholder.style.height = dragElement.offsetHeight + 'px';
-                dragElement.parentNode.insertBefore(placeholder, dragElement);
-                const rect = dragElement.getBoundingClientRect();
-                dragElement.style.position = 'fixed';
-                dragElement.style.left = rect.left + 'px';
-                dragElement.style.top = rect.top + 'px';
-                dragElement.style.width = rect.width + 'px';
-                dragElement.style.zIndex = '1000';
-                dragElement.style.pointerEvents = 'none';
-            }
-            if (hasMoved) {
-                dragElement.style.top = (e.clientY - dragElement.offsetHeight / 2) + 'px';
-                const items = getSortItems();
-                const placeholder = container.querySelector('.drag-placeholder');
-                if (!placeholder) return;
-                let targetIndex = items.indexOf(placeholder);
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i] === placeholder) continue;
-                    const rect = items[i].getBoundingClientRect();
-                    const centerY = rect.top + rect.height / 2;
-                    if (e.clientY < centerY) { targetIndex = i; break; }
-                    targetIndex = i + 1;
-                }
-                if (targetIndex !== currentIndex) {
-                    currentIndex = targetIndex;
-                    if (targetIndex >= items.length) container.appendChild(placeholder);
-                    else container.insertBefore(placeholder, items[targetIndex]);
-                }
-            }
-        }
-
-        function onPointerUp(e) {
-            if (!dragElement) return;
-            const placeholder = container.querySelector('.drag-placeholder');
-            if (hasMoved && placeholder) {
-                container.insertBefore(dragElement, placeholder);
-                placeholder.remove();
-                dragElement.style.position = '';
-                dragElement.style.left = '';
-                dragElement.style.top = '';
-                dragElement.style.width = '';
-                dragElement.style.zIndex = '';
-                dragElement.style.pointerEvents = '';
-                dragElement.classList.remove('dragging');
-                sortModalOrder = getSortItems().map(item => item.getAttribute('data-account')).filter(Boolean);
-            } else if (dragElement) {
-                dragElement.classList.remove('dragging');
-                if (!hasMoved) {
-                    const tag = dragElement.getAttribute('data-account');
-                    if (tag) switchAccount(tag);
-                }
-            }
-            container.style.overflowY = 'auto';
-            try { dragElement.releasePointerCapture(e.pointerId); } catch (ex) {}
-            dragElement = null;
-            hasMoved = false;
-        }
-
-        function onSortItemClick(e) {
-            const item = e.target.closest('.sort-item');
-            if (!item) return;
-            const tag = item.getAttribute('data-account');
-            if (tag) switchAccount(tag);
-        }
-
-        function onTouchStart(e) {
-            if (e.touches.length !== 1) return;
-            const item = e.target.closest('.sort-item');
-            if (!item) return;
-            const rect = item.getBoundingClientRect();
-            const xInItem = e.touches[0].clientX - rect.left;
-            if (xInItem <= rect.width / 3) {
-                e.preventDefault();
-            }
-        }
-
-        container.addEventListener('touchstart', onTouchStart, { passive: false });
-        container.addEventListener('pointerdown', onPointerDown);
-        container.addEventListener('pointermove', onPointerMove);
-        container.addEventListener('pointerup', onPointerUp);
-        container.addEventListener('pointercancel', onPointerUp);
-        container.addEventListener('click', onSortItemClick);
-        container.addEventListener('dragstart', (e) => e.preventDefault());
-
-        return () => {
-            container.removeEventListener('touchstart', onTouchStart);
-            container.removeEventListener('pointerdown', onPointerDown);
-            container.removeEventListener('pointermove', onPointerMove);
-            container.removeEventListener('pointerup', onPointerUp);
-            container.removeEventListener('pointercancel', onPointerUp);
-            container.removeEventListener('click', onSortItemClick);
-            container.removeEventListener('dragstart', (e) => e.preventDefault());
-        };
-    }
-
     // ========== 左右滑动切换账号 ==========
+    // 自研手势（Swiper 方案已回退——真机 WebView 多页克隆卡手；touchend 判定零开销）
     function initSwipeGesture() {
         let startX = 0, startY = 0;
         const SWIPE_THRESHOLD = 50, ANGLE_THRESHOLD = 1.5;
@@ -483,19 +358,29 @@
                     if (target && target.closest('#tab-container')) return;
                     const currentIndex = accountOrder.indexOf(state.currentAccount);
                     if (currentIndex === -1) return;
-                    if (dx > 0) { if (currentIndex > 0) { switchAccount(accountOrder[currentIndex - 1]); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
-                    else { if (currentIndex < accountOrder.length - 1) { switchAccount(accountOrder[currentIndex + 1]); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
+                    if (dx > 0) { if (currentIndex > 0) { switchAccount(accountOrder[currentIndex - 1], 'right'); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
+                    else { if (currentIndex < accountOrder.length - 1) { switchAccount(accountOrder[currentIndex + 1], 'left'); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
                 }
             }
         }, { passive: true });
     }
-    function switchAccount(accountTag) {
-        if (isSortMode) exitSortMode(false);
-        if (!accounts[accountTag]) return;
-        state.currentAccount = accountTag;
-        saveToLocalStorage();
+    // 切换账号后把选中 tab 自动滚动到可视区域（左右滑切换时选中 tab 可能滚出视野）
+    function scrollActiveTabIntoView() {
+        if (!tabContainer) return;
+        const active = tabContainer.querySelector('.account-tab.active-tab');
+        if (!active) return;
+        const containerRect = tabContainer.getBoundingClientRect();
+        const tabRect = active.getBoundingClientRect();
+        const margin = 8;
+        if (tabRect.left < containerRect.left + margin) {
+            tabContainer.scrollLeft -= (containerRect.left + margin - tabRect.left);
+        } else if (tabRect.right > containerRect.right - margin) {
+            tabContainer.scrollLeft += (tabRect.right - containerRect.right + margin);
+        }
+    }
+
+    function updateTabActiveState(accountTag) {
         document.querySelectorAll('.account-tab').forEach(tab => {
-            if (tab.getAttribute('data-sort') === 'true') return;
             if (tab.getAttribute('data-account') === accountTag) {
                 tab.classList.add('active-tab');
                 tab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
@@ -504,7 +389,14 @@
                 tab.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
             }
         });
-        const data = accounts[accountTag];
+        scrollActiveTabIntoView();
+    }
+
+    // 渲染当前账号（单份 DOM 直接重渲染 + 入场动画）
+    function renderCurrentAccount() {
+        const tag = state.currentAccount;
+        if (!tag || !accounts[tag]) return;
+        const data = accounts[tag];
         updateDataInfo(data);
         var p = progress();
         if (p) p.render(data);
@@ -514,20 +406,25 @@
         updateLaunchGameBtn();
     }
 
+    function switchAccount(accountTag, direction) {
+        if (isSortMode) exitSortMode(false);
+        if (!accounts[accountTag]) return;
+        state.currentAccount = accountTag;
+        saveToLocalStorage();
+        updateTabActiveState(accountTag);
+        renderCurrentAccount();
+        // 切换内容入场动画（左右滑按方向滑入，其余从右滑入；重触发需强制 reflow）
+        if (mainDisplayArea) {
+            const cls = direction === 'left' ? 'tab-slide-right' : 'tab-slide-left';
+            mainDisplayArea.classList.remove('tab-slide-left', 'tab-slide-right');
+            void mainDisplayArea.offsetWidth;
+            mainDisplayArea.classList.add(cls);
+        }
+    }
+
     function rebuildAllTabs() {
         if (!tabContainer) return;
         tabContainer.innerHTML = '';
-        const sortTab = document.createElement('button');
-        sortTab.className = 'account-tab px-1.5 py-1 text-sm font-medium rounded-t-lg transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50';
-        sortTab.setAttribute('data-sort', 'true');
-        sortTab.innerHTML = `<span><i class="fa fa-sort mr-0.5"></i>排序</span>`;
-        sortTab.style.backgroundColor = '#f8fafc';
-        if (isSortMode) {
-            sortTab.classList.add('bg-white', 'text-primary', 'border', 'border-gray-200', 'border-b-white');
-            sortTab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
-            sortTab.style.backgroundColor = '';
-        }
-        tabContainer.appendChild(sortTab);
         if (accountOrder.length === 0) return;
         accountOrder.forEach(tag => {
             if (!accounts[tag]) return;
@@ -556,6 +453,7 @@
                 activeTab.classList.add('active-tab');
                 activeTab.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-50');
             }
+            scrollActiveTabIntoView();
         } else if (!isSortMode && accountOrder.length) switchAccount(accountOrder[0]);
     }
 
@@ -570,11 +468,16 @@
         else {
             state.currentAccount = null;
             showEmptyState('暂无账号，点击「导入数据」添加');
-            dataInfoDiv.classList.add('hidden');
+            const root = getActiveSlide();
+            const infoDiv = root.querySelector('#data-info');
+            const uc = root.querySelector('#upgrades-container');
+            const ub = root.querySelector('#upgrades-count-badge');
+            const es = root.querySelector('#empty-state');
+            if (infoDiv) infoDiv.classList.add('hidden');
             accountActionsDiv.classList.add('hidden');
-            upgradesContainer.classList.add('hidden');
-            upgradesCountBadge.classList.add('hidden');
-            emptyState.classList.remove('hidden');
+            if (uc) uc.classList.add('hidden');
+            if (ub) ub.classList.add('hidden');
+            if (es) es.classList.remove('hidden');
             stopBackgroundCheck();
         }
         updateMainTitle();
@@ -612,13 +515,35 @@
         input.onkeypress = (e) => { if (e.key === 'Enter') save(); };
     }
 
-    function showLoading() { loadingIndicator.classList.remove('hidden'); upgradesContainer.classList.add('hidden'); emptyState.classList.add('hidden'); }
-    function hideLoading() { loadingIndicator.classList.add('hidden'); }
+    function showLoading() {
+        const root = getActiveSlide();
+        const li = root.querySelector('#loading-indicator');
+        const uc = root.querySelector('#upgrades-container');
+        const es = root.querySelector('#empty-state');
+        if (li) li.classList.remove('hidden');
+        if (uc) uc.classList.add('hidden');
+        if (es) es.classList.add('hidden');
+    }
+    function hideLoading() {
+        const li = getActiveSlide().querySelector('#loading-indicator');
+        if (li) li.classList.add('hidden');
+    }
 
-    function showEmptyState(msg) { emptyState.innerHTML = `<i class="fa fa-info-circle text-gray-300 text-5xl mb-4"></i><p class="text-gray-500">${msg}</p>`; emptyState.classList.remove('hidden'); upgradesContainer.classList.add('hidden'); upgradesCountBadge.classList.add('hidden'); loadingIndicator.classList.add('hidden'); }
+    function showEmptyState(msg) {
+        const root = getActiveSlide();
+        const es = root.querySelector('#empty-state');
+        const uc = root.querySelector('#upgrades-container');
+        const ub = root.querySelector('#upgrades-count-badge');
+        const li = root.querySelector('#loading-indicator');
+        if (es) { es.innerHTML = `<i class="fa fa-info-circle text-gray-300 text-5xl mb-4"></i><p class="text-gray-500">${msg}</p>`; es.classList.remove('hidden'); }
+        if (uc) uc.classList.add('hidden');
+        if (ub) ub.classList.add('hidden');
+        if (li) li.classList.add('hidden');
+    }
     function updateCurrentTime() {
         const d = new Date();
-        currentTimeSpan.textContent = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+        const el = getActiveSlide().querySelector('#current-time');
+        if (el) el.textContent = `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
     }
     function hideJsonModal() { jsonModal.classList.add('hidden'); jsonInput.value = ''; }
     function showJsonModal() { jsonModal.classList.remove('hidden'); jsonInput.focus(); }
@@ -844,16 +769,25 @@
         });
         sortApplyBtn.addEventListener('click', () => exitSortMode(true));
         sortCancelBtn.addEventListener('click', () => exitSortMode(false));
+        sortBtn.addEventListener('click', () => { if (!isSortMode) enterSortMode(); });
+        // 点击遮罩关闭排序弹窗（等同取消，不应用变更）
+        sortModal.addEventListener('click', (e) => {
+            if (e.target === sortModal) exitSortMode(false);
+        });
+        // 排序弹窗：点击条目右侧区域 → 切换对应账号并关闭弹窗（左 1/3 拖拽区不响应）
+        sortListContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.sort-drag-area')) return;
+            const item = e.target.closest('.sort-item');
+            if (!item) return;
+            const tag = item.getAttribute('data-account');
+            if (tag) switchAccount(tag);
+        });
 
         tabContainer.addEventListener('click', (e) => {
             const tab = e.target.closest('.account-tab');
             if (tab) {
-                if (tab.getAttribute('data-sort') === 'true') {
-                    if (!isSortMode) enterSortMode();
-                } else {
-                    const accountTag = tab.getAttribute('data-account');
-                    if (accountTag) switchAccount(accountTag);
-                }
+                const accountTag = tab.getAttribute('data-account');
+                if (accountTag) switchAccount(accountTag);
             }
         });
         initSwipeGesture();
@@ -868,7 +802,8 @@
         }
         showEmptyState('点击「导入数据」添加账号，数据将永久保存');
         accountActionsDiv.classList.add('hidden');
-        dataInfoDiv.classList.add('hidden');
+        const infoDiv = getActiveSlide().querySelector('#data-info');
+        if (infoDiv) infoDiv.classList.add('hidden');
         updateMainTitle();
         return false;
     }
@@ -891,6 +826,7 @@
         showEmptyState,
         isImporting,
         exitSortModeIfActive,
-        quickImportJsonData
+        quickImportJsonData,
+        getActiveSlide
     });
 })(window);

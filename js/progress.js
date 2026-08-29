@@ -15,24 +15,40 @@
     const sessionDismissedCategories = state.sessionDismissedCategories;
     const calc = CocTool.calc;
 
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const emptyState = document.getElementById('empty-state');
-    const upgradesContainer = document.getElementById('upgrades-container');
-    const upgradesCountBadge = document.getElementById('upgrades-count-badge');
-    const categoryContainers = {
-        buildings: document.getElementById('buildings-list'),
-        lab: document.getElementById('lab-list'),
-        pets: document.getElementById('pets-list'),
-        buildings2: document.getElementById('buildings2-list'),
-        units2: document.getElementById('units2-list')
-    };
-    const categoryCountBadges = {
-        buildings: document.getElementById('buildings-count'),
-        lab: document.getElementById('lab-count'),
-        pets: document.getElementById('pets-count'),
-        buildings2: document.getElementById('buildings2-count'),
-        units2: document.getElementById('units2-count')
-    };
+    // 渲染目标：当前账号 slide（Swiper 每账号一页，模板元素仅作克隆源）；无 slide 时回退 document
+    function getActiveSlideRoot() {
+        const acc = CocTool.features.accounts;
+        if (acc && typeof acc.getActiveSlide === 'function') {
+            const s = acc.getActiveSlide();
+            if (s) return s;
+        }
+        return document;
+    }
+
+    function getSlideEls() {
+        const root = getActiveSlideRoot();
+        const q = id => root.querySelector('#' + id);
+        return {
+            loadingIndicator: q('loading-indicator'),
+            emptyState: q('empty-state'),
+            upgradesContainer: q('upgrades-container'),
+            upgradesCountBadge: q('upgrades-count-badge'),
+            categoryContainers: {
+                buildings: q('buildings-list'),
+                lab: q('lab-list'),
+                pets: q('pets-list'),
+                buildings2: q('buildings2-list'),
+                units2: q('units2-list')
+            },
+            categoryCountBadges: {
+                buildings: q('buildings-count'),
+                lab: q('lab-count'),
+                pets: q('pets-count'),
+                buildings2: q('buildings2-count'),
+                units2: q('units2-count')
+            }
+        };
+    }
 
     let initialized = false;
     let tooltipTimer = null;
@@ -435,12 +451,36 @@
                     const d = accounts[state.currentAccount];
                     if (!d) return;
                     const arr = d[cat];
+                    let removed = false;
                     if (arr && Array.isArray(arr)) {
                         const idx = arr.findIndex(function (a) {
                             return Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl);
                         });
                         if (idx !== -1) {
                             arr.splice(idx, 1);
+                            removed = true;
+                        } else {
+                            // 精工台嵌套模块（data=1000097 的 types[].modules[]，如精工形态 103000011-13）：
+                            // 平铺匹配找不到，需递归定位并删除，空壳（空 modules 的 type / 空 types 的条目）一并清理
+                            for (let i = arr.length - 1; i >= 0; i--) {
+                                const it = arr[i];
+                                if (Number(it.data) !== 1000097 || !it.types || !Array.isArray(it.types)) continue;
+                                const ts = it.types;
+                                for (let ti = ts.length - 1; ti >= 0; ti--) {
+                                    const ms = ts[ti].modules;
+                                    if (!ms || !Array.isArray(ms)) continue;
+                                    for (let mi = ms.length - 1; mi >= 0; mi--) {
+                                        if (Number(ms[mi].data) === Number(id) && Number(ms[mi].timer) === Number(timer) && Number(ms[mi].lvl) === Number(lvl)) {
+                                            ms.splice(mi, 1);
+                                            removed = true;
+                                        }
+                                    }
+                                    if (ms.length === 0) ts.splice(ti, 1);
+                                }
+                                if (ts.length === 0) arr.splice(i, 1);
+                            }
+                        }
+                        if (removed) {
                             saveToLocalStorage();
                             // 删除卡片的同时清理该实例备忘（实例结束）
                             const noteKey = self.getAttribute('data-note-key');
@@ -461,12 +501,9 @@
 
     // 单实例检查
     function displayUpgradingItems(items, data) {
-        // 刷新容器引用（hydrateCache 可能已替换 DOM 节点）
-        categoryContainers.buildings = document.getElementById('buildings-list');
-        categoryContainers.lab = document.getElementById('lab-list');
-        categoryContainers.pets = document.getElementById('pets-list');
-        categoryContainers.buildings2 = document.getElementById('buildings2-list');
-        categoryContainers.units2 = document.getElementById('units2-list');
+        // 刷新容器引用（hydrateCache 可能已替换 DOM 节点；Swiper 每账号 slide 独立容器）
+        const els = getSlideEls();
+        const { upgradesContainer, upgradesCountBadge, emptyState, loadingIndicator, categoryContainers, categoryCountBadges } = els;
         Object.values(categoryContainers).forEach(c => { if(c) c.innerHTML = ''; });
         const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
         if (items.length === 0) {
@@ -633,26 +670,27 @@
         }
         // 活动结束轻量检查：隐藏挡位选择器（完整渲染由 render 负责）
         if (nowTs >= calc.EVENT_END) {
-            const selector = document.getElementById('event-boost-selector');
+            const selector = getActiveSlideRoot().querySelector('#event-boost-selector');
             if (selector && !selector.classList.contains('hidden')) selector.classList.add('hidden');
         }
     }
 
     function updateBuilderBoostToggle(data) {
-        const toggle = document.getElementById('builder-boost-toggle');
+        const root = getActiveSlideRoot();
+        const toggle = root.querySelector('#builder-boost-toggle');
         const isCn = calc.isCnAccount(data);
         if (!isCn) {
             if (toggle) toggle.style.display = 'none';
             // 隐藏月卡图标
-            const passIcon = document.getElementById('builder-monthly-pass-icon');
+            const passIcon = root.querySelector('#builder-monthly-pass-icon');
             if (passIcon) passIcon.classList.add('hidden');
             return;
         }
         if (toggle) toggle.style.display = 'inline-flex';
         const is24Mode = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-        const label = document.getElementById('builder-boost-label');
+        const label = root.querySelector('#builder-boost-label');
         if (label) label.textContent = is24Mode ? '24x' : '10x';
-        const icon = document.getElementById('builder-boost-icon');
+        const icon = root.querySelector('#builder-boost-icon');
         if (icon) {
             icon.src = is24Mode ? 'img/icons/builder_boost_24.webp' : 'img/icons/builder_boost.webp';
         }
@@ -662,7 +700,7 @@
     }
 
     function updateBuilderMonthlyPassIcon(tag) {
-        var passIcon = document.getElementById('builder-monthly-pass-icon');
+        var passIcon = getActiveSlideRoot().querySelector('#builder-monthly-pass-icon');
         if (!passIcon) return;
         // 仅国服账号显示（不检查工人助手是否存在）
         var data = accounts[state.currentAccount];
@@ -686,7 +724,7 @@
 
     // ========== 活动加速挡位选择器 ==========
     function renderEventBoostSelector(data) {
-        const container = document.getElementById('event-boost-selector');
+        const container = getActiveSlideRoot().querySelector('#event-boost-selector');
         if (!container) return;
 
         if (Math.floor(Date.now() / 1000) >= calc.EVENT_END) {
@@ -720,7 +758,7 @@
         });
 
         // 显示推荐文字（×2 按钮右侧）
-        const daysEl = document.getElementById('event-boost-days');
+        const daysEl = getActiveSlideRoot().querySelector('#event-boost-days');
         if (daysEl) {
             daysEl.textContent = calc.getEventRecommendation(data);
         }
@@ -804,19 +842,18 @@
         });
     }
 
-    // 摘要元素引用缓存（避免每次渲染重复 getElementById）
-    let summaryEls = null;
+    // 摘要元素引用（每次从当前账号 slide 查询——Swiper 每账号独立 summary，缓存会指向克隆前的模板）
     function getSummaryEls() {
-        if (summaryEls && summaryEls.card && summaryEls.card.isConnected) return summaryEls;
-        summaryEls = {
-            card: document.getElementById('category-summary-card'),
+        const root = getActiveSlideRoot();
+        const summaryEls = {
+            card: root.querySelector('#category-summary-card'),
             els: {}, badges: {}, redBadges: {}, icons: {}
         };
         ['buildings', 'lab', 'pets', 'buildings2', 'units2'].forEach(key => {
-            summaryEls.els[key] = document.getElementById('summary-' + key);
-            summaryEls.badges[key] = document.getElementById('summary-badge-' + key);
-            summaryEls.redBadges[key] = document.getElementById('summary-badge-red-' + key);
-            summaryEls.icons[key] = document.getElementById('summary-icon-' + key);
+            summaryEls.els[key] = root.querySelector('#summary-' + key);
+            summaryEls.badges[key] = root.querySelector('#summary-badge-' + key);
+            summaryEls.redBadges[key] = root.querySelector('#summary-badge-red-' + key);
+            summaryEls.icons[key] = root.querySelector('#summary-icon-' + key);
         });
         return summaryEls;
     }
@@ -869,7 +906,7 @@
             document.getElementById('dismiss-modal').classList.remove('hidden');
         } else {
             // 已屏蔽 → 连点3次取消屏蔽
-            const card = document.getElementById('category-summary-card');
+            const card = getActiveSlideRoot().querySelector('#category-summary-card');
             const clickKey = 'dismiss_click_' + key;
             const now = Date.now();
             const lastClick = parseInt(card.dataset[clickKey + '_time'] || '0');
@@ -891,12 +928,13 @@
     }
 
     function hydrateCache() {
-        const elLoad = document.getElementById('loading-indicator');
-        const elEmpty = document.getElementById('empty-state');
-        const elUpgrades = document.getElementById('upgrades-container');
-        const elBadge = document.getElementById('upgrades-count-badge');
-        const elTitle = document.getElementById('upgrade-title-text');
-        const elDataInfo = document.getElementById('data-info');
+        const els = getSlideEls();
+        const elLoad = els.loadingIndicator;
+        const elEmpty = els.emptyState;
+        const elUpgrades = els.upgradesContainer;
+        const elBadge = els.upgradesCountBadge;
+        const elTitle = getActiveSlideRoot().querySelector('#upgrade-title-text');
+        const elDataInfo = getActiveSlideRoot().querySelector('#data-info');
         const elActions = document.getElementById('account-actions');
         try {
             const cached = JSON.parse(localStorage.getItem('clash_cached_view'));
@@ -939,9 +977,10 @@
         if (initialized) return;
         initialized = true;
 
-        const summary = document.getElementById('category-summary-card');
-        if (summary) {
-            summary.addEventListener('click', event => {
+        // 事件委托到 main-display-area（Swiper 每账号 slide 克隆模板，模板上的直接绑定不会随克隆复制）
+        const displayArea = document.getElementById('main-display-area');
+        if (displayArea) {
+            displayArea.addEventListener('click', event => {
                 const target = event.target.closest('[data-category]');
                 if (target) handleCategoryClick(target.dataset.category);
             });
@@ -1017,14 +1056,15 @@
                 undismissTargetKey = null;
             }
         });
-            // 助手阶段图标点击气泡提示
-            document.getElementById('upgrades-container').addEventListener('click', function(e) {
+            // 助手阶段图标点击气泡提示（委托，slide 克隆后模板绑定不复制）
+            displayArea.addEventListener('click', function(e) {
                 const btn = e.target.closest('.phase-icon-btn');
                 if (btn) handlePhaseTooltip({ currentTarget: btn });
             });
 
-            // builderBoost 10x/24x 切换（点击图标切换）
-            document.getElementById('builder-boost-toggle')?.addEventListener('click', () => {
+            // builderBoost 10x/24x 切换（点击图标切换；委托到 displayArea）
+            displayArea.addEventListener('click', function(e) {
+                if (!e.target.closest('#builder-boost-toggle')) return;
                 if (!state.currentAccount || !accounts[state.currentAccount]) return;
                 const data = accounts[state.currentAccount];
                 if (!settings.builderBoostMode24) settings.builderBoostMode24 = {};
@@ -1040,8 +1080,9 @@
                 } catch (e) {}
             });
 
-            // 建筑工人月卡图标点击 → 弹窗
-            document.getElementById('builder-monthly-pass-icon')?.addEventListener('click', () => {
+            // 建筑工人月卡图标点击 → 弹窗（委托到 displayArea）
+            displayArea.addEventListener('click', function(e) {
+                if (!e.target.closest('#builder-monthly-pass-icon')) return;
                 document.getElementById('builder-monthly-pass-modal').classList.remove('hidden');
             });
             // 月卡弹窗：是

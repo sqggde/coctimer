@@ -33,9 +33,13 @@
 }
 
 /* ===== 账号标签 ===== */
+#tab-container {
+    position: relative;
+}
 .account-tab {
     cursor: pointer;
     white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease;
 }
 .account-tab.active-tab {
     border: 2px solid #000000 !important;
@@ -54,6 +58,21 @@
     position: sticky !important;
     left: 0 !important;
     z-index: 2 !important;
+}
+/* 账号切换内容入场动画：左滑/右滑按方向滑入，其余从右滑入（过渡自然不突兀） */
+.tab-slide-left {
+    animation: tabSlideInFromRight 0.2s ease-out;
+}
+.tab-slide-right {
+    animation: tabSlideInFromLeft 0.2s ease-out;
+}
+@keyframes tabSlideInFromRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes tabSlideInFromLeft {
+    from { opacity: 0; transform: translateX(-24px); }
+    to { opacity: 1; transform: none; }
 }
 .sleep-highlight {
     background-color: #dbeafe !important;

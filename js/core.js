@@ -500,6 +500,10 @@
         var openModal = document.querySelector('.modal-overlay:not(.hidden)');
         if (openModal) {
             openModal.classList.add('hidden');
+            // 排序弹窗被返回键关闭 → 走完整退出流程（复位 isSortMode/停止定时器，等同取消；否则排序键无法再次打开）
+            if (openModal.id === 'sort-modal' && CocTool.features.accounts && CocTool.features.accounts.exitSortModeIfActive) {
+                CocTool.features.accounts.exitSortModeIfActive();
+            }
             return 'true';
         }
         // 小组件管理覆盖层：配置页 → 列表页 → 未开则继续（对齐账号进度/部落逐级返回）

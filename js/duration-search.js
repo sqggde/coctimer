@@ -230,7 +230,7 @@
     function futureHourButtons() {
         let html = '';
         for (let h = 0; h < 24; h++) {
-            html += '<button data-ds-future-hour="' + h + '" class="px-1 py-1 rounded-lg text-sm ' +
+            html += '<button data-ds-future-hour="' + h + '" class="px-2 py-1 rounded-lg text-sm ' +
                 (h === uiState.futureHours ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700') + '">' + h + '</button>';
         }
         return html;
@@ -239,7 +239,7 @@
     function hourButtons() {
         let html = '';
         for (let h = 0; h < 24; h++) {
-            html += '<button data-ds-hour="' + h + '" class="px-1 py-1 rounded-lg text-sm ' +
+            html += '<button data-ds-hour="' + h + '" class="px-2 py-1 rounded-lg text-sm ' +
                 (h === uiState.hour ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700') + '">' + h + '</button>';
         }
         return html;
@@ -323,7 +323,7 @@
             '<button data-ds-future-toggle class="w-6 h-6 flex items-center justify-center rounded" style="border:1.5px solid #9ca3af;color:#3b82f6;font-size:14px;line-height:1;background:#ffffff;" title="选择几小时后">' +
             '<span data-ds-future-check>' + (uiState.futureHours === null ? '' : '✓') + '</span>' +
             '</button>' +
-            '<div data-ds-future-panel class="hidden bg-white border border-gray-300" style="position:absolute;top:calc(100% + 4px);left:0;z-index:30;border-radius:8px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);">' +
+            '<div data-ds-future-panel class="hidden bg-white border border-gray-300" style="position:absolute;top:calc(100% + 4px);left:0;min-width:224px;z-index:30;border-radius:8px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);">' +
             '<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:4px;">' + futureHourButtons() + '</div>' +
             '</div>' +
             '</div>' +
@@ -341,7 +341,7 @@
             '<button data-ds-hour-toggle class="w-full flex items-center justify-between px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white text-gray-800">' +
             '<span data-ds-hour-label>' + uiState.hour + '</span><i class="fa fa-chevron-down text-xs text-gray-500"></i>' +
             '</button>' +
-            '<div data-ds-hour-panel class="hidden bg-white border border-gray-300" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:30;border-radius:8px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);">' +
+            '<div data-ds-hour-panel class="hidden bg-white border border-gray-300" style="position:absolute;top:calc(100% + 4px);left:0;right:0;min-width:224px;z-index:30;border-radius:8px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);">' +
             '<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:4px;">' + hourButtons() + '</div>' +
             '</div>' +
             '</div>' +
