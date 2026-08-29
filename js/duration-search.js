@@ -150,6 +150,31 @@
     const ALL_BUTTON_LABELS = { search: '所有可升级项', allAsc: '所有可升级项↓', allDesc: '所有可升级项↑' };
     const DISCOUNT_OPTIONS = [0, 5, 10, 15, 20];
     const MAX_ROWS = 500;
+    // 弹窗所有选择持久化（tab/hour/filter/resource/futureHours/mode 全局偏好；discount 仍按账号走 clash_upgrade_discount）
+    const DS_STATE_KEY = 'clash_ds_state';
+
+    function loadDsState() {
+        try {
+            const s = JSON.parse(global.localStorage.getItem(DS_STATE_KEY) || '{}');
+            return {
+                tab: s.tab === 'builder' ? 'builder' : 'home',
+                hour: (typeof s.hour === 'number' && s.hour >= 0 && s.hour <= 23) ? s.hour : 12,
+                filter: typeof s.filter === 'string' ? s.filter : 'all',
+                resource: typeof s.resource === 'string' ? s.resource : 'all',
+                futureHours: (typeof s.futureHours === 'number' && s.futureHours > 0) ? s.futureHours : null,
+                mode: ['search', 'allAsc', 'allDesc'].includes(s.mode) ? s.mode : 'allDesc'
+            };
+        } catch (e) { return null; }
+    }
+
+    function saveDsState() {
+        try {
+            global.localStorage.setItem(DS_STATE_KEY, JSON.stringify({
+                tab: uiState.tab, hour: uiState.hour, filter: uiState.filter,
+                resource: uiState.resource, futureHours: uiState.futureHours, mode: uiState.mode
+            }));
+        } catch (e) {}
+    }
 
     function formatDuration(seconds) {
         if (seconds <= 0) return '0秒';
@@ -400,6 +425,7 @@
             const futureHour = e.target.closest('[data-ds-future-hour]');
             if (futureHour) {
                 uiState.futureHours = parseInt(futureHour.getAttribute('data-ds-future-hour'), 10) || 0;
+                saveDsState();
                 applyFutureStyles(modal);
                 return;
             }
@@ -426,6 +452,7 @@
             if (hourBtn) {
                 uiState.hour = parseInt(hourBtn.getAttribute('data-ds-hour'), 10) || 0;
                 uiState.mode = 'search';
+                saveDsState();
                 applyHourStyles(modal);
                 applyAllButton(modal);
                 renderResults(modal);
@@ -439,6 +466,7 @@
             const resBtn = e.target.closest('[data-ds-res]');
             if (resBtn) {
                 uiState.resource = resBtn.getAttribute('data-ds-res');
+                saveDsState();
                 applyResStyles(modal);
                 applyAllButton(modal);
                 renderResults(modal);
@@ -453,6 +481,7 @@
                 if (!RESOURCE_LABELS[uiState.tab] || !RESOURCE_LABELS[uiState.tab][uiState.resource]) {
                     uiState.resource = 'all';
                 }
+                saveDsState();
                 applyTabStyles(modal);
                 rebuildFilterRow(modal);
                 applyFilterStyles(modal);
@@ -464,6 +493,7 @@
             const filterBtn = e.target.closest('[data-ds-filter]');
             if (filterBtn) {
                 uiState.filter = filterBtn.getAttribute('data-ds-filter');
+                saveDsState();
                 applyFilterStyles(modal);
                 renderResults(modal);
                 return;
@@ -505,6 +535,7 @@
     function cycleAllButton(modal) {
         // 仅 ↑↓ 切换；目标时间模式点按进入全部降序
         uiState.mode = uiState.mode === 'allDesc' ? 'allAsc' : 'allDesc';
+        saveDsState();
         applyAllButton(modal);
         applyHourStyles(modal);
         renderResults(modal);
@@ -567,7 +598,9 @@
             modal = buildModal();
             document.body.appendChild(modal);
         }
-        uiState.mode = 'allDesc';
+        // 恢复持久化选择（tab/hour/filter/resource/futureHours/mode）
+        const savedState = loadDsState();
+        if (savedState) Object.assign(uiState, savedState);
         uiState.discount = getAccountDiscount();
         applyTabStyles(modal);
         applyFilterStyles(modal);
