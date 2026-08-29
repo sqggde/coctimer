@@ -27,6 +27,11 @@
     const removeAccountBtn = document.getElementById('remove-account-btn');
     const moreBtn = document.getElementById('more-btn');
     const moreMenu = document.getElementById('more-menu');
+    const quickImportWrap = document.querySelector('.quick-import-wrap');
+    const quickImportBtn = document.getElementById('quick-import-btn');
+    const quickImportLabel = document.getElementById('quick-import-label');
+    const quickImportCaret = document.getElementById('quick-import-caret');
+    const quickImportMenu = document.getElementById('quick-import-menu');
     const sortModal = document.getElementById('sort-modal');
     const sortListContainer = document.getElementById('sort-list-container');
     const sortApplyBtn = document.getElementById('sort-apply-btn');
@@ -784,6 +789,35 @@ let initialized = false;
             if (!moreMenu.classList.contains('hidden') && !e.target.closest('.more-wrap')) {
                 moreMenu.classList.add('hidden');
             }
+            if (quickImportMenu && !quickImportMenu.classList.contains('hidden') && !e.target.closest('.quick-import-wrap')) {
+                quickImportMenu.classList.add('hidden');
+            }
+        });
+        // 快捷导入分体按钮：左 70% 执行当前模式，右 30%（▾）切换模式（持久化 settings.quickImportMode）
+        function updateQuickImportMode() {
+            if (!quickImportLabel) return;
+            quickImportLabel.textContent = settings.quickImportMode === 'paste' ? '粘贴导入' : '快捷导入';
+        }
+        updateQuickImportMode();
+        quickImportBtn.addEventListener('click', () => {
+            if (settings.quickImportMode === 'paste') showJsonModal();
+            else quickImportJsonData();
+        });
+        quickImportCaret.addEventListener('click', (e) => {
+            e.stopPropagation();
+            quickImportMenu.classList.toggle('hidden');
+        });
+        quickImportMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('.more-menu-item');
+            if (item) {
+                const mode = item.getAttribute('data-quick-mode');
+                if (mode && settings.quickImportMode !== mode) {
+                    settings.quickImportMode = mode;
+                    saveSettings();
+                    updateQuickImportMode();
+                }
+            }
+            quickImportMenu.classList.add('hidden');
         });
         // 点击遮罩关闭排序弹窗（等同取消，不应用变更）
         sortModal.addEventListener('click', (e) => {

@@ -34,6 +34,7 @@
         notifyClocktower: false,
         notifyClanwar: true,
         notifyLeague: true,
+        quickImportMode: 'clipboard',
         dismissedUpdateVersion: 0
     });
 
