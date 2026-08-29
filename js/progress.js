@@ -457,27 +457,28 @@
                             return Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl);
                         });
                         if (idx !== -1) {
-                            arr.splice(idx, 1);
+                            // 完成确认：不清除条目（实体等级信息供详情页/总进度使用），只清除 timer（升级结束）+ 等级 +1（升级完成的目的就是 +1 级）
+                            arr[idx].lvl = Number(arr[idx].lvl) + 1;
+                            delete arr[idx].timer;
                             removed = true;
                         } else {
                             // 精工台嵌套模块（data=1000097 的 types[].modules[]，如精工形态 103000011-13）：
-                            // 平铺匹配找不到，需递归定位并删除，空壳（空 modules 的 type / 空 types 的条目）一并清理
-                            for (let i = arr.length - 1; i >= 0; i--) {
+                            // 平铺匹配找不到，需递归定位；同样只清 timer + 等级 +1，条目/module 保留
+                            for (let i = 0; i < arr.length; i++) {
                                 const it = arr[i];
                                 if (Number(it.data) !== 1000097 || !it.types || !Array.isArray(it.types)) continue;
                                 const ts = it.types;
-                                for (let ti = ts.length - 1; ti >= 0; ti--) {
+                                for (let ti = 0; ti < ts.length; ti++) {
                                     const ms = ts[ti].modules;
                                     if (!ms || !Array.isArray(ms)) continue;
-                                    for (let mi = ms.length - 1; mi >= 0; mi--) {
+                                    for (let mi = 0; mi < ms.length; mi++) {
                                         if (Number(ms[mi].data) === Number(id) && Number(ms[mi].timer) === Number(timer) && Number(ms[mi].lvl) === Number(lvl)) {
-                                            ms.splice(mi, 1);
+                                            ms[mi].lvl = Number(ms[mi].lvl) + 1;
+                                            delete ms[mi].timer;
                                             removed = true;
                                         }
                                     }
-                                    if (ms.length === 0) ts.splice(ti, 1);
                                 }
-                                if (ts.length === 0) arr.splice(i, 1);
                             }
                         }
                         if (removed) {
