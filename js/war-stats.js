@@ -658,7 +658,17 @@ $('ws-result').innerHTML = h;
     function openSharePreview(root, section) {
         var dataUrl;
         try {
-            dataUrl = tableToCanvas(section);
+            // 离屏无头 DOM 重建：复制 section 到离屏容器（无滚动状态、sticky 无容器失效、固定浅色变量）
+            // 生成图片完全不受展示页滚动/布局影响，所有用户导出格式一致
+            var off = document.createElement('div');
+            off.style.cssText = 'position:fixed;left:-99999px;top:0;visibility:hidden;'
+                + '--ws-card:#ffffff;--ws-text:#1f2937;--ws-sub:#6b7280;--ws-border:#e5e7eb;'
+                + '--ws-accent:#3b82f6;--ws-green:#10b981;--ws-red:#ef4444;--ws-yellow:#f59e0b;--ws-purple:#8b5cf6;';
+            off.innerHTML = section.outerHTML;
+            document.body.appendChild(off);
+            var offSection = off.querySelector('.ws-section');
+            dataUrl = tableToCanvas(offSection);
+            off.remove();
         } catch (e) {
             showShareToast('图片生成失败: ' + e.message);
             return;
