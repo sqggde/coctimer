@@ -476,13 +476,17 @@ $('ws-result').innerHTML = h;
         var legendInfo = null;
         // 滚动补偿：元素视口坐标受祖先滚动容器影响（矩阵横向滑动/页面纵向滚动后分享会错位）
         // 递归累计滚动量：元素文档坐标 = rect - 视口 + 祖先滚动量累计
-        function paint(el, sox, soy) {
+        function paint(el, sox, soy, sticky) {
             var cls = el.className || '';
             if (cls.indexOf('ws-share-btn') >= 0) return;
             var cs = getComputedStyle(el);
             var isScroll = cs.overflowX === 'auto' || cs.overflowX === 'scroll' || cs.overflowY === 'auto' || cs.overflowY === 'scroll';
+            // sticky 元素视口坐标不随滚动变化（吸住），子树跳过滚动补偿（成员列滚动后仍正确）
+            var isSticky = sticky || cs.position === 'sticky';
             var rect = el.getBoundingClientRect();
-            var x = rect.left - ox + sox, y = rect.top - oy + soy, w = rect.width, h = rect.height;
+            var x = rect.left - ox + (isSticky ? 0 : sox);
+            var y = rect.top - oy + (isSticky ? 0 : soy);
+            var w = rect.width, h = rect.height;
             if (cls.indexOf('ws-legend') >= 0) {
                 // 收集图例数据；分享图内固定一行绘制（不随手机宽度换行）
                 legendInfo = { x: x, y: y, h: h, items: [] };
@@ -522,7 +526,8 @@ $('ws-result').innerHTML = h;
                     ctx.font = (scs.fontWeight === '700' ? 'bold ' : '') + scs.fontSize + ' ' + (scs.fontFamily || 'sans-serif');
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(sp.textContent, sr.left - ox + sr.width / 2, sr.top - oy + sr.height / 2);
+                    // 文字与色块同坐标系（加滚动补偿）
+                    ctx.fillText(sp.textContent, sr.left - ox + (isSticky ? 0 : sox) + sr.width / 2, sr.top - oy + (isSticky ? 0 : soy) + sr.height / 2);
                 }
                 return;
             }
@@ -546,10 +551,10 @@ $('ws-result').innerHTML = h;
                 return;
             }
             for (var j = 0; j < el.children.length; j++) {
-                paint(el.children[j], sox + (isScroll ? (el.scrollLeft || 0) : 0), soy + (isScroll ? (el.scrollTop || 0) : 0));
+                paint(el.children[j], isSticky ? 0 : sox + (isScroll ? (el.scrollLeft || 0) : 0), isSticky ? 0 : soy + (isScroll ? (el.scrollTop || 0) : 0), isSticky);
             }
         }
-        for (var k = 0; k < section.children.length; k++) paint(section.children[k], 0, 0);
+        for (var k = 0; k < section.children.length; k++) paint(section.children[k], 0, 0, false);
         // 固定一行绘制图例（不受手机宽度换行影响）
         if (legendInfo && legendInfo.items.length) {
             var lx = legendInfo.x, ly = legendInfo.y + legendInfo.h / 2, lstep = 0;
@@ -655,7 +660,7 @@ $('ws-result').innerHTML = h;
         try {
             dataUrl = tableToCanvas(section);
         } catch (e) {
-            showShareToast('图片生成失败');
+            showShareToast('图片生成失败: ' + e.message);
             return;
         }
         if (!dataUrl) { showShareToast('图片生成失败'); return; }
