@@ -109,7 +109,6 @@ function showWarDetail(et){
 function init(){
   var cc=document.getElementById('clan-cards');
   if(cc)cc.addEventListener('click',function(e){var cd=e.target.closest('[data-war-tag]')||e.target.closest('[data-war-china-id]');if(cd){N=cd.getAttribute('data-war-tag')||cd.getAttribute('data-war-china-id');if(N&&N.startsWith('#'))N=N.slice(1)}},true);
-  var lb=document.getElementById('detail-log-btn');if(lb)lb.addEventListener('click',function(){showLog()});
   var bk=document.getElementById('log-back-btn');if(bk)bk.addEventListener('click',function(){hideLog()});
   var lr=document.getElementById('log-refresh-btn');if(lr){
     var lpTimer=null,lp=false;

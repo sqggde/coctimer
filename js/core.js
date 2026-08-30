@@ -407,6 +407,10 @@
         if (lv2 && lv2.style.display !== 'none') {
             lv2.style.display = 'none'; lv2.classList.add('hidden');
         }
+        var wsView = document.getElementById('war-stats-view');
+        if (wsView && wsView.style.display !== 'none') {
+            wsView.style.display = 'none'; wsView.classList.add('hidden');
+        }
         var clanDetail = document.getElementById('clan-detail-page');
         if (clanDetail && clanDetail.style.display !== 'none') {
             var clanClosed = false;
@@ -521,6 +525,12 @@
         var lv2 = document.getElementById('clan-log-view');
         if (lv2 && lv2.style.display !== 'none') {
             lv2.style.display = 'none'; lv2.classList.add('hidden');
+            return 'true';
+        }
+        // 对战统计（war-stats.js 独立层）：优先于部落详情关闭
+        var wsView = document.getElementById('war-stats-view');
+        if (wsView && wsView.style.display !== 'none') {
+            wsView.style.display = 'none'; wsView.classList.add('hidden');
             return 'true';
         }
         var detailPage = document.getElementById('clan-detail-page');

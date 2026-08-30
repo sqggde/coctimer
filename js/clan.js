@@ -142,6 +142,46 @@
         el.modeTabs = document.getElementById('detail-mode-tabs');
         el.modeWarTab = document.getElementById('mode-war-tab');
         el.modeLeagueTab = document.getElementById('mode-league-tab');
+
+        // ====== 详情页 more 下拉菜单（对战日志 / 对战统计） ======
+        var detailMoreBtn = document.getElementById('detail-more-btn');
+        var detailMoreMenu = document.getElementById('detail-more-menu');
+        var detailLogItem = document.getElementById('detail-log-menu-item');
+        var detailStatsItem = document.getElementById('detail-stats-menu-item');
+        function hideDetailMoreMenu() {
+            if (detailMoreMenu) detailMoreMenu.classList.add('hidden');
+        }
+        if (detailMoreBtn) {
+            detailMoreBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (detailMoreMenu) detailMoreMenu.classList.toggle('hidden');
+            });
+        }
+        if (detailMoreMenu) {
+            detailMoreMenu.addEventListener('click', function(e) { e.stopPropagation(); });
+        }
+        if (detailLogItem) {
+            detailLogItem.addEventListener('click', function() {
+                hideDetailMoreMenu();
+                if (CocTool.features.warlog && CocTool.features.warlog.show) CocTool.features.warlog.show();
+            });
+        }
+        if (detailStatsItem) {
+            detailStatsItem.addEventListener('click', function() {
+                hideDetailMoreMenu();
+                var clan = shared._currentClan;
+                if (clan && clan.tag && CocTool.features.warStats) {
+                    var badge = clan.badgeUrls && clan.badgeUrls.small ? clan.badgeUrls.small : '';
+                    CocTool.features.warStats.open(clan.tag, clan.name, badge);
+                }
+            });
+        }
+        // 点击页面其他区域收起菜单
+        document.addEventListener('click', hideDetailMoreMenu);
+        CocTool.closeWarStats = function() {
+            if (CocTool.features.warStats) CocTool.features.warStats.close();
+            hideDetailMoreMenu();
+        };
         el.leagueTabs = document.getElementById('league-tabs');
         el.leagueTitle = document.getElementById('league-title');
         el.leagueTabList = document.getElementById('league-tab-list');
@@ -679,6 +719,12 @@
         warInfo.innerHTML = '<div class="card-war-label" style="font-size:11px;color:#6b7280;font-weight:500;"></div><div class="card-war-time" style="font-size:15px;font-weight:700;color:#1d4ed8;font-variant-numeric:tabular-nums;min-width:70px;"></div>';
         card.appendChild(warInfo);
 
+        // 卡片右下角：结束时间标签（今天/明天/后天 HH:MM 结束）
+        var endLabel = document.createElement('div');
+        endLabel.className = 'card-end-label';
+        endLabel.style.display = 'none';
+        card.appendChild(endLabel);
+
         if (isDeleteMode) {
             var delBadge = document.createElement('div');
             delBadge.className = 'delete-badge';
@@ -748,6 +794,12 @@
         warInfo.innerHTML = '<div class="card-war-label" style="font-size:11px;color:#6b7280;font-weight:500;"></div><div class="card-war-time" style="font-size:15px;font-weight:700;color:#1d4ed8;font-variant-numeric:tabular-nums;min-width:70px;"></div>';
         card.appendChild(warInfo);
 
+        // 卡片右下角：结束时间标签（今天/明天/后天 HH:MM 结束）
+        var endLabel2 = document.createElement('div');
+        endLabel2.className = 'card-end-label';
+        endLabel2.style.display = 'none';
+        card.appendChild(endLabel2);
+
         if (isDeleteMode) {
             var delBadge = document.createElement('div');
             delBadge.className = 'delete-badge';
@@ -790,6 +842,18 @@
     function _parseCocTime(str) {
         if (!str) return 0;
         return new Date(str.slice(0,4)+'-'+str.slice(4,6)+'-'+str.slice(6,8)+'T'+str.slice(9,11)+':'+str.slice(11,13)+':'+str.slice(13,15)+'.'+str.slice(16,19)+'Z').getTime();
+    }
+
+    // 结束时间标签：今天/明天/后天 HH:MM 结束（更远显示 M/D HH:MM 结束）
+    function formatEndLabel(endMs) {
+        var d = new Date(endMs);
+        var now = new Date();
+        var dayDiff = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86400000);
+        var hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        if (dayDiff === 0) return '今天 ' + hm + ' 结束';
+        if (dayDiff === 1) return '明天 ' + hm + ' 结束';
+        if (dayDiff === 2) return '后天 ' + hm + ' 结束';
+        return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm + ' 结束';
     }
 
     function updateCardCountdowns() {
@@ -864,6 +928,7 @@
                     info.style.display = '';
                     var label = info.querySelector('.card-war-label');
                     var timeEl = info.querySelector('.card-war-time');
+                    var endEl = card.querySelector('.card-end-label');
                     label.textContent = state === 'preparation' ? '准备日' : '战斗日';
                     label.style.color = state === 'preparation' ? '#6b7280' : '#000';
                     info.style.background = state === 'preparation' ? '#eff6ff' : '#ede9fe';
@@ -872,6 +937,7 @@
                     var m = Math.floor((totalSec % 3600) / 60);
                     var s = totalSec % 60;
                     timeEl.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                    if (endEl) { endEl.textContent = formatEndLabel(endMs); endEl.style.display = ''; }
                 } else {
                     info.style.display = 'none';
                 }
@@ -884,6 +950,7 @@
                         info.style.display = '';
                         var labelL = info.querySelector('.card-war-label');
                         var timeElL = info.querySelector('.card-war-time');
+                        var endElL = card.querySelector('.card-end-label');
                         labelL.textContent = ph.label;
                         labelL.style.color = ph.kind === 'prep' ? '#6b7280' : '#000';
                         info.style.background = ph.kind === 'prep' ? '#eff6ff' : '#ede9fe';
@@ -892,6 +959,7 @@
                         var mL = Math.floor((tsL % 3600) / 60);
                         var sL = tsL % 60;
                         timeElL.textContent = String(hL).padStart(2, '0') + ':' + String(mL).padStart(2, '0') + ':' + String(sL).padStart(2, '0');
+                        if (endElL) { endElL.textContent = formatEndLabel(ph.target); endElL.style.display = ''; }
                     } else {
                         info.style.display = 'none';
                     }
@@ -900,6 +968,11 @@
                 }
             } else {
                 info.style.display = 'none';
+            }
+            // 无倒计时时同步隐藏右下角结束标签
+            if (info.style.display === 'none') {
+                var endHide = card.querySelector('.card-end-label');
+                if (endHide) endHide.style.display = 'none';
             }
         }
     }
@@ -929,8 +1002,8 @@
 
         // 国服/国际服切换按钮
         if (data.type === 'china') {
-            var detailLogBtn = document.getElementById('detail-log-btn');
-            if (detailLogBtn) detailLogBtn.style.display = 'none';
+            var detailMoreWrap = document.getElementById('detail-more-wrap');
+            if (detailMoreWrap) detailMoreWrap.style.display = 'none';
             if (el.detailToolbar) el.detailToolbar.style.display = 'none';
             if (el.chinaWarSettingBtn) el.chinaWarSettingBtn.style.display = '';
             if (el.modeTabs) el.modeTabs.classList.add('hidden');
@@ -941,8 +1014,8 @@
         // 读取该部落记忆的模式（每部落独立，刷新/重启后仍生效）
         shared._leagueMode = _modeMap[(data.tag || '').replace(/^#/, '')] === 'league';
         shared.updateModeTabs();
-        var detailLogBtn2 = document.getElementById('detail-log-btn');
-        if (detailLogBtn2) detailLogBtn2.style.display = '';
+        var detailMoreWrap2 = document.getElementById('detail-more-wrap');
+        if (detailMoreWrap2) detailMoreWrap2.style.display = '';
         if (el.chinaWarSettingBtn) el.chinaWarSettingBtn.style.display = 'none';
         // 隐藏列表
         var listTopBar = el.root.querySelector('.top-bar');

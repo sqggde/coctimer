@@ -124,7 +124,7 @@
         #clan-page .hidden { display: none !important; }
 
         /* 部落卡片 */
-        #clan-page .clan-card {
+#clan-page .clan-card {
             margin: 8px 20px;
             background: #ffffff;
             border-radius: 12px;
@@ -133,7 +133,19 @@
             display: flex;
             align-items: center;
             gap: 14px;
+            position: relative;
         }
+        /* 卡片右下角：结束时间标签（今天/明天/后天 HH:MM 结束） */
+        #clan-page .card-end-label {
+            position: absolute;
+            right: 18px;
+            bottom: 3px;
+            font-size: 10px;
+            color: #9ca3af;
+            font-weight: 500;
+            line-height: 1;
+        }
+        .dark #clan-page .card-end-label { color: #8b93a7; }
         #clan-page .clan-card .clan-badge {
             width: 56px;
             height: 56px;
@@ -467,6 +479,136 @@
 .mode-tab-war.inactive { background: #e5e7eb; color: #6b7280; }
 .mode-tab-league { background: #8b5cf6; color: #fff; }
 .mode-tab-league.inactive { background: #e5e7eb; color: #6b7280; }
+/* 详情页 more 下拉菜单容器（对战日志/对战统计） */
+.detail-more-wrap { position: relative; }
+.detail-more-wrap .more-menu { min-width: 176px; padding: 6px; gap: 4px; }
+.detail-more-wrap .more-menu-item { padding: 11px 16px !important; font-size: 14px; }
+/* ===== 对战统计（war-stats.js） ===== */
+#war-stats-view { --ws-card: #ffffff; --ws-text: #1f2937; --ws-sub: #6b7280; --ws-border: #e5e7eb; --ws-accent: #3b82f6; --ws-green: #10b981; --ws-red: #ef4444; --ws-yellow: #f59e0b; --ws-purple: #8b5cf6; }
+.dark #war-stats-view { --ws-card: #16213e; --ws-text: #e5e7eb; --ws-sub: #9ca3af; --ws-border: #374151; --ws-accent: #60a5fa; --ws-green: #34d399; --ws-red: #f87171; --ws-yellow: #fbbf24; --ws-purple: #a78bfa; }
+#war-stats-view { color: var(--ws-text); }
+.ws-panel { background: var(--ws-card); border-radius: 12px; padding: 16px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 12px !important; }
+.ws-clan-name { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--ws-text); padding-bottom: 12px !important; margin-bottom: 12px !important; border-bottom: 1px solid var(--ws-border); }
+.ws-clan-name i { color: var(--ws-accent); }
+.ws-clan-badge { width: 22px; height: 22px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+.ws-date-row { display: flex; gap: 10px; }
+.ws-date-row .ws-field { flex: 1; min-width: 0; margin-bottom: 4px !important; }
+.ws-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px !important; }
+.ws-field:last-of-type { margin-bottom: 4px !important; }
+.ws-field label { font-size: 12px; color: var(--ws-sub); }
+.ws-field input { width: 100%; box-sizing: border-box; height: 40px; padding: 0 12px !important; border: 1px solid var(--ws-border); border-radius: 10px; font-size: 14px; background: var(--ws-card); color: var(--ws-text); }
+.ws-field input:focus { outline: none; border-color: var(--ws-accent); }
+.ws-date-btn { width: 100%; height: 40px; padding: 0 12px !important; border: 1px solid var(--ws-border); border-radius: 10px; font-size: 14px; background: var(--ws-card); color: var(--ws-text); display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-variant-numeric: tabular-nums; }
+.ws-date-btn::after { content: ''; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--ws-sub); }
+.ws-date-btn:active { opacity: 0.8; }
+/* ===== 日历选择弹窗（App 风格 modal-card） ===== */
+.ws-cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ws-cal-title { font-size: 15px; font-weight: 600; color: #1f2937; }
+.dark .ws-cal-title { color: #e5e7eb; }
+.ws-cal-nav { width: 32px; height: 32px; border: none; border-radius: 8px; background: #f3f4f6; color: #6b7280; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.dark .ws-cal-nav { background: #3d3d5c; color: #9ca3af; }
+.ws-cal-week { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6px; }
+.ws-cal-week span { text-align: center; font-size: 11px; color: #9ca3af; }
+.ws-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.ws-cal-day { height: 36px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #374151; border-radius: 8px; cursor: pointer; }
+.dark .ws-cal-day { color: #e2e8f0; }
+.ws-cal-day.blank { cursor: default; }
+.ws-cal-day:hover { background: #f3f4f6; }
+.dark .ws-cal-day:hover { background: #3d3d5c; }
+.ws-cal-day.sel { background: #3b82f6; color: #fff; font-weight: 600; }
+.dark .ws-cal-day.sel { background: #60a5fa; }
+.ws-cal-day.today { box-shadow: inset 0 0 0 1px #3b82f6; }
+.dark .ws-cal-day.today { box-shadow: inset 0 0 0 1px #60a5fa; }
+.ws-cal-foot { display: flex; gap: 8px; margin-top: 12px; }
+.ws-cal-today { flex: 1; height: 38px; border: none; border-radius: 10px; background: #3b82f6; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.dark .ws-cal-today { background: #60a5fa; }
+.ws-cal-cancel { flex: 1; height: 38px; border: none; border-radius: 10px; background: #f3f4f6; color: #374151; font-size: 14px; cursor: pointer; }
+.dark .ws-cal-cancel { background: #3d3d5c; color: #e2e8f0; }
+.ws-query-btn { width: 100%; margin-top: 12px !important; height: 42px; border: none; border-radius: 10px; background: var(--ws-accent); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.ws-query-btn:active { opacity: 0.85; }
+/* 提示折叠：开始统计下方居中倒三角，点击展开（提示完全隐藏时可整个收起） */
+.ws-tip-toggle { display: block; margin: 6px auto 0 !important; background: none; border: none; font-size: 12px; line-height: 1; color: var(--ws-sub); padding: 4px 16px !important; cursor: pointer; }
+.ws-tip-toggle:active { opacity: 0.7; }
+.ws-tip-content { border-top: 1px dashed var(--ws-border); margin-top: 8px; padding-top: 8px !important; display: flex; flex-direction: column; gap: 6px; }
+.ws-tip-badge { background: var(--ws-yellow); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px !important; border-radius: 8px; flex-shrink: 0; }
+.ws-tip-line { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--ws-sub); line-height: 1.5; }
+.ws-tip-line .ws-tip-badge { margin-top: 1px; }
+/* 对战统计四 tab（概览/统计/进攻/防御，独立胶囊按键，参考图鉴页形态切换 e-btn） */
+.ws-tab-bar { display: flex; gap: 8px; margin-bottom: 12px !important; }
+.ws-tab-btn { flex: 1 1 0; background: var(--ws-card); border: 1px solid var(--ws-border); color: var(--ws-sub); border-radius: 999px; padding: 7px 4px !important; font-size: 13px; cursor: pointer; text-align: center; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
+.ws-tab-btn.active { border-color: var(--ws-accent); color: var(--ws-accent); font-weight: 500; }
+.ws-tab-pane { display: block; }
+.ws-empty { text-align: center; padding: 40px; color: var(--ws-sub); font-size: 14px; }
+.ws-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px !important; }
+.ws-stat-card { background: var(--ws-card); border-radius: 12px; padding: 14px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; }
+.ws-stat-val { font-size: 24px; font-weight: 700; color: var(--ws-accent); }
+.ws-stat-card.green .ws-stat-val { color: var(--ws-green); }
+.ws-stat-card.red .ws-stat-val { color: var(--ws-red); }
+.ws-stat-card.yellow .ws-stat-val { color: var(--ws-yellow); }
+.ws-stat-card.purple .ws-stat-val { color: var(--ws-purple); }
+.ws-stat-label { font-size: 12px; color: var(--ws-sub); margin-top: 2px; }
+.ws-section { background: var(--ws-card); border-radius: 12px; padding: 16px !important; margin-bottom: 12px !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.ws-section-title { font-size: 15px; font-weight: 700; margin-bottom: 12px !important; display: flex; align-items: center; gap: 6px; color: var(--ws-text); }
+.ws-section-title i { color: var(--ws-accent); }
+.ws-section-sub { font-size: 12px; color: var(--ws-sub); font-weight: 400; margin-left: auto; }
+/* 表格分享按钮（标题行最右侧） */
+.ws-share-btn { margin-left: auto !important; background: none; border: none; padding: 2px !important; cursor: pointer; color: var(--ws-accent); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ws-share-btn:active { opacity: 0.6; }
+/* 分享预览弹窗操作按钮 */
+#ws-share-modal { z-index: 120; }
+#ws-share-modal .modal-card { max-height: 88vh; overflow-y: auto; }
+#ws-share-modal img { max-height: 58vh; object-fit: contain; background: #fff; border-radius: 8px; }
+#ws-calendar-modal { z-index: 120; }
+.ws-share-action { flex: 1; height: 38px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ws-share-action.save { background: #3b82f6; color: #fff; }
+.ws-share-action.send { background: #10b981; color: #fff; }
+.ws-share-action.cancel { background: #f3f4f6; color: #374151; }
+.dark .ws-share-action.cancel { background: #3d3d5c; color: #e2e8f0; }
+.dark #ws-share-modal .modal-card > div:first-child { color: #e5e7eb; }
+.ws-bar-row { display: flex; align-items: center; margin-bottom: 8px !important; font-size: 13px; }
+.ws-bar-label { width: 40px; font-weight: 600; color: var(--ws-sub); }
+.ws-bar-track { flex: 1; height: 22px; background: var(--ws-border); border-radius: 4px; overflow: hidden; }
+.ws-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 6px; font-size: 11px; font-weight: 600; color: #fff; min-width: 26px; }
+.ws-bar-fill.g { background: var(--ws-green); } .ws-bar-fill.r { background: var(--ws-red); } .ws-bar-fill.y { background: var(--ws-yellow); } .ws-bar-fill.b { background: var(--ws-accent); } .ws-bar-fill.p { background: var(--ws-purple); }
+.ws-bar-count { margin-left: 8px; font-size: 12px; color: var(--ws-sub); white-space: nowrap; width: 88px; text-align: right; flex-shrink: 0; }
+.ws-table { width: 100%; border-collapse: collapse; }
+.ws-table th, .ws-table td { padding: 8px 6px !important; text-align: center; border-bottom: 1px solid var(--ws-border); font-size: 13px; color: var(--ws-text); }
+.ws-table th { color: var(--ws-sub); font-weight: 600; font-size: 11px; white-space: nowrap; }
+.ws-table tr:hover { background: rgba(0,0,0,0.03); }
+.dark #war-stats-view .ws-table tr:hover { background: rgba(255,255,255,0.04); }
+.ws-table td.num { text-align: center; font-weight: 600; }
+.ws-table td.ws-name { font-weight: 600; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 每场详情：CSS Grid 矩阵（替代 table，列宽严格固定）+ 两次进攻独立色块 */
+.ws-matrix { display: grid; min-width: 100%; row-gap: 2px; }
+.ws-mhead { text-align: center; font-size: 11px; color: var(--ws-sub); font-weight: 600; padding: 8px 2px !important; border-bottom: 1px solid var(--ws-border); white-space: nowrap; }
+.ws-mhead:not(.left) { border-left: 1px solid var(--ws-border); }
+.ws-mhead.left { text-align: left; padding-left: 8px !important; }
+.ws-mcell { text-align: center; font-size: 13px; color: var(--ws-text); padding: 8px 2px !important; border-bottom: 1px solid var(--ws-border); }
+/* 成员列冻结：左滑时 # 序号列滑出屏幕，成员列顶到最左（left:0），右侧让出更多空间显示对战列 */
+.ws-mhead.left { position: sticky; left: 0; z-index: 2; background: var(--ws-card); }
+.ws-mcell.name { position: sticky; left: 0; z-index: 1; background: var(--ws-card); text-align: left; padding-left: 8px !important; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-atk-cell { display: flex; gap: 1px; justify-content: center; align-items: center; border-left: 1px solid var(--ws-border); }
+.ws-atk-box { width: 32px; min-width: 32px; flex-shrink: 0; height: 36px; border-radius: 8px; padding: 5px 0 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.ws-atk-stars { font-size: 14px; font-weight: 700; color: #fff; line-height: 1; }
+.ws-atk-dest { font-size: 9px; color: rgba(255, 255, 255, 0.85); line-height: 1; }
+.ws-atk-box.s3 { background: #10b981; }
+.ws-atk-box.s2 { background: #6ee7b7; }
+.ws-atk-box.s1 { background: #f59e0b; }
+.ws-atk-box.s0 { background: #f97316; }
+.ws-atk-box.na { background: #ef4444; }
+.ws-atk-box.none { background: #9ca3af; }
+/* 每场详情图例 */
+.ws-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px !important; font-size: 12px; color: var(--ws-sub); }
+.ws-lg { display: inline-flex; align-items: center; gap: 4px; }
+.ws-lg-box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.ws-lg-box.s3 { background: #10b981; }
+.ws-lg-box.s2 { background: #6ee7b7; }
+.ws-lg-box.s1 { background: #f59e0b; }
+.ws-lg-box.s0 { background: #f97316; }
+.ws-lg-box.na { background: #ef4444; }
+.ws-lg-box.none { background: #9ca3af; }
+/* 对战统计全屏 iframe（App 内嵌 war-stats.html） */
+#war-stats-frame { position: fixed; inset: 0; z-index: 20; border: none; width: 100%; height: 100%; background: #f3f4f6; }
 /* 部落战刷新键：独占一行（腾出顶部留白），右对齐，圆形+投影 */
 .detail-toolbar { display: flex; justify-content: flex-end; align-items: center; padding: 10px 16px 0; }
 .detail-toolbar .icon-btn { width: 36px; height: 36px; border-radius: 50%; font-size: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); background: #ffffff; }
