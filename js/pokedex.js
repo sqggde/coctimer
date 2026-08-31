@@ -75,6 +75,7 @@
         // 等级属性（stats + 升级字段）
         { key: 'dps', label: '每秒伤害', table: '秒伤', icon: 'att_Damage', group: 'level' },
         { key: 'damagePerShot', label: '单次伤害', icon: 'att_Damage', group: 'level' },
+        { key: 'damageVsWalls', label: '对墙伤害', icon: 'att_Damage', group: 'level' },
         { key: 'hp', label: '生命值', table: '生命', icon: 'att_Hitpoint', group: 'level' },
         { key: 'damage', label: '伤害', icon: 'att_Damage', group: 'level' },
         { key: 'totalHealing', label: '部队总治疗量', table: '部队总治疗', icon: 'att_hp+', group: 'level' },
