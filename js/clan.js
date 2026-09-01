@@ -758,7 +758,8 @@
 
     function copyClanTag(tag) {
         var full = (tag || '').indexOf('#') === 0 ? tag : '#' + tag;
-        function done() { showToast(full + ' 已复制至剪贴板', 1500); }
+        // 用全局 toast（列表页 clan-toast 在详情容器内不可见；全局 #toast 与账号导入提示同一样式）
+        function done() { CocTool.ui.showToast(full + ' 已复制至剪贴板', 1500); }
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(full).then(done).catch(function() { fallbackCopy(full); done(); });
         } else {
