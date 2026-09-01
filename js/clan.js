@@ -758,7 +758,7 @@
 
     function copyClanTag(tag) {
         var full = (tag || '').indexOf('#') === 0 ? tag : '#' + tag;
-        function done() { showToast('已复制部落标签 ' + full, 1500); }
+        function done() { showToast(full + ' 已复制至剪贴板', 1500); }
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(full).then(done).catch(function() { fallbackCopy(full); done(); });
         } else {
