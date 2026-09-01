@@ -259,6 +259,12 @@
             })
             .then(function(group) {
                 setLeagueCached(key, group);
+                // 赛季变化 → 清空轮次→warTag 记忆（防跨月残留：8 月 warTag 被 9 月轮次复用显示旧对战）
+                var newSeason = (group.season || '').slice(0, 7);
+                if ((_leagueMine.season || '') !== newSeason) {
+                    _leagueMine = { season: newSeason };
+                    if (shared._currentClan) saveLeagueMine(shared._currentClan.tag.replace(/^#/, ''));
+                }
                 _leagueGroupKey = computeGroupKey(group);
                 renderLeague(group);
             })
