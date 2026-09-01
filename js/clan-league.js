@@ -183,9 +183,19 @@
     // 清空对战视图动态内容（防跨部落残留：上个部落的对战渲染遗留在 detailPrep，
     // 后续部落 404/失败显示提示时会露出旧数据——小程序数据驱动渲染无此问题）
     function clearPrepDynamicContent() {
-        ['prep-home-members', 'prep-away-members', 'prep-war-stats'].forEach(function(id) {
+        ['prep-home-members', 'prep-away-members'].forEach(function(id) {
             var e = document.getElementById(id);
             if (e) e.innerHTML = '';
+        });
+        // 战况统计（星数/摧毁率/出刀数）：只重置数值与进度条，**不删骨架**——
+        // 骨架节点在页面加载时被 war-view 缓存引用，innerHTML 清空会使其脱离 DOM 且不可恢复
+        ['stat-home-stars', 'stat-away-stars', 'stat-home-destruction', 'stat-away-destruction', 'stat-home-attacks', 'stat-away-attacks'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) e.textContent = '';
+        });
+        ['stat-bar-home-stars', 'stat-bar-away-stars', 'stat-bar-home-destruction', 'stat-bar-away-destruction', 'stat-bar-home-attacks', 'stat-bar-away-attacks'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) e.style.width = '0%';
         });
         ['prep-home-badge', 'prep-away-badge'].forEach(function(id) {
             var e = document.getElementById(id);
