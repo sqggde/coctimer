@@ -466,6 +466,16 @@
                 _leagueForceWar = false;
                 if (_leagueRound !== i) return;
                 if (w && w.clan && (w.clan.tag === shared._leagueClanTag || (w.opponent && w.opponent.tag === shared._leagueClanTag))) {
+                    // 归属校验：war 数据月份必须属于当前联赛组赛季（防历史污染残留：mine 记忆的
+                    // 跨月 warTag——污染期间 8 月存档被当 9 月写入，服务器修复后设备上残留记忆仍指向 8 月）
+                    var wm = (w.warStartTime || '').slice(0, 6);
+                    var sm = (_leagueGroup.season || '').replace(/-/g, '').slice(0, 6);
+                    if (wm && sm && wm !== sm) {
+                        delete _leagueMine[i];
+                        if (shared._currentClan) saveLeagueMine(shared._currentClan.tag.replace(/^#/, ''));
+                        fetchRoundFull(i, realTags);
+                        return;
+                    }
                     _leagueWars[i] = { mine: w };
                     hideAllDetailViews();
                     showLeagueWar(w);
@@ -499,8 +509,16 @@
                 }
             }
             if (mine) {
-                // 存档命中：写入本地缓存 + 记忆 warTag
-                if (mineWarTag) {
+                    // 归属校验：存档 war 月份必须属于当前赛季（防历史污染残留）
+                    var wm2 = (mine.warStartTime || '').slice(0, 6);
+                    var sm2 = (_leagueGroup.season || '').replace(/-/g, '').slice(0, 6);
+                    if (wm2 && sm2 && wm2 !== sm2) {
+                        // 污染存档 → 不写入本地/记忆，直接全量官方
+                        fetchRoundFull(i, realTags);
+                        return;
+                    }
+                    // 存档命中：写入本地缓存 + 记忆 warTag
+                    if (mineWarTag) {
                     setLeagueWarCached(getLeagueWarCacheKey(mineWarTag), mine);
                     _leagueMine[i] = mineWarTag;
                     if (shared._currentClan) saveLeagueMine(shared._currentClan.tag.replace(/^#/, ''));
