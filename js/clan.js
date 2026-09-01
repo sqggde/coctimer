@@ -703,7 +703,12 @@
 
         var nameDiv = document.createElement('div');
         nameDiv.className = 'clan-name';
-        nameDiv.textContent = data.name;
+        nameDiv.style.cssText = 'display:flex;align-items:center;gap:4px;min-width:0;';
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;';
+        nameSpan.textContent = data.name;
+        nameDiv.appendChild(nameSpan);
+        if (typeof data.tag === 'string' && data.tag) nameDiv.appendChild(buildCopyIcon(data.tag));
 
         infoDiv.appendChild(nameDiv);
 
@@ -733,6 +738,46 @@
         }
 
         return card;
+    }
+
+    // ====== 部落标签复制（列表卡片名称后图标） ======
+    function buildCopyIcon(tag) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.title = '复制部落标签';
+        btn.style.cssText = 'flex-shrink:0;background:none;border:none;padding:2px;cursor:pointer;line-height:0;color:inherit;';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M13 12.4316V7.8125C13 6.2592 14.2592 5 15.8125 5H40.1875C41.7408 5 43 6.2592 43 7.8125V32.1875C43 33.7408 41.7408 35 40.1875 35H35.5163" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M32.1875 13H7.8125C6.2592 13 5 14.2592 5 15.8125V40.1875C5 41.7408 6.2592 43 7.8125 43H32.1875C33.7408 43 35 41.7408 35 40.1875V15.8125C35 14.2592 33.7408 13 32.1875 13Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/></svg>';
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyClanTag(tag);
+        });
+        return btn;
+    }
+
+    function copyClanTag(tag) {
+        var full = (tag || '').indexOf('#') === 0 ? tag : '#' + tag;
+        function done() { showToast('已复制部落标签 ' + full, 1500); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(full).then(done).catch(function() { fallbackCopy(full); done(); });
+        } else {
+            fallbackCopy(full);
+            done();
+        }
+    }
+
+    function fallbackCopy(text) {
+        try {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+        } catch (e) {}
     }
 
     function renderChinaCard(data) {
@@ -774,7 +819,13 @@
 
         var nameDiv = document.createElement('div');
         nameDiv.className = 'clan-name';
-        nameDiv.textContent = data.name;
+        nameDiv.style.cssText = 'display:flex;align-items:center;gap:4px;min-width:0;';
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;';
+        nameSpan.textContent = data.name;
+        nameDiv.appendChild(nameSpan);
+        // 国服部落无官方标签（仅字符串 tag 才显示复制图标）
+        if (typeof data.tag === 'string' && data.tag) nameDiv.appendChild(buildCopyIcon(data.tag));
 
         var metaDiv = document.createElement('div');
         metaDiv.className = 'clan-meta';
