@@ -180,6 +180,27 @@
         } catch (e) { return null; }
     }
 
+    // 清空对战视图动态内容（防跨部落残留：上个部落的对战渲染遗留在 detailPrep，
+    // 后续部落 404/失败显示提示时会露出旧数据——小程序数据驱动渲染无此问题）
+    function clearPrepDynamicContent() {
+        ['prep-home-members', 'prep-away-members', 'prep-war-stats'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) e.innerHTML = '';
+        });
+        ['prep-home-badge', 'prep-away-badge'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) e.src = '';
+        });
+        ['prep-home-name', 'prep-away-name', 'prep-state-label', 'prep-team-size', 'prep-countdown', 'prep-result-label'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) e.textContent = '';
+        });
+        var cd = document.getElementById('prep-countdown-mode');
+        var rs = document.getElementById('prep-result-mode');
+        if (cd) cd.style.display = '';
+        if (rs) rs.style.display = 'none';
+    }
+
     function resetLeagueState() {
         // 仅清理联赛视图数据，保留 shared._leagueMode 模式记忆（部落战/联赛平级，跨部落保持）
         _leagueGroup = null;
@@ -190,6 +211,8 @@
         _leagueFallbacked = false;
         _leagueForceAdvance = false;
         _leagueForceWar = false;
+        clearPrepDynamicContent();
+        if (el.leagueTabList) el.leagueTabList.innerHTML = '';
         if (el.leagueTabs) el.leagueTabs.classList.add('hidden');
         if (el.detailPrep) el.detailPrep.style.paddingTop = '';
         if (shared._countdownTimer) { clearInterval(shared._countdownTimer); shared._countdownTimer = null; }
