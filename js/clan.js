@@ -1445,6 +1445,9 @@
     function showNotInWar() {
         if (el.detailNotWar) {
             el.detailNotWar.classList.remove('hidden');
+            // 显式恢复文字（联赛空状态会复用此视图并改写文字）
+            var t = document.getElementById('detail-notwar-text');
+            if (t) t.textContent = '未开战';
             if (el.detailNotWarBadge && shared._currentClan && shared._currentClan.badgeUrls && shared._currentClan.badgeUrls.large) {
                 el.detailNotWarBadge.src = shared._currentClan.badgeUrls.large;
             }

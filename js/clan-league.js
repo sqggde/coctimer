@@ -277,6 +277,13 @@
         })
             .then(function(r) {
                 if (r.status === 404) throw { leagueNotFound: true };
+                if (r.status === 403) {
+                    return r.json().then(function(body) {
+                        // 对战日志未公开：官方 403 + accessDenied（与部落战一致）
+                        if (body && body.reason === 'accessDenied') throw { leagueAccessDenied: true };
+                        throw new Error('HTTP 403');
+                    });
+                }
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 return r.json();
             })
@@ -295,14 +302,27 @@
                 _leagueForceWar = false;
                 if (!shared._leagueMode) return;
                 if (err && err.leagueNotFound) {
-                    // 模式切换由用户控制（点哪个就是哪个）：不自动切回部落战，停留联赛模式显示提示
+                    // 模式切换由用户控制（点哪个就是哪个）：不自动切回部落战；
+                    // 复用未开战空状态视图（部落图标 + 文字），文字改为联赛语境
                     showToast('该部落未参加联赛或非联赛期间', 2000);
                     hideAllDetailViews();
                     if (el.leagueTabs) el.leagueTabs.classList.remove('hidden');
-                    if (el.detailPrep) el.detailPrep.classList.remove('hidden');
+                    if (el.detailNotWar) {
+                        el.detailNotWar.classList.remove('hidden');
+                        if (el.detailNotWarBadge && shared._currentClan && shared._currentClan.badgeUrls && shared._currentClan.badgeUrls.large) {
+                            el.detailNotWarBadge.src = shared._currentClan.badgeUrls.large;
+                        }
+                        var nt = document.getElementById('detail-notwar-text');
+                        if (nt) nt.textContent = '未参加联赛';
+                    }
+                    return;
+                }
+                if (err && err.leagueAccessDenied) {
+                    // 对战日志未公开（与部落战一致文案）
+                    hideAllDetailViews();
                     if (el.detailEmpty) {
                         var p = el.detailEmpty.querySelector('p');
-                        if (p) p.textContent = '该部落未参加联赛或非联赛期间';
+                        if (p) p.textContent = '此部落对战日志未公开';
                         el.detailEmpty.classList.remove('hidden');
                     }
                     return;
