@@ -272,8 +272,16 @@
                 _leagueForceWar = false;
                 if (!shared._leagueMode) return;
                 if (err && err.leagueNotFound) {
+                    // 模式切换由用户控制（点哪个就是哪个）：不自动切回部落战，停留联赛模式显示提示
                     showToast('该部落未参加联赛或非联赛期间', 2000);
-                    switchToWarMode();
+                    hideAllDetailViews();
+                    if (el.leagueTabs) el.leagueTabs.classList.remove('hidden');
+                    if (el.detailPrep) el.detailPrep.classList.remove('hidden');
+                    if (el.detailEmpty) {
+                        var p = el.detailEmpty.querySelector('p');
+                        if (p) p.textContent = '该部落未参加联赛或非联赛期间';
+                        el.detailEmpty.classList.remove('hidden');
+                    }
                     return;
                 }
                 showToast('获取联赛信息失败', 2000);
