@@ -164,7 +164,7 @@
             }
             // prevEndK：L-1 轮结束时刻（L-1 有缓存 → 真实；L 有缓存 → 链式 L-1.end = L.start；否则 endL - 24h）
             var prevEndK = null;
-            if (L > 1) {
+            if (L >= 1) {
                 var prevWar = findRoundWarRaw(group, L - 1, cleanTag);
                 if (prevWar && prevWar.endTime) prevEndK = parseCocTime(prevWar.endTime);
                 else if (A === L) prevEndK = startL;
