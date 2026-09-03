@@ -3,7 +3,7 @@
  *
  * 作用：让 App 前端（app/src/main/assets/，面向 WebView + AndroidApp 桥接）无需改动即可在浏览器运行。
  * 原理：App 前端所有 AndroidApp 调用均有守卫，无桥接时自动降级（剪贴板/打开外链/Blob 导出等）；
- *       本文件仅补充：更新检查短路 + 隐藏 6 项 App 专属设置 UI + PWA 注册。
+ *       本文件仅补充：更新检查短路 + 隐藏 App 专属设置 UI（小组件等）+ 链式启动按钮改造为强制拉取最新版 + PWA 注册。
  */
 
 (function () {
@@ -75,6 +75,41 @@
         });
     }
 
+    // 4. 链式启动按钮改造为「强制拉取最新版网页」（位置对齐 App 链式启动按钮）：
+    //    普通刷新只重载页面不更新 SW 缓存；点击后清除全部 Cache Storage + 卸载 SW + 重新加载
+    //    覆盖方式：capture 阶段监听器先于 accounts.js 冒泡监听器执行，stopImmediatePropagation 阻断原启动逻辑
+    function setupForceReload() {
+        var btn = document.getElementById('launch-game-btn');
+        if (!btn) return;
+        btn.title = '强制拉取最新版网页';
+        // 用样式表 !important 固定背景（accounts.js updateLaunchGameBtn 的内联 background 赋值无法覆盖；
+        // 若直接改内联 !important 会被 style.background setter 移除）
+        var st = document.createElement('style');
+        st.textContent = '#launch-game-btn{background:#3b82f6 !important;}';
+        document.head.appendChild(st);
+        var ic = btn.querySelector('i');
+        if (ic) ic.className = 'fa fa-refresh';
+        btn.addEventListener('click', function (e) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            if (!confirm('即将拉取最新版网页，将清除本地缓存并重新加载。确定继续？')) return;
+            function reload() { location.reload(); }
+            if (window.caches && caches.keys) {
+                caches.keys().then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                }).then(function () {
+                    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                        return navigator.serviceWorker.getRegistrations().then(function (regs) {
+                            return Promise.all(regs.map(function (r) { return r.unregister(); }));
+                        });
+                    }
+                }).then(reload, reload);
+            } else {
+                reload();
+            }
+        }, true);
+    }
+
     function onReady() {
         // 设置页：检查更新/选择应用图标/后台隐身/WebDAV备份/通知设置/查看运行日志
         hideEl('check-update-btn');
@@ -83,8 +118,9 @@
         hideEl('notify-settings-btn');
         hideEl('notify-log-btn');
 
-        // 链式启动按钮（网页版无启动外部 App 能力）
-        hideEl('launch-game-btn');
+        // 小组件为 Android 专属功能，网页版隐藏设置行与对应弹窗
+        hideEl('widget-settings-btn');
+        hideEl('widget-log-btn');
 
         // 后台隐身行（无 id 的 div，位于 select-icon-btn 与 webdav-settings-btn 之间）
         var stealthRow = document.getElementById('webdav-settings-btn');
@@ -96,12 +132,14 @@
         }
 
         // 对应弹窗
-        ['notify-modal', 'log-modal', 'webdav-modal', 'update-modal'].forEach(function (id) {
+        ['notify-modal', 'log-modal', 'webdav-modal', 'update-modal',
+         'widget-list-page', 'widget-config-page', 'widget-log-modal'].forEach(function (id) {
             var m = document.getElementById(id);
             if (m) m.style.display = 'none';
         });
 
         setupDownloadLinks();
+        setupForceReload();
         registerSW();
     }
 
