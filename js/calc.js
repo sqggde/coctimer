@@ -887,6 +887,23 @@
         return { n: n, kind: 'war', start: endK + (k - 1) * DAY, end: endK + k * DAY };
     }
 
+    // 联赛卡片阶段（基于最后解锁轮 L 的真实/推算边界）：
+    // startK/endK = L 轮（1-based K）开战/结束（真实或从锚轮 endTime 链式反推）；prevEndK = L-1 轮结束（真实/链式）
+    // 链式并行结构 → L 轮准备日期间若上一轮仍在战斗，显示上一轮战斗日（倒计时到 prevEndK）
+    // 返回 { label, kind, target }：联赛·D{n}（紫）/ 联赛准备（蓝）；联赛结束 → null
+    function leagueCardPhase(endK, K, startK, prevEndK, now) {
+        var DAY = 86400000;
+        if (now >= endK) {
+            var k = Math.ceil((now - endK) / DAY);
+            var n = K + k;
+            if (n > 7) return null;
+            return { label: '联赛·D' + n, kind: 'war', target: endK + k * DAY };
+        }
+        if (now >= startK) return { label: '联赛·D' + K, kind: 'war', target: endK };
+        if (prevEndK && now < prevEndK) return { label: '联赛·D' + (K - 1), kind: 'war', target: prevEndK };
+        return { label: '联赛准备', kind: 'prep', target: startK };
+    }
+
     // ========== 前台通知统计 ==========
     function getStatsForNotification() {
         let completedCount = 0;
@@ -960,6 +977,7 @@
         leaguePhaseInfo,
         leagueRoundTimes,
         leaguePhaseFromEnd,
+        leagueCardPhase,
         getStatsForNotification
     });
 })(window);

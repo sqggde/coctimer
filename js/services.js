@@ -480,7 +480,7 @@
                     if (tags.some(t => t && t !== '#0' && t.indexOf('#') === 0)) { L = i; break; }
                 }
                 if (L < 0) continue;
-                // 锚轮 A = 从最后解锁轮往前第一个有 war 详情缓存的轮（真实 startTime/endTime）
+                // 锚轮 A = 最后解锁轮 L 优先（真实 startTime/endTime），L 无缓存时往前找最近有缓存的轮
                 let mineMap = {};
                 try { mineMap = JSON.parse(localStorage.getItem('clash_league_mine_' + cleanTag) || '{}'); } catch (e) {}
                 let A = -1, war = null;
@@ -495,25 +495,30 @@
                     if (w && w.startTime && w.endTime) { A = i; war = w; break; }
                 }
                 if (A < 0 || !war) continue;
-                const startK = parseLeagueCocTime(war.startTime);
-                const endK = parseLeagueCocTime(war.endTime);
-                if (!endK || endK <= 0) continue;
-                const KA = A + 1;
-                const nowMs = now * 1000;
+                const startKA = parseLeagueCocTime(war.startTime);
+                const endKA = parseLeagueCocTime(war.endTime);
+                if (!endKA || endKA <= 0) continue;
                 const DAY = 24 * 3600 * 1000;
+                // L 轮边界：A === L 用真实值；A < L 用 endTime 链式反推（官方 endTime_n = startTime_{n+1}）
+                let startL = startKA, endL = endKA;
+                if (A < L) {
+                    startL = endKA + (L - A - 1) * DAY;
+                    endL = endKA + (L - A) * DAY;
+                }
+                const nowMs = now * 1000;
                 const key = cleanTag + '_' + group.season;
-                // 锚轮（KA）用真实 start/end；后续轮 endK 链式反推（官方规则：endTime_n = startTime_{n+1}）
-                for (let n = KA; n <= 7; n++) {
+                // 从 L 轮（L+1，1-based）起：L 轮用真实/推算边界，后续轮 endL 链式反推
+                for (let n = L + 1; n <= 7; n++) {
                     const cn = LEAGUE_CN_NUM[n - 1];
-                    const t = n === KA
-                        ? { start: startK, end: endK }
-                        : { start: endK + (n - KA - 1) * DAY, end: endK + (n - KA) * DAY };
+                    const t = n === L + 1
+                        ? { start: startL, end: endL }
+                        : { start: endL + (n - L - 2) * DAY, end: endL + (n - L - 1) * DAY };
                     addWarNotification(t.start, name + '\n联赛·' + cn + '场对战已开始', key + '_l' + n + '_start', nowMs, schedule);
                     addWarNotification(t.end - 4 * HOUR_MS, name + '\n联赛·' + cn + '场对战将于4小时后结束', key + '_l' + n + '_4h', nowMs, schedule);
                     addWarNotification(t.end - HOUR_MS, name + '\n联赛·' + cn + '场对战将于1小时后结束', key + '_l' + n + '_1h', nowMs, schedule);
                 }
                 // 结束通知：仅第 7 场结束时
-                const end7 = endK + (7 - KA) * DAY;
+                const end7 = endL + (7 - L - 1) * DAY;
                 addWarNotification(end7, name + '\n联赛已结束', key + '_leagueend', nowMs, schedule);
             }
         } catch(e) { /* league notification error */ }

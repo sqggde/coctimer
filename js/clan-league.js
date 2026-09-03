@@ -130,9 +130,9 @@
     }
 
     // 联赛阶段推算（真实字段优先 + endTime 链式反推，纯本地零请求）：
-    // 锚轮 A = 从最后解锁轮往前第一个有 war 详情缓存的轮（缓存即"用户点进去看过"→ 真实 startTime/endTime 可信）
-    // 锚轮内 → 读真实字段（prep → 开战 startTime；war → 结束 endTime）；锚轮后 → endTime 链式反推
-    // （官方规则：endTime_n = startTime_{n+1}；维护顺延后 start→end 间隔≠24h，但 end→下一轮 start 链式不变）
+    // 锚轮 A = 最后解锁轮 L 优先（缓存即"用户点进去看过"→ 真实 startTime/endTime 可信），L 无缓存时往前找最近有缓存的轮
+    // 锚轮早于 L → endTime 链式反推 L 轮边界（官方规则：endTime_n = startTime_{n+1}；维护顺延后 start→end 间隔≠24h，但链式不变）
+    // L 轮准备日期间若 L-1 轮仍在战斗（并行结构）→ 显示 L-1 轮战斗日（倒计时到 L-1 真实结束）
     // 返回 { label, kind, target }：联赛准备（蓝）/ 联赛·D{n}（紫）；联赛结束或数据不足 → null
     function getLeaguePhase(cleanTag) {
         try {
@@ -140,22 +140,37 @@
             if (!raw) return null;
             var group = JSON.parse(raw).data;
             if (!group || !group.rounds) return null;
-            var A = -1, war = null;
+            var L = -1;
             for (var i = 6; i >= 0; i--) {
+                var tags = (group.rounds[i] && group.rounds[i].warTags) || [];
+                if (tags.some(function(t) { return t && t !== '#0' && t.indexOf('#') === 0; })) { L = i; break; }
+            }
+            if (L < 0) return null;
+            var A = -1, war = null;
+            for (var i = L; i >= 0; i--) {
                 var tags = (group.rounds[i] && group.rounds[i].warTags) || [];
                 if (!tags.some(function(t) { return t && t !== '#0' && t.indexOf('#') === 0; })) continue;
                 var w = findRoundWarRaw(group, i, cleanTag);
                 if (w && w.startTime && w.endTime) { A = i; war = w; break; }
             }
             if (A < 0) return null;
-            var startK = parseCocTime(war.startTime);
-            var endK = parseCocTime(war.endTime);
-            var info = CocTool.calc.leaguePhaseFromEnd(endK, A + 1, startK, Date.now());
-            if (info.kind === 'ended') return null;
-            if (info.kind === 'prep') {
-                return { label: '联赛准备', kind: 'prep', target: info.start };
+            var DAY = 24 * 3600 * 1000;
+            var startKA = parseCocTime(war.startTime);
+            var endKA = parseCocTime(war.endTime);
+            var startL = startKA, endL = endKA;
+            if (A < L) {
+                startL = endKA + (L - A - 1) * DAY;
+                endL = endKA + (L - A) * DAY;
             }
-            return { label: '联赛·D' + info.n, kind: 'war', target: info.end };
+            // prevEndK：L-1 轮结束时刻（L-1 有缓存 → 真实；L 有缓存 → 链式 L-1.end = L.start；否则 endL - 24h）
+            var prevEndK = null;
+            if (L > 1) {
+                var prevWar = findRoundWarRaw(group, L - 1, cleanTag);
+                if (prevWar && prevWar.endTime) prevEndK = parseCocTime(prevWar.endTime);
+                else if (A === L) prevEndK = startL;
+                else prevEndK = endL - DAY;
+            }
+            return CocTool.calc.leagueCardPhase(endL, L + 1, startL, prevEndK, Date.now());
         } catch (e) { return null; }
     }
 
