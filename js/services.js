@@ -480,30 +480,41 @@
                     if (tags.some(t => t && t !== '#0' && t.indexOf('#') === 0)) { L = i; break; }
                 }
                 if (L < 0) continue;
-                let war = null;
+                // 锚轮 A = 从最后解锁轮往前第一个有 war 详情缓存的轮（真实 startTime/endTime）
                 let mineMap = {};
                 try { mineMap = JSON.parse(localStorage.getItem('clash_league_mine_' + cleanTag) || '{}'); } catch (e) {}
-                const mineTag = mineMap[L];
-                if (mineTag) war = readLeagueWarRaw(mineTag);
-                if (!war) {
-                    const rt = group.rounds[L].warTags;
-                    for (let j = 0; j < rt.length; j++) { war = readLeagueWarRaw(rt[j]); if (war) break; }
+                let A = -1, war = null;
+                for (let i = L; i >= 0; i--) {
+                    const tags = (group.rounds[i] && group.rounds[i].warTags) || [];
+                    if (!tags.some(t => t && t !== '#0' && t.indexOf('#') === 0)) continue;
+                    const mineTag = mineMap[i];
+                    let w = mineTag ? readLeagueWarRaw(mineTag) : null;
+                    if (!w) {
+                        for (let j = 0; j < tags.length; j++) { w = readLeagueWarRaw(tags[j]); if (w) break; }
+                    }
+                    if (w && w.startTime && w.endTime) { A = i; war = w; break; }
                 }
-                if (!war || !war.startTime) continue;
+                if (A < 0 || !war) continue;
                 const startK = parseLeagueCocTime(war.startTime);
-                const K = L + 1;
+                const endK = parseLeagueCocTime(war.endTime);
+                if (!endK || endK <= 0) continue;
+                const KA = A + 1;
                 const nowMs = now * 1000;
+                const DAY = 24 * 3600 * 1000;
                 const key = cleanTag + '_' + group.season;
-                for (let n = 1; n <= 7; n++) {
-                    const t = CocTool.calc.leagueRoundTimes(startK, K, n);
+                // 锚轮（KA）用真实 start/end；后续轮 endK 链式反推（官方规则：endTime_n = startTime_{n+1}）
+                for (let n = KA; n <= 7; n++) {
                     const cn = LEAGUE_CN_NUM[n - 1];
+                    const t = n === KA
+                        ? { start: startK, end: endK }
+                        : { start: endK + (n - KA - 1) * DAY, end: endK + (n - KA) * DAY };
                     addWarNotification(t.start, name + '\n联赛·' + cn + '场对战已开始', key + '_l' + n + '_start', nowMs, schedule);
                     addWarNotification(t.end - 4 * HOUR_MS, name + '\n联赛·' + cn + '场对战将于4小时后结束', key + '_l' + n + '_4h', nowMs, schedule);
                     addWarNotification(t.end - HOUR_MS, name + '\n联赛·' + cn + '场对战将于1小时后结束', key + '_l' + n + '_1h', nowMs, schedule);
                 }
                 // 结束通知：仅第 7 场结束时
-                const t7 = CocTool.calc.leagueRoundTimes(startK, K, 7);
-                addWarNotification(t7.end, name + '\n联赛已结束', key + '_leagueend', nowMs, schedule);
+                const end7 = endK + (7 - KA) * DAY;
+                addWarNotification(end7, name + '\n联赛已结束', key + '_leagueend', nowMs, schedule);
             }
         } catch(e) { /* league notification error */ }
     }
@@ -936,8 +947,9 @@ const backupData = {
             e.target.value = '';
         });
         // === 账号认证 + 云端备份/恢复 ===
-        const CLOUD_API = 'https://coctimer.pages.dev/api/sync';
+        const CLOUD_API = 'https://coctool.top/api/account';
         const AUTH_KEY = 'coc_cloud_auth';
+        const TOKEN_KEY = 'coc_cloud_token';
 
         // DOM 引用
         const cloudLoginText = document.getElementById('cloud-login-text');
@@ -962,9 +974,18 @@ const backupData = {
             try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
         })();
 
+        // 旧版登录态（coc_cloud_auth/coc_cloud_pwd，对应 coctimer.pages.dev 旧体系）静默清理：
+        // 旧账号库已废弃，无 token 即未登录；顺带清掉明文密码键，不弹任何提示
+        if (!localStorage.getItem(TOKEN_KEY) && localStorage.getItem(AUTH_KEY)) {
+            localStorage.removeItem(AUTH_KEY);
+            localStorage.removeItem('coc_cloud_pwd');
+            authData = null;
+        }
+
         // 更新登录显示状态
         function updateLoginUI() {
-            if (authData && authData.email) {
+            const token = localStorage.getItem(TOKEN_KEY);
+            if (token && authData && authData.email) {
                 cloudLoginText.textContent = authData.email;
                 cloudLoginText.className = 'text-sm cursor-pointer hover:text-blue-700';
                 cloudLoginText.style.color = '#3b82f6';
@@ -985,6 +1006,7 @@ const backupData = {
                     cancelText: '取消',
                     onConfirm: () => {
                         localStorage.removeItem(AUTH_KEY);
+                        localStorage.removeItem(TOKEN_KEY);
                         localStorage.removeItem('coc_cloud_pwd');
                         authData = null;
                         updateLoginUI();
@@ -1024,7 +1046,7 @@ const backupData = {
                 if (result.success) {
                     authData = { email };
                     localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
-                    localStorage.setItem('coc_cloud_pwd', password);
+                    localStorage.setItem(TOKEN_KEY, result.token);
                     updateLoginUI();
                     loginModal.classList.add('hidden');
                     showToast('登录成功', 1500);
@@ -1080,7 +1102,7 @@ const backupData = {
                 if (result.success) {
                     authData = { email };
                     localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
-                    localStorage.setItem('coc_cloud_pwd', password);
+                    localStorage.setItem(TOKEN_KEY, result.token);
                     updateLoginUI();
                     registerModal.classList.add('hidden');
                     showToast('注册成功', 1500);
@@ -1108,10 +1130,9 @@ const backupData = {
                 showToast('请先登录账号', 2000);
                 return;
             }
-
-            const password = localStorage.getItem('coc_cloud_pwd');
-            if (!password) {
-                showToast('登录信息已过期，请重新登录', 2000);
+            const token = localStorage.getItem(TOKEN_KEY);
+            if (!token) {
+                showToast('登录已失效，请重新登录', 2000);
                 return;
             }
 
@@ -1123,7 +1144,7 @@ const backupData = {
                 accountOrder,
                 currentAccount: state.currentAccount,
                 settings: { ...settings },
-                clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
+                clans: getIntlClanTags()
             };
 
             const btn = document.getElementById('cloud-backup-btn');
@@ -1132,19 +1153,21 @@ const backupData = {
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>备份中...';
 
             try {
-                const res = await fetch(CLOUD_API, {
+                const res = await fetch(`${CLOUD_API}/backup`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: authData.email, password, data: backupData }),
+                    headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+                    body: JSON.stringify(backupData),
                 });
                 const result = await res.json();
                 if (result.success) {
-                    const actionText = result.action === 'created' ? '已创建云端备份' : '云端备份已更新';
-                    showToast(actionText, 2000);
+                    showToast('云端备份已更新', 2000);
                 } else {
-                    if (result.error && result.error.includes('密码错误')) {
-                        localStorage.removeItem('coc_cloud_pwd');
-                        showToast('密码错误，请重新登录', 2000);
+                    if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
+                        localStorage.removeItem(TOKEN_KEY);
+                        localStorage.removeItem(AUTH_KEY);
+                        authData = null;
+                        updateLoginUI();
+                        showToast('登录已失效，请重新登录', 2000);
                         return;
                     }
                     showToast('备份失败：' + (result.error || '未知错误'), 3000);
@@ -1174,9 +1197,9 @@ const backupData = {
         });
 
         async function doCloudRestore() {
-            const password = localStorage.getItem('coc_cloud_pwd');
-            if (!password) {
-                showToast('登录信息已过期，请重新登录', 2000);
+            const token = localStorage.getItem(TOKEN_KEY);
+            if (!token) {
+                showToast('登录已失效，请重新登录', 2000);
                 return;
             }
 
@@ -1186,7 +1209,10 @@ const backupData = {
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>恢复中...';
 
             try {
-                const res = await fetch(`${CLOUD_API}?email=${encodeURIComponent(authData.email)}&password=${encodeURIComponent(password)}`);
+                const res = await fetch(`${CLOUD_API}/backup`, {
+                    method: 'GET',
+                    headers: { 'X-Auth-Token': token },
+                });
                 const result = await res.json();
                 if (result.success && result.data) {
                     const backup = result.data;
@@ -1199,7 +1225,6 @@ const backupData = {
                     if (backup.settings || dataToRestore.settings) {
                         localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
                     }
-                    // 恢复国际服部落：仅补本地缺失的（备份只带标签，逐个拉 API 添加详情）
                     var clanTags = dataToRestore.clans || [];
                     var addedClans = 0;
                     if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
@@ -1212,9 +1237,12 @@ const backupData = {
                         : '云端恢复成功！即将刷新', 1800);
                     setTimeout(() => location.reload(), 1800);
                 } else {
-                    if (result.error && result.error.includes('密码错误')) {
-                        localStorage.removeItem('coc_cloud_pwd');
-                        showToast('密码错误，请重新登录', 2000);
+                    if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
+                        localStorage.removeItem(TOKEN_KEY);
+                        localStorage.removeItem(AUTH_KEY);
+                        authData = null;
+                        updateLoginUI();
+                        showToast('登录已失效，请重新登录', 2000);
                         return;
                     }
                     showToast('恢复失败：' + (result.error || '未找到备份数据'), 3000);

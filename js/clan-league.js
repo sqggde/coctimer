@@ -129,8 +129,10 @@
         return war;
     }
 
-    // 联赛阶段推算（24h 规律，纯本地零请求）：基于 calc.leaguePhaseInfo 单一实现
-    // 基准 = 最后解锁轮 L' 的 war startTime（该轮战斗日开始）
+    // 联赛阶段推算（真实字段优先 + endTime 链式反推，纯本地零请求）：
+    // 锚轮 A = 从最后解锁轮往前第一个有 war 详情缓存的轮（缓存即"用户点进去看过"→ 真实 startTime/endTime 可信）
+    // 锚轮内 → 读真实字段（prep → 开战 startTime；war → 结束 endTime）；锚轮后 → endTime 链式反推
+    // （官方规则：endTime_n = startTime_{n+1}；维护顺延后 start→end 间隔≠24h，但 end→下一轮 start 链式不变）
     // 返回 { label, kind, target }：联赛准备（蓝）/ 联赛·D{n}（紫）；联赛结束或数据不足 → null
     function getLeaguePhase(cleanTag) {
         try {
@@ -138,24 +140,22 @@
             if (!raw) return null;
             var group = JSON.parse(raw).data;
             if (!group || !group.rounds) return null;
-            var L = -1;
+            var A = -1, war = null;
             for (var i = 6; i >= 0; i--) {
                 var tags = (group.rounds[i] && group.rounds[i].warTags) || [];
-                if (tags.some(function(t) { return t && t !== '#0' && t.indexOf('#') === 0; })) { L = i; break; }
+                if (!tags.some(function(t) { return t && t !== '#0' && t.indexOf('#') === 0; })) continue;
+                var w = findRoundWarRaw(group, i, cleanTag);
+                if (w && w.startTime && w.endTime) { A = i; war = w; break; }
             }
-            if (L < 0) return null;
-            var war = findRoundWarRaw(group, L, cleanTag);
-            if (!war || !war.startTime) return null;
+            if (A < 0) return null;
             var startK = parseCocTime(war.startTime);
-            var K = L + 1;
-            var info = CocTool.calc.leaguePhaseInfo(startK, K, Date.now());
+            var endK = parseCocTime(war.endTime);
+            var info = CocTool.calc.leaguePhaseFromEnd(endK, A + 1, startK, Date.now());
             if (info.kind === 'ended') return null;
-            var DAY = 24 * 3600 * 1000;
             if (info.kind === 'prep') {
-                return { label: '联赛准备', kind: 'prep', target: startK - (K - 1) * DAY };
+                return { label: '联赛准备', kind: 'prep', target: info.start };
             }
-            var times = CocTool.calc.leagueRoundTimes(startK, K, info.n);
-            return { label: '联赛·D' + info.n, kind: 'war', target: times.end };
+            return { label: '联赛·D' + info.n, kind: 'war', target: info.end };
         } catch (e) { return null; }
     }
 

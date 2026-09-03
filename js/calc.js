@@ -870,6 +870,23 @@
         return { start: startK + (n - K) * DAY, end: startK + (n - K + 1) * DAY };
     }
 
+    // 联赛阶段推算（锚轮 A 真实 endTime 链式反推）：
+    // 官方链式规律：endTime_n = startTime_{n+1}（下一轮开战 = 本轮结束；第 n 轮准备日与第 n-1 轮战斗日并行）
+    // 官方延迟规则：服务器维护只延迟未发生的动作（preparationStartTime 匹配即定永不延迟；startTime/endTime 延迟），
+    //   延迟后 start→end 间隔不再是 24h 整，但 end→下一轮 start 的链式关系不变 → 以 endTime 为锚反推
+    // endK = 锚轮 K（1-based）的真实战斗结束时间戳；startK = 锚轮真实开战时间戳
+    // 锚轮内（now < endK）→ 返回真实边界；锚轮后 → endK + k×24h 反推
+    // 返回 { n, kind, start, end }：n = 当前轮编号；kind: prep/war/ended；start/end = 当前轮边界（锚轮内为真实值）
+    function leaguePhaseFromEnd(endK, K, startK, now) {
+        var DAY = 86400000;
+        if (now < startK) return { n: K, kind: 'prep', start: startK, end: endK };
+        if (now < endK) return { n: K, kind: 'war', start: startK, end: endK };
+        var k = Math.ceil((now - endK) / DAY);
+        var n = K + k;
+        if (n > 7) return { n: n, kind: 'ended', start: endK + (k - 1) * DAY, end: endK + k * DAY };
+        return { n: n, kind: 'war', start: endK + (k - 1) * DAY, end: endK + k * DAY };
+    }
+
     // ========== 前台通知统计 ==========
     function getStatsForNotification() {
         let completedCount = 0;
@@ -942,6 +959,7 @@
         invalidateSleepRange,
         leaguePhaseInfo,
         leagueRoundTimes,
+        leaguePhaseFromEnd,
         getStatsForNotification
     });
 })(window);
