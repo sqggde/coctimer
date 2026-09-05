@@ -62,8 +62,6 @@
         autoImportToggle.checked = settings.autoImport;
         const stEl = document.getElementById('stealth-mode-toggle');
         if (stEl) stEl.checked = settings.stealthMode;
-        const nwEl = document.getElementById('hide-night-world-toggle');
-        if (nwEl) nwEl.checked = settings.hideNightWorld;
         const vibrateEl = document.getElementById('vibration-toggle');
         if (vibrateEl) vibrateEl.checked = settings.vibrate !== false;
         advanceNotifyBtn.className = settings.advanceNotify
@@ -464,17 +462,6 @@
             if (settings.darkModeAuto) checkAutoDarkMode();
         });
 
-        document.getElementById('hide-night-world-toggle').addEventListener('change', () => {
-            settings.hideNightWorld = document.getElementById('hide-night-world-toggle').checked;
-            saveSettings();
-            applySettings();
-            if (state.currentAccount && accounts[state.currentAccount]) {
-                refreshCurrentAccountDisplay();
-            }
-            rebuildAllTabs();
-            updateMainTitle();
-            if (window.AndroidApp) pushSchedule();
-        });
         sleepTimeBtn.addEventListener('click', () => {
             if (!settings.nightMode) {
                 sleepModal.classList.remove('hidden');

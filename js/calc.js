@@ -677,15 +677,26 @@
         return { 5: 'text-success', 4: 'text-danger_red', 3: 'text-warning_orangered', 2: 'text-warning_orange', 1: 'text-warning_yellow', 0: defaultColor }[priority] || defaultColor;
     }
 
-    const NIGHT_WORLD_CATS = ["buildings2", "heroes2", "traps2", "units2"];
+    // ========== 分类目屏蔽（按账号两层记忆：session 单次屏蔽 + settings.dismissedCategories 永久屏蔽） ==========
+    // 仅覆盖总览区 5 个分类键（buildings/lab/pets/buildings2/units2），条目经 getItemCategory 归类后匹配；
+    // 生效范围 = 总览区列灰态 + 首页升级列表分组隐藏 + 通知不推送
+    function isCategoryDismissed(tag, categoryKey) {
+        if (!tag || !categoryKey) return false;
+        const sessionMap = state.sessionDismissedCategories && state.sessionDismissedCategories[tag];
+        if (sessionMap && sessionMap[categoryKey]) return true;
+        const permMap = settings.dismissedCategories && settings.dismissedCategories[tag];
+        return !!(permMap && permMap[categoryKey]);
+    }
 
-    function filterNightWorld(items) {
-        return settings.hideNightWorld ? items.filter(i => !NIGHT_WORLD_CATS.includes(i.category)) : items;
+    function filterDismissedCategories(items, tag) {
+        if (!items) return [];
+        if (!tag) return items;
+        return items.filter(i => !isCategoryDismissed(tag, getItemCategory(i)));
     }
 
     function getAccountTabColor(data) {
         const now = Math.floor(Date.now() / 1000);
-        const allItems = filterNightWorld(extractUpgradingItems(data, now, true));
+        const allItems = extractUpgradingItems(data, now, true);
         let highestPriority = 0;
         for (const item of allItems) {
             const completionTs = calculateCompletionTimestamp(item, data);
@@ -842,7 +853,7 @@
     function hasSleepHighlight(data) {
         if (!settings.nightMode || !data) return false;
         const now = Math.floor(Date.now() / 1000);
-        const items = filterNightWorld(extractUpgradingItems(data, now, true));
+        const items = extractUpgradingItems(data, now, true);
         for (const item of items) {
             const completionTs = calculateCompletionTimestamp(item, data);
             if (isInSleepRange(completionTs)) return true;
@@ -914,7 +925,7 @@
         // state.accounts 是对象，需要遍历其值
         const accounts = Object.values(state.accounts);
         for (const account of accounts) {
-            const items = filterNightWorld(extractUpgradingItems(account, now, true));
+            const items = filterDismissedCategories(extractUpgradingItems(account, now, true), account.tag);
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, account);
                 if (completionTs <= now) {
@@ -960,7 +971,8 @@
         noteKeyBase,
         noteKeyTs,
         reconcileNoteKeys,
-        filterNightWorld,
+        isCategoryDismissed,
+        filterDismissedCategories,
         getAccountTabColor,
         getRemainingColor,
         formatCompactTime,

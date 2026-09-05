@@ -141,13 +141,6 @@
                         <button id="sleep-time-btn" class="px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-gray-300 text-gray-500 cursor-not-allowed" style="font-size: 13px;">设置睡眠时间</button>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">屏蔽夜世界</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="hide-night-world-toggle" class="sr-only peer">
-                            <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
-                        </label>
-                    </div>
-                    <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-700">夜间模式</span>
                         <div class="flex items-center space-x-2">
                             <button id="dark-mode-auto-btn" class="px-2 py-1 rounded transition-all duration-200 text-xs bg-gray-300 text-gray-500" style="font-size: 13px;">跟随系统</button>
@@ -995,8 +988,8 @@
         <!-- 屏蔽提醒弹窗 -->
         <div id="dismiss-modal" class="modal-overlay hidden">
             <div class="modal-card w-xs">
-                <h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">该分类有空位可升级</h3>
-                <p class="text-sm text-gray-600 mb-4 text-center">是否屏蔽该分类的升级提醒？</p>
+                <h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">是否屏蔽该分类</h3>
+                <p class="text-sm text-gray-600 mb-4 text-center">屏蔽后升级列表将不再显示该类别的建筑<br>屏蔽后连续点击三次图标可取消屏蔽</p>
                 <div class="flex flex-col space-y-2">
                     <button id="dismiss-session-btn" class="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all duration-200 text-sm">单次屏蔽（下次导入后恢复）</button>
                     <button id="dismiss-forever-btn" class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">永久屏蔽</button>

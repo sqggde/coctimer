@@ -434,3 +434,4 @@
 html.dark .peer:checked ~ .peer-checked\:bg-primary {
     background-color: #a78bfa !important;
 }
+/* 总览区类目屏蔽：图标正常显示，分数由 JS 显示 -/-（绿角标/红点由 JS 隐藏）；.summary-dismissed 仅作状态标记无样式 */

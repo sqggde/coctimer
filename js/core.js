@@ -27,7 +27,6 @@
         webdavFolder: '',
         webdavLastUploadTime: '',
         stealthMode: false,
-        hideNightWorld: false,
         vibrate: true,
         notifyBuilding: true,
         notifyHelper: false,
@@ -216,8 +215,8 @@
                 var account = accounts[tag];
                 if (!account) continue;
 
-                // 复用权威提取逻辑（含加速/精工台/递归处理）；includeCompleted=true 以区分已完成节点（绿色）；屏蔽夜世界时过滤夜世界分类
-                var items = calc.filterNightWorld(calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true));
+                // 复用权威提取逻辑（含加速/精工台/递归处理）；includeCompleted=true 以区分已完成节点（绿色）
+                var items = calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true);
                 var upgrades = [];
                 for (var j = 0; j < items.length; j++) {
                     var item = items[j];

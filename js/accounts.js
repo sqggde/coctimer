@@ -117,7 +117,6 @@ let initialized = false;
     function formatRemainingTime(...args) { return calc.formatRemainingTime(...args); }
     function formatExportTime(...args) { return calc.formatExportTime(...args); }
     function escapeHtml(...args) { return calc.escapeHtml(...args); }
-    function filterNightWorld(...args) { return calc.filterNightWorld(...args); }
     function getAccountTabColor(...args) { return calc.getAccountTabColor(...args); }
     function getRemainingColor(...args) { return calc.getRemainingColor(...args); }
     function hasSleepHighlight(...args) { return calc.hasSleepHighlight(...args); }
@@ -145,32 +144,58 @@ let initialized = false;
         });
     }
 
+    // 主标题点击轮跳的账号环：待处理在前、有空闲在后，updateMainTitle 每轮重算
+    let _titleCycle = [];
+
     function updateMainTitle() {
         const titleEl = document.getElementById('main-title');
         if (!titleEl) return;
         if (accountOrder.length === 0) {
+            _titleCycle = [];
             titleEl.textContent = '部落小工具';
             return;
         }
         const now = Math.floor(Date.now() / 1000);
         let accountsWithDone = 0;
+        let accountsIdle = 0;
+        const pendingTags = [], idleTags = [];
         accountOrder.forEach(tag => {
             const data = accounts[tag];
             if (!data) return;
-            const items = filterNightWorld(extractUpgradingItems(data, now, true));
+            const items = extractUpgradingItems(data, now, true);
+            let hasDone = false;
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, data);
                 if (completionTs <= now) {
-                    accountsWithDone++;
+                    hasDone = true;
                     break;
                 }
             }
+            if (hasDone) { accountsWithDone++; pendingTags.push(tag); }
+            // 空闲判定与总览区同口径：任一未屏蔽分类 分子<分母（有空位可下）。被屏蔽类目视为用户不关注，不计空闲
+            const counts = calc.getCategoryCounts(items);
+            const denominators = calc.getCategoryDenominators(data);
+            const hasIdle = ['buildings', 'lab', 'pets', 'buildings2', 'units2'].some(key =>
+                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key));
+            if (hasIdle) { accountsIdle++; idleTags.push(tag); }
         });
-        if (accountsWithDone === 0) {
-            titleEl.textContent = '部落小工具';
-        } else {
+        _titleCycle = pendingTags.concat(idleTags);
+        // 优先级：待处理 > 有空闲 > 默认
+        if (accountsWithDone > 0) {
             titleEl.textContent = `${accountsWithDone}个账号待处理`;
+        } else if (accountsIdle > 0) {
+            titleEl.textContent = `${accountsIdle}个账号有空闲`;
+        } else {
+            titleEl.textContent = '部落小工具';
         }
+    }
+
+    // 点击主标题：在 _titleCycle 环内跳到当前账号的下一个（当前不在环内则跳第一个），无环不响应
+    function onTitleClick() {
+        if (!_titleCycle.length) return;
+        const idx = _titleCycle.indexOf(state.currentAccount);
+        const next = idx === -1 ? _titleCycle[0] : _titleCycle[(idx + 1) % _titleCycle.length];
+        if (next && next !== state.currentAccount) switchAccount(next);
     }
 
     function updateDataInfo(data) {
@@ -256,7 +281,7 @@ let initialized = false;
             let rightHtml = '';
             const data = accounts[tag];
             if (data) {
-                const items = filterNightWorld(extractUpgradingItems(data, now, true));
+                const items = extractUpgradingItems(data, now, true);
                 if (items.length > 0) {
                     let completedItems = [];
                     let inProgressItems = [];
@@ -551,8 +576,11 @@ let initialized = false;
     function showJsonModal() { jsonModal.classList.remove('hidden'); jsonInput.focus(); }
     function importAccountData(data) {
         const tag = data.tag || `账号_${Date.now()}`;
-        // 如果 timestamp 和上次相同，跳过解析更新
-        if (accounts[tag] && accounts[tag].timestamp === data.timestamp) return;
+        // 如果 timestamp 和上次相同，跳过解析更新（无数据变化：恢复 loading 前的视图，避免升级列表停留在隐藏态）
+        if (accounts[tag] && accounts[tag].timestamp === data.timestamp) {
+            try { switchAccount(tag); } catch (e) {}
+            return 'duplicate';
+        }
         const oldData = accounts[tag] || null;
         const progressModule = progress();
         if (progressModule) progressModule.resetIconCache();
@@ -594,6 +622,7 @@ let initialized = false;
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
         showToast(`${displayName}的信息已更新`, 1500);
+        return 'ok';
     }
 
     function detectAccountServer(tag, data) {
@@ -706,7 +735,7 @@ let initialized = false;
         try {
             const data = JSON.parse(text.trim());
             if (!data || !data.timestamp) throw new Error();
-            importAccountData(data);
+            if (importAccountData(data) === 'duplicate') showToast('无需重复导入', 1500);
         } catch (e) {
             showToast('json数据不正确', 2000);
         }
@@ -722,7 +751,7 @@ let initialized = false;
                 const data = JSON.parse(text.trim());
                 if (!data || !data.timestamp) throw new Error();
                 hideJsonModal();
-                importAccountData(data);
+                if (importAccountData(data) === 'duplicate') showToast('无需重复导入', 1500);
             } catch (err) { showToast('json数据不正确', 2000); }
             finally { hideLoading(); }
         }, 100);
@@ -854,6 +883,12 @@ let initialized = false;
             }
         });
         initSwipeGesture();
+        // 主标题点击轮跳（待处理→空闲→循环）
+        const titleEl = document.getElementById('main-title');
+        if (titleEl) {
+            titleEl.style.cursor = 'pointer';
+            titleEl.addEventListener('click', onTitleClick);
+        }
     }
 
     function start() {

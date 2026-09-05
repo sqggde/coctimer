@@ -31,7 +31,7 @@
     function calculateCompletionTimestamp(...args) { return calc.calculateCompletionTimestamp(...args); }
     function getItemName(...args) { return calc.getItemName(...args); }
     function hasRecurrentItem(...args) { return calc.hasRecurrentItem(...args); }
-    function filterNightWorld(...args) { return calc.filterNightWorld(...args); }
+    function filterDismissedCategories(...args) { return calc.filterDismissedCategories(...args); }
     function updateTimersOnly() { var p = progress(); if (p) p.tick(); }
 
     // ===== WebDAV 核心函数（供导入时自动上传调用） =====
@@ -530,7 +530,8 @@
         for (const tag of accountOrder) {
             const data = accounts[tag];
             if (!data) continue;
-            const items = filterNightWorld(extractUpgradingItems(data, now, true));
+            // 按账号类目屏蔽过滤：被屏蔽分类不推送升级完成通知
+            const items = filterDismissedCategories(extractUpgradingItems(data, now, true), tag);
             const accountName = accountNotes[tag] || tag;
             const helpers = data.helpers || [];
             const boosts = data.boosts || {};

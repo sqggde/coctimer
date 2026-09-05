@@ -12,12 +12,12 @@
     var sortDropdownBound = false;
 
     // 排序键：该账号所有升级项目（含已完成）中完成时间最早的一个（用户规则：最早完成的升级项目）
+    // 三处提取均按账号类目屏蔽过滤：被屏蔽分类（如星空实验室）不参与倒计时/排序/已完成图标
     function getNextCompletionTs(data) {
         try {
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
-            var items = pr.extractUpgradingItems(data, now, true);
-            if (CocTool.calc && CocTool.calc.filterNightWorld) items = CocTool.calc.filterNightWorld(items);
+            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag);
             var best = Infinity;
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
@@ -31,8 +31,7 @@
         try {
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
-            var all = pr.extractUpgradingItems(data, now, true);
-            if (CocTool.calc && CocTool.calc.filterNightWorld) all = CocTool.calc.filterNightWorld(all);
+            var all = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag);
             var done = [];
             for (var i = 0; i < all.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(all[i], data);
@@ -215,8 +214,7 @@
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
             var bestItem = null, bestRemaining = Infinity;
-            var items = pr.extractUpgradingItems(data, now, false);
-            if (CocTool.calc && CocTool.calc.filterNightWorld) items = CocTool.calc.filterNightWorld(items);
+            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, false), data.tag);
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
                 var rem = cts - now;

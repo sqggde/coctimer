@@ -848,13 +848,14 @@
         const root = getActiveSlideRoot();
         const summaryEls = {
             card: root.querySelector('#category-summary-card'),
-            els: {}, badges: {}, redBadges: {}, icons: {}
+            els: {}, badges: {}, redBadges: {}, icons: {}, columns: {}
         };
         ['buildings', 'lab', 'pets', 'buildings2', 'units2'].forEach(key => {
             summaryEls.els[key] = root.querySelector('#summary-' + key);
             summaryEls.badges[key] = root.querySelector('#summary-badge-' + key);
             summaryEls.redBadges[key] = root.querySelector('#summary-badge-red-' + key);
             summaryEls.icons[key] = root.querySelector('#summary-icon-' + key);
+            summaryEls.columns[key] = root.querySelector('[data-category="' + key + '"]');
         });
         return summaryEls;
     }
@@ -865,15 +866,17 @@
         refs.card.classList.remove('hidden');
         const keys = ['buildings', 'lab', 'pets', 'buildings2', 'units2'];
         keys.forEach(key => {
+            const dismissed = calc.isCategoryDismissed(state.currentAccount, key);
             const el = refs.els[key];
             if (el) {
-                const text = (counts[key] || 0) + '/' + (denominators[key] || 0);
+                // 屏蔽列分数显示 -/-（图标保留灰色可点击恢复）
+                const text = dismissed ? '-/-' : (counts[key] || 0) + '/' + (denominators[key] || 0);
                 if (el.textContent !== text) el.textContent = text;
             }
             const greenBadge = refs.badges[key];
             if (greenBadge) {
                 const completed = (completedCounts && completedCounts[key]) || 0;
-                if (completed > 0) {
+                if (completed > 0 && !dismissed) {
                     if (greenBadge.textContent !== String(completed)) greenBadge.textContent = String(completed);
                     greenBadge.style.display = 'flex';
                 } else {
@@ -884,13 +887,18 @@
             if (redBadge) {
                 const c = counts[key] || 0;
                 const d = denominators[key] || 0;
-                const isDismissed = (sessionDismissedCategories[state.currentAccount] && sessionDismissedCategories[state.currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount] && settings.dismissedCategories[state.currentAccount][key]);
+                const isDismissed = dismissed || (sessionDismissedCategories[state.currentAccount] && sessionDismissedCategories[state.currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount] && settings.dismissedCategories[state.currentAccount][key]);
                 const opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
                 if (redBadge.style.opacity !== opacity) redBadge.style.opacity = opacity;
             }
             const iconEl = refs.icons[key];
             if (iconEl) {
                 iconEl.src = calc.getSummaryIconUrl(key);
+            }
+            // 类目屏蔽：图标正常显示、分数 -/-（无独立样式，类仅作状态标记），仍可点击（连点3次恢复）
+            const col = refs.columns[key];
+            if (col) {
+                col.classList.toggle('summary-dismissed', dismissed);
             }
         });
     }
@@ -1096,15 +1104,10 @@
                 // 刷新总览卡片显示
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
-                    const items = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
+                    const items = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
                     const counts = calc.getCategoryCounts(items);
                     const denominators = calc.getCategoryDenominators(data);
                     const completed = calc.getCategoryCompletedCounts(items, data);
-                    if (settings.hideNightWorld) {
-                        counts.buildings2 = 0; counts.units2 = 0;
-                        denominators.buildings2 = 0; denominators.units2 = 0;
-                        completed.buildings2 = 0; completed.units2 = 0;
-                    }
                     updateCategorySummary(counts, denominators, completed);
                 }
                 document.getElementById('builder-monthly-pass-modal').classList.add('hidden');
@@ -1119,15 +1122,10 @@
                 // 刷新总览卡片显示
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
-                    const items = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
+                    const items = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
                     const counts = calc.getCategoryCounts(items);
                     const denominators = calc.getCategoryDenominators(data);
                     const completed = calc.getCategoryCompletedCounts(items, data);
-                    if (settings.hideNightWorld) {
-                        counts.buildings2 = 0; counts.units2 = 0;
-                        denominators.buildings2 = 0; denominators.units2 = 0;
-                        completed.buildings2 = 0; completed.units2 = 0;
-                    }
                     updateCategorySummary(counts, denominators, completed);
                 }
                 document.getElementById('builder-monthly-pass-modal').classList.add('hidden');
@@ -1141,16 +1139,12 @@
     }
 
     function render(data) {
-        const upgradingItems = calc.filterNightWorld(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true));
+        // 按当前账号类目屏蔽过滤：被屏蔽分类从升级列表消失（分组 count=0 自动隐藏），总览列由 updateCategorySummary 切灰态
+        const upgradingItems = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
         displayUpgradingItems(upgradingItems, data);
         const counts = calc.getCategoryCounts(upgradingItems);
         const denominators = calc.getCategoryDenominators(data);
         const completed = calc.getCategoryCompletedCounts(upgradingItems, data);
-        if (settings.hideNightWorld) {
-            counts.buildings2 = 0; counts.units2 = 0;
-            denominators.buildings2 = 0; denominators.units2 = 0;
-            completed.buildings2 = 0; completed.units2 = 0;
-        }
         updateCategorySummary(counts, denominators, completed);
         renderHelperOverview(data);
         updateBoostTimers(data);
@@ -1173,7 +1167,7 @@
         formatRemainingTime: calc.formatRemainingTime,
         formatExportTime: calc.formatExportTime,
         escapeHtml: calc.escapeHtml,
-        filterNightWorld: calc.filterNightWorld,
+        filterDismissedCategories: calc.filterDismissedCategories,
         getAccountTabColor: calc.getAccountTabColor,
         getRemainingColor: calc.getRemainingColor,
         hasSleepHighlight: calc.hasSleepHighlight,
