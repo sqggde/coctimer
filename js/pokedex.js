@@ -414,8 +414,9 @@
     // kind: 'time' 返回 fmtTime 字符串；'cost' 返回 fmtCost 字符串；无累计（滑块≤账号等级/账号超出实体满级）返回 null
     function cumulative(kind) {
         const levels = currentAbility ? currentAbility.levels : (currentEntity ? currentEntity.levels : []);
-        const to = Number(els.slider().value) || 1;
-        const from = accountLevel || 1;
+        const sem = sliderSemantics(levels);
+        const to = rawToPos(Number(els.slider().value) || 1, levels, sem);
+        const from = sem.mode === 'lv' ? rawToPos(accountLevel || 1, levels, sem) : (accountLevel || 1);
         if (to <= from) return null;
         if (from < 1 || from >= levels.length) return null;
         if (kind === 'time') {
@@ -587,8 +588,30 @@
         els.tbody().innerHTML = body;
     }
 
-    function renderLevelData(entity, ability) {
-        const maxLv = ability ? ability.levels.length : entity.levels.length;
+    // 滑块语义：等级编号连续时滑块值=等级编号（如战斗直升机解锁即 15 级、超级形态 8-13），
+    // 否则（supercharge 充能条目 level 恒为 1 等不连续场景）滑块值=位置 1..N
+    function sliderSemantics(levels) {
+        if (!levels || levels.length < 2) return { mode: 'pos', min: 1, max: levels ? levels.length : 1 };
+        for (let i = 1; i < levels.length; i++) {
+            if ((levels[i].level || 0) !== (levels[i - 1].level || 0) + 1) return { mode: 'pos', min: 1, max: levels.length };
+        }
+        const first = levels[0].level || 1;
+        return { mode: 'lv', min: first, max: first + levels.length - 1 };
+    }
+    // 原始值（等级编号或位置）→ 表位置
+    function rawToPos(v, levels, sem) {
+        v = Math.round(v) || sem.min;
+        if (sem.mode === 'lv') v = v - (levels[0].level || 1) + 1;
+        return Math.min(Math.max(v, 1), levels.length);
+    }
+    // 表位置 → 原始值（写回滑块）
+    function posToRaw(pos, levels, sem) {
+        return sem.mode === 'lv' ? ((levels[pos - 1] && levels[pos - 1].level) || pos) : pos;
+    }
+
+    function renderLevelData(entity, ability, desiredRaw) {
+        const levels = ability ? ability.levels : entity.levels;
+        const maxLv = levels ? levels.length : 0;
         if (!maxLv) {
             els.slider().disabled = true;
             els.slider().value = 1;
@@ -598,17 +621,16 @@
             els.tbody().innerHTML = '<tr><td style="padding:16px;color:var(--text-sub);">该实体无等级数据</td></tr>';
             return;
         }
+        const sem = sliderSemantics(levels);
         els.slider().disabled = false;
-        els.slider().max = maxLv;
-        let cur = Number(els.slider().value) || 1;
-        if (cur > maxLv) cur = maxLv;
-        if (cur < 1) cur = 1;
-        els.slider().value = cur;
-        const levels = ability ? ability.levels : entity.levels;
+        els.slider().min = sem.min;
+        els.slider().max = sem.max;
+        const pos = rawToPos(desiredRaw !== undefined && desiredRaw !== null ? desiredRaw : Number(els.slider().value), levels, sem);
+        els.slider().value = posToRaw(pos, levels, sem);
         // 滑块数字标签：形态/本体等级编号（如超级野蛮人显示 8-13 而非位置 1-6）
-        els.lvLabel().textContent = (levels[cur - 1] && levels[cur - 1].level !== undefined) ? levels[cur - 1].level : cur;
+        els.lvLabel().textContent = (levels[pos - 1] && levels[pos - 1].level !== undefined) ? levels[pos - 1].level : pos;
         updateLvTitle();
-        renderLevel(levels[cur - 1]);
+        renderLevel(levels[pos - 1]);
         renderTable(levels);
     }
 
@@ -633,11 +655,8 @@
         } else {
             currentAbility = null;
         }
-        const maxLv = currentAbility ? currentAbility.levels.length : entity.levels.length;
-        if (maxLv) els.slider().max = maxLv;
         // 精工形态：滑块定位到当前模块等级（abilities 顺序 = 模块顺序）
-        els.slider().value = currentModuleLevel(tabs);
-        renderLevelData(entity, currentAbility);
+        renderLevelData(entity, currentAbility, currentModuleLevel(tabs));
     }
 
     // 精工形态当前 tab 对应的模块等级（无模块信息返回账号等级）
@@ -887,18 +906,19 @@
         const refreshBtn = els.refreshBtn();
         if (refreshBtn) refreshBtn.addEventListener('click', refresh);
         const slider = els.slider();
-        // 统一应用滑块等级（clamp 1..maxLv）：更新滑块/标签/顶部等级卡片/表格行高亮
-        function applySliderLv(lv) {
+        // 统一应用滑块等级（等级编号或位置，按滑块语义 clamp）：更新滑块/标签/顶部等级卡片/表格行高亮
+        function applySliderLv(raw) {
             if (!currentEntity) return;
             const levels = currentAbility ? currentAbility.levels : currentEntity.levels;
             if (!levels.length) return;
-            lv = Math.min(Math.max(Math.round(lv) || 1, 1), levels.length);
-            slider.value = lv;
+            const sem = sliderSemantics(levels);
+            const pos = rawToPos(raw, levels, sem);
+            slider.value = posToRaw(pos, levels, sem);
             // 滑块标签显示等级编号（如超级气球 10-14 而非位置 1-5）
-            els.lvLabel().textContent = (levels[lv - 1] && levels[lv - 1].level !== undefined) ? levels[lv - 1].level : lv;
-            renderLevel(levels[lv - 1]);
+            els.lvLabel().textContent = (levels[pos - 1] && levels[pos - 1].level !== undefined) ? levels[pos - 1].level : pos;
+            renderLevel(levels[pos - 1]);
             const rows = els.tbody().querySelectorAll('tr');
-            rows.forEach((r, i) => { r.classList.toggle('cur', i === lv - 1); });
+            rows.forEach((r, i) => { r.classList.toggle('cur', i === pos - 1); });
         }
         slider.addEventListener('input', () => applySliderLv(Number(slider.value)));
         // 微调按钮：英雄上百级滑块难以精确控制
@@ -919,28 +939,13 @@
                 b.style.borderColor = i === idx ? 'var(--accent)' : '';
                 b.style.color = i === idx ? 'var(--accent)' : '';
             });
-            // 精工形态：切换 tab 时滑块定位到对应模块等级
+            // 精工形态：切换 tab 定位到对应模块等级；超级形态等直接用账号等级（renderLevelData 内按等级编号匹配并 clamp 到形态区间）
+            let desired = accountLevel || 1;
             if (t.type === 'ability' && accountModules && accountModules.length) {
-                const mv = Number(accountModules[t.idx]) || 1;
-                if (mv > 0) els.slider().value = mv;
-            } else if (t.type === 'ability') {
-                // 超级形态等：等级编号与本体不同（如超级野蛮人 8-13），按账号等级匹配到对应编号项的位置
-                const abLevels = currentAbility ? currentAbility.levels : null;
-                if (abLevels && abLevels.length) {
-                    const al = accountLevel || 1;
-                    let pos = 1;
-                    for (let i = 0; i < abLevels.length; i++) {
-                        if ((abLevels[i].level || 0) >= al) { pos = i + 1; break; }
-                        pos = i + 1;
-                    }
-                    els.slider().value = pos;
-                } else {
-                    els.slider().value = accountLevel || 1;
-                }
-            } else {
-                els.slider().value = accountLevel || 1;
+                const mv = Number(accountModules[t.idx]);
+                if (mv > 0) desired = mv;
             }
-            renderLevelData(currentEntity, currentAbility);
+            renderLevelData(currentEntity, currentAbility, desired);
         });
     }
 

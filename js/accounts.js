@@ -622,6 +622,14 @@ let initialized = false;
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
         showToast(`${displayName}的信息已更新`, 1500);
+        // 云端自动恢复用：记录本地最后数据变更时刻（墙钟），云端 exportDate 较新时才询问恢复
+        try { localStorage.setItem('coc_last_local_data_change', String(Date.now())); } catch (e) {}
+        // 云端自动备份（App 独有）：在导入提示之后异步执行——成功弹「云端备份已更新」、旧版被压弹
+        // 「自动备份已失效」，必须放在导入 toast 之后，否则失效提示会被导入 toast 立刻顶掉（同步分支无 await）
+        var cloudSvc = CocTool.features.services;
+        if (cloudSvc && cloudSvc.autoCloudBackup) {
+            cloudSvc.autoCloudBackup().catch(() => {});
+        }
         return 'ok';
     }
 

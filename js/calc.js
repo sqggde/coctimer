@@ -487,7 +487,9 @@
                 });
             }
         });
-        return upgrading;
+        // 源头阻断：被屏蔽分类（按账号两层记忆）的条目不进入解析结果，
+        // 下游（升级列表/总览区/tab 配色/主标题环/排序弹窗/通知调度）全链路自然免扰
+        return data.tag ? filterDismissedCategories(upgrading, data.tag) : upgrading;
     }
 
     function getItemCategory(item) {
@@ -679,7 +681,7 @@
 
     // ========== 分类目屏蔽（按账号两层记忆：session 单次屏蔽 + settings.dismissedCategories 永久屏蔽） ==========
     // 仅覆盖总览区 5 个分类键（buildings/lab/pets/buildings2/units2），条目经 getItemCategory 归类后匹配；
-    // 生效范围 = 总览区列灰态 + 首页升级列表分组隐藏 + 通知不推送
+    // 生效范围 = 解析源头（extractUpgradingItems 直接不产出被屏蔽条目）：升级列表/总览区灰态/账号 tab 配色/主标题环/排序弹窗/通知调度 全链路免扰
     function isCategoryDismissed(tag, categoryKey) {
         if (!tag || !categoryKey) return false;
         const sessionMap = state.sessionDismissedCategories && state.sessionDismissedCategories[tag];

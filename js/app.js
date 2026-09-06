@@ -72,6 +72,7 @@
         if (hasAccounts && servicesReady) run('后台检测', () => services.start());
         run('快捷导入', () => accounts.performAutoImport());
         run('通知权限', () => requestNotificationPermission(CocTool));
+        run('活跃上报', () => CocTool.dailyPing());
         setTimeout(function() { CocTool.checkForUpdate(); }, 3000);
         setInterval(function() { CocTool.checkForUpdate(); }, 30 * 60 * 1000);
         setTimeout(function() { updateForegroundNotificationFromCalc(); }, 1000);

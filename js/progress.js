@@ -249,14 +249,14 @@
             const iconSize = 18;
             const leftHtml = [];
             if (worker) {
-                leftHtml.push('<span class="ho-helper" data-helper="worker" style="display:inline-flex;align-items:center;gap:2px;margin-right:4px"><span style="display:inline-flex;position:relative"><img src="img/icons/BHelper.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block"></span><span style="background:#dbeafe;color:#1d4ed8;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + (worker.lvl || 0) + '</span></span>');
+                leftHtml.push('<span class="ho-helper" data-helper="worker" style="display:inline-flex;align-items:center;gap:2px;margin-right:4px"><span style="display:inline-flex;position:relative"><img src="img/icons/BHelper.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block;border-radius:4px"></span><span style="background:#dbeafe;color:#1d4ed8;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + (worker.lvl || 0) + '</span></span>');
             }
             if (lab) {
-                leftHtml.push('<span class="ho-helper" data-helper="lab" style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-flex;position:relative"><img src="img/icons/LHelper.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block"></span><span style="background:#f3e8ff;color:#7c3aed;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + (lab.lvl || 0) + '</span></span>');
+                leftHtml.push('<span class="ho-helper" data-helper="lab" style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-flex;position:relative"><img src="img/icons/LHelper.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block;border-radius:4px"></span><span style="background:#f3e8ff;color:#7c3aed;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + (lab.lvl || 0) + '</span></span>');
             }
             leftHtml.push('<span class="ho-timer-left" style="font-weight:500;white-space:nowrap"></span>');
 
-            let clockHtml = '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-flex;position:relative"><img src="img/icons/CT.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block"></span><span style="background:#fef3c7;color:#d97706;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + clockLvl + '</span></span><span class="ho-timer-right" style="font-weight:500;white-space:nowrap"></span>';
+            let clockHtml = '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-flex;position:relative"><img src="img/icons/CT.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block;border-radius:4px"></span><span style="background:#fef3c7;color:#d97706;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + clockLvl + '</span></span><span class="ho-timer-right" style="font-weight:500;white-space:nowrap"></span>';
 
             container.innerHTML = '<span style="display:flex;align-items:center;gap:4px">' + leftHtml.join('') + '</span><span style="margin-left:auto;display:flex;align-items:center;gap:2px">' + clockHtml + '</span>';
             container.setAttribute('data-helper-key', structKey);
@@ -565,7 +565,7 @@
                     }
                 }
                 var iconInner = iconSrc
-                    ? '<img src="' + iconSrc + '" width="36" height="36" class="w-9 h-9 object-contain" data-cachekey="' + cacheKey + '" data-fallback="' + (iconUrls ? iconUrls.slice(1).join(',') : '') + '" alt=""><i class="fa ' + icon + ' text-primary" style="display:none;font-size:20px;"></i>' + scOverlay
+                    ? '<img src="' + iconSrc + '" width="36" height="36" class="w-9 h-9 object-contain rounded-lg" data-cachekey="' + cacheKey + '" data-fallback="' + (iconUrls ? iconUrls.slice(1).join(',') : '') + '" alt=""><i class="fa ' + icon + ' text-primary" style="display:none;font-size:20px;"></i>' + scOverlay
                     : '<i class="fa ' + icon + ' text-primary" style="font-size:20px;"></i>';
                 var iconHtml = '<div class="w-9 h-9 flex items-center justify-center flex-shrink-0" style="margin-right:10px;position:relative;overflow:visible;">' + iconInner + '</div>';
                 var catLine = isSC ? '充能' : isWp ? '武器' : isGear ? '改装中' : originCat;
@@ -606,7 +606,7 @@
     }
 
     // ========== 增量更新卡片倒计时（不重建 DOM，仅更新文本+颜色）==========
-    // 剩余时间渲染：数字与单位分开（.cr-digit/.cr-unit），单位字号小/黑色/不加粗
+    // 剩余时间渲染：数字与单位分开（.cr-digit/.cr-unit），单位字号小/黑色/不加粗；末位秒只显数字不显「秒」字
     function remainHtml(sec) {
         if (sec <= 0) return '就绪';
         const d = Math.floor(sec / 86400);
@@ -617,7 +617,7 @@
         if (d > 0) html += '<span class="cr-digit">' + d + '</span><span class="cr-unit">天</span>';
         if (h > 0 || html) html += '<span class="cr-digit cr-digit-fixed">' + h + '</span><span class="cr-unit">时</span>';
         if (m > 0 || html) html += '<span class="cr-digit cr-digit-fixed">' + m + '</span><span class="cr-unit">分</span>';
-        html += '<span class="cr-digit cr-digit-fixed">' + s + '</span><span class="cr-unit">秒</span>';
+        html += '<span class="cr-digit cr-digit-fixed">' + s + '</span>';
         return html;
     }
     function updateCardTimers() {
@@ -831,7 +831,7 @@
                 // 图标类型变化（缓存恢复的旧 HTML 图标可能不匹配）→ 重建完整结构；否则只更新文字
                 const img = timerEl.querySelector('img');
                 if (!img || img.src.indexOf(cat.iconFile) === -1) {
-                    timerEl.innerHTML = '<img src="img/icons/' + cat.iconFile + '" width="16" height="16" style="vertical-align:middle;display:inline-block"><span class="boost-time-text">' + timeStr + '</span>';
+                    timerEl.innerHTML = '<img src="img/icons/' + cat.iconFile + '" width="16" height="16" style="vertical-align:middle;display:inline-block;border-radius:4px"><span class="boost-time-text">' + timeStr + '</span>';
                 } else {
                     const timeSpan = timerEl.querySelector('.boost-time-text');
                     if (timeSpan && timeSpan.textContent !== timeStr) timeSpan.textContent = timeStr;

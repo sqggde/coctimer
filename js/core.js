@@ -59,6 +59,7 @@
         sessionDismissedCategories: {},
         latestVersionData: null,
         hasUpdate: false,
+        latestServerVersionCode: 0,
         checkingUpdate: false
     };
 
@@ -282,7 +283,7 @@
     });
 
     CocTool.apiBase = 'https://coctool.top';
-    CocTool.appToken = 'coc-timer-2026';
+    CocTool.appToken = 'coc-timer-2026-9';
 
     let mediaQuery;
     let mediaListenerBound = false;
@@ -339,13 +340,16 @@
         }
     });
 
+    let toastTimer = null;
     function showToast(message, duration) {
         const toast = document.getElementById('toast');
         const toastText = document.getElementById('toast-text');
         if (!toast || !toastText) return;
         toastText.textContent = message;
         toast.classList.remove('hidden');
-        global.setTimeout(() => toast.classList.add('hidden'), duration || 2000);
+        // 覆盖前一条 toast 的隐藏定时器：否则短时长 toast 的定时器会把后一条长时长 toast 提前藏掉
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = global.setTimeout(() => toast.classList.add('hidden'), duration || 2000);
     }
 
     // 通用确认弹窗：动态创建 .modal-overlay/.modal-card（与 index.html 静态模态同一套样式），避免原生 confirm
@@ -444,8 +448,26 @@
         }
     }
 
+    // 切换底部导航页时关闭所有弹窗：index.html 静态模态加 hidden 复用；动态创建的 overlay（确认弹窗/
+    // 备忘/区服选择/史诗提示等，无 hidden 机制）只能 remove——加 hidden 会残留透明遮罩挡住后续点击。
+    // 静态集合在 initNavigation 时快照，动态弹窗按需重建（duration-search/war-stats 日历均自建自毁）
+    var staticOverlaySet = null;
+    function closeAllModals() {
+        closeConfirm();
+        var ov = CocTool.features && CocTool.features.overview;
+        if (ov && ov.closeEpicTip) ov.closeEpicTip();
+        document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(function (m) {
+            if (staticOverlaySet && staticOverlaySet.has(m)) {
+                m.classList.add('hidden');
+            } else {
+                m.remove();
+            }
+        });
+    }
+
     function showPage(page) {
         closeDetailOverlays();
+        closeAllModals();
         // 切出首页时若处于排序模式则取消（等同点取消，不应用变更）；排序面板是独立容器，不会随页面隐藏
         if (page !== 'progress' && CocTool.features.accounts && CocTool.features.accounts.exitSortModeIfActive) {
             CocTool.features.accounts.exitSortModeIfActive();
@@ -478,6 +500,7 @@
 
     function initNavigation() {
         if (navigationBound) return;
+        staticOverlaySet = new Set(document.querySelectorAll('.modal-overlay'));
         document.querySelectorAll('.nav-btn').forEach(button => {
             button.addEventListener('click', () => showPage(button.dataset.page));
         });
@@ -576,13 +599,21 @@
         var nd = document.getElementById('nav-settings-dot');
         if (nd) {
             nd.classList.toggle('hidden', !show);
-            nd.style.display = show ? '' : 'none';
+            nd.style.display = show ? 'flex' : 'none';
         }
         var cd = document.getElementById('check-update-dot');
         if (cd) {
             cd.classList.toggle('hidden', !show);
-            cd.style.display = show ? '' : 'none';
+            cd.style.display = show ? 'flex' : 'none';
         }
+        var mu = document.getElementById('main-update-btn');
+        if (mu) {
+            mu.classList.toggle('hidden', !show);
+            mu.style.display = show ? 'flex' : 'none';
+        }
+        // 版本检测结果同步到云端自动备份开关文案（需更新到最新版提示）
+        var svc = CocTool.features && CocTool.features.services;
+        if (svc && svc.refreshCloudAutoBackupUi) svc.refreshCloudAutoBackupUi();
     }
 
     CocTool.checkForUpdate = function() {
@@ -599,6 +630,9 @@
         })
         .then(function(data) {
             clearTimeout(timeout);
+            // 最新服务器版本号独立记录：不随「稍后更新」清除，云端自动备份的版本闸门以此为准
+            //（services 侧：用户设置 ∧ 最新版 = 开关生效态，updateRedDot 末尾会刷新开关 UI）
+            state.latestServerVersionCode = data.versionCode || 0;
             var local = window.AndroidApp ? window.AndroidApp.getVersionCode() : -1;
             if (data.versionCode > local && data.versionCode > state.settings.dismissedUpdateVersion) {
                 state.latestVersionData = data;
@@ -624,5 +658,68 @@
         state.hasUpdate = false;
         state.latestVersionData = null;
         updateRedDot();
+    };
+
+    // =============================================
+    // App 活跃上报（匿名 deviceId，每设备每日一次，仅 AndroidApp 环境生效）
+    // =============================================
+    var PING_DEVICE_KEY = 'clash_device_id';
+    var PING_DATE_KEY = 'clash_last_ping_date';
+
+    // 东八区日期 'YYYY-MM-DD'（与服务器归日口径一致，避免临界日重复/漏报）
+    function cnToday() {
+        return new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    }
+
+    function getOrCreateDeviceId() {
+        try {
+            var existing = localStorage.getItem(PING_DEVICE_KEY);
+            if (existing) return existing;
+            var id = (global.crypto && typeof global.crypto.randomUUID === 'function')
+                ? global.crypto.randomUUID()
+                : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0;
+                    var v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            localStorage.setItem(PING_DEVICE_KEY, id);
+            return id;
+        } catch (e) {
+            return '';
+        }
+    }
+
+    // 每日首启上报：本地记录上次上报日期，同日不发请求；成功（2xx）才写入记录，失败下次启动补报。
+    // 服务器端主键 (device_id, date) 幂等兜底，前端节流只省流量。
+    CocTool.dailyPing = function() {
+        if (!global.AndroidApp || typeof global.AndroidApp.getVersionName !== 'function') return;
+        var version;
+        try {
+            version = global.AndroidApp.getVersionName();
+        } catch (e) {
+            return;
+        }
+        if (!version) return;
+        var today = cnToday();
+        try {
+            if (localStorage.getItem(PING_DATE_KEY) === today) return;
+        } catch (e) { /* localStorage 不可用时仍上报，服务器主键兜底 */ }
+        var deviceId = getOrCreateDeviceId();
+        if (!deviceId) return;
+        var controller = new AbortController();
+        var timeout = setTimeout(function() { controller.abort(); }, 8000);
+        fetch(CocTool.apiBase + '/api/coc/track/ping', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-App-Token': CocTool.appToken },
+            body: JSON.stringify({ deviceId: deviceId, version: version }),
+            signal: controller.signal
+        }).then(function(r) {
+            clearTimeout(timeout);
+            if (r.ok) {
+                try { localStorage.setItem(PING_DATE_KEY, today); } catch (e) {}
+            }
+        }).catch(function() {
+            clearTimeout(timeout);
+        });
     };
 })(window);

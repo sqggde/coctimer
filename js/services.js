@@ -17,6 +17,11 @@
     const advancePickerCloseBtn = document.getElementById('advance-picker-close-btn');
     let initialized = false;
     let updateTimer = null;
+    var autoCloudBackupRef = null;        // init() 内赋值（自动备份函数在 init 作用域，供 accounts.js 导入成功后调用）
+    var maybeAutoRestoreRef = null;       // init() 内赋值（自动恢复检测在 init 作用域，供外部手动触发/测试）
+    var webdavUploadRef = null;           // init() 内赋值（WebDAV 统一上传核心在 init 作用域，供模块级 autoWebdavUpload 委托）
+    var maybeWebdavAutoRestoreRef = null; // init() 内赋值（WebDAV 自动恢复检测在 init 作用域，供外部手动触发/测试）
+    var refreshCloudAutoBackupUiRef = null;
     const calc = CocTool.calc;
 
     function progress() { return CocTool.features.progress; }
@@ -34,7 +39,7 @@
     function filterDismissedCategories(...args) { return calc.filterDismissedCategories(...args); }
     function updateTimersOnly() { var p = progress(); if (p) p.tick(); }
 
-    // ===== WebDAV 核心函数（供导入时自动上传调用） =====
+    // ===== WebDAV 核心函数（手动上传/导入后自动上传/自动恢复共用，仿云端备份模块模型） =====
     function getWebdavAuth() {
         const user = settings.webdavAccount;
         const pass = settings.webdavPassword;
@@ -48,6 +53,29 @@
         return server + '/' + folder + '/';
     }
 
+    // WebDAV 异步桥回调（挂 CocTool 命名空间——契约约定 window 全局只允许 CocTool/serviceLog 等；
+    // MainActivity evaluateJavascript 调用 CocTool.webdavBridge.onResult，支持多请求并发）
+    let webdavCallbackSeq = 0;
+    const webdavPending = {};
+    CocTool.webdavBridge = {
+        onResult: function (callbackId, result) {
+            const pending = webdavPending[callbackId];
+            if (!pending) return;
+            delete webdavPending[callbackId];
+            const response = {
+                ok: result.ok,
+                status: result.status,
+                text: () => Promise.resolve(result.body || ''),
+                clone: function () { return this; }
+            };
+            if (!result.ok) {
+                response.statusText = 'HTTP ' + result.status;
+                if (result.error) response.statusText += ' (' + result.error + ')';
+            }
+            pending.resolve(response);
+        }
+    };
+
     async function doWebdavRequest(path, method, body) {
         const auth = getWebdavAuth();
         if (!auth) throw new Error('账号或密码未设置');
@@ -55,26 +83,39 @@
         // 对路径中的每个分段做 URL 编码（处理 # 等特殊字符）
         const cleanPath = path.split('/').map(s => encodeURIComponent(s)).join('/');
         const url = baseUrl + (cleanPath ? '/' + cleanPath : '');
+        const bodyArg = (method === 'MKCOL' || !body) ? null : body;
 
-        // 优先使用原生 Java 方法（避免 WebView fetch 的网络限制）
-        if (typeof AndroidApp !== 'undefined' && AndroidApp.doWebdavHttpRequest) {
-            const bodyArg = (method === 'MKCOL' || !body) ? null : body;
-            const resultJson = AndroidApp.doWebdavHttpRequest(url, method, settings.webdavAccount, settings.webdavPassword, bodyArg);
-            const result = JSON.parse(resultJson);
-            const response = {
-                ok: result.ok,
-                status: result.status,
-                text: () => Promise.resolve(result.body),
-                clone: function() { return this; }
-            };
-            if (!result.ok) {
-                response.statusText = 'HTTP ' + result.status;
-                if (result.error) response.statusText += ' (' + result.error + ')';
-            }
-            return response;
+        // 真机：优先异步桥（OkHttp enqueue + evaluateJavascript 回调），网络期间不阻塞 JS 线程（旧同步版会卡前端最长 15s）
+        if (typeof AndroidApp !== 'undefined' && AndroidApp.doWebdavHttpRequestAsync) {
+            return new Promise((resolve, reject) => {
+                const cbId = 'wdv' + (++webdavCallbackSeq);
+                webdavPending[cbId] = { resolve, reject };
+                AndroidApp.doWebdavHttpRequestAsync(url, method, settings.webdavAccount, settings.webdavPassword, bodyArg, cbId);
+            });
         }
 
-        // 降级：浏览器 fetch
+        // 旧真机兜底：同步桥（阻塞但可用）
+        if (typeof AndroidApp !== 'undefined' && AndroidApp.doWebdavHttpRequest) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const resultJson = AndroidApp.doWebdavHttpRequest(url, method, settings.webdavAccount, settings.webdavPassword, bodyArg);
+                    const result = JSON.parse(resultJson);
+                    const response = {
+                        ok: result.ok,
+                        status: result.status,
+                        text: () => Promise.resolve(result.body),
+                        clone: function () { return this; }
+                    };
+                    if (!result.ok) {
+                        response.statusText = 'HTTP ' + result.status;
+                        if (result.error) response.statusText += ' (' + result.error + ')';
+                    }
+                    resolve(response);
+                } catch (e) { reject(e); }
+            });
+        }
+
+        // 浏览器（网页版）：原生 fetch
         const headers = { 'Authorization': auth };
         if (body) headers['Content-Type'] = 'application/json';
         const res = await fetch(url, { method, headers, body });
@@ -91,37 +132,20 @@
         throw new Error('创建文件夹失败: HTTP ' + res.status + (errText ? ' ' + errText : ''));
     }
 
-    async function autoWebdavUpload() {
-        if (!accounts || Object.keys(accounts).length === 0 || !settings.webdavServer) return;
-        try {
-            const backupData = {
-                version: 1,
-                exportDate: new Date().toISOString(),
-                accounts,
-                accountNotes,
-                accountOrder,
-                currentAccount: state.currentAccount,
-                settings: { ...settings }
-            };
-            const jsonStr = JSON.stringify(backupData, null, 2);
-            const filename = 'webdav_backup.json';
-            await ensureWebdavFolder().catch(() => {});
-            const res = await doWebdavRequest(filename, 'PUT', jsonStr);
-            if (!res.ok) {
-                const errText = await res.text().catch(() => '');
-                throw new Error('HTTP ' + res.status + (errText ? ': ' + errText : ''));
-            }
-            const now = new Date();
-            settings.webdavLastUploadTime =
-                now.getFullYear() + '-' +
-                String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                String(now.getDate()).padStart(2, '0') + ' ' +
-                String(now.getHours()).padStart(2, '0') + ':' +
-                String(now.getMinutes()).padStart(2, '0') + ':' +
-                String(now.getSeconds()).padStart(2, '0');
-            saveSettings();
-        } catch (e) {
+    async function ensureWebdavFolder() {
+        const res = await doWebdavRequest('', 'MKCOL');
+        if (res.status === 405 || res.status === 409 || res.status === 301 || res.status === 302) {
+            return;
         }
+        if (res.ok) return;
+        const errText = await res.text().catch(() => '');
+        throw new Error('创建文件夹失败: HTTP ' + res.status + (errText ? ' ' + errText : ''));
+    }
+
+    // 导入后自动上传入口：委托 init() 内统一上传核心 webdavUpload(true)（原此处有一份重复实现，
+    // 载荷缺 clans、与手动上传行为漂移，已收敛删除）
+    function autoWebdavUpload() {
+        return webdavUploadRef ? webdavUploadRef(true) : Promise.resolve();
     }
 
     // ========== 通知监控模块 ==========
@@ -702,9 +726,9 @@
             saveSettings();
         }
 
-        async function webdavUpload(silent) {
-            try {
-const backupData = {
+        // WebDAV 统一备份载荷（与云端 buildBackupPayload 同构含 clans；独立函数不与云端互染）
+        function buildWebdavPayload() {
+            return {
                 version: 1,
                 exportDate: new Date().toISOString(),
                 accounts,
@@ -714,7 +738,12 @@ const backupData = {
                 settings: { ...settings },
                 clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
             };
-                const jsonStr = JSON.stringify(backupData, null, 2);
+        }
+
+        async function webdavUpload(silent) {
+            try {
+                // 不用 pretty-print：几百 KB 数据的格式化会加重主线程负担，文件可读性无价值
+                const jsonStr = JSON.stringify(buildWebdavPayload());
                 const filename = 'webdav_backup.json';
                 try { await ensureWebdavFolder(); } catch (folderErr) {
                 }
@@ -723,6 +752,8 @@ const backupData = {
                     const errText = await res.text().catch(() => '');
                     throw new Error('HTTP ' + res.status + (errText ? ': ' + errText : ''));
                 }
+                // 上传成功 → 本地与 WebDAV 内容一致，标记同步为备份时刻（自动恢复比对用）
+                try { localStorage.setItem(WEBDAV_SYNC_KEY, String(Date.now())); } catch (markErr) {}
                 const now = new Date();
                 settings.webdavLastUploadTime =
                     now.getFullYear() + '-' +
@@ -745,6 +776,35 @@ const backupData = {
             }
         }
 
+        // WebDAV 恢复核心（手动导入/启动自动恢复共用，对齐云端 performCloudRestore）；返回是否执行了恢复
+        async function performWebdavRestore(backupData) {
+            // 兼容两种格式：新版标准格式 或 旧版扁平格式
+            const dataToRestore = backupData.accounts ? backupData : (backupData.data || backupData);
+            if (!dataToRestore || !dataToRestore.accounts) {
+                showToast('备份数据格式无效', 3000);
+                return false;
+            }
+            // 与云端恢复一致的写入逻辑
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToRestore));
+            if (backupData.settings || dataToRestore.settings) {
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(backupData.settings || dataToRestore.settings));
+            }
+            // 恢复成功 → 本地与 WebDAV 内容一致，标记同步为备份时刻（防自动恢复回环）
+            try { localStorage.setItem(WEBDAV_SYNC_KEY, String(Date.parse(backupData.exportDate) || Date.now())); } catch (e) {}
+            var clanTags = dataToRestore.clans || [];
+            var addedClans = 0;
+            if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
+                try {
+                    addedClans = await CocTool.features.clan.restoreClansFromTags(clanTags);
+                } catch (e) { addedClans = 0; }
+            }
+            showToast(addedClans > 0
+                ? ('WebDAV 恢复成功！已补 ' + addedClans + ' 个部落，即将刷新')
+                : 'WebDAV 恢复成功！即将刷新', 1800);
+            setTimeout(() => location.reload(), 1800);
+            return true;
+        }
+
         async function webdavImport() {
             try {
                 const filename = 'webdav_backup.json';
@@ -755,27 +815,34 @@ const backupData = {
                 }
                 const jsonStr = await res.text();
                 const backupData = JSON.parse(jsonStr);
-                // 兼容两种格式：新版标准格式 或 旧版扁平格式
-                const dataToRestore = backupData.accounts ? backupData : (backupData.data || backupData);
-                if (!dataToRestore || !dataToRestore.accounts) {
-                    showToast('备份数据格式无效', 3000);
-                    return;
-                }
-                // 与云端恢复一致的写入逻辑
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToRestore));
-                if (backupData.settings || dataToRestore.settings) {
-                    localStorage.setItem(SETTINGS_KEY, JSON.stringify(backupData.settings || dataToRestore.settings));
-                }
-                showToast('备份导入成功！即将刷新', 1500);
-                setTimeout(() => location.reload(), 1500);
+                await performWebdavRestore(backupData);
             } catch (e) {
                 const detail = e.name === 'TypeError' ? '网络错误，请检查服务器地址和网络连接' : e.message;
                 showToast('导入失败：' + detail, 4000);
             }
         }
 
+        // WebDAV 弹窗关闭守卫：打开时快照表单，任何路径（✕/遮罩/返回键/切导航页）关闭若检测到未保存
+        // 修改，先拦截并询问「保存并关闭 / 不保存」——统一经 MutationObserver 拦截，避免逐个关闭入口打补丁
+        let webdavModalSnapshot = null;
+        function webdavFormSnapshot() {
+            return JSON.stringify({
+                server: webdavServerInput.value,
+                account: webdavAccountInput.value,
+                password: webdavPasswordInput.value,
+                folder: webdavFolderInput.value,
+                enabled: webdavEnabledToggle.checked,
+                auto: webdavAutoToggle.checked,
+                autoRestore: document.getElementById('webdav-auto-restore-toggle').checked
+            });
+        }
+        function webdavModalDirty() {
+            return webdavModalSnapshot !== null && webdavFormSnapshot() !== webdavModalSnapshot;
+        }
+
         function openWebdavModal() {
             loadWebdavToUI();
+            webdavModalSnapshot = webdavFormSnapshot();
             webdavModal.classList.remove('hidden');
         }
 
@@ -783,11 +850,33 @@ const backupData = {
             webdavModal.classList.add('hidden');
         }
 
+        new MutationObserver(() => {
+            if (!webdavModal.classList.contains('hidden') || !webdavModalDirty()) return;
+            webdavModal.classList.remove('hidden'); // 拦截本次关闭
+            CocTool.ui.showConfirm({
+                title: '未保存的修改',
+                text: '检测到 WebDAV 设置有修改，是否保存后关闭？',
+                confirmText: '保存并关闭',
+                cancelText: '不保存',
+                onConfirm: () => {
+                    saveWebdavFromUI();
+                    webdavModalSnapshot = webdavFormSnapshot();
+                    showToast('WebDAV 设置已保存', 2000);
+                    closeWebdavModal();
+                },
+                onCancel: () => {
+                    webdavModalSnapshot = null;
+                    closeWebdavModal();
+                }
+            });
+        }).observe(webdavModal, { attributes: true, attributeFilter: ['class'] });
+
         webdavSettingsBtn.addEventListener('click', openWebdavModal);
         webdavCloseBtn.addEventListener('click', closeWebdavModal);
         webdavModal.addEventListener('click', (e) => { if (e.target === webdavModal) closeWebdavModal(); });
         webdavSaveBtn.addEventListener('click', () => {
             saveWebdavFromUI();
+            webdavModalSnapshot = webdavFormSnapshot(); // 已保存即非脏，关闭不触发询问
             showToast('WebDAV 设置已保存', 2000);
             closeWebdavModal();
         });
@@ -795,7 +884,7 @@ const backupData = {
             const btn = document.getElementById('webdav-upload-btn');
             if (!btn) return;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i>上传中...';
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>上传中...';
             try { await webdavUpload(false); }
             finally { btn.disabled = false; btn.innerHTML = '上传备份'; }
         });
@@ -803,7 +892,7 @@ const backupData = {
             const btn = document.getElementById('webdav-import-btn');
             if (!btn) return;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i>导入中...';
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>导入中...';
             try { await webdavImport(); }
             finally { btn.disabled = false; btn.innerHTML = '导入备份'; }
         });
@@ -999,6 +1088,8 @@ const backupData = {
                 cloudLoginText.textContent = '登录账号';
                 cloudLoginText.className = 'text-blue-500 text-sm cursor-pointer hover:text-blue-700';
             }
+            if (refreshCloudAutoBackupUiRef) refreshCloudAutoBackupUiRef();
+            updateAutoRestoreUi();
         }
         updateLoginUI();
 
@@ -1142,30 +1233,15 @@ const backupData = {
                 return;
             }
 
-            const backupData = {
-                version: 1,
-                exportDate: new Date().toISOString(),
-                accounts,
-                accountNotes,
-                accountOrder,
-                currentAccount: state.currentAccount,
-                settings: { ...settings },
-                clans: getIntlClanTags()
-            };
-
             const btn = document.getElementById('cloud-backup-btn');
             const origHtml = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>备份中...';
 
             try {
-                const res = await fetch(`${CLOUD_API}/backup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-                    body: JSON.stringify(backupData),
-                });
-                const result = await res.json();
+                const result = await postCloudBackup(token, buildBackupPayload());
                 if (result.success) {
+                    markCloudSyncedNow();
                     showToast('云端备份已更新', 2000);
                 } else {
                     if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
@@ -1179,15 +1255,347 @@ const backupData = {
                     showToast('备份失败：' + (result.error || '未知错误'), 3000);
                 }
             } catch (err) {
-                showToast('备份失败（网络错误）：' + err.message, 3000);
+                showToast('恢复失败（网络错误）：' + err.message, 3000);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
             }
         });
 
+        // === 云端自动备份（App 独有）：导入游戏数据成功后自动上传云端 ===
+        // 开关状态单独存 localStorage（AUTO_BACKUP_PREF_KEY），刻意不放进 settings——settings 会随
+        // 云端/WebDAV/本地备份整体快照并在恢复时整包写回，若开关存 settings，App 的开态会被带到
+        // 没有此功能的网页版（网页版恢复后无开关可见却处于开启状态）
+        // 自动备份开关真值表（用户拍板）——「用户设置」（持久意愿，AUTO_BACKUP_PREF_KEY）与「开关显示/生效」分离：
+        //   用户设置1 + 版本检测最新版 → 开关1     用户设置1 + 版本检测旧版 → 开关0
+        //   用户设置0 + 任意检测结果   → 开关0
+        // 版本未知（启动首次检测前的窗口）按旧版处理（开关0、不上传），检测完成自动刷新；
+        // 更新到最新版后开关自动恢复开态（用户设置仍为 1），无需重新开启
+        const AUTO_BACKUP_PREF_KEY = 'coc_cloud_auto_backup_enabled';
+        const AUTO_RESTORE_PREF_KEY = 'coc_cloud_auto_restore_enabled';
+        const LOCAL_CHANGE_KEY = 'coc_last_local_data_change';
+        // WebDAV 独立键：自动恢复开关（默认关，不进备份快照）与上传/恢复一致性标记（与云端标记分开互不干扰）
+        const WEBDAV_SYNC_KEY = 'coc_webdav_last_sync';
+        const AUTO_RESTORE_WEBDAV_KEY = 'coc_webdav_auto_restore_enabled';
+        function userWantsAutoBackup() {
+            try { return localStorage.getItem(AUTO_BACKUP_PREF_KEY) === '1'; } catch (e) { return false; }
+        }
+
+        function isLocalOutdated() {
+            var latest = state.latestServerVersionCode || 0;
+            if (!latest) return false;
+            var local = 0;
+            try { local = window.AndroidApp.getVersionCode(); } catch (e) {}
+            return local < latest;
+        }
+
+        function isAutoBackupActive() {
+            if (!userWantsAutoBackup()) return false;
+            var latest = state.latestServerVersionCode || 0;
+            if (!latest) return false;
+            return !isLocalOutdated();
+        }
+        // 网页版不支持：shim 桩伪造超大 versionCode，须以真机专有桥方法识别
+        function isRealAndroidApp() {
+            return Boolean(window.AndroidApp && window.AndroidApp.isSystemDarkMode);
+        }
+
+        // 开关行展示状态：unsupported 隐藏整行 / nologin 登录后生效 / off 用户设置关 / checking 版本检测中 / outdated 需更新 / '' 正常开
+        function cloudAutoBackupUiState() {
+            if (!isRealAndroidApp()) return 'unsupported';
+            if (!userWantsAutoBackup()) return 'off';
+            if (!localStorage.getItem(TOKEN_KEY)) return 'nologin';
+            var latest = state.latestServerVersionCode || 0;
+            if (!latest) return 'checking';
+            var local = 0;
+            try { local = window.AndroidApp.getVersionCode(); } catch (e) {}
+            if (local < latest) return 'outdated';
+            return '';
+        }
+
+        function updateCloudAutoBackupUi() {
+            var group = document.getElementById('cloud-auto-backup-group');
+            if (!group) return;
+            var uiState = cloudAutoBackupUiState();
+            if (uiState === 'unsupported') {
+                group.style.display = 'none';
+                return;
+            }
+            group.style.display = '';
+            var toggle = document.getElementById('cloud-auto-backup-toggle');
+            var label = document.getElementById('cloud-auto-backup-label');
+            if (toggle) toggle.checked = uiState === '';
+            if (label) {
+                if (uiState === 'nologin') {
+                    label.textContent = '自动备份（登录后生效）';
+                    label.className = 'text-xs text-gray-400';
+                } else if (uiState === 'outdated') {
+                    label.textContent = '自动备份（需更新到最新版）';
+                    label.className = 'text-xs text-orange-500';
+                } else if (uiState === 'checking') {
+                    label.textContent = '自动备份（版本检测中）';
+                    label.className = 'text-xs text-gray-400';
+                } else {
+                    label.textContent = '自动备份';
+                    label.className = 'text-xs text-gray-700';
+                }
+            }
+        }
+
+        async function autoCloudBackup() {
+            try {
+                if (!isRealAndroidApp()) return;
+                const token = localStorage.getItem(TOKEN_KEY);
+                if (!token || !authData || !authData.email) return;
+                if (!isAutoBackupActive()) {
+                    // 导入后本应自动备份并提示「云端备份已更新」；用户设置开着但因旧版被压时，
+                    // 在同一位置改弹失效提示（每次导入都提示，与正常流程一一对应）
+                    if (userWantsAutoBackup() && isLocalOutdated()) {
+                        notificationMonitor.log('云端', '自动备份已失效：当前不是最新版本', { noMerge: true });
+                        showToast('自动备份已失效，请更新至最新版本', 3000);
+                    }
+                    return;
+                }
+                const result = await postCloudBackup(token, buildBackupPayload());
+                if (result && result.success) {
+                    markCloudSyncedNow();
+                    notificationMonitor.log('云端', '自动备份成功（导入后）', { noMerge: true });
+                    showToast('云端备份已更新', 2000);
+                } else {
+                    notificationMonitor.log('云端', '自动备份失败：' + ((result && result.error) || '未知错误'), { noMerge: true });
+                    showToast('云端备份失败：' + ((result && result.error) || '未知错误'), 3000);
+                }
+            } catch (err) {
+                notificationMonitor.log('云端', '自动备份失败（网络错误）：' + err.message, { noMerge: true });
+                showToast('云端备份失败（网络错误）', 3000);
+            }
+        }
+
+        var cloudAutoBackupToggle = document.getElementById('cloud-auto-backup-toggle');
+        if (cloudAutoBackupToggle) {
+            cloudAutoBackupToggle.addEventListener('change', () => {
+                if (!cloudAutoBackupToggle.checked) {
+                    // 关闭：直接生效，无需确认
+                    try { localStorage.setItem(AUTO_BACKUP_PREF_KEY, '0'); } catch (e) {}
+                    updateCloudAutoBackupUi();
+                    return;
+                }
+                // 开启：先弹确认（默认关闭，按需开启；取消/点遮罩关闭弹窗后开关由 updateCloudAutoBackupUi 回弹到关）
+                CocTool.ui.showConfirm({
+                    title: '开启云端自动备份',
+                    text: '此功能仅限最新版本使用，开启前请确认已更新至最新版本。<br>每次导入游戏数据都会自动上传云端备份，会增加服务器压力，请按需开启。<br>若没有多设备同步需求，不建议开启。',
+                    confirmText: '确认开启',
+                    cancelText: '取消',
+                    onConfirm: () => {
+                        try { localStorage.setItem(AUTO_BACKUP_PREF_KEY, '1'); } catch (e) {}
+                        updateCloudAutoBackupUi();
+                    },
+                    onCancel: () => updateCloudAutoBackupUi()
+                });
+                // 弹窗关闭（含点遮罩无回调）后同步开关回真实状态
+                setTimeout(updateCloudAutoBackupUi, 50);
+            });
+        }
+        var cloudAutoRestoreToggle = document.getElementById('cloud-auto-restore-toggle');
+        if (cloudAutoRestoreToggle) {
+            cloudAutoRestoreToggle.addEventListener('change', () => {
+                try { localStorage.setItem(AUTO_RESTORE_PREF_KEY, cloudAutoRestoreToggle.checked ? '1' : '0'); } catch (e) {}
+                updateAutoRestoreUi();
+            });
+        }
+        updateAutoRestoreUi();
+        // 启动 2s 后做一次自动恢复检测（待页面渲染与登录态就绪；只读比对，云端不新则完全静默）
+        setTimeout(() => { maybeAutoRestore(); }, 2000);
+        maybeAutoRestoreRef = maybeAutoRestore;
+
+        // === WebDAV 自动恢复（仿云端自动恢复；与云端自动恢复互斥，WebDAV 优先） ===
+        function webdavAutoRestoreReady() {
+            return webdavAutoRestoreOn() && settings.webdavEnabled &&
+                settings.webdavServer && getWebdavAuth();
+        }
+
+        function webdavSyncedAt() {
+            return parseInt(localStorage.getItem(WEBDAV_SYNC_KEY), 10) || 0;
+        }
+
+        // 启动触发（5s，晚于云端检测）：开关开 + WebDAV 已配置 → 拉云端文件比对 exportDate，较新则询问后恢复
+        async function maybeWebdavAutoRestore() {
+            try {
+                if (!webdavAutoRestoreReady()) return;
+                const filename = 'webdav_backup.json';
+                const res = await doWebdavRequest(filename, 'GET');
+                if (!res.ok) return;
+                const jsonStr = await res.text();
+                const backupData = JSON.parse(jsonStr);
+                if (!(backupData.accounts ? backupData : (backupData.data || backupData))) return;
+                var cloudAt = Date.parse(backupData.exportDate) || 0;
+                if (cloudAt <= webdavSyncedAt()) return;
+                var t = new Date(cloudAt);
+                var pad = function (n) { return String(n).padStart(2, '0'); };
+                var timeStr = (t.getMonth() + 1) + '-' + pad(t.getDate()) + ' ' + pad(t.getHours()) + ':' + pad(t.getMinutes());
+                CocTool.ui.showConfirm({
+                    title: 'WebDAV 自动恢复',
+                    text: '检测到 WebDAV 备份较新（' + timeStr + '），是否恢复到本地？',
+                    confirmText: '恢复',
+                    cancelText: '取消',
+                    onConfirm: () => { performWebdavRestore(backupData).catch(() => {}); },
+                    onCancel: () => {}
+                });
+            } catch (err) {
+                // 静默：启动检测失败不打扰（WebDAV 未配置/网络不可达等）
+            }
+        }
+        setTimeout(() => { maybeWebdavAutoRestore(); }, 5000);
+        maybeWebdavAutoRestoreRef = maybeWebdavAutoRestore;
+        webdavUploadRef = webdavUpload;
+
+        var webdavAutoRestoreToggle = document.getElementById('webdav-auto-restore-toggle');
+        if (webdavAutoRestoreToggle) {
+            webdavAutoRestoreToggle.addEventListener('change', () => {
+                try { localStorage.setItem(AUTO_RESTORE_WEBDAV_KEY, webdavAutoRestoreToggle.checked ? '1' : '0'); } catch (e) {}
+                updateAutoRestoreUi(); // 云端自动恢复标签同步显示让位状态
+            });
+            webdavAutoRestoreToggle.checked = webdavAutoRestoreOn();
+        }
+        updateCloudAutoBackupUi();
+        autoCloudBackupRef = autoCloudBackup;
+        refreshCloudAutoBackupUiRef = updateCloudAutoBackupUi;
+
         // 云端恢复
-        document.getElementById('cloud-restore-btn').addEventListener('click', () => {
+        // 恢复核心：写本地 + 补部落 + 刷新（云端恢复按钮与自动恢复共用）；返回是否执行了恢复
+        async function performCloudRestore(backup) {
+            const dataToRestore = backup.accounts ? backup : backup.data;
+            if (!dataToRestore || !dataToRestore.accounts) {
+                showToast('备份数据格式无效', 3000);
+                return false;
+            }
+            localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(dataToRestore));
+            if (backup.settings || dataToRestore.settings) {
+                localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
+            }
+            // 本地最后数据变更标记 = 云端备份时间：防止自动恢复后又被判「云端较新」造成回环
+            try { localStorage.setItem(LOCAL_CHANGE_KEY, String(Date.parse(backup.exportDate) || Date.now())); } catch (e) {}
+            var clanTags = dataToRestore.clans || [];
+            var addedClans = 0;
+            if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
+                try {
+                    addedClans = await CocTool.features.clan.restoreClansFromTags(clanTags);
+                } catch (e) { addedClans = 0; }
+            }
+            showToast(addedClans > 0
+                ? ('云端恢复成功！已补 ' + addedClans + ' 个部落，即将刷新')
+                : '云端恢复成功！即将刷新', 1800);
+            setTimeout(() => location.reload(), 1800);
+            return true;
+        }
+
+        // === 云端自动恢复（App + 网页版）：启动时比对云端与本地时间，云端较新则询问后自动触发云端恢复 ===
+        // 开关独立存储（不进备份快照，同自动备份做法）；无版本闸门（只读不上传，对服务器无压力）
+        function cloudAutoRestoreEnabled() {
+            try { return localStorage.getItem(AUTO_RESTORE_PREF_KEY) === '1'; } catch (e) { return false; }
+        }
+
+        function updateAutoRestoreUi() {
+            var label = document.getElementById('cloud-auto-restore-label');
+            var toggle = document.getElementById('cloud-auto-restore-toggle');
+            if (toggle) toggle.checked = cloudAutoRestoreEnabled();
+            if (label) {
+                const token = localStorage.getItem(TOKEN_KEY);
+                if (!token) {
+                    label.textContent = '自动恢复（登录后生效）';
+                    label.className = 'text-xs text-gray-400';
+                } else if (cloudAutoRestoreEnabled() && webdavAutoRestoreOn()) {
+                    // 互斥让位态：开关开着但不会执行，明示用户原因
+                    label.textContent = '自动恢复（WebDAV 恢复优先）';
+                    label.className = 'text-xs text-gray-400';
+                } else {
+                    label.textContent = '自动恢复';
+                    label.className = 'text-xs text-gray-700';
+                }
+            }
+        }
+
+        function localDataChangedAt() {
+            return parseInt(localStorage.getItem(LOCAL_CHANGE_KEY), 10) || 0;
+        }
+
+        // 备份成功（自动/手动）→ 本地与云端内容已一致，标记同步为备份时刻：
+        // 否则云端 exportDate 恒比导入标记晚，双开时每次重启都会误报「云端较新」
+        function markCloudSyncedNow() {
+            try { localStorage.setItem(LOCAL_CHANGE_KEY, String(Date.now())); } catch (e) {}
+        }
+
+        // 统一备份载荷组装（云端备份模块内手动/自动共用，一处修改全局生效；WebDAV 独立不依赖此函数）
+        function buildBackupPayload() {
+            return {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                accounts,
+                accountNotes,
+                accountOrder,
+                currentAccount: state.currentAccount,
+                settings: { ...settings },
+                clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
+            };
+        }
+
+        // 统一备份上传核心（云端手动/自动共用同一接口与头；网页版无桥接时版本头为 0/空，服务器不校验）
+        async function postCloudBackup(token, payload) {
+            var vCode = 0, vName = '';
+            try { vCode = window.AndroidApp.getVersionCode(); vName = window.AndroidApp.getVersionName(); } catch (e) {}
+            const res = await fetch(`${CLOUD_API}/backup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Auth-Token': token,
+                    'X-App-Version-Code': String(vCode),
+                    'X-App-Version': vName
+                },
+                body: JSON.stringify(payload)
+            });
+            return res.json();
+        }
+
+        // 两个自动恢复互斥（用户拍板）：WebDAV 恢复优先——它读用户自己的网盘，不给自有服务器增压；
+        // WebDAV 自动恢复开启时，云端自动恢复「开关看着开着但不执行」
+        function webdavAutoRestoreOn() {
+            try { return localStorage.getItem(AUTO_RESTORE_WEBDAV_KEY) === '1'; } catch (e) { return false; }
+        }
+
+        // 启动触发：登录 + 开关开 → 拉云端比对 exportDate 与本地最后变更标记，云端较新则询问后恢复
+        async function maybeAutoRestore() {
+            try {
+                if (!cloudAutoRestoreEnabled()) return;
+                if (webdavAutoRestoreOn()) return; // WebDAV 自动恢复优先，云端让位（不发请求）
+                const token = localStorage.getItem(TOKEN_KEY);
+                if (!token || !authData || !authData.email) return;
+                const res = await fetch(`${CLOUD_API}/backup`, {
+                    method: 'GET',
+                    headers: { 'X-Auth-Token': token }
+                });
+                const result = await res.json();
+                if (!result || !result.success || !result.data) return;
+                const backup = result.data;
+                if (!(backup.accounts ? backup : backup.data)) return;
+                var cloudAt = Date.parse(backup.exportDate) || 0;
+                if (cloudAt <= localDataChangedAt()) return;
+                var timeStr = new Date(cloudAt);
+                var pad = function (n) { return String(n).padStart(2, '0'); };
+                timeStr = (timeStr.getMonth() + 1) + '-' + pad(timeStr.getDate()) + ' ' + pad(timeStr.getHours()) + ':' + pad(timeStr.getMinutes());
+                CocTool.ui.showConfirm({
+                    title: '自动恢复',
+                    text: '检测到云端备份较新（' + timeStr + '），是否恢复到本地？',
+                    confirmText: '恢复',
+                    cancelText: '取消',
+                    onConfirm: () => { performCloudRestore(backup).catch(() => {}); },
+                    onCancel: () => {}
+                });
+            } catch (err) {
+                // 静默：启动检测失败不打扰
+            }
+        }
+
+        document.getElementById('cloud-restore-btn').addEventListener('click', async () => {
             if (!authData || !authData.email) {
                 showToast('请先登录账号', 2000);
                 return;
@@ -1221,27 +1629,7 @@ const backupData = {
                 });
                 const result = await res.json();
                 if (result.success && result.data) {
-                    const backup = result.data;
-                    const dataToRestore = backup.accounts ? backup : backup.data;
-                    if (!dataToRestore || !dataToRestore.accounts) {
-                        showToast('备份数据格式无效', 3000);
-                        return;
-                    }
-                    localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(dataToRestore));
-                    if (backup.settings || dataToRestore.settings) {
-                        localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
-                    }
-                    var clanTags = dataToRestore.clans || [];
-                    var addedClans = 0;
-                    if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
-                        try {
-                            addedClans = await CocTool.features.clan.restoreClansFromTags(clanTags);
-                        } catch (e) { addedClans = 0; }
-                    }
-                    showToast(addedClans > 0
-                        ? ('云端恢复成功！已补 ' + addedClans + ' 个部落，即将刷新')
-                        : '云端恢复成功！即将刷新', 1800);
-                    setTimeout(() => location.reload(), 1800);
+                    await performCloudRestore(result.data);
                 } else {
                     if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
                         localStorage.removeItem(TOKEN_KEY);
@@ -1300,6 +1688,10 @@ const backupData = {
         resumeTicker,
         pushSchedule,
         autoWebdavUpload,
+        maybeWebdavAutoRestore: function () { return maybeWebdavAutoRestoreRef ? maybeWebdavAutoRestoreRef() : Promise.resolve(); },
+        autoCloudBackup: function () { return autoCloudBackupRef ? autoCloudBackupRef() : Promise.resolve(); },
+        maybeAutoRestore: function () { return maybeAutoRestoreRef ? maybeAutoRestoreRef() : Promise.resolve(); },
+        refreshCloudAutoBackupUi: function () { if (refreshCloudAutoBackupUiRef) refreshCloudAutoBackupUiRef(); },
         log: function(type, detail, opts) { notificationMonitor.log(type, detail, opts); },
         getNotificationLogs: function() { return notificationMonitor.getLogs(); },
         getGroupedNotificationLogs: function() { return notificationMonitor.getGroupedLogs(); },

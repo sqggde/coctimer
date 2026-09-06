@@ -110,7 +110,23 @@
                                 <span id="cloud-login-text" class="text-blue-500 text-sm cursor-pointer hover:text-blue-700 flex-shrink-0">登录账号</span>
                                 <span class="text-xs text-gray-500 ml-auto flex items-center"><i class="fa fa-cloud mr-1"></i>云端备份</span>
                             </div>
-                            <div class="flex space-x-2">
+                            <div id="cloud-auto-row" class="flex items-center justify-between mt-2">
+                                <div id="cloud-auto-backup-group" class="flex items-center">
+                                    <span id="cloud-auto-backup-label" class="text-xs text-gray-700 mr-2">自动备份</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="cloud-auto-backup-toggle" class="sr-only peer">
+                                        <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                                    </label>
+                                </div>
+                                <div id="cloud-auto-restore-group" class="flex items-center">
+                                    <span id="cloud-auto-restore-label" class="text-xs text-gray-700 mr-2">自动恢复</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="cloud-auto-restore-toggle" class="sr-only peer">
+                                        <div class="w-8 h-4 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-2">
                                 <button id="cloud-backup-btn" class="flex-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center" style="font-size: 13px;"><i class="fa fa-cloud-upload mr-2"></i>云端备份</button>
                                 <button id="cloud-restore-btn" class="flex-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center" style="font-size: 13px;"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
                             </div>
@@ -323,11 +339,14 @@
         <div id="sticky-top-bar" class="sticky top-0 z-10 bg-gray-50 pt-2">
         <header class="mb-0.5 py-1">
             <div class="flex items-center justify-between">
-                <div>
+                <div style="display:flex;align-items:center;">
                     <h1 id="main-title" class="font-bold text-gray-800 mb-0 mt-0" style="font-size: 16px; line-height: 1.2;">部落小工具</h1>
+                    <button id="main-update-btn" class="hidden flex-shrink-0" style="width:25px;height:25px;border-radius:50%;background:#22c55e;border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(34,197,94,0.4);padding:0;margin-left:6px;" aria-label="发现新版本">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                    </button>
                 </div>
-                <div class="flex space-x-1">
-                    <button id="settings-btn" class="px-2 py-0.5 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-all duration-200 flex items-center shadow-sm hover:shadow-md text-xs"><i class="fa fa-cog"></i></button>
+                <div class="flex space-x-1" style="align-items:center;">
+                    <button id="settings-btn" class="px-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md text-xs" style="height:25px;min-width:28px;"><i class="fa fa-cog"></i></button>
                     <div class="quick-import-wrap" style="position:relative;">
                         <button class="qi-btn bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-all duration-200 flex items-center shadow-sm hover:shadow-md overflow-hidden" style="font-size:14px; padding:0; min-width:94px; height:25px;">
                             <span class="qi-label px-2 py-0.5" style="flex:0 0 80%; white-space:nowrap;">快捷导入</span>
@@ -400,41 +419,41 @@
                 <div class="flex items-center justify-around">
                     <div class="flex flex-col items-center" data-category="buildings">
                         <div class="relative inline-flex">
-                            <img id="summary-icon-buildings" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5" alt="" onerror="this.style.display='none'">
+                            <img id="summary-icon-buildings" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
                             <span id="summary-badge-buildings" class="absolute top-0 -right-2 min-w-[18px] h-[18px] rounded-full bg-green-500 text-white text-[11px] font-bold flex items-center justify-center leading-none shadow-sm px-0.5" style="display:none">0</span>
                         </div>
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-buildings" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-buildings">0/0</span></span>
                     </div>
                     <div class="flex flex-col items-center" data-category="lab">
                         <div class="relative inline-flex">
-                            <img id="summary-icon-lab" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5" alt="" onerror="this.style.display='none'">
+                            <img id="summary-icon-lab" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
                             <span id="summary-badge-lab" class="absolute top-0 -right-2 min-w-[18px] h-[18px] rounded-full bg-green-500 text-white text-[11px] font-bold flex items-center justify-center leading-none shadow-sm px-0.5" style="display:none">0</span>
                         </div>
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-lab" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-lab">0/0</span></span>
                     </div>
                     <div class="flex flex-col items-center" data-category="pets">
                         <div class="relative inline-flex">
-                            <img id="summary-icon-pets" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5" alt="" onerror="this.style.display='none'">
+                            <img id="summary-icon-pets" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
                             <span id="summary-badge-pets" class="absolute top-0 -right-2 min-w-[18px] h-[18px] rounded-full bg-green-500 text-white text-[11px] font-bold flex items-center justify-center leading-none shadow-sm px-0.5" style="display:none">0</span>
                         </div>
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-pets" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-pets">0/0</span></span>
                     </div>
                     <div class="flex flex-col items-center" data-category="buildings2">
                         <div class="relative inline-flex">
-                            <img id="summary-icon-buildings2" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5" alt="" onerror="this.style.display='none'">
+                            <img id="summary-icon-buildings2" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
                             <span id="summary-badge-buildings2" class="absolute top-0 -right-2 min-w-[18px] h-[18px] rounded-full bg-green-500 text-white text-[11px] font-bold flex items-center justify-center leading-none shadow-sm px-0.5" style="display:none">0</span>
                         </div>
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-buildings2" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-buildings2">0/0</span></span>
                     </div>
                     <div class="flex flex-col items-center" data-category="units2">
                         <div class="relative inline-flex">
-                            <img id="summary-icon-units2" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5" alt="" onerror="this.style.display='none'">
+                            <img id="summary-icon-units2" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
                             <span id="summary-badge-units2" class="absolute top-0 -right-2 min-w-[18px] h-[18px] rounded-full bg-green-500 text-white text-[11px] font-bold flex items-center justify-center leading-none shadow-sm px-0.5" style="display:none">0</span>
                         </div>
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-units2" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-units2">0/0</span></span>
                     </div>
                 </div>
-                <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 10px"></div>
+                <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 10px;margin-top:4px"></div>
 
 </div>
 
@@ -445,7 +464,7 @@
                     <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-4"></div>
                     <div id="empty-state" class="text-center py-12 hidden"><i class="fa fa-database text-gray-300 text-5xl mb-4"></i><p class="text-gray-500">点击「导入数据」添加账号，数据将自动保存</p></div>
                     <div id="upgrades-container" class="hidden">
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界建筑</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span><span id="builder-boost-toggle" class="ml-auto" style="cursor:pointer;display:none;align-items:center;gap:2px;margin-left:auto"><img id="builder-boost-icon" src="img/icons/builder_boost.webp" width="16" height="16" style="vertical-align:middle;display:inline-block"><span id="builder-boost-label" style="font-size:11px;font-weight:500;font-variant-numeric:tabular-nums">10x</span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
+                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界建筑</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span><span id="builder-boost-toggle" class="ml-auto" style="cursor:pointer;display:none;align-items:center;gap:2px;margin-left:auto"><img id="builder-boost-icon" src="img/icons/builder_boost.webp" width="16" height="16" style="vertical-align:middle;display:inline-block;border-radius:4px"><span id="builder-boost-label" style="font-size:11px;font-weight:500;font-variant-numeric:tabular-nums">10x</span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
                         <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-flask mr-2 text-secondary"></i><span style="font-size: 14px;">实验室</span><span id="lab-count" class="ml-1 px-1 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full hidden"></span></h3><div id="lab-list" class="space-y-0.5"></div></div>
                         <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-paw mr-2 text-pink-500"></i><span style="font-size: 14px;">战宠</span><span id="pets-count" class="ml-1 px-1 py-0.5 bg-pink-500/10 text-pink-500 text-xs rounded-full hidden"></span></h3><div id="pets-list" class="space-y-0.5"></div></div>
                         <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-moon-o mr-2 text-warning"></i><span style="font-size: 14px;">🌙 建筑</span><span id="buildings2-count" class="ml-1 px-1 py-0.5 bg-warning/10 text-warning text-xs rounded-full hidden"></span></h3><div id="buildings2-list" class="space-y-0.5"></div></div>
@@ -1014,17 +1033,25 @@
         <div id="settings-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
             <h2 class="font-semibold text-gray-800 mb-3" style="font-size: 16px;">应用设置</h2>
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <button id="check-update-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="check-update-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0" style="position:relative;">
                         <i class="fa fa-refresh text-primary" style="font-size: 15px;"></i>
-                        <span id="check-update-dot" class="hidden" style="position:absolute;top:-2px;right:-4px;width:10px;height:10px;border-radius:50%;background:#ef4444;"></span>
+                        <span id="check-update-dot" class="hidden" style="position:absolute;top:-6px;right:-7px;width:16px;height:16px;border-radius:50%;background:#ef4444;align-items:center;justify-content:center;z-index:5;"><span style="color:#ffffff;font-size:11px;font-weight:900;line-height:1;font-family:Arial,'Helvetica Neue',sans-serif;">!</span></span>
                     </span>
                     <span class="flex-1 text-left text-gray-800">检查更新</span>
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
+                <hr class="border-gray-100 m-0">
+                <button id="changelog-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                    <span class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fa fa-file-text-o text-teal-600" style="font-size: 15px;"></i>
+                    </span>
+                    <span class="flex-1 text-left text-gray-800">更新日志</span>
+                    <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
+                </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
-                <button id="select-icon-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+                <button id="select-icon-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-picture-o text-purple-600" style="font-size: 15px;"></i>
                     </span>
@@ -1033,7 +1060,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <div class="flex items-center px-4 py-3.5">
+                <div class="flex items-center px-4 py-2.5">
                     <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-eye-slash text-gray-600" style="font-size: 15px;"></i>
                     </span>
@@ -1044,7 +1071,7 @@
                     </label>
                 </div>
                 <hr class="border-gray-100 m-0">
-                <button id="webdav-settings-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="webdav-settings-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-cloud-upload text-indigo-600" style="font-size: 15px;"></i>
                     </span>
@@ -1052,7 +1079,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <button id="notify-settings-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="notify-settings-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-bell text-yellow-600" style="font-size: 15px;"></i>
                     </span>
@@ -1060,7 +1087,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <button id="notify-log-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="notify-log-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-list-alt text-gray-500" style="font-size: 15px;"></i>
                     </span>
@@ -1068,8 +1095,8 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
-                <button id="widget-settings-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+                <button id="widget-settings-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-th-large text-orange-600" style="font-size: 15px;"></i>
                     </span>
@@ -1077,7 +1104,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <button id="widget-log-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="widget-log-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-file-text-o text-orange-600" style="font-size: 15px;"></i>
                     </span>
@@ -1085,8 +1112,8 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
-                <button id="copy-web-link-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+                <button id="copy-web-link-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-link text-green-600" style="font-size: 15px;"></i>
                     </span>
@@ -1094,7 +1121,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <button id="open-web-link-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="open-web-link-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-external-link text-green-600" style="font-size: 15px;"></i>
                     </span>
@@ -1102,8 +1129,8 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-3">
-                <button id="qq-group-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+                <button id="qq-group-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-qq text-blue-600" style="font-size: 15px;"></i>
                     </span>
@@ -1111,7 +1138,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
-                <button id="support-btn" class="w-full flex items-center px-4 py-3.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                <button id="support-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-heart text-orange-500" style="font-size: 15px;"></i>
                     </span>
@@ -1312,6 +1339,15 @@
                     <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
                 </label>
             </div>
+
+            <!-- 开关：自动恢复（启动时比对云端文件，较新则询问；与云端自动恢复互斥，WebDAV 优先） -->
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm text-gray-700">自动恢复<span class="text-xs text-gray-400 ml-1">启动时询问</span></span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="webdav-auto-restore-toggle" class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                </label>
+            </div>
             <div class="text-xs text-gray-400 mb-3" id="webdav-last-upload-time">最近上传时间：--</div>
 
             <!-- 操作按钮 -->
@@ -1417,6 +1453,19 @@
         </div>
     </div>
 
+    <!-- ===== 更新日志弹窗（内容由 settings.js 数据驱动渲染） ===== -->
+    <div id="changelog-modal" class="modal-overlay hidden">
+        <div class="modal-card w-sm" style="padding:1.25rem">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800" style="font-size: 15px;">更新日志</h3>
+                <button id="changelog-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                    <i class="fa fa-times text-lg"></i>
+                </button>
+            </div>
+            <div id="changelog-body" style="max-height: 65vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
     <!-- ===== 建筑工人月卡确认弹窗 ===== -->
     <div id="builder-monthly-pass-modal" class="modal-overlay hidden">
         <div class="modal-card w-xs">
@@ -1450,7 +1499,7 @@
         <button class="nav-btn" data-page="settings" id="nav-settings-btn">
             <span style="position:relative;display:inline-flex;">
                 <i class="fa fa-cog"></i>
-                <span id="nav-settings-dot" class="hidden" style="position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;background:#ef4444;z-index:5;"></span>
+                <span id="nav-settings-dot" class="hidden" style="position:absolute;top:-6px;right:-8px;width:16px;height:16px;border-radius:50%;background:#ef4444;align-items:center;justify-content:center;z-index:5;"><span style="color:#ffffff;font-size:11px;font-weight:900;line-height:1;font-family:Arial,'Helvetica Neue',sans-serif;">!</span></span>
             </span>
             <span>设置</span>
         </button>

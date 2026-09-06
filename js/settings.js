@@ -254,10 +254,17 @@
                     '</div>',
                     '<p class="text-xs text-center text-gray-400">版本 ', escapeHtml(localVersionName), '</p>'
                 ].join('');
+                // 最新版本也展示下载按钮（用户要求：随时可获取下载链接）
+                if (data.baiduUrl || data.quarkUrl || data.directDownloadUrl) {
+                    downloadBtnsContainer.classList.remove('hidden');
+                    if (data.directDownloadUrl) updateModalDirectBtn.classList.remove('hidden'); else updateModalDirectBtn.classList.add('hidden');
+                    if (data.baiduUrl) updateModalBaiduBtn.classList.remove('hidden'); else updateModalBaiduBtn.classList.add('hidden');
+                    if (data.quarkUrl) updateModalQuarkBtn.classList.remove('hidden'); else updateModalQuarkBtn.classList.add('hidden');
+                }
             }
         }
 
-        document.getElementById('check-update-btn').addEventListener('click', function() {
+        function openUpdateCheck() {
             updateModalTitle.textContent = '检查更新';
             updateModalBody.innerHTML = '<div class="flex items-center justify-center py-4"><i class="fa fa-spinner fa-spin text-primary text-xl mr-2"></i><span>正在检查更新...</span></div>';
             updateModalLaterBtn.classList.add('hidden');
@@ -289,7 +296,12 @@
                     '<p class="text-xs text-center text-gray-400 mt-1">请稍后重试</p>'
                 ].join('');
             });
-        });
+        }
+
+        document.getElementById('check-update-btn').addEventListener('click', openUpdateCheck);
+        // 首页标题行末端绿色升级圆钮：仅在 hasUpdate 时由 core.updateRedDot 显示，点击直达更新弹窗
+        var mainUpdateBtn = document.getElementById('main-update-btn');
+        if (mainUpdateBtn) mainUpdateBtn.addEventListener('click', openUpdateCheck);
 
         function doFetchUpdate(url, onSuccess, onError) {
             var controller = new AbortController();
@@ -306,6 +318,89 @@
                 if (onError) onError(err);
             });
         }
+
+        // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
+        const UPDATE_LOG = [
+            ['1.4.6', '26.9.3', ['进一步修复联赛问题', '云端备份迁移自建服务器（三端互通）']],
+            ['1.4.5', '26.9.1', ['联赛相关功能优化']],
+            ['1.4.4', '26.8.30', ['增加部落战数据统计（四 tab 概览+色块矩阵+分享导出图）', '使用说明重写']],
+            ['1.4.3', '26.8.25', ['升级时长搜索（目标小时/资源/月卡折扣/推算）', '引入 SVG 图标', '增加游戏链式启动按钮']],
+            ['1.4.2', '26.8.22', ['强化夜世界屏蔽功能', '云端备份内容增加部落标签']],
+            ['1.4.1', '26.8.19', ['新增小组件']],
+            ['1.4.0', '26.8.18', ['常驻通知优化，记录已完成数量以及即将完成的时间']],
+            ['1.3.9', '26.8.17', ['增加月卡折扣选择（详情/图鉴计算折扣）']],
+            ['1.3.8', '26.8.16', ['升级卡片增加备忘录功能', '账号进度增加当前大本模式', '优化倒计时样式', '低本区服增加手动选择', '图鉴数据校正']],
+            ['1.3.7', '26.8.13', ['图鉴页面全面优化', '新增反击卡组图鉴数据']],
+            ['1.3.6', '26.8.6', ['常规优化与 bug 修复']],
+            ['1.3.5', '26.8.4', ['常规优化与 bug 修复']],
+            ['1.3.4', '26.8.4', ['新增联赛查看功能', '账号详情页增加图鉴功能', '账号进度统计进一步完善', '账号建筑详情网格图片展示']],
+            ['1.3.3', '26.8.1', ['常规优化与 bug 修复']],
+            ['1.3.2', '26.7.29', ['常规优化与 bug 修复']],
+            ['1.3.1', '26.7.28', ['常规优化与 bug 修复']],
+            ['1.3.0', '26.7.27', ['新增账号进度板块']],
+            ['1.2.7', '26.7.14', ['新增部落板块功能', ['国际服部落战数据获取与查看', '国服部落自定义时间提醒']]],
+            ['1.2.5', '26.7.6', ['常规优化与 bug 修复']],
+            ['1.2.4', '26.7.5', ['增加国服夏日活动计算功能']],
+            ['1.2.3', '26.6.28', ['UI 大焕新', ['增加全系列游戏贴图', 'UI 布局优化', '增加道具剩余时间显示'], '增加国服工人药水倍数选择按钮', '时间计算引擎升级', '增加工人持续指派识别']],
+            ['1.2.1', '26.6.19', ['增加底部导航栏', '增加 WebDAV 备份功能', '增加 app 可选图标', '后台隐身运行']],
+            ['1.2.0', '26.6.14', ['增加云端备份功能', '增加本地备份功能']],
+            ['1.1.7', '26.6.5', ['仅优化 + bug 修复']],
+            ['1.1.6', '26.6.4', ['加入运行日志记录功能']],
+            ['1.1.5', '26.6.2', ['bug 修复']],
+            ['1.1.4', '26.6.1', ['增加账号排序功能', '增加国服端午节活动粽子宝箱识别功能']],
+            ['1.1.3', '26.6.1', ['仅优化，无新增']],
+            ['1.1.2', '26.5.31', ['仅优化，无新增']],
+            ['1.1.1', '26.5.31', ['仅优化，无新增']],
+            ['1.1.0', '26.5.28', ['新增设置选项', ['隐藏账号信息', '宝箱识别', '超·快捷导入', '提前通知', '夜间预示', '夜间模式']]],
+            ['1.0.4', '26.5', ['针对 1.0.2 的通知加强']],
+            ['1.0.2', '26.5', ['基础版']]
+        ];
+
+        const changelogModal = document.getElementById('changelog-modal');
+        const changelogBody = document.getElementById('changelog-body');
+        const changelogCloseBtn = document.getElementById('changelog-close-btn');
+
+        function renderChangelog() {
+            const html = UPDATE_LOG.map(function(entry) {
+                const isCurrent = entry[0] === localVersionName;
+                const itemsHtml = entry[2].map(function(item) {
+                    if (Array.isArray(item)) {
+                        return item.map(function(sub) {
+                            return '<div class="flex" style="padding-left:18px;">' +
+                                '<span class="text-gray-400 mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">·</span>' +
+                                '<span class="text-gray-500" style="font-size:12px;line-height:20px;">' + escapeHtml(sub) + '</span>' +
+                            '</div>';
+                        }).join('');
+                    }
+                    return '<div class="flex">' +
+                        '<span class="text-primary mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">•</span>' +
+                        '<span class="text-gray-600" style="font-size:13px;line-height:20px;">' + escapeHtml(item) + '</span>' +
+                    '</div>';
+                }).join('');
+                return '<div class="mb-4">' +
+                    '<div class="flex items-center mb-1.5">' +
+                        '<span class="' + (isCurrent ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') + ' font-semibold rounded-md px-2 py-0.5" style="font-size:13px;">' + escapeHtml(entry[0]) + '</span>' +
+                        (isCurrent ? '<span class="text-green-600 ml-1.5 font-medium" style="font-size:11px;">当前版本</span>' : '') +
+                        '<span class="text-gray-400 ml-auto" style="font-size:12px;">' + escapeHtml(entry[1]) + '</span>' +
+                    '</div>' +
+                    itemsHtml +
+                '</div>';
+            }).join('');
+            changelogBody.innerHTML = html;
+        }
+
+        function openChangelog() {
+            renderChangelog();
+            changelogModal.classList.remove('hidden');
+        }
+        function closeChangelog() {
+            changelogModal.classList.add('hidden');
+        }
+        document.getElementById('changelog-btn').addEventListener('click', openChangelog);
+        changelogCloseBtn.addEventListener('click', closeChangelog);
+        changelogModal.addEventListener('click', function(e) {
+            if (e.target === changelogModal) closeChangelog();
+        });
 
         // ===== 图标选择功能 =====
         const iconPickerModal = document.getElementById('icon-picker-modal');
