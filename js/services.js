@@ -1543,14 +1543,21 @@
         async function postCloudBackup(token, payload) {
             var vCode = 0, vName = '';
             try { vCode = window.AndroidApp.getVersionCode(); vName = window.AndroidApp.getVersionName(); } catch (e) {}
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Auth-Token': token,
+                'X-App-Version-Code': String(vCode)
+            };
+            // HTTP 头只允许 Latin-1：网页版 shim 的 getVersionName 返回中文「Web 版」，直接放进请求头
+            // 会在 fetch 发送前抛 "String contains non ISO-8859-1 code point"——手动/自动备份全部静默失败，
+            // 而恢复只发 ASCII 的 X-Auth-Token 因此正常（表现=能恢复不能上传）。中文版本名省略该头
+            // （服务器不校验版本号），App 的 ASCII 版本号 1.4.x 照常携带。
+            if (vName && /^[\x00-\xFF]+$/.test(vName)) {
+                headers['X-App-Version'] = vName;
+            }
             const res = await fetch(`${CLOUD_API}/backup`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Auth-Token': token,
-                    'X-App-Version-Code': String(vCode),
-                    'X-App-Version': vName
-                },
+                headers: headers,
                 body: JSON.stringify(payload)
             });
             return res.json();
