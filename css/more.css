@@ -1,0 +1,260 @@
+/* ===== 更多页（手机桌面式功能入口） + 使用说明/阵型中心（账号详情页式子页面） ===== */
+/* 约定：底部导航「更多」为壳页面，使用说明/阵型中心为其固定覆盖子页（顶栏返回+居中标题）；
+   返回键：子页 → 更多 → 首页（core.js handleBack/closeDetailOverlays 已接） */
+
+#more-page { padding: 20px; }
+#more-page h2 {
+    font-size: 15px; font-weight: 600; color: #1f2937;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+#more-page h2 i { color: #3b82f6; }
+.dark #more-page h2 { color: #f3f4f6; }
+
+/* ---- 更多页：桌面网格 ---- */
+.more-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 18px 8px; padding-top: 8px;
+}
+.more-app { display: flex; flex-direction: column; align-items: center; gap: 9px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.more-app:active .more-icon { transform: scale(.92); }
+.more-icon {
+    width: 72px; height: 72px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; color: #fff;
+    background: linear-gradient(145deg, #ffffff, #e8edf6);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .12), inset 0 0 0 1px rgba(15, 23, 42, .04);
+    transition: transform .12s ease;
+}
+.dark .more-icon { background: linear-gradient(145deg, #2d3350, #232742); box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
+.more-app .more-label { font-size: 13px; color: #374151; font-weight: 600; }
+.dark .more-app .more-label { color: #d1d5db; }
+.more-app.soon .more-icon { filter: grayscale(1); opacity: .55; }
+.more-app.soon .more-label { color: #9ca3af; }
+
+/* ---- 子页面顶栏（对齐账号详情页 pokedex-detail 那套） ---- */
+#help-page, #bases-page { padding: 0; background: #f9fafb; }
+.dark #help-page, .dark #bases-page { background: #111827; }
+#help-page .top-bar, #bases-page .top-bar {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; background: #ffffff; border-bottom: 1px solid #e5e7eb; position: relative;
+}
+.dark #help-page .top-bar, .dark #bases-page .top-bar { background: #1f2937; border-bottom-color: #374151; }
+#help-page .top-bar .title, #bases-page .top-bar .title { color: #1f2937; font-weight: 700; white-space: nowrap; }
+.dark #help-page .top-bar .title, .dark #bases-page .top-bar .title { color: #f3f4f6; }
+#help-page .detail-back, #bases-page .detail-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; background: none; color: #3b82f6; font-size: 14px; font-weight: 700; cursor: pointer;
+    padding: 4px 2px; -webkit-tap-highlight-color: transparent;
+}
+#help-page .detail-back i, #bases-page .detail-back i { font-size: 18px; }
+.dark #help-page .detail-back, .dark #bases-page .detail-back { color: #60a5fa; }
+.help-scroll { flex: 1; overflow-y: auto; padding: 20px 20px 88px; }
+.bases-scroll { flex: 1; overflow-y: auto; padding: 20px 12px 88px; }
+
+/* ---- 阵型中心 ---- */
+#bases-page .bc-tabs { display: flex; gap: 4px; }
+#bases-page .bc-tab {
+    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
+    border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+}
+.dark #bases-page .bc-tab { background: #1f2937; border-color: #374151; color: #9ca3af; }
+#bases-page .bc-tab.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+#bases-page .bc-headrow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+/* 上传按钮与 tab 同族胶囊（统一样式）：窄屏放不下时整体折行，文字不内部断行 */
+#bases-page .bc-upload-btn {
+    border: none; background: #7c3aed; color: #fff; border-radius: 999px; margin-left: auto;
+    padding: 4px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+}
+/* 固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局 */
+#bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+#bases-page .bc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.dark #bases-page .bc-card { background: #1f2937; border-color: #374151; }
+#bases-page .bc-img { position: relative; background: linear-gradient(135deg, #e9ecf4, #dde3ee); aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; color: #9aa5b8; font-size: 30px; overflow: hidden; }
+.dark #bases-page .bc-img { background: linear-gradient(135deg, #2a2f47, #232842); }
+/* 完整高度展示，宽度按比例溢出部分隐藏（横屏图裁左右；窄图居中留白） */
+#bases-page .bc-img img { height: 100%; width: auto; max-width: none; flex-shrink: 0; display: block; }
+#bases-page .bc-img-none { font-size: 30px; }
+/* 展示图顶部居中：阵型名称 */
+#bases-page .bc-img-title {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+    text-align: center; padding: 5px 6px;
+    font-size: 12px; font-weight: 800; color: #fff;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0));
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* 展示图右下角：上传时间 */
+#bases-page .bc-img-time {
+    position: absolute; right: 6px; bottom: 4px; z-index: 2;
+    font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, .92);
+    background: rgba(0, 0, 0, .38); border-radius: 4px; padding: 1px 6px;
+}
+/* 展示图左下角：查看/下载计数（打开大图 +1 查看；点打开/复制 +1 下载） */
+#bases-page .bc-img-stats { position: absolute; left: 6px; bottom: 4px; z-index: 2; display: flex; gap: 8px; }
+#bases-page .bc-stat {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, .92);
+    background: rgba(0, 0, 0, .38); border-radius: 4px; padding: 1px 6px; line-height: 1.5;
+}
+#bases-page .bc-stat i { font-size: 10px; color: rgba(255, 255, 255, .92); }
+/* 援兵说明（原阵型名称位置） */
+#bases-page .bc-remark { font-size: 12px; font-weight: 600; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dark #bases-page .bc-remark { color: #9ca3af; }
+#bases-page .bc-info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+#bases-page .bc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+/* 标签：只有区服标签按服着色（国际服紫 / 国服蓝），其余统一灰底黑字 */
+#bases-page .bc-tag { background: #f3f4f6; color: #111827; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+.dark #bases-page .bc-tag { background: #374151; color: #e5e7eb; }
+#bases-page .bc-tag.srv-intl { background: #f5f3ff; color: #7c3aed; }
+.dark #bases-page .bc-tag.srv-intl { background: rgba(139, 92, 246, .18); color: #c4b5fd; }
+#bases-page .bc-tag.srv-cn { background: #eff6ff; color: #2563eb; }
+.dark #bases-page .bc-tag.srv-cn { background: rgba(37, 99, 235, .18); color: #93c5fd; }
+#bases-page .bc-acts { display: flex; gap: 7px; margin-top: auto; }
+#bases-page .bc-btn {
+    flex: 1; border: none; border-radius: 8px; padding: 7px 0; font-size: 12px;
+    font-weight: 800; cursor: pointer; background: #7c3aed; color: #fff;
+}
+#bases-page .bc-btn.ghost { background: #f1f2f7; color: #4b5563; }
+.dark #bases-page .bc-btn.ghost { background: #374151; color: #d1d5db; }
+/* 卡片双按钮：国际服「一键打开」白底紫字 +「复制链接」紫底白字；国服「复制阵型码」蓝底白字 */
+#bases-page .bc-btn.white { background: #fff; color: #7c3aed; border: 1px solid #dcd7f0; }
+.dark #bases-page .bc-btn.white { background: #1f2937; color: #c4b5fd; border-color: #4c445e; }
+#bases-page .bc-card.srv-cn .bc-btn.solid { background: #2563eb; }
+#bases-page .bc-st { display: inline-block; border-radius: 6px; padding: 2px 10px; font-size: 12px; font-weight: 800; }
+#bases-page .bc-st.pending { background: #fef3c7; color: #b45309; }
+#bases-page .bc-st.approved { background: #ecfdf5; color: #059669; }
+#bases-page .bc-st.rejected { background: #fef2f2; color: #dc2626; }
+.dark #bases-page .bc-st.pending { background: rgba(234, 88, 12, .18); color: #fbbf24; }
+.dark #bases-page .bc-st.approved { background: rgba(16, 185, 129, .18); color: #34d399; }
+.dark #bases-page .bc-st.rejected { background: rgba(220, 38, 38, .18); color: #f87171; }
+#bases-page .bc-reason { font-size: 12px; color: #dc2626; }
+/* 卡片区服双配色：国服卡片蓝色（对应账号区服标签 #2563eb），国际服/无标签保持紫色 #7c3aed */
+#bases-page .bc-card.srv-cn { border-color: #bfdbfe; }
+.dark #bases-page .bc-card.srv-cn { border-color: #1e3a5f; }
+#bases-page .bc-card.srv-cn .bc-img { background: linear-gradient(135deg, #eef2ff, #dce7fb); }
+.dark #bases-page .bc-card.srv-cn .bc-img { background: linear-gradient(135deg, #1c2b4d, #182243); }
+#bases-page .bc-empty { padding: 46px 0; text-align: center; color: #9ca3af; font-size: 13px; grid-column: 1 / -1; }
+#bases-page .bc-err { padding: 46px 20px; text-align: center; color: #9ca3af; font-size: 13px; grid-column: 1 / -1; line-height: 2; }
+/* 上传弹窗标签选项（独立类，避免作用域限定在 #bases-page 内不生效） */
+.bc-tagopt {
+    border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;
+    border-radius: 999px; padding: 6px 15px; font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: background .1s ease, color .1s ease, border-color .1s ease;
+}
+.bc-tagopt.active { background: #7c3aed; border-color: #7c3aed; color: #ffffff; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); }
+.dark .bc-tagopt { background: #1f2937; border-color: #374151; color: #9ca3af; }
+.dark .bc-tagopt.active { background: #7c3aed; border-color: #a78bfa; color: #ffffff; }
+/* 上传弹窗登录提示行（bases.js：未登录提醒 + 去登录入口） */
+.bc-loginhint {
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    background: #fef9c3; border: 1px solid #fde68a; color: #92400e;
+    border-radius: 9px; padding: 8px 11px; font-size: 12px; line-height: 1.5; margin-top: 2px;
+}
+.dark .bc-loginhint { background: rgba(180, 83, 9, .16); border-color: rgba(180, 83, 9, .4); color: #fcd34d; }
+.bc-loginhint.on { display: flex; }
+.bc-login2 {
+    flex-shrink: 0; border: none; background: #7c3aed; color: #fff;
+    border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 800; cursor: pointer;
+}
+/* 我的上传空态内的登录提示 */
+.bc-mine-tip { padding: 26px 20px 8px; text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.9; grid-column: 1 / -1; }
+/* 广场筛选器（顶部一行下拉：世界/大本/区服/用途，bases.js renderFilters） */
+#bases-page .bc-filters {
+    position: relative;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 9px 10px; margin-bottom: 12px;
+}
+.dark #bases-page .bc-filters { background: #1f2937; border-color: #374151; }
+#bases-page .bc-fbar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+#bases-page .bc-fbtn {
+    border: 1px solid #e5e7eb; background: #fff; color: #374151;
+    border-radius: 999px; padding: 4px 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 3px; max-width: 180px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#bases-page .bc-fbtn i { font-size: 9px; color: #9ca3af; }
+.dark #bases-page .bc-fbtn { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+#bases-page .bc-freset { margin-left: auto; border: none; background: none; color: #7c3aed; font-size: 12px; font-weight: 800; cursor: pointer; padding: 4px 2px; }
+.dark #bases-page .bc-freset { color: #c4b5fd; }
+/* 下拉面板：绝对定位于筛选栏下方，默认隐藏；.open 显示 */
+#bases-page .bc-drop {
+    display: none;
+    position: absolute; left: 10px; right: 10px; top: calc(100% - 4px); z-index: 40;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .18); padding: 10px;
+}
+.dark #bases-page .bc-drop { background: #1f2937; border-color: #374151; }
+#bases-page .bc-drop.open { display: flex; flex-direction: column; gap: 6px; }
+#bases-page .bc-drop.bc-drop-grid.open { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+#bases-page .bc-drop.bc-drop-grid-3.open { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+#bases-page .bc-dopt {
+    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
+    border-radius: 9px; padding: 9px 4px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center;
+}
+.dark #bases-page .bc-dopt { background: #1f2937; border-color: #374151; color: #9ca3af; }
+#bases-page .bc-dopt.on { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.dark #bases-page .bc-dopt.on { border-color: #a78bfa; }
+/* 大图预览 lightbox */
+#bc-lightbox .bc-lb {
+    background: rgba(10, 10, 16, .96); border-radius: 14px; overflow: hidden;
+    max-width: 92vw; height: 88vh; width: 100%; display: flex; flex-direction: column;
+}
+#bc-lightbox .bc-lb-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 4px; flex-shrink: 0; }
+#bc-lightbox .bc-lb-title { font-size: 15px; font-weight: 800; color: #f3f4f6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#bc-lightbox .bc-lb-imgwrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 12px; overflow: hidden; touch-action: none; }
+#bc-lightbox .bc-lb-imgwrap img { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; transform-origin: center center; }
+/* 大图缩放控制条 */
+#bc-lightbox .bc-lb-zoom { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 2px 14px 10px; }
+#bc-lightbox .bc-lb-zbtn {
+    border: 1px solid #3a3f55; background: #22263a; color: #e5e7eb;
+    border-radius: 999px; width: 34px; height: 34px; font-size: 18px; font-weight: 800; cursor: pointer; line-height: 1;
+}
+#bc-lightbox .bc-lb-zpct { color: #d1d5db; font-size: 13px; font-weight: 800; width: 52px; text-align: center; }
+#bc-lightbox .bc-lb-zreset { border: none; background: none; color: #c4b5fd; font-size: 12px; font-weight: 800; cursor: pointer; padding: 6px 2px; }
+/* 卡牌图区左侧竖排操作（收藏 / 反馈）：心形走 svg 体系 i.fa（1em 联动 font-size） */
+#bases-page .bc-img-acts { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+#bases-page .bc-favbtn, #bases-page .bc-repbtn {
+    border: none; border-radius: 999px; width: 28px; height: 28px; font-size: 13px; line-height: 1; padding: 0;
+    background: rgba(0, 0, 0, .42); color: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(4px);
+}
+#bases-page .bc-favbtn { font-size: 15px; }
+#bases-page .bc-favbtn.on { color: #f43f5e; }
+/* 反馈弹窗标题 */
+.bc-rep-title { font-size: 12px; font-weight: 700; color: #6b7280; word-break: break-all; }
+.dark .bc-rep-title { color: #9ca3af; }
+#bc-lightbox .bc-lb-tags { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 14px 8px; }
+/* 大图：标签上方完整展示阵型说明（可换行不省略） */
+#bc-lightbox .bc-lb-remark { color: #d1d5db; font-size: 13px; line-height: 1.6; padding: 0 14px 6px; word-break: break-all; white-space: pre-wrap; }
+/* 大图标签：默认灰底，区服标签按服着色（与卡片一致） */
+#bc-lightbox .bc-lb-tags .bc-tag { background: #374151; color: #e5e7eb; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+#bc-lightbox .bc-tag.srv-intl { background: rgba(139, 92, 246, .2); color: #c4b5fd; }
+#bc-lightbox .bc-tag.srv-cn { background: rgba(37, 99, 235, .2); color: #93c5fd; }
+#bc-lightbox .bc-lb-acts { display: flex; gap: 10px; padding: 10px 14px 14px; }
+#bc-lightbox .bc-lb-acts .bc-btn { flex: 1; border: none; border-radius: 9px; padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; background: #7c3aed; color: #fff; }
+#bc-lightbox .bc-lb-acts .bc-btn.ghost { background: #2a2f45; color: #d1d5db; }
+#bc-lightbox .bc-lb-close { color: #9ca3af; }
+/* 大图弹窗避让底部导航（同上传弹窗参考：遮罩 padding-bottom 64px，88vh 面板随内容区整体上移，底部不再被盖） */
+#bc-lightbox { padding-bottom: 64px; }
+/* 上传弹窗避让底部导航（真机矮屏：卡片不沉底被底导航遮挡；三段式布局：标题固定/内容滚动/按钮常驻底） */
+#bc-upload-modal { padding-bottom: 64px; }
+#bc-upload-modal .bc-up-card {
+    max-height: calc(100vh - 110px);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+#bc-upload-modal .bc-up-head { flex-shrink: 0; padding: 1rem 1rem 0.5rem; }
+#bc-upload-modal .bc-up-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 1rem; }
+#bc-upload-modal .bc-up-actions { flex-shrink: 0; display: flex; gap: 10px; justify-content: flex-end; padding: 0.9rem 1rem 1rem; }
+/* 轻提示（bases.js） */
+.bc-toast {
+    position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+    background: rgba(17, 24, 39, .92); color: #fff; border-radius: 9px;
+    padding: 10px 20px; font-size: 13px; font-weight: 700;
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 200;
+}
+.bc-toast.show { opacity: 1; }

@@ -22,6 +22,7 @@
     var webdavUploadRef = null;           // init() 内赋值（WebDAV 统一上传核心在 init 作用域，供模块级 autoWebdavUpload 委托）
     var maybeWebdavAutoRestoreRef = null; // init() 内赋值（WebDAV 自动恢复检测在 init 作用域，供外部手动触发/测试）
     var refreshCloudAutoBackupUiRef = null;
+    var openCloudLoginRef = null;         // init() 内赋值（打开云端登录弹窗，供阵型中心「去登录」调用）
     const calc = CocTool.calc;
 
     function progress() { return CocTool.features.progress; }
@@ -1108,15 +1109,23 @@
                         authData = null;
                         updateLoginUI();
                         showToast('已退出登录', 1500);
+                        // 阵型中心随登录态变化刷新：我的上传回到仅本机匿名视角（已归账号的阵型不再显示）
+                        window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
                     }
                 });
             } else {
-                loginEmail.value = '';
-                loginPassword.value = '';
-                loginError.classList.add('hidden');
-                loginModal.classList.remove('hidden');
+                openCloudLogin();
             }
         });
+
+        // 打开云端备份登录弹窗（register-modal 对侧，复用同一套登录逻辑）
+        function openCloudLogin() {
+            loginEmail.value = '';
+            loginPassword.value = '';
+            loginError.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        }
+        openCloudLoginRef = openCloudLogin;
 
         // 登录弹窗操作
         loginCloseBtn.addEventListener('click', () => loginModal.classList.add('hidden'));
@@ -1147,6 +1156,8 @@
                     updateLoginUI();
                     loginModal.classList.add('hidden');
                     showToast('登录成功', 1500);
+                    // 阵型中心：登录态变化，我的上传会触发本机旧阵型认领并刷新
+                    window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
                 } else {
                     loginError.textContent = result.error || '登录失败';
                     loginError.classList.remove('hidden');
@@ -1203,6 +1214,7 @@
                     updateLoginUI();
                     registerModal.classList.add('hidden');
                     showToast('注册成功', 1500);
+                    window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
                 } else {
                     registerError.textContent = result.error || '注册失败';
                     registerError.classList.remove('hidden');
@@ -1267,9 +1279,10 @@
         // 云端/WebDAV/本地备份整体快照并在恢复时整包写回，若开关存 settings，App 的开态会被带到
         // 没有此功能的网页版（网页版恢复后无开关可见却处于开启状态）
         // 自动备份开关真值表（用户拍板）——「用户设置」（持久意愿，AUTO_BACKUP_PREF_KEY）与「开关显示/生效」分离：
-        //   用户设置1 + 版本检测最新版 → 开关1     用户设置1 + 版本检测旧版 → 开关0
-        //   用户设置0 + 任意检测结果   → 开关0
-        // 版本未知（启动首次检测前的窗口）按旧版处理（开关0、不上传），检测完成自动刷新；
+        //   开关位置只反映用户设置（左拨=真关、右拨=开）：用户设置1 + 版本检测最新版 → 真开（正常高亮）
+        //   用户设置1 + 版本检测旧版 → 假开（右拨但整体灰度，提示需更新；仍可拨动，左拨即真关）
+        //   用户设置0 + 任意检测结果   → 真关（左拨，不灰度）
+        // 版本未知（启动首次检测前的窗口）按旧版处理（假开、不上传），检测完成经 updateRedDot 自动刷新；
         // 更新到最新版后开关自动恢复开态（用户设置仍为 1），无需重新开启
         const AUTO_BACKUP_PREF_KEY = 'coc_cloud_auto_backup_enabled';
         const AUTO_RESTORE_PREF_KEY = 'coc_cloud_auto_restore_enabled';
@@ -1324,7 +1337,11 @@
             group.style.display = '';
             var toggle = document.getElementById('cloud-auto-backup-toggle');
             var label = document.getElementById('cloud-auto-backup-label');
-            if (toggle) toggle.checked = uiState === '';
+            // 开关位置 = 用户设定（左拨真关/右拨开），不再展示生效态；版本旧或检测中 = 假开：右拨但灰度，仍可拨动（左拨即真关）
+            if (toggle) toggle.checked = userWantsAutoBackup();
+            var fakeOn = Boolean(toggle && toggle.checked && (uiState === 'outdated' || uiState === 'checking'));
+            var switchLabel = group.querySelector('label');
+            if (switchLabel) switchLabel.classList.toggle('opacity-40', fakeOn);
             if (label) {
                 if (uiState === 'nologin') {
                     label.textContent = '自动备份（登录后生效）';
@@ -1380,7 +1397,7 @@
                     updateCloudAutoBackupUi();
                     return;
                 }
-                // 开启：先弹确认（默认关闭，按需开启；取消/点遮罩关闭弹窗后开关由 updateCloudAutoBackupUi 回弹到关）
+                // 开启：先弹确认（默认关闭，按需开启；取消/点遮罩关闭弹窗后开关由 updateCloudAutoBackupUi 回弹到用户设定）
                 CocTool.ui.showConfirm({
                     title: '开启云端自动备份',
                     text: '此功能仅限最新版本使用，开启前请确认已更新至最新版本。<br>每次导入游戏数据都会自动上传云端备份，会增加服务器压力，请按需开启。<br>若没有多设备同步需求，不建议开启。',
@@ -1438,6 +1455,7 @@
                     text: '检测到 WebDAV 备份较新（' + timeStr + '），是否恢复到本地？',
                     confirmText: '恢复',
                     cancelText: '取消',
+                    noOutsideClose: true, // 特例：自动恢复弹窗必须点按钮关闭，不允许点外部区域关闭
                     onConfirm: () => { performWebdavRestore(backupData).catch(() => {}); },
                     onCancel: () => {}
                 });
@@ -1594,6 +1612,7 @@
                     text: '检测到云端备份较新（' + timeStr + '），是否恢复到本地？',
                     confirmText: '恢复',
                     cancelText: '取消',
+                    noOutsideClose: true, // 特例：自动恢复弹窗必须点按钮关闭，不允许点外部区域关闭
                     onConfirm: () => { performCloudRestore(backup).catch(() => {}); },
                     onCancel: () => {}
                 });
@@ -1699,6 +1718,7 @@
         autoCloudBackup: function () { return autoCloudBackupRef ? autoCloudBackupRef() : Promise.resolve(); },
         maybeAutoRestore: function () { return maybeAutoRestoreRef ? maybeAutoRestoreRef() : Promise.resolve(); },
         refreshCloudAutoBackupUi: function () { if (refreshCloudAutoBackupUiRef) refreshCloudAutoBackupUiRef(); },
+        openCloudLogin: function () { if (openCloudLoginRef) openCloudLoginRef(); },
         log: function(type, detail, opts) { notificationMonitor.log(type, detail, opts); },
         getNotificationLogs: function() { return notificationMonitor.getLogs(); },
         getGroupedNotificationLogs: function() { return notificationMonitor.getGroupedLogs(); },

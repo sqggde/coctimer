@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20260906-tkxqjs';
+const CACHE = 'coc-tool-web-20260910-tl5rkg';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -16,6 +16,7 @@ const CORE_FILES = [
     "./fonts/fontawesome-webfont.woff2",
     "./js/accounts.js",
     "./js/app.js",
+    "./js/bases.js",
     "./js/calc.js",
     "./js/clan-league.js",
     "./js/clan.js",

@@ -391,19 +391,19 @@ let initialized = false;
             }
         }, { passive: true });
     }
-    // 切换账号后把选中 tab 自动滚动到可视区域（左右滑切换时选中 tab 可能滚出视野）
+    // 切换账号后滚动选中 tab——统一单规则：把选中 tab 滚到容器可视区中心，保证两侧邻居可见、不贴左右边缘
+    // （第一个/最后一个无外侧邻居，clamp 后贴边属预期）；任何选择方式（tab 点击/左右滑/轮跳/导入/排序/删除/启动）一致
     function scrollActiveTabIntoView() {
         if (!tabContainer) return;
         const active = tabContainer.querySelector('.account-tab.active-tab');
         if (!active) return;
+        // tabRect 是含当前滚动的视口坐标，须加回当前 scrollLeft 再对齐容器可视中心（容器 left 偏移不可忽略——页面有 16px 内边距）
         const containerRect = tabContainer.getBoundingClientRect();
         const tabRect = active.getBoundingClientRect();
-        const margin = 8;
-        if (tabRect.left < containerRect.left + margin) {
-            tabContainer.scrollLeft -= (containerRect.left + margin - tabRect.left);
-        } else if (tabRect.right > containerRect.right - margin) {
-            tabContainer.scrollLeft += (tabRect.right - containerRect.right + margin);
-        }
+        const cur = tabContainer.scrollLeft;
+        let target = cur + tabRect.left + tabRect.width / 2 - containerRect.left - containerRect.width / 2;
+        target = Math.max(0, Math.min(target, tabContainer.scrollWidth - containerRect.width));
+        tabContainer.scrollLeft = target;
     }
 
     function updateTabActiveState(accountTag) {
@@ -776,7 +776,12 @@ let initialized = false;
                 try {
                     const data = JSON.parse(text.trim());
                     if (data && data.timestamp) {
-                        importAccountData(data);
+                        // 已导入过的 JSON 直接忽略（tag+timestamp 与已有账号一致时不导入、不跳转，
+                        // 避免剪贴板残留令每次启动自动跳到该账号）
+                        const tag = data.tag;
+                        if (!(tag && accounts[tag] && accounts[tag].timestamp === data.timestamp)) {
+                            importAccountData(data);
+                        }
                     }
                 } catch (e) {}
             }

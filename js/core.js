@@ -205,6 +205,9 @@
 
             // If no accounts selected, use all accounts
             var accountsToSync = selectedAccounts.length > 0 ? selectedAccounts : Object.keys(accounts);
+            // 账号色按稳定排序位置分配索引（0..11，对应 Java 端 ACCOUNT_COLORS 12 色池）：
+            // 避免按姓名哈希取模令两个不同账号同色、同屏 6 列失去识别度
+            var colorOrder = accountsToSync.slice().sort();
             var settings = state.settings || {};
             var calc = CocTool.calc;
 
@@ -245,6 +248,7 @@
                 var noteName = (state.accountNotes && state.accountNotes[tag]) || '';
                 upgradeData[tag] = {
                     name: noteName || account.name || tag,
+                    colorIndex: colorOrder.indexOf(tag) % 12,
                     upgrades: upgrades.slice(0, 50)
                 };
                 totalUpgrades += upgradeData[tag].upgrades.length;
@@ -384,9 +388,12 @@
             closeConfirm();
             if (typeof opts.onCancel === 'function') opts.onCancel();
         });
-        overlay.addEventListener('click', e => {
-            if (e.target === overlay) closeConfirm();
-        });
+        // 特例：opts.noOutsideClose 时点击弹窗外区域不关闭（仅能通过弹窗内按钮关闭）
+        if (!opts.noOutsideClose) {
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) closeConfirm();
+            });
+        }
     }
 
     CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm });
@@ -442,6 +449,14 @@
                 overviewDetail.style.display = 'none';
             }
         }
+        var helpOv = document.getElementById('help-page');
+        if (helpOv && helpOv.style.display !== 'none' && helpOv.style.display !== '') {
+            helpOv.style.display = 'none';
+        }
+        var basesOv = document.getElementById('bases-page');
+        if (basesOv && basesOv.style.display !== 'none' && basesOv.style.display !== '') {
+            basesOv.style.display = 'none';
+        }
         var dsModal = document.getElementById('duration-search-modal');
         if (dsModal && !dsModal.classList.contains('hidden')) {
             dsModal.classList.add('hidden');
@@ -478,15 +493,17 @@
         const clanPage = document.getElementById('clan-page');
         const settingsPage = document.getElementById('settings-page');
         const overviewPage = document.getElementById('overview-page');
+        const morePage = document.getElementById('more-page');
+        const basesPage = document.getElementById('bases-page');
         const stickyTopBar = document.getElementById('sticky-top-bar');
         navButtons.forEach(button => button.classList.toggle('active', button.dataset.page === page));
         const isProgress = page === 'progress';
         if (stickyTopBar) stickyTopBar.classList.toggle('hidden', !isProgress);
         if (progressPage) progressPage.classList.toggle('hidden', !isProgress);
-        if (helpPage) helpPage.classList.toggle('hidden', page !== 'help');
         if (clanPage) clanPage.classList.toggle('hidden', page !== 'clan');
         if (settingsPage) settingsPage.classList.toggle('hidden', page !== 'settings');
         if (overviewPage) overviewPage.classList.toggle('hidden', page !== 'overview');
+        if (morePage) morePage.classList.toggle('hidden', page !== 'more');
         if (page === 'settings') {
             updateRedDot();
         }
@@ -580,6 +597,16 @@
             } else {
                 overviewDetail.style.display = 'none';
             }
+            return 'true';
+        }
+        var helpOv = document.getElementById('help-page');
+        if (helpOv && helpOv.style.display !== 'none' && helpOv.style.display !== '') {
+            helpOv.style.display = 'none';
+            return 'true';
+        }
+        var basesOv = document.getElementById('bases-page');
+        if (basesOv && basesOv.style.display !== 'none' && basesOv.style.display !== '') {
+            basesOv.style.display = 'none';
             return 'true';
         }
         var progressPage = document.getElementById('main-display-area');

@@ -40,6 +40,7 @@
         'paw': 'img/svg/progress/paw.svg',
         'moon-o': 'img/svg/progress/moon-o.svg',
         'eye-slash': 'img/svg/progress/eye-slash.svg',
+        'eye': 'img/svg/bases/eye.svg',
         'bomb': 'img/svg/progress/bomb.svg',
         'truck': 'img/svg/progress/truck.svg',
         'home': 'img/svg/progress/home.svg',
@@ -73,7 +74,9 @@
         'user-plus': 'img/svg/common/user-plus.svg',
         'building': 'img/svg/common/building.svg',
         'launch-game': 'img/svg/common/launch-game.svg',
-        'search': 'img/svg/progress/search.svg'
+        'search': 'img/svg/progress/search.svg',
+        'heart': 'img/svg/bases/heart.svg',
+        'heart-filled': 'img/svg/bases/heart-filled.svg'
     };
 
     let iconData = null;  // { svgs: {name: text}, imgFallback: {name: path} }

@@ -12,6 +12,7 @@
     <link href="css/icons.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
     <link href="css/help.css" rel="stylesheet">
+    <link href="css/more.css" rel="stylesheet">
     <link href="css/clan.css" rel="stylesheet">
     <link href="css/overview.css" rel="stylesheet">
 <link href="css/pokedex.css" rel="stylesheet">
@@ -479,9 +480,14 @@
 
 
         <!-- ===== 使用说明页面 ===== -->
-        <div id="help-page" class="hidden">
+        <div id="help-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
+            <div class="top-bar" style="justify-content:space-between;">
+                <button id="help-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">使用说明</div>
+                <div></div>
+            </div>
+            <div class="help-scroll">
     <div class="card">
-            <h2><i class="fa fa-book"></i>使用说明</h2>
 
             <div class="help-sec">
                 <div class="help-sec-title">--------json数据导出方式--------</div>
@@ -525,7 +531,130 @@
                     胜利之星倒计时自动识别
                 </div>
             </div>
+            </div><!-- /help-scroll -->
         </div>
+        </div>
+
+        <!-- ===== 更多页面（手机桌面式功能入口） ===== -->
+        <div id="more-page" class="hidden">
+            <h2><i class="fa fa-th-large"></i>更多功能</h2>
+            <div class="more-grid">
+                <div class="more-app" id="more-help">
+                    <div class="more-icon">📖</div>
+                    <div class="more-label">使用说明</div>
+                </div>
+                <div class="more-app" id="more-bases">
+                    <div class="more-icon">🏰</div>
+                    <div class="more-label">阵型中心</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 阵型中心页面 ===== -->
+        <div id="bases-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
+            <div class="top-bar" style="justify-content:space-between;">
+                <button id="bases-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">阵型中心</div>
+                <div></div>
+            </div>
+            <div class="bases-scroll">
+            <div class="bc-headrow">
+                <div class="bc-tabs">
+                    <button class="bc-tab active" data-bctab="square">广场</button>
+                    <button class="bc-tab" data-bctab="fav">我的收藏</button>
+                    <button class="bc-tab" data-bctab="mine">我的上传</button>
+                </div>
+                <button class="bc-upload-btn" id="bc-open-upload">＋ 上传阵型</button>
+            </div>
+            <div class="bc-filters" id="bc-filters">
+                <div class="bc-fbar">
+                    <button class="bc-fbtn" id="bc-fbtn-server" type="button">区服：全部 <i class="fa fa-chevron-down"></i></button>
+                    <button class="bc-fbtn" id="bc-fbtn-world" type="button">世界：全部 <i class="fa fa-chevron-down"></i></button>
+                    <button class="bc-fbtn" id="bc-fbtn-th" type="button">大本：全部 <i class="fa fa-chevron-down"></i></button>
+                    <button class="bc-fbtn" id="bc-fbtn-use" type="button">用途：全部 <i class="fa fa-chevron-down"></i></button>
+                    <button class="bc-freset" id="bc-f-reset" type="button">重置</button>
+                </div>
+                <div class="bc-drop bc-drop-grid-3" id="bc-drop-server"></div>
+                <div class="bc-drop bc-drop-grid-3" id="bc-drop-world"></div>
+                <div class="bc-drop bc-drop-grid" id="bc-drop-th"></div>
+                <div class="bc-drop bc-drop-grid-3" id="bc-drop-use"></div>
+            </div>
+            <div class="bc-grid" id="bc-grid"><div class="bc-empty">加载中…</div></div>
+            </div><!-- /bases-scroll -->
+        </div>
+
+        <!-- 阵型大图预览 -->
+        <div id="bc-lightbox" class="modal-overlay hidden" style="z-index:70;">
+            <div class="bc-lb">
+                <div class="bc-lb-top">
+                    <span class="bc-lb-title" id="bc-lb-title"></span>
+                    <button id="bc-lb-close" class="text-gray-500 hover:text-gray-700 p-1"><i class="fa fa-times text-lg"></i></button>
+                </div>
+                <div class="bc-lb-imgwrap" id="bc-lb-imgwrap"><img id="bc-lb-img" alt="阵型大图"></div>
+                <div class="bc-lb-remark" id="bc-lb-remark" style="display:none;"></div>
+                <div class="bc-lb-tags" id="bc-lb-tags"></div>
+                <div class="bc-lb-zoom">
+                    <button class="bc-lb-zbtn" id="bc-lb-zout" type="button" aria-label="缩小">－</button>
+                    <span class="bc-lb-zpct" id="bc-lb-zpct">100%</span>
+                    <button class="bc-lb-zbtn" id="bc-lb-zin" type="button" aria-label="放大">＋</button>
+                    <button class="bc-lb-zreset" id="bc-lb-zreset" type="button">重置</button>
+                </div>
+                <div class="bc-lb-acts">
+                    <button class="bc-btn" id="bc-lb-open">一键打开</button>
+                    <button class="bc-btn ghost" id="bc-lb-copy">复制链接</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 阵型上传弹窗 -->
+        <div id="bc-upload-modal" class="modal-overlay hidden">
+            <div class="modal-card w-sm bc-up-card">
+                <div class="bc-up-head">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-800" style="font-size:15px;">上传阵型</h3>
+                        <button id="bc-upload-close" class="text-gray-500 hover:text-gray-700 p-1"><i class="fa fa-times text-lg"></i></button>
+                    </div>
+                </div>
+                <div class="bc-up-scroll">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">阵型名称 *</label>
+                    <input type="text" id="bc-up-title" placeholder="如：16本护资源阵" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">区服 *（决定链接格式）</label>
+                    <div id="bc-up-server" style="display:flex;gap:8px;"></div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">阵型链接 *（国际服用官方分享链接 URL，国服用 TH 阵型码）</label>
+                    <input type="text" id="bc-up-link" placeholder="国际服：https://link.clashofclans.com/...　国服：TH18:WB:..." style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;">
+                    <div id="bc-link-hint" style="font-size:12px;margin-top:4px;"></div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">阵型说明（可选）</label>
+                    <input type="text" id="bc-up-remark" placeholder="如：援兵要冰人" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">标签（各分类单选）</label>
+                    <div class="bc-tagpick" id="bc-up-tags" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:10px 0 5px;">阵型截图 *</label>
+                    <div id="bc-up-filebox" style="border:2px dashed #e5e7eb;border-radius:10px;padding:16px;text-align:center;color:#9ca3af;font-size:12px;cursor:pointer;">点击选择截图</div>
+                    <input type="file" id="bc-up-file" accept="image/*" style="display:none">
+                </div>
+                <div class="bc-up-actions">
+                    <button id="bc-up-cancel" class="text-gray-500 hover:text-gray-700" style="border:none;background:none;font-size:13px;font-weight:700;padding:8px 12px;cursor:pointer;">取消</button>
+                    <button id="bc-up-submit" style="border:none;background:#7c3aed;color:#fff;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;">提交审核</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 阵型反馈弹窗 -->
+        <div id="bc-report-modal" class="modal-overlay hidden">
+            <div class="modal-card w-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold text-gray-800" style="font-size:15px;">反馈问题</h3>
+                    <button id="bc-rep-close" class="text-gray-500 hover:text-gray-700 p-1"><i class="fa fa-times text-lg"></i></button>
+                </div>
+                <div id="bc-rep-title" class="bc-rep-title"></div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">问题类型</label>
+                <div class="bc-tagpick" id="bc-rep-types" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">补充说明（可选）</label>
+                <textarea id="bc-rep-msg" rows="3" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;resize:none;" placeholder="如：链接打开不是这个阵型"></textarea>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+                    <button id="bc-rep-cancel" class="text-gray-500 hover:text-gray-700" style="border:none;background:none;font-size:13px;font-weight:700;padding:8px 12px;cursor:pointer;">取消</button>
+                    <button id="bc-rep-submit" style="border:none;background:#7c3aed;color:#fff;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;">提交反馈</button>
+                </div>
+            </div>
         </div>
 
         <!-- ===== 总进度页面 ===== -->
@@ -1480,9 +1609,9 @@
 
     <!-- ===== 底部导航栏 ===== -->
     <div class="bottom-nav" id="bottom-nav">
-        <button class="nav-btn" data-page="help">
-            <i class="fa fa-question-circle"></i>
-            <span>使用说明</span>
+        <button class="nav-btn" data-page="more">
+            <i class="fa fa-th-large"></i>
+            <span>更多</span>
         </button>
         <button class="nav-btn" data-page="overview">
             <i class="fa fa-pie-chart"></i>
@@ -1531,6 +1660,7 @@
 <script defer src="js/overview.js"></script>
 <script defer src="js/overview-detail.js"></script>
 <script defer src="js/pokedex.js"></script>
+<script defer src="js/bases.js"></script>
 <script defer src="js/app.js"></script>
 </body>
 </html>
