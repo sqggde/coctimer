@@ -392,18 +392,57 @@
         }
         done(false);
     }
-    // 计数打点：view=打开大图 / download=点打开或复制；即发即忘，本地同步更新当前卡片计数
-    // 卡片定位走 data-lid（分页追加后批次下标不再等价于 grid 内的位置）
-    function bumpStat(id, kind) {
-        if (id) {
-            try {
-                fetch(apiBase() + '/api/base/stat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, kind: kind }) }).catch(function () {});
-            } catch (e) {}
+    // 计数打点：view=打开大图 / download=点打开或复制
+    // 防刷两道：①本机同阵型同类型 24h 内只打点一次（省一次往返，与服务端 stat-guard 同窗口）
+    //           ②服务端返回权威计数（被去重/超频时 counted:false）→ 用它校准乐观 +1
+    var STAT_SEEN_KEY = 'bc_stat_seen', STAT_SEEN_WINDOW = 24 * 60 * 60 * 1000, STAT_SEEN_MAX = 1000;
+    function statSeenMap() {
+        var m = null;
+        try { m = JSON.parse(localStorage.getItem(STAT_SEEN_KEY) || 'null'); } catch (e) {}
+        return (m && typeof m === 'object') ? m : {};
+    }
+    function statSeen(key) {
+        var t = statSeenMap()[key];
+        return !!t && Date.now() - t < STAT_SEEN_WINDOW;
+    }
+    function markStatSeen(key) {
+        var m = statSeenMap(), now = Date.now();
+        Object.keys(m).forEach(function (k) { if (now - m[k] > STAT_SEEN_WINDOW) delete m[k]; });
+        m[key] = now;
+        var keys = Object.keys(m);
+        if (keys.length > STAT_SEEN_MAX) { // 超出上限先丢最旧的
+            keys.sort(function (a, b) { return m[a] - m[b]; }).slice(0, keys.length - STAT_SEEN_MAX).forEach(function (k) { delete m[k]; });
         }
+        try { localStorage.setItem(STAT_SEEN_KEY, JSON.stringify(m)); } catch (e) {}
+    }
+    // 卡片计数：传 j（服务端响应）时用权威值校准；否则按 delta 乐观增减
+    function applyStat(id, kind, delta, j) {
         var sel = String(id || '').replace(/["\\]/g, '');
         var card = sel ? document.querySelector('#bc-grid .bc-card[data-lid="' + sel + '"]') : null;
-        var n = card && card.querySelector('[data-stat="' + kind + '"]');
-        if (n) n.textContent = (parseInt(n.textContent, 10) || 0) + 1;
+        if (!card) return;
+        if (j) {
+            if (typeof j.views === 'number') { var a = card.querySelector('[data-stat="view"]'); if (a) a.textContent = j.views; }
+            if (typeof j.downloads === 'number') { var b = card.querySelector('[data-stat="download"]'); if (b) b.textContent = j.downloads; }
+            return;
+        }
+        var n = card.querySelector('[data-stat="' + kind + '"]');
+        if (n) n.textContent = (parseInt(n.textContent, 10) || 0) + delta;
+    }
+    function bumpStat(id, kind) {
+        if (!id) return;
+        var key = kind + '|' + id;
+        if (statSeen(key)) return; // 本机 24h 内已计过：不打点也不加，避免同一人反复点把数字虚高
+        applyStat(id, kind, 1);
+        try {
+            fetch(apiBase() + '/api/base/stat', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, kind: kind, deviceId: deviceId() })
+            }).then(function (r) { return r.json(); }).then(function (j) {
+                if (!j || !j.success) return;
+                markStatSeen(key);
+                applyStat(id, kind, 0, j);
+            }).catch(function () {});
+        } catch (e) {}
     }
     // 上传者自助删除（我的上传卡片右上角垃圾桶）：二次确认 → 服务端硬删除（连带图片）
     function confirmDelete(l) {
