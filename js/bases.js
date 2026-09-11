@@ -20,6 +20,7 @@
     function revalidateLinkHint() {
         var input = $('bc-up-link'), h = $('bc-link-hint');
         if (!input || !h) return;
+        autoSelectTh();
         if (!input.value.trim()) { h.textContent = ''; return; }
         if (!state.upServer) { h.textContent = '请先选择区服，再按区服校验链接格式'; h.style.color = '#d97706'; return; }
         var ok = linkOkFor(state.upServer, input.value);
@@ -28,6 +29,20 @@
             : '国际服只能用官方分享链接（https://link.clashofclans.com 开头），不能填阵型码';
         h.textContent = ok ? '✅ 链接格式正确' : '❌ ' + tip;
         h.style.color = ok ? '#059669' : '#dc2626';
+    }
+    // 粘贴/输入链接后自动选大本（链接里带 TH 等级）：同一链接只自动填一次，用户之后手动改选不再被覆盖
+    function autoSelectTh() {
+        var input = $('bc-up-link');
+        if (!input) return;
+        var link = input.value.trim();
+        if (link === state.upParsedLink) return;
+        state.upParsedLink = link;
+        var n = parseTh(link);
+        if (!n) return;
+        var max = state.upTags.indexOf('夜世界') >= 0 ? 10 : 18;
+        if (n > max) return; // 越界（如夜世界卡片配主世界大本链接）则不自动填，保留用户手选
+        state.upTags = state.upTags.filter(function (x) { return !/^\d+本$/.test(x); }).concat([n + '本']);
+        renderUpTags();
     }
     function fmtTime(ts) { if (!ts) return ''; var d = new Date(ts); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
     function toast(m) {
@@ -89,7 +104,8 @@
         { name: '用途', items: ['护资源', '防三星', '防二星', '排位', '图案', '文字', '升级', '种树', '日常', '传奇杯'], single: true }
       ];
 
-    var state = { tab: 'square', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', squareAll: [], filter: { world: '', th: '', server: '', uses: [] } };
+    var state = { tab: 'square', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', upParsedLink: '', squareGen: 0, square: { items: [], offset: 0, hasMore: false, loading: false }, filter: { world: '', th: '', server: '', uses: [] } };
+    var PAGE_SIZE = 24; // 广场每页条数（服务端分页，滚动到底自动加载下一页）
 
     /* ── 数据 ── */
     function fetchJson(url, opts) {
@@ -100,28 +116,112 @@
             });
         });
     }
-    function loadSquare() {
-        $('bc-grid').innerHTML = '<div class="bc-empty">加载中…</div>';
-        fetchJson(apiBase() + '/api/base/list').then(function (j) {
-            state.squareAll = j.layouts || [];
-            renderGrid(state.squareAll.filter(passFilter));
+    /* 广场：服务端分页（每页 PAGE_SIZE 条）+ 筛选上移服务端，滚动到底自动加载下一页 */
+    function squareUrl(offset) {
+        var f = state.filter;
+        var p = ['limit=' + PAGE_SIZE, 'offset=' + offset];
+        if (f.server) p.push('server=' + encodeURIComponent(f.server));
+        if (f.world) p.push('world=' + encodeURIComponent(f.world));
+        if (f.th) p.push('th=' + encodeURIComponent(f.th));
+        if (f.uses.length) p.push('use=' + encodeURIComponent(f.uses[0]));
+        return apiBase() + '/api/base/list?' + p.join('&');
+    }
+    function loadSquare(reset) {
+        if (reset) {
+            state.squareGen++; // 世代号：筛选/切页签时作废在途请求，避免旧响应把过期数据追加进来
+            state.square = { items: [], offset: 0, hasMore: false, loading: false };
+            $('bc-grid').innerHTML = '<div class="bc-empty">加载中…</div>';
+        }
+        var s = state.square;
+        var gen = state.squareGen;
+        if (s.loading) return;
+        s.loading = true;
+        setSentinel(s.offset ? '加载中…' : '');
+        fetchJson(squareUrl(s.offset)).then(function (j) {
+            if (gen !== state.squareGen) return; // 已被重置：丢弃过期响应
+            var list = j.layouts || [];
+            var isFirst = s.items.length === 0;
+            s.loading = false;
+            s.items = s.items.concat(list);
+            s.offset = s.items.length;
+            s.hasMore = !!j.hasMore;
+            if (!s.items.length) {
+                renderGrid([]);
+                setSentinel('');
+                return;
+            }
+            if (isFirst) {
+                $('bc-grid').innerHTML = list.map(function (l, i) { return cardHtml(l, cardActions(l, i), i); }).join('');
+                bindCardEvents($('bc-grid'), list);
+            } else if (list.length) {
+                appendCards(list);
+            }
+            setSentinel(s.hasMore ? '上拉加载更多…' : '没有更多了');
+            maybeLoadMore(); // 首屏未占满时继续补下一页（观察器不会重复触发）
         }).catch(function (e) {
-            $('bc-grid').innerHTML = '<div class="bc-err">加载失败：' + esc(e.message) + '<br>阵型中心后端可能尚未上线，稍后再试</div>';
+            if (gen !== state.squareGen) return; // 已被重置：忽略过期请求的报错
+            s.loading = false;
+            if (!s.items.length) {
+                $('bc-grid').innerHTML = '<div class="bc-err">加载失败：' + esc(e.message) + '<br>阵型中心后端可能尚未上线，稍后再试</div>';
+            } else {
+                toast('加载更多失败：' + e.message);
+            }
+            setSentinel('');
         });
     }
+    // 追加渲染（保留已渲染卡片，避免每页整块重建 DOM）；事件按本批 list 绑定（data-idx 为批内下标）
+    function appendCards(list) {
+        var tmp = document.createElement('div');
+        tmp.innerHTML = list.map(function (l, i) { return cardHtml(l, cardActions(l, i), i); }).join('');
+        var frag = document.createDocumentFragment();
+        while (tmp.firstChild) frag.appendChild(tmp.firstChild);
+        bindCardEvents(frag, list);
+        $('bc-grid').appendChild(frag);
+    }
+    // 分页哨兵（#bc-grid 之后的兄弟节点，滚动到可视区即加载下一页）
+    function sentinelEl() {
+        var s = $('bc-page-sentinel');
+        if (!s) {
+            s = document.createElement('div');
+            s.id = 'bc-page-sentinel';
+            s.className = 'bc-sentinel';
+            var grid = $('bc-grid');
+            grid.parentNode.insertBefore(s, grid.nextSibling);
+        }
+        return s;
+    }
+    function setSentinel(text) {
+        var s = sentinelEl();
+        s.textContent = text || '';
+        s.style.display = text ? '' : 'none';
+    }
+    function maybeLoadMore() {
+        if (state.tab !== 'square') return;
+        var s = state.square;
+        if (!s.hasMore || s.loading) return;
+        var el = $('bc-page-sentinel');
+        if (!el || el.style.display === 'none') return;
+        if (el.getBoundingClientRect().top < window.innerHeight + 400) loadSquare(false);
+    }
+    // 收藏：按本地收藏 id 批量取数（服务端分页后不再依赖全量列表），顺序按收藏先后
     function loadFav() {
         var ids = favList();
+        setSentinel('');
         if (!ids.length) { $('bc-grid').innerHTML = '<div class="bc-empty">还没有收藏的阵型，去广场点 ♥ 收藏</div>'; return; }
-        function show() {
-            var list = (state.squareAll || []).filter(function (l) { return l.status === 'approved' && ids.indexOf(l.id) >= 0; });
+        $('bc-grid').innerHTML = '<div class="bc-empty">加载中…</div>';
+        fetchJson(apiBase() + '/api/base/list?ids=' + encodeURIComponent(ids.join(','))).then(function (j) {
+            var found = j.layouts || [];
+            var list = ids.map(function (id) {
+                return found.find(function (l) { return l.id === id; });
+            }).filter(Boolean);
             if (!list.length) { $('bc-grid').innerHTML = '<div class="bc-empty">收藏的阵型已下架或尚未通过审核</div>'; return; }
             renderGrid(list);
-        }
-        if (state.squareAll && state.squareAll.length) show();
-        else fetchJson(apiBase() + '/api/base/list').then(function (j) { state.squareAll = j.layouts || []; show(); })
-            .catch(function (e) { $('bc-grid').innerHTML = '<div class="bc-err">加载失败：' + esc(e.message) + '</div>'; });
+        }).catch(function (e) {
+            $('bc-grid').innerHTML = '<div class="bc-err">加载失败：' + esc(e.message) + '</div>';
+        });
     }
     function loadMine() {
+        setSentinel('');
         $('bc-grid').innerHTML = '<div class="bc-empty">加载中…</div>';
         var auth = cloudAuth();
         var opts = {};
@@ -151,6 +251,36 @@
         var srv = t === '国际服' ? ' srv-intl' : (t === '国服' ? ' srv-cn' : '');
         return '<span class="bc-tag' + srv + '">' + esc(t) + '</span>';
     }
+    // 标签固定展示顺序：区服 → 世界 → 大本 → 用途（未知标签保持原序垫后）
+    // 渲染期排序，历史记录一并归一，无需迁移数据
+    function tagRank(t) {
+        if (t === '国际服' || t === '国服') return 0;
+        if (t === '主世界' || t === '夜世界') return 1;
+        if (/^\d+本$/.test(t)) return 2;
+        return 3;
+    }
+    function orderTags(tags) {
+        return (tags || []).map(function (t, i) { return { t: t, i: i }; })
+            .sort(function (a, b) { return tagRank(a.t) - tagRank(b.t) || a.i - b.i; })
+            .map(function (x) { return x.t; });
+    }
+    function tagsHtml(tags, extra) { return orderTags(tags).map(tagHtml).join('') + (extra || ''); }
+    // 从阵型链接解析大本等级：国际服分享链接 id=TH16%3A…（URL 编码冒号）；国服阵型码 TH16:…
+    // 解析不出或超范围（<4 / >18）返回 0
+    function parseTh(link) {
+        var l = String(link || '').trim();
+        if (!l) return 0;
+        var s = l, m = null;
+        if (l.indexOf('https://link.clashofclans.com') === 0) {
+            try { s = decodeURIComponent(l); } catch (e) {}
+            m = s.match(/(?:^|[:=&#?])TH(\d{1,2})(?=[:&]|$)/i);
+        } else {
+            m = l.match(/^TH(\d{1,2})(?=:|$)/i);
+        }
+        if (!m) return 0;
+        var n = parseInt(m[1], 10);
+        return n >= 4 && n <= 18 ? n : 0;
+    }
     // 相对时间：当天=今天 / 1天前 / 2天前…
     function relTime(ts) {
         if (!ts) return '';
@@ -165,11 +295,12 @@
         return '<button class="bc-btn white" data-open="' + esc(l.link) + '" data-idx="' + idx + '">一键打开</button>' +
             '<button class="bc-btn solid" data-copy="' + esc(l.link) + '" data-idx="' + idx + '">复制链接</button>';
     }
-    function cardHtml(l, actions, idx, tagExtra) {
+    function cardHtml(l, actions, idx, tagExtra, showDel) {
         var favOn = isFav(l.id);
         // 区服卡片配色：国服 → 蓝色（srv-cn），其余保持紫色（对应账号区服标签色 #2563eb / #7c3aed）
         var srvCls = isCn(l) ? ' srv-cn' : '';
-        return '<div class="bc-card' + srvCls + '">' +
+        // has-del：右上角有垃圾桶时给标题留出右侧内边距，避免长标题压到图标下
+        return '<div class="bc-card' + srvCls + (showDel ? ' has-del' : '') + '" data-lid="' + esc(l.id) + '">' +
             '<div class="bc-img" data-preview data-idx="' + idx + '">' +
             (l.image ? '<img src="' + esc(l.image.indexOf('http') === 0 ? l.image : apiBase() + l.image) + '" loading="lazy" alt="">' : '<span class="bc-img-none">🏰</span>') +
             '<div class="bc-img-title">' + esc(l.title) + '</div>' +
@@ -177,6 +308,8 @@
             '<button type="button" class="bc-favbtn' + (favOn ? ' on' : '') + '" data-fav data-idx="' + idx + '" aria-label="收藏">' + heartSvg(favOn) + '</button>' +
             '<button type="button" class="bc-repbtn" data-rep data-idx="' + idx + '" aria-label="反馈">⚑</button>' +
             '</div>' +
+            // 我的上传专属：右上角删除（上传者自助下架，二次确认后服务端硬删除）
+            (showDel ? '<button type="button" class="bc-delbtn" data-del data-idx="' + idx + '" aria-label="删除"><i class="fa fa-trash"></i></button>' : '') +
             '<div class="bc-img-time">' + relTime(l.createdAt) + '</div>' +
             // 左下角计数：眼睛=查看（打开大图 +1），下载=复制/打开（点打开或复制 +1）
             '<div class="bc-img-stats">' +
@@ -185,10 +318,10 @@
             '</div>' +
             '</div>' +
             '<div class="bc-info">' +
-            // 阵型说明行恒渲染（空也占一行，保证卡片样式一致）；单行超出省略
+            // 阵型说明行恒渲染（空也占满一行，保证卡片样式一致）；单行超出省略
             '<div class="bc-remark">' + esc(l.remark || '') + '</div>' +
-            // 标签区：tagExtra（如我的上传状态徽章）并入本行展示
-            ((l.tags && l.tags.length) || tagExtra ? '<div class="bc-tags">' + (l.tags || []).map(tagHtml).join('') + (tagExtra || '') + '</div>' : '') +
+            // 标签区固定顺序 区服→世界→大本→用途；tagExtra（如我的上传状态徽章）并入本行展示
+            ((l.tags && l.tags.length) || tagExtra ? '<div class="bc-tags">' + tagsHtml(l.tags, tagExtra) + '</div>' : '') +
             '<div class="bc-acts">' + actions + '</div>' +
             '</div></div>';
     }
@@ -229,8 +362,8 @@
         $('bc-grid').innerHTML = list.map(function (l, i) {
             // 已通过：国际服同广场（一键打开+复制链接），国服复制阵型码
             var action = l.status === 'approved' ? cardActions(l, i) : '';
-            // 状态徽章（已通过/审核中，保留原配色）展示在标签区
-            return cardHtml(l, action, i, statusBadge(l));
+            // 状态徽章（已通过/审核中，保留原配色）展示在标签区；showDel=上传者自助删除（仅我的上传显示垃圾桶）
+            return cardHtml(l, action, i, statusBadge(l), true);
         }).join('');
         bindCardEvents($('bc-grid'), list);
     }
@@ -260,24 +393,46 @@
         done(false);
     }
     // 计数打点：view=打开大图 / download=点打开或复制；即发即忘，本地同步更新当前卡片计数
-    function bumpStat(id, kind, idx) {
+    // 卡片定位走 data-lid（分页追加后批次下标不再等价于 grid 内的位置）
+    function bumpStat(id, kind) {
         if (id) {
             try {
                 fetch(apiBase() + '/api/base/stat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, kind: kind }) }).catch(function () {});
             } catch (e) {}
         }
-        if (idx >= 0) {
-            var card = document.querySelector('#bc-grid .bc-card:nth-child(' + (idx + 1) + ')');
-            var n = card && card.querySelector('[data-stat="' + kind + '"]');
-            if (n) n.textContent = (parseInt(n.textContent, 10) || 0) + 1;
-        }
+        var sel = String(id || '').replace(/["\\]/g, '');
+        var card = sel ? document.querySelector('#bc-grid .bc-card[data-lid="' + sel + '"]') : null;
+        var n = card && card.querySelector('[data-stat="' + kind + '"]');
+        if (n) n.textContent = (parseInt(n.textContent, 10) || 0) + 1;
+    }
+    // 上传者自助删除（我的上传卡片右上角垃圾桶）：二次确认 → 服务端硬删除（连带图片）
+    function confirmDelete(l) {
+        CocTool.ui.showConfirm({
+            title: '删除阵型',
+            text: '「' + (l.title || '') + '」删除后不可恢复，确认删除？',
+            confirmText: '删除',
+            onConfirm: function () {
+                var auth = cloudAuth();
+                var headers = { 'Content-Type': 'application/json' };
+                if (auth) headers['X-Auth-Token'] = auth.token;
+                fetchJson(apiBase() + '/api/base/delete', {
+                    method: 'POST', headers: headers,
+                    body: JSON.stringify({ id: l.id, deviceId: deviceId() })
+                }).then(function () {
+                    toast('已删除');
+                    if (state.tab === 'mine') loadMine(); else loadSquare(true);
+                }).catch(function (e) {
+                    toast('删除失败：' + e.message);
+                });
+            }
+        });
     }
     function bindCardEvents(root, list) {
         root.querySelectorAll('[data-preview]').forEach(function (el) {
             el.onclick = function () {
                 var idx = +el.getAttribute('data-idx');
                 var l = (list || [])[idx];
-                if (l) { openLightbox(l); bumpStat(l.id, 'view', idx); }
+                if (l) { openLightbox(l); bumpStat(l.id, 'view'); }
             };
         });
         root.querySelectorAll('[data-fav]').forEach(function (b) {
@@ -297,29 +452,27 @@
                 if (l) openReport(l);
             };
         });
+        root.querySelectorAll('[data-del]').forEach(function (b) {
+            b.onclick = function (ev) {
+                ev.stopPropagation();
+                var l = (list || [])[+b.getAttribute('data-idx')];
+                if (l) confirmDelete(l);
+            };
+        });
         root.querySelectorAll('[data-open], [data-copy]').forEach(function (b) {
             b.onclick = function () {
                 var idx = +b.getAttribute('data-idx');
                 var l = (list || [])[idx];
                 if (b.hasAttribute('data-open')) openLayout(b.getAttribute('data-open'));
                 else copyLink(b.getAttribute('data-copy'));
-                if (l) bumpStat(l.id, 'download', idx);
+                if (l) bumpStat(l.id, 'download');
             };
         });
     }
 
-    /* ── 广场筛选（顶部一行下拉：世界/大本/区服/用途，前端过滤已加载的公开列表） ── */
-    function passFilter(l) {
-        var tags = l.tags || [];
-        function has(t) { return tags.indexOf(t) >= 0; }
-        if (state.filter.world && !has(state.filter.world)) return false;
-        if (state.filter.th && !has(state.filter.th)) return false;
-        if (state.filter.server && !has(state.filter.server)) return false;
-        if (state.filter.uses.length && !state.filter.uses.some(function (u) { return has(u); })) return false;
-        return true;
-    }
+    /* ── 广场筛选（顶部一行下拉：区服/世界/大本/用途，服务端过滤——筛选变化即重置分页重新拉取） ── */
     function applyFilter() {
-        if (state.tab === 'square') renderGrid(state.squareAll.filter(passFilter));
+        if (state.tab === 'square') loadSquare(true);
     }
     function closeDrops() {
         document.querySelectorAll('#bc-filters .bc-drop').forEach(function (d) { d.classList.remove('open'); });
@@ -398,7 +551,7 @@
         // 大图在标签上方完整展示阵型说明（可换行不省略；无说明隐藏该行）
         var rm = $('bc-lb-remark');
         if (rm) { rm.style.display = l.remark ? '' : 'none'; rm.textContent = l.remark || ''; }
-        $('bc-lb-tags').innerHTML = (l.tags || []).map(tagHtml).join('');
+        $('bc-lb-tags').innerHTML = tagsHtml(l.tags);
         $('bc-lb-open').setAttribute('data-open', l.link);
         $('bc-lb-copy').setAttribute('data-copy', l.link);
         $('bc-lightbox').setAttribute('data-id', l.id);
@@ -486,8 +639,18 @@
             };
         });
     }
+    // 上传标签必选校验：世界/大本/用途 各必须选一个（区服由 bc-up-server 单独必选）；返回缺失的分组名
+    function missingTagGroup() {
+        for (var i = 0; i < TAG_GROUPS.length; i++) {
+            var g = TAG_GROUPS[i];
+            var items = g.items || g.dynamic(state.upTags);
+            var ok = items.some(function (t) { return state.upTags.indexOf(t) >= 0; });
+            if (!ok) return g.name;
+        }
+        return '';
+    }
     function openUpload() {
-        state.upTags = []; state.upServer = ''; state.upImage = null;
+        state.upTags = []; state.upServer = ''; state.upImage = null; state.upParsedLink = '';
         $('bc-up-title').value = ''; $('bc-up-link').value = ''; $('bc-up-remark').value = '';
         $('bc-link-hint').textContent = ''; $('bc-link-hint').style.color = '';
         $('bc-up-filebox').textContent = '点击选择截图';
@@ -531,7 +694,7 @@
                 t.classList.add('active');
                 state.tab = t.getAttribute('data-bctab');
                 $('bc-filters').style.display = state.tab === 'square' ? '' : 'none';
-                if (state.tab === 'square') loadSquare();
+                if (state.tab === 'square') loadSquare(true);
                 else if (state.tab === 'mine') loadMine();
                 else loadFav();
             };
@@ -594,6 +757,14 @@
         $('bc-report-modal').addEventListener('click', function (e) { if (e.target === $('bc-report-modal')) closeReport(); });
         $('bc-rep-submit').onclick = submitReport;
         $('bc-up-link').addEventListener('input', revalidateLinkHint);
+        // 广场瀑布流：分页哨兵进入可视区即加载下一页（.bases-scroll 内滚动，视口为观察根即可）
+        if (window.IntersectionObserver) {
+            new IntersectionObserver(function (entries) {
+                for (var i = 0; i < entries.length; i++) { if (entries[i].isIntersecting) { maybeLoadMore(); return; } }
+            }, { rootMargin: '400px 0px' }).observe(sentinelEl());
+        }
+        var scroller = document.querySelector('#bases-page .bases-scroll');
+        if (scroller) scroller.addEventListener('scroll', function () { maybeLoadMore(); });
         $('bc-up-filebox').onclick = function () { $('bc-up-file').click(); };
         $('bc-up-file').addEventListener('change', function () {
             var f = this.files[0]; if (!f) return;
@@ -616,6 +787,9 @@
                 toast(state.upServer === '国服' ? '链接格式错误：国服只能填 TH 阵型码' : '链接格式错误：国际服只能填官方分享链接（https://link.clashofclans.com 开头）');
                 return;
             }
+            // 标签必选（世界/大本/用途 各一个）：缺失时提示缺哪一类，避免卡片标签残缺
+            var miss = missingTagGroup();
+            if (miss) { toast('请选择' + miss); return; }
             if (!state.upImage) { toast('请选择阵型截图'); return; }
             var btn = $('bc-up-submit');
             btn.disabled = true; btn.textContent = '提交中…';
@@ -623,7 +797,8 @@
             var auth = cloudAuth();
             if (auth) headers['X-Auth-Token'] = auth.token;
             // 区服自动并入标签（卡片配色/广场筛选依赖区服标签），同时带 server 供后端按区服校验链接
-            var tags = state.upTags.indexOf(state.upServer) < 0 ? state.upTags.concat([state.upServer]) : state.upTags;
+            // 顺序统一为 区服→世界→大本→用途（卡片展示顺序，落库即规范）
+            var tags = orderTags(state.upTags.indexOf(state.upServer) < 0 ? state.upTags.concat([state.upServer]) : state.upTags);
             fetchJson(apiBase() + '/api/base/submit', {
                 method: 'POST',
                 headers: headers,
@@ -639,7 +814,7 @@
             }).then(function () {
                 closeUpload();
                 toast('已提交，等待管理员审核');
-                if (state.tab === 'square') loadSquare(); else loadMine();
+                if (state.tab === 'square') loadSquare(true); else loadMine();
             }).catch(function (e) {
                 toast('提交失败：' + e.message);
             }).finally(function () {
@@ -659,7 +834,7 @@
             $('bases-page').style.display = 'flex';
             renderFilters();
             $('bc-filters').style.display = state.tab === 'square' ? '' : 'none';
-            if (state.tab === 'square') loadSquare();
+            if (state.tab === 'square') loadSquare(true);
             else if (state.tab === 'mine') loadMine();
             else loadFav();
         },

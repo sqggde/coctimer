@@ -99,8 +99,8 @@
     background: rgba(0, 0, 0, .38); border-radius: 4px; padding: 1px 6px; line-height: 1.5;
 }
 #bases-page .bc-stat i { font-size: 10px; color: rgba(255, 255, 255, .92); }
-/* 援兵说明（原阵型名称位置） */
-#bases-page .bc-remark { font-size: 12px; font-weight: 600; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 阵型说明：恒占一行（空说明也占满行盒，保证卡片内标签/按钮基线对齐）；单行超出省略 */
+#bases-page .bc-remark { font-size: 12px; line-height: 1.45; min-height: 1.45em; font-weight: 600; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dark #bases-page .bc-remark { color: #9ca3af; }
 #bases-page .bc-info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
 #bases-page .bc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -137,6 +137,8 @@
 .dark #bases-page .bc-card.srv-cn .bc-img { background: linear-gradient(135deg, #1c2b4d, #182243); }
 #bases-page .bc-empty { padding: 46px 0; text-align: center; color: #9ca3af; font-size: 13px; grid-column: 1 / -1; }
 #bases-page .bc-err { padding: 46px 20px; text-align: center; color: #9ca3af; font-size: 13px; grid-column: 1 / -1; line-height: 2; }
+/* 广场分页哨兵（#bc-grid 之后的兄弟节点，进入可视区即加载下一页） */
+#bases-page .bc-sentinel { padding: 14px 0 4px; text-align: center; color: #9ca3af; font-size: 12px; }
 /* 上传弹窗标签选项（独立类，避免作用域限定在 #bases-page 内不生效） */
 .bc-tagopt {
     border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;
@@ -222,6 +224,15 @@
 }
 #bases-page .bc-favbtn { font-size: 15px; }
 #bases-page .bc-favbtn.on { color: #f43f5e; }
+/* 我的上传专属：右上角垃圾桶（上传者自助删除）；有它时给顶部标题留出右侧空间，避免长标题压到图标下 */
+#bases-page .bc-delbtn {
+    position: absolute; right: 6px; top: 6px; z-index: 3;
+    border: none; border-radius: 999px; width: 28px; height: 28px; font-size: 13px; line-height: 1; padding: 0;
+    background: rgba(0, 0, 0, .42); color: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(4px);
+}
+#bases-page .bc-delbtn:active { background: rgba(220, 38, 38, .8); }
+#bases-page .bc-card.has-del .bc-img-title { padding-right: 40px; }
 /* 反馈弹窗标题 */
 .bc-rep-title { font-size: 12px; font-weight: 700; color: #6b7280; word-break: break-all; }
 .dark .bc-rep-title { color: #9ca3af; }
