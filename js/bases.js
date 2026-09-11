@@ -562,6 +562,17 @@
 
     /* ── 反馈弹窗（链接与图片不符 / 链接失效 / 其他 → 后台处理） ── */
     var repState = { layout: null, type: 'mismatch' };
+    // 反馈限流（用户拍板）：登录邮箱 5 分钟一次、未登录 10 分钟一次；本地记最后一次提交时刻
+    var REPORT_WIN_AUTH = 5 * 60 * 1000, REPORT_WIN_GUEST = 10 * 60 * 1000;
+    function reportWaitLeft() {
+        var last = parseInt(localStorage.getItem('bc_last_report') || '0', 10) || 0;
+        var win = cloudAuth() ? REPORT_WIN_AUTH : REPORT_WIN_GUEST;
+        return Math.max(0, last + win - Date.now());
+    }
+    function fmtWait(ms) {
+        var s = Math.ceil(ms / 1000);
+        return s < 60 ? s + ' 秒' : Math.ceil(s / 60) + ' 分钟';
+    }
     function renderRepTypes() {
         var types = [{ v: 'mismatch', t: '链接与图片不符' }, { v: 'broken', t: '链接失效' }, { v: 'other', t: '其他' }];
         $('bc-rep-types').innerHTML = types.map(function (x) {
@@ -572,6 +583,12 @@
         });
     }
     function openReport(l) {
+        var left = reportWaitLeft();
+        if (left > 0) {
+            // 限流仅前端抑制（不改服务端契约，旧版本客户端不受影响）
+            toast('反馈太频繁了，请 ' + fmtWait(left) + '后再试' + (cloudAuth() ? '' : '（登录邮箱后为 5 分钟一次）'));
+            return;
+        }
         repState.layout = l; repState.type = 'mismatch';
         $('bc-rep-title').textContent = '阵型：' + (l.title || '');
         $('bc-rep-msg').value = '';
@@ -591,6 +608,7 @@
             method: 'POST', headers: headers,
             body: JSON.stringify({ baseId: l.id, type: repState.type, message: msg, deviceId: deviceId() })
         }).then(function () {
+            localStorage.setItem('bc_last_report', String(Date.now())); // 记入限流窗口（仅提交成功才计）
             closeReport(); toast('反馈已提交，感谢反馈');
         }).catch(function (e) {
             toast('提交失败：' + e.message);
