@@ -695,6 +695,8 @@
         { key: 'view', title: '吸睛榜', unit: '次' }
     ];
     var rankState = { board: 'upload', loading: false, data: null };
+    // 骨架屏延迟阈值：小于它返回的请求根本不显示骨架（避免"点开闪一下"）；要更保守可调大
+    var SK_DELAY = 300;
 
     // 弹窗骨架走 JS 渲染（AGENTS.md：新增弹窗尽量不进 index.html）。
     // 注意 core.js 的 closeAllModals 会移除「非静态」弹窗（staticOverlaySet 是导航初始化时的快照），
@@ -710,11 +712,11 @@
         d.innerHTML =
             '<div class="modal-card w-sm bc-rank-card">' +
                 '<div class="bc-rank-head">' +
+                    '<span class="bc-rank-badge"><i class="fa fa-trophy"></i></span>' +
                     '<span class="bc-rank-title">榜单</span>' +
-                    '<button id="bc-rank-close" class="text-gray-500 hover:text-gray-700 p-1" type="button"><i class="fa fa-times text-lg"></i></button>' +
+                    '<button id="bc-rank-close" class="text-gray-500 hover:text-gray-700 p-1" style="margin-left:auto;" type="button" aria-label="关闭"><i class="fa fa-times text-lg"></i></button>' +
                 '</div>' +
                 '<div class="bc-rank-segs" id="bc-rank-segs">' + segs + '</div>' +
-                '<div class="bc-rank-hint">贡献榜 = 已公开阵型数；下载榜 / 吸睛榜按设备去重计数（同一台设备对同一阵型只算一次）</div>' +
                 '<div class="bc-rank-body" id="bc-rank-body"></div>' +
             '</div>';
         document.body.appendChild(d);
@@ -725,7 +727,7 @@
             if (!t) return;
             rankState.board = t.getAttribute('data-brk');
             $('bc-rank-segs').querySelectorAll('[data-brk]').forEach(function (x) { x.classList.toggle('active', x === t); });
-            renderRank();
+            renderRank(false); // 切榜：立刻换内容，不播入场动画（反馈已由分段控件给出，列表不再"闪"）
         });
     }
     function openRank() {
@@ -738,43 +740,75 @@
         if (rankState.loading) return;
         rankState.loading = true;
         var body = $('bc-rank-body');
-        if (body) body.innerHTML = '<div class="bc-rank-empty">加载中…</div>';
+        // 已有上次数据（同一次会话里开过）→ 立刻按缓存画一版且**不播动画**，再静默刷新。
+        // 这样"点开榜单"永远是"瞬间就是内容"，不会出现空白/骨架那一闪；数据没变时下面的
+        // renderRank 还会因 HTML 完全相同而**直接跳过 DOM 写入**，连重排都不会发生。
+        var hasCache = !!(rankState.data && rankState.data.boards);
+        if (hasCache) renderRank(false);
+        // 首次加载（无缓存）才考虑骨架屏，且延迟 SK_DELAY 才画：快请求根本不出现（避免"点开闪一下"）
+        var skTimer = hasCache ? null : setTimeout(function () {
+            if (body && !body.innerHTML.trim()) body.innerHTML = rankSkeleton();
+        }, SK_DELAY);
         var headers = {};
         var auth = cloudAuth();
         if (auth) headers['X-Auth-Token'] = auth.token; // 只让服务端标出「我」，邮箱本身不外发（它本就在本地登录态里）
         fetchJson(apiBase() + '/api/base/rank', { headers: headers }).then(function (j) {
+            if (skTimer) clearTimeout(skTimer);
             rankState.data = j;
-            renderRank();
+            renderRank(!hasCache); // 只有"首次拿到数据"才播入场动画
         }).catch(function (e) {
-            if (body) body.innerHTML = '<div class="bc-rank-empty">加载失败：' + esc(e.message) + '</div>';
+            if (skTimer) clearTimeout(skTimer);
+            // 有缓存时静默失败：保留上次的榜，不要把用户已经看到的内容换成错误页
+            if (!hasCache && body) body.innerHTML = rankEmpty('加载失败：' + esc(e.message), 'fa-info-circle');
         }).finally(function () { rankState.loading = false; });
     }
-    function renderRank() {
+    // 加载骨架：形状贴合真实行（名次徽章条 / 名字条 / 数值条），比一行"加载中…"更像成品
+    function rankSkeleton() {
+        var rows = '';
+        for (var i = 0; i < 6; i++) rows += '<div class="bc-rank-sk"><span></span><span></span><span></span></div>';
+        return rows;
+    }
+    // 空态/错误态的统一样子：图形 + 说明（icon 走注册表，见 AGENTS.md 图标规范）
+    function rankEmpty(text, icon) {
+        return '<div class="bc-rank-empty"><div class="bc-rank-empty-ic"><i class="fa ' + (icon || 'fa-trophy') + '"></i></div>' + text + '</div>';
+    }
+    function renderRank(animate) {
         var body = $('bc-rank-body');
         if (!body || !rankState.data || !rankState.data.boards) return;
         var board = RANK_BOARDS.find(function (b) { return b.key === rankState.board; }) || RANK_BOARDS[0];
         var items = rankState.data.boards[board.key] || [];
+        var html;
         if (!items.length) {
-            body.innerHTML = '<div class="bc-rank-empty">还没有上榜的阵型<br>上传并通过审核后就会出现在这里</div>';
-            return;
-        }
-        var html = items.map(function (it, i) {
-            return '<div class="bc-rank-row' + (it.isMe ? ' is-me' : '') + '">' +
-                '<span class="bc-rank-no">' + (i + 1) + '</span>' +
-                '<span class="bc-rank-name">' + esc(it.name) + '</span>' +
-                '<span class="bc-rank-val">' + it.value + ' ' + board.unit + '</span>' +
-            '</div>';
-        }).join('');
-        // 底部说明：在榜内也给出「我第几」（榜只取前 N，落在榜外时这就是唯一能知道自己名次的地方）
-        var me = rankState.data.me;
-        var mine = me && me[board.key];
-        if (mine) {
-            html += '<div class="bc-rank-mine">我的名次：第 ' + mine.rank + ' 名（' + mine.value + ' ' + board.unit + '）</div>';
-        } else if (me) {
-            html += '<div class="bc-rank-mine">你还没有已公开的阵型，审核通过后就会上榜</div>';
+            html = rankEmpty('还没有上榜的阵型<br>上传并通过审核后就会出现在这里');
         } else {
-            html += '<div class="bc-rank-mine"><span class="bc-rank-link" id="bc-rank-login">登录邮箱</span>后上传的阵型才计入榜单（未登录上传的不计入）</div>';
+            html = items.map(function (it, i) {
+                var no = i + 1;
+                // 名次徽章：前三名给层级（第 1 实心主色、第 2/3 浅主色），其余是安静的灰数字
+                var noCls = no === 1 ? ' top1' : (no <= 3 ? ' top23' : '');
+                // 入场错落：按下标给延迟并封顶（长列表尾部不至于等太久）；只动 opacity/transform
+                var delay = Math.min(i, 8) * 18;
+                return '<div class="bc-rank-row' + (it.isMe ? ' is-me' : '') + '" style="animation-delay:' + delay + 'ms">' +
+                    '<span class="bc-rank-no' + noCls + '">' + no + '</span>' +
+                    '<span class="bc-rank-name">' + esc(it.name) + '</span>' +
+                    '<span class="bc-rank-val">' + it.value + '<span class="bc-rank-unit">' + board.unit + '</span></span>' +
+                '</div>';
+            }).join('');
+            // 底部说明：在榜内也给出「我第几」（榜只取前 N，落在榜外时这就是唯一能知道自己名次的地方）
+            var me = rankState.data.me;
+            var mine = me && me[board.key];
+            if (mine) {
+                html += '<div class="bc-rank-mine">我的名次：第 <b>' + mine.rank + '</b> 名（' + mine.value + ' ' + board.unit + '）</div>';
+            } else if (me) {
+                html += '<div class="bc-rank-mine">你还没有已公开的阵型，审核通过后就会上榜</div>';
+            } else {
+                html += '<div class="bc-rank-mine"><span class="bc-rank-link" id="bc-rank-login">登录邮箱</span>后上传的阵型才计入榜单（未登录上传的不计入）</div>';
+            }
         }
+        // 内容一字不差就**跳过 DOM 写入**：重写 innerHTML 会重新插入每一行 → 入场动画重放 →
+        // 用户看到的就是"每次点开都闪一下"（实测：重开时重写的 HTML 与原来完全等长）
+        if (body.innerHTML === html) return;
+        // 只有"首次拿到数据"播入场动画；缓存重绘 / 静默刷新不播（否则同样是闪）
+        body.classList.toggle('bc-no-anim', !animate);
         body.innerHTML = html;
         var lg = $('bc-rank-login');
         if (lg) lg.onclick = openCloudLogin;

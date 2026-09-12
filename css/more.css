@@ -67,52 +67,119 @@
     padding: 4px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
-/* 榜单入口：与 tab 同族胶囊的描边样式（故意不填紫——它是打开弹窗、不是切 tab，也不抢 ＋上传 的主按钮地位） */
+/* 榜单入口：与 tab 同族胶囊的描边样式（故意不填紫——它是打开弹窗、不是切 tab，也不抢 ＋上传 的主按钮地位）。
+   用户要求去掉「榜单」二字只留奖杯：文字原本在撑高度，去掉后按钮只剩 22px，故竖向内边距 4→6px、
+   图标 12→13px 把点击区补回 26px+（与相邻胶囊齐平，不低于 24px 的触摸底线） */
 #bases-page .bc-rank-btn {
     display: inline-flex; align-items: center; gap: 3px;
     border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
+#bases-page .bc-rank-btn i { font-size: 13px; }
 .dark #bases-page .bc-rank-btn { background: #1f2937; border-color: #374151; color: #9ca3af; }
-/* 榜单弹窗：它在 #bases-page 之外，故样式不套页面前缀（同 .bc-tagopt 的处理）；内边距沿用 .modal-card 的 1rem */
-#bc-rank-modal .bc-rank-card { display: flex; flex-direction: column; max-height: 78vh; }
-#bc-rank-modal .bc-rank-head { display: flex; align-items: center; justify-content: space-between; }
-#bc-rank-modal .bc-rank-title { font-size: 15px; font-weight: 800; color: #111827; }
+/* 榜单弹窗：它在 #bases-page 之外，故样式不套页面前缀（同 .bc-tagopt 的处理）；内边距沿用 .modal-card 的 1rem
+   质感要点（不换字体：离线 WebView + 中文 + 全 App 统一系统字体，一致性优先）：
+   ① 卡片加"带主色倾向的阴影"而非纯黑投影（纯黑投影是所有弹窗的通用脸）；② 分段控件做成"轨道 + 浮起选中块"；
+   ③ 名次做成徽章并给前三名层级；④ 数值统一 tabular-nums 便于纵向对齐；⑤ 明暗双主题 + 尊重 prefers-reduced-motion */
+#bc-rank-modal .bc-rank-card {
+    display: flex; flex-direction: column; max-height: 78vh;
+    border-radius: 16px; border: 1px solid rgba(124, 58, 237, .10);
+    box-shadow: 0 24px 48px -18px rgba(76, 29, 149, .34), 0 2px 8px -3px rgba(76, 29, 149, .12);
+}
+.dark #bc-rank-modal .bc-rank-card { border-color: rgba(167, 139, 250, .16); box-shadow: 0 24px 48px -18px rgba(0, 0, 0, .62); }
+#bc-rank-modal .bc-rank-head { display: flex; align-items: center; gap: 8px; }
+#bc-rank-modal .bc-rank-badge {
+    width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #ede9fe; color: #6d28d9; font-size: 12px;
+}
+.dark #bc-rank-modal .bc-rank-badge { background: rgba(124, 58, 237, .24); color: #c4b5fd; }
+#bc-rank-modal .bc-rank-title { font-size: 15px; font-weight: 800; color: #111827; letter-spacing: -.01em; }
 .dark #bc-rank-modal .bc-rank-title { color: #f3f4f6; }
-#bc-rank-modal .bc-rank-segs { display: flex; gap: 6px; margin-top: 10px; }
+/* 分段控件：轨道内浮起选中块（比"三个描边胶囊"更像一个整体控件） */
+#bc-rank-modal .bc-rank-segs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 12px;
+    padding: 3px; border-radius: 12px; background: #f3f4f6; border: 1px solid #e5e7eb;
+}
+.dark #bc-rank-modal .bc-rank-segs { background: #23233a; border-color: #374151; }
 #bc-rank-modal .bc-rank-seg {
-    flex: 1; border: 1px solid #e5e7eb; background: #fff; color: #6b7280; border-radius: 999px;
-    padding: 6px 4px; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap;
+    border: none; background: transparent; color: #6b7280; border-radius: 9px;
+    padding: 6px 4px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    transition: background-color .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease;
 }
-.dark #bc-rank-modal .bc-rank-seg { background: #1f2937; border-color: #374151; color: #9ca3af; }
-#bc-rank-modal .bc-rank-seg.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
-#bc-rank-modal .bc-rank-hint { margin-top: 8px; font-size: 11px; color: #9ca3af; line-height: 1.5; }
-#bc-rank-modal .bc-rank-body { min-height: 0; overflow-y: auto; margin-top: 6px; }
+.dark #bc-rank-modal .bc-rank-seg { color: #9ca3af; }
+#bc-rank-modal .bc-rank-seg:hover { color: #374151; }
+.dark #bc-rank-modal .bc-rank-seg:hover { color: #e5e7eb; }
+#bc-rank-modal .bc-rank-seg:active { transform: scale(.98); }
+#bc-rank-modal .bc-rank-seg:focus-visible { outline: 2px solid #7c3aed; outline-offset: 1px; }
+#bc-rank-modal .bc-rank-seg.active { background: #fff; color: #6d28d9; font-weight: 800; box-shadow: 0 1px 3px rgba(17, 24, 39, .14); }
+.dark #bc-rank-modal .bc-rank-seg.active { background: #3b3b58; color: #ddd6fe; box-shadow: 0 1px 3px rgba(0, 0, 0, .45); }
+#bc-rank-modal .bc-rank-body { min-height: 0; overflow-y: auto; margin-top: 10px; }
 #bc-rank-modal .bc-rank-row {
-    display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
-    border: 1px solid transparent; font-size: 13px;
+    display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+    padding: 7px 8px; border-radius: 10px; border: 1px solid transparent; font-size: 13px;
+    transition: background-color .16s ease;
 }
-#bc-rank-modal .bc-rank-row + .bc-rank-row { margin-top: 2px; }
-#bc-rank-modal .bc-rank-no { width: 26px; text-align: right; color: #9ca3af; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-#bc-rank-modal .bc-rank-name { flex: 1; min-width: 0; color: #374151; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#bc-rank-modal .bc-rank-val { color: #6b7280; font-weight: 700; flex-shrink: 0; }
+#bc-rank-modal .bc-rank-row + .bc-rank-row { margin-top: 1px; }
+#bc-rank-modal .bc-rank-row:hover { background: #f9fafb; }
+.dark #bc-rank-modal .bc-rank-row:hover { background: rgba(255, 255, 255, .035); }
+/* 名次徽章：前三名给层级（第一名实心主色、二三浅主色），其余是安静的灰数字 */
+#bc-rank-modal .bc-rank-no {
+    width: 22px; height: 22px; border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #9ca3af; font-variant-numeric: tabular-nums;
+}
+#bc-rank-modal .bc-rank-no.top1 { background: #7c3aed; color: #fff; }
+#bc-rank-modal .bc-rank-no.top23 { background: #ede9fe; color: #6d28d9; }
+.dark #bc-rank-modal .bc-rank-no.top23 { background: rgba(124, 58, 237, .26); color: #c4b5fd; }
+#bc-rank-modal .bc-rank-name { min-width: 0; color: #374151; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#bc-rank-modal .bc-rank-val { color: #6b7280; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#bc-rank-modal .bc-rank-unit { font-size: 11px; font-weight: 500; color: #9ca3af; margin-left: 2px; }
 .dark #bc-rank-modal .bc-rank-name { color: #d1d5db; }
 .dark #bc-rank-modal .bc-rank-val { color: #9ca3af; }
-/* 「我」那一行橙色高亮（用户要求）——并列名次也认得出自己 */
+.dark #bc-rank-modal .bc-rank-unit { color: #6b7280; }
+/* 「我」那一行橙色高亮（用户要求）——并列名次也认得出自己。
+   注意优先级：本人行的橙色徽章**有意盖过**前三名的紫色徽章（选择器更具体）——
+   即「我是谁」优先于「我第几」；本人名次仍由徽章数字与底部那行给出。 */
 #bc-rank-modal .bc-rank-row.is-me { background: #fff7ed; border-color: #fdba74; }
-#bc-rank-modal .bc-rank-row.is-me .bc-rank-no,
-#bc-rank-modal .bc-rank-row.is-me .bc-rank-name,
+#bc-rank-modal .bc-rank-row.is-me .bc-rank-no { background: #fdba74; color: #7c2d12; }
+#bc-rank-modal .bc-rank-row.is-me .bc-rank-name { color: #c2410c; font-weight: 800; }
 #bc-rank-modal .bc-rank-row.is-me .bc-rank-val { color: #c2410c; }
 .dark #bc-rank-modal .bc-rank-row.is-me { background: #3a2716; border-color: #9a5b22; }
-.dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-no,
+.dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-no { background: #7c4a1e; color: #fdba74; }
 .dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-name,
 .dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-val { color: #fb923c; }
-/* 我在前 N 名之外时，底部固定一行「我的名次」 */
-#bc-rank-modal .bc-rank-mine { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb; font-size: 12px; color: #6b7280; }
-.dark #bc-rank-modal .bc-rank-mine { border-top-color: #374151; color: #9ca3af; }
-#bc-rank-modal .bc-rank-empty { padding: 26px 12px; text-align: center; color: #9ca3af; font-size: 12px; line-height: 1.7; }
+/* 我在前 N 名之外时，底部固定一行「我的名次」（做成浅底块而不是虚线分割线） */
+#bc-rank-modal .bc-rank-mine { margin-top: 10px; padding: 9px 10px; border-radius: 10px; background: #f9fafb; font-size: 12px; color: #4b5563; }
+#bc-rank-modal .bc-rank-mine b { color: #6d28d9; font-weight: 800; }
+.dark #bc-rank-modal .bc-rank-mine { background: rgba(255, 255, 255, .045); color: #9ca3af; }
+.dark #bc-rank-modal .bc-rank-mine b { color: #c4b5fd; }
+#bc-rank-modal .bc-rank-empty { padding: 8px 12px 26px; text-align: center; color: #9ca3af; font-size: 12px; line-height: 1.7; }
+#bc-rank-modal .bc-rank-empty-ic {
+    width: 46px; height: 46px; margin: 22px auto 10px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; background: #f5f3ff; color: #a78bfa; font-size: 20px;
+}
+.dark #bc-rank-modal .bc-rank-empty-ic { background: rgba(124, 58, 237, .18); color: #a78bfa; }
 #bc-rank-modal .bc-rank-link { color: #7c3aed; font-weight: 700; cursor: pointer; }
+.dark #bc-rank-modal .bc-rank-link { color: #c4b5fd; }
+/* 骨架屏（加载态：形状贴合真实行，比"加载中…"更像成品） */
+@keyframes bcRankPulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+#bc-rank-modal .bc-rank-sk { display: grid; grid-template-columns: 22px minmax(0, 1fr) 44px; gap: 10px; align-items: center; padding: 7px 8px; }
+#bc-rank-modal .bc-rank-sk span { height: 10px; border-radius: 6px; background: #e5e7eb; animation: bcRankPulse 1.2s ease-in-out infinite; }
+#bc-rank-modal .bc-rank-sk span:first-child { width: 22px; height: 22px; border-radius: 7px; }
+#bc-rank-modal .bc-rank-sk span:last-child { margin-left: auto; width: 40px; }
+.dark #bc-rank-modal .bc-rank-sk span { background: #374151; }
+/* 行入场上浮：只动 opacity/transform（GPU 友好），按序号错落，避免整屏同时出现。
+   仅用于"首次拿到数据"那一次；缓存重绘与静默刷新走 .bc-no-anim（否则重放动画＝用户眼里的"闪一下"） */
+@keyframes bcRankIn { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
+#bc-rank-modal .bc-rank-row { animation: bcRankIn .18s ease-out both; }
+#bc-rank-modal .bc-rank-body.bc-no-anim .bc-rank-row { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+    #bc-rank-modal .bc-rank-row { animation: none; }
+    #bc-rank-modal .bc-rank-sk span { animation: none; }
+    #bc-rank-modal .bc-rank-seg { transition: none; }
+}
 /* 固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局 */
 #bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 #bases-page .bc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
