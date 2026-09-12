@@ -113,8 +113,15 @@
       return g.items || g.dynamic(selected);
     }
 
-    var state = { tab: 'square', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', upParsedLink: '', squareGen: 0, square: { items: [], offset: 0, hasMore: false, loading: false }, filter: { world: '', th: '', server: '', uses: [] } };
+    var state = { tab: 'square', sort: 'recent', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', upParsedLink: '', squareGen: 0, square: { items: [], offset: 0, hasMore: false, loading: false }, filter: { world: '', th: '', server: '', uses: [] } };
     var PAGE_SIZE = 24; // 广场每页条数（服务端分页，滚动到底自动加载下一页）
+    // 广场排序（服务端 sort 参数）：recent=最近（默认，按审核时间）/ hot=最火（下载数）/ view=最吸睛（查看数）
+    // key 必须与服务端 LIST_SORTS 的键一致；未知值服务端回落 recent（老客户端不带该参数行为不变）
+    var SORT_OPTS = [{ k: 'recent', t: '最近' }, { k: 'hot', t: '最火' }, { k: 'view', t: '最吸睛' }];
+    function sortLabel() {
+        var hit = SORT_OPTS.find(function (o) { return o.k === state.sort; });
+        return (hit || SORT_OPTS[0]).t;
+    }
 
     /* ── 数据 ── */
     function fetchJson(url, opts) {
@@ -128,7 +135,7 @@
     /* 广场：服务端分页（每页 PAGE_SIZE 条）+ 筛选上移服务端，滚动到底自动加载下一页 */
     function squareUrl(offset) {
         var f = state.filter;
-        var p = ['limit=' + PAGE_SIZE, 'offset=' + offset];
+        var p = ['limit=' + PAGE_SIZE, 'offset=' + offset, 'sort=' + state.sort];
         if (f.server) p.push('server=' + encodeURIComponent(f.server));
         if (f.world) p.push('world=' + encodeURIComponent(f.world));
         if (f.th) p.push('th=' + encodeURIComponent(f.th));
@@ -544,6 +551,9 @@
         var useOpts = ['全部'];
         uses.forEach(function (s) { useOpts.push({ head: s.name }); useOpts = useOpts.concat(s.items); });
         function chip(dim, v) { return v ? dim + '：' + v : dim; }
+        // 排序胶囊只显示当前值（2 字，与「省字」口径一致）：带上「排序：」前缀会让 360px 下的「重置」被挤到第二行。
+        // 「这是排序」的语义放在展开后的分组标题里（bc-dopt-head，不可点，与用途下拉的大类标题同款）
+        $('bc-fbtn-sort').innerHTML = sortLabel() + ' <i class="fa fa-chevron-down"></i>';
         $('bc-fbtn-world').innerHTML = chip('世界', state.filter.world || '') + ' <i class="fa fa-chevron-down"></i>';
         $('bc-fbtn-th').innerHTML = chip('大本', state.filter.th || '') + ' <i class="fa fa-chevron-down"></i>';
         $('bc-fbtn-server').innerHTML = chip('区服', state.filter.server || '') + ' <i class="fa fa-chevron-down"></i>';
@@ -563,6 +573,12 @@
                 };
             });
         }
+        renderDrop('bc-drop-sort', [{ head: '排序方式' }].concat(SORT_OPTS.map(function (o) { return o.t; })), function (t) { return t === sortLabel(); }, function (t) {
+            var hit = SORT_OPTS.find(function (o) { return o.t === t; });
+            if (!hit || hit.k === state.sort) return; // 重复点当前项不白跑一次请求
+            state.sort = hit.k;
+            renderFilters(); applyFilter(); // 排序变化即重置分页重拉（与筛选同一路径）
+        });
         renderDrop('bc-drop-world', worlds, function (o) { return o === (state.filter.world || '全部'); }, function (v) {
             state.filter.world = v === '全部' ? '' : v;
             renderFilters(); applyFilter();
@@ -668,6 +684,100 @@
         }).finally(function () {
             btn.disabled = false; btn.textContent = '提交反馈';
         });
+    }
+
+    /* ── 榜单（贡献榜 / 下载榜 / 吸睛榜）── */
+    // 隐私口径：打码名由服务端生成（真实邮箱不出服务器），「我」由服务端比对后只回一个布尔；
+    // 前端只负责渲染，不做任何基于掩码的自我识别（掩码区分度低，客户端比对会误亮别人那一行）。
+    var RANK_BOARDS = [
+        { key: 'upload', title: '贡献榜', unit: '个' },
+        { key: 'download', title: '下载榜', unit: '次' },
+        { key: 'view', title: '吸睛榜', unit: '次' }
+    ];
+    var rankState = { board: 'upload', loading: false, data: null };
+
+    // 弹窗骨架走 JS 渲染（AGENTS.md：新增弹窗尽量不进 index.html）。
+    // 注意 core.js 的 closeAllModals 会移除「非静态」弹窗（staticOverlaySet 是导航初始化时的快照），
+    // 所以这里做成「按需重建」：节点被移除后，下次打开自动重建并重新绑事件。
+    function ensureRankModal() {
+        if ($('bc-rank-modal')) return;
+        var segs = RANK_BOARDS.map(function (b) {
+            return '<button type="button" class="bc-rank-seg' + (b.key === rankState.board ? ' active' : '') + '" data-brk="' + b.key + '">' + esc(b.title) + '</button>';
+        }).join('');
+        var d = document.createElement('div');
+        d.id = 'bc-rank-modal';
+        d.className = 'modal-overlay hidden';
+        d.innerHTML =
+            '<div class="modal-card w-sm bc-rank-card">' +
+                '<div class="bc-rank-head">' +
+                    '<span class="bc-rank-title">榜单</span>' +
+                    '<button id="bc-rank-close" class="text-gray-500 hover:text-gray-700 p-1" type="button"><i class="fa fa-times text-lg"></i></button>' +
+                '</div>' +
+                '<div class="bc-rank-segs" id="bc-rank-segs">' + segs + '</div>' +
+                '<div class="bc-rank-hint">贡献榜 = 已公开阵型数；下载榜 / 吸睛榜按设备去重计数（同一台设备对同一阵型只算一次）</div>' +
+                '<div class="bc-rank-body" id="bc-rank-body"></div>' +
+            '</div>';
+        document.body.appendChild(d);
+        $('bc-rank-close').onclick = closeRank;
+        d.addEventListener('click', function (e) { if (e.target === d) closeRank(); });
+        $('bc-rank-segs').addEventListener('click', function (e) {
+            var t = e.target.closest('[data-brk]');
+            if (!t) return;
+            rankState.board = t.getAttribute('data-brk');
+            $('bc-rank-segs').querySelectorAll('[data-brk]').forEach(function (x) { x.classList.toggle('active', x === t); });
+            renderRank();
+        });
+    }
+    function openRank() {
+        ensureRankModal();
+        $('bc-rank-modal').classList.remove('hidden');
+        loadRank();
+    }
+    function closeRank() { if ($('bc-rank-modal')) $('bc-rank-modal').classList.add('hidden'); }
+    function loadRank() {
+        if (rankState.loading) return;
+        rankState.loading = true;
+        var body = $('bc-rank-body');
+        if (body) body.innerHTML = '<div class="bc-rank-empty">加载中…</div>';
+        var headers = {};
+        var auth = cloudAuth();
+        if (auth) headers['X-Auth-Token'] = auth.token; // 只让服务端标出「我」，邮箱本身不外发（它本就在本地登录态里）
+        fetchJson(apiBase() + '/api/base/rank', { headers: headers }).then(function (j) {
+            rankState.data = j;
+            renderRank();
+        }).catch(function (e) {
+            if (body) body.innerHTML = '<div class="bc-rank-empty">加载失败：' + esc(e.message) + '</div>';
+        }).finally(function () { rankState.loading = false; });
+    }
+    function renderRank() {
+        var body = $('bc-rank-body');
+        if (!body || !rankState.data || !rankState.data.boards) return;
+        var board = RANK_BOARDS.find(function (b) { return b.key === rankState.board; }) || RANK_BOARDS[0];
+        var items = rankState.data.boards[board.key] || [];
+        if (!items.length) {
+            body.innerHTML = '<div class="bc-rank-empty">还没有上榜的阵型<br>上传并通过审核后就会出现在这里</div>';
+            return;
+        }
+        var html = items.map(function (it, i) {
+            return '<div class="bc-rank-row' + (it.isMe ? ' is-me' : '') + '">' +
+                '<span class="bc-rank-no">' + (i + 1) + '</span>' +
+                '<span class="bc-rank-name">' + esc(it.name) + '</span>' +
+                '<span class="bc-rank-val">' + it.value + ' ' + board.unit + '</span>' +
+            '</div>';
+        }).join('');
+        // 底部说明：在榜内也给出「我第几」（榜只取前 N，落在榜外时这就是唯一能知道自己名次的地方）
+        var me = rankState.data.me;
+        var mine = me && me[board.key];
+        if (mine) {
+            html += '<div class="bc-rank-mine">我的名次：第 ' + mine.rank + ' 名（' + mine.value + ' ' + board.unit + '）</div>';
+        } else if (me) {
+            html += '<div class="bc-rank-mine">你还没有已公开的阵型，审核通过后就会上榜</div>';
+        } else {
+            html += '<div class="bc-rank-mine"><span class="bc-rank-link" id="bc-rank-login">登录邮箱</span>后上传的阵型才计入榜单（未登录上传的不计入）</div>';
+        }
+        body.innerHTML = html;
+        var lg = $('bc-rank-login');
+        if (lg) lg.onclick = openCloudLogin;
     }
 
     /* ── 上传 ── */
@@ -812,6 +922,7 @@
         $('bc-f-reset').onclick = function () { state.filter = { world: '', th: '', server: '', uses: [] }; renderFilters(); applyFilter(); closeDrops(); };
         $('bc-fbtn-world').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-world'); };
         $('bc-fbtn-th').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-th'); };
+        $('bc-fbtn-sort').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-sort'); };
         $('bc-fbtn-server').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-server'); };
         $('bc-fbtn-use').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-use'); };
         document.addEventListener('click', function (e) {
@@ -860,6 +971,7 @@
         $('bc-lb-zout').onclick = function () { lbZoomBy(1 / 1.5); };
         $('bc-lb-zreset').onclick = lbReset;
         $('bc-open-upload').onclick = openUpload;
+        $('bc-open-rank').onclick = openRank;
         $('bc-upload-close').onclick = closeUpload;
         $('bc-up-cancel').onclick = closeUpload;
         $('bc-rep-close').onclick = closeReport;

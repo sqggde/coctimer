@@ -67,6 +67,52 @@
     padding: 4px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
+/* 榜单入口：与 tab 同族胶囊的描边样式（故意不填紫——它是打开弹窗、不是切 tab，也不抢 ＋上传 的主按钮地位） */
+#bases-page .bc-rank-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
+    border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+}
+.dark #bases-page .bc-rank-btn { background: #1f2937; border-color: #374151; color: #9ca3af; }
+/* 榜单弹窗：它在 #bases-page 之外，故样式不套页面前缀（同 .bc-tagopt 的处理）；内边距沿用 .modal-card 的 1rem */
+#bc-rank-modal .bc-rank-card { display: flex; flex-direction: column; max-height: 78vh; }
+#bc-rank-modal .bc-rank-head { display: flex; align-items: center; justify-content: space-between; }
+#bc-rank-modal .bc-rank-title { font-size: 15px; font-weight: 800; color: #111827; }
+.dark #bc-rank-modal .bc-rank-title { color: #f3f4f6; }
+#bc-rank-modal .bc-rank-segs { display: flex; gap: 6px; margin-top: 10px; }
+#bc-rank-modal .bc-rank-seg {
+    flex: 1; border: 1px solid #e5e7eb; background: #fff; color: #6b7280; border-radius: 999px;
+    padding: 6px 4px; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.dark #bc-rank-modal .bc-rank-seg { background: #1f2937; border-color: #374151; color: #9ca3af; }
+#bc-rank-modal .bc-rank-seg.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+#bc-rank-modal .bc-rank-hint { margin-top: 8px; font-size: 11px; color: #9ca3af; line-height: 1.5; }
+#bc-rank-modal .bc-rank-body { min-height: 0; overflow-y: auto; margin-top: 6px; }
+#bc-rank-modal .bc-rank-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid transparent; font-size: 13px;
+}
+#bc-rank-modal .bc-rank-row + .bc-rank-row { margin-top: 2px; }
+#bc-rank-modal .bc-rank-no { width: 26px; text-align: right; color: #9ca3af; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+#bc-rank-modal .bc-rank-name { flex: 1; min-width: 0; color: #374151; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#bc-rank-modal .bc-rank-val { color: #6b7280; font-weight: 700; flex-shrink: 0; }
+.dark #bc-rank-modal .bc-rank-name { color: #d1d5db; }
+.dark #bc-rank-modal .bc-rank-val { color: #9ca3af; }
+/* 「我」那一行橙色高亮（用户要求）——并列名次也认得出自己 */
+#bc-rank-modal .bc-rank-row.is-me { background: #fff7ed; border-color: #fdba74; }
+#bc-rank-modal .bc-rank-row.is-me .bc-rank-no,
+#bc-rank-modal .bc-rank-row.is-me .bc-rank-name,
+#bc-rank-modal .bc-rank-row.is-me .bc-rank-val { color: #c2410c; }
+.dark #bc-rank-modal .bc-rank-row.is-me { background: #3a2716; border-color: #9a5b22; }
+.dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-no,
+.dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-name,
+.dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-val { color: #fb923c; }
+/* 我在前 N 名之外时，底部固定一行「我的名次」 */
+#bc-rank-modal .bc-rank-mine { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb; font-size: 12px; color: #6b7280; }
+.dark #bc-rank-modal .bc-rank-mine { border-top-color: #374151; color: #9ca3af; }
+#bc-rank-modal .bc-rank-empty { padding: 26px 12px; text-align: center; color: #9ca3af; font-size: 12px; line-height: 1.7; }
+#bc-rank-modal .bc-rank-link { color: #7c3aed; font-weight: 700; cursor: pointer; }
 /* 固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局 */
 #bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 #bases-page .bc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }

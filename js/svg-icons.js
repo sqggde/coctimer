@@ -41,6 +41,7 @@
         'moon-o': 'img/svg/progress/moon-o.svg',
         'eye-slash': 'img/svg/progress/eye-slash.svg',
         'eye': 'img/svg/bases/eye.svg',
+        'trophy': 'img/svg/bases/trophy.svg',
         'bomb': 'img/svg/progress/bomb.svg',
         'truck': 'img/svg/progress/truck.svg',
         'home': 'img/svg/progress/home.svg',
