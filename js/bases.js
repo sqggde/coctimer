@@ -739,7 +739,7 @@
         });
     }
 
-    /* ── tab 切换（广场/我的收藏/我的上传）：点击、左右滑动、打开页面三处共用同一入口 ── */
+    /* ── tab 切换：广场(square) / 收藏(fav) / 我的(mine)——点击、左右滑动、打开页面三处共用同一入口 ── */
     var TAB_ORDER = ['square', 'fav', 'mine']; // 顺序与 index.html 三个 .bc-tab 的 data-bctab 一致，同时是滑动的前后基准
     function setTab(tab) {
         state.tab = tab;
