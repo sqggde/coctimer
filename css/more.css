@@ -146,6 +146,21 @@
     display: block; font-size: 12px; font-weight: 700; color: #111827; margin: 10px 0 5px;
 }
 .dark #bc-upload-modal .bc-flabel { color: #f3f4f6; }
+/* 上传弹窗标签分组标题分两级（用户反馈「用途 日常 对战 这三个依然没有区别」——原来三者同款样式，
+   看不出 日常/对战 是 用途 下面的子分组）：
+   一级 = 维度（世界/大本/用途）：左对齐、灰、800；
+   二级 = 子分组（日常/对战）：紫色 + 左缩进 + 左侧竖线，一眼看出"挂在上面那个维度下面" */
+#bc-up-tags .bc-taggroup {
+    width: 100%; box-sizing: border-box;
+    font-size: 11px; font-weight: 800; color: #6b7280; margin-top: 4px;
+}
+#bc-up-tags .bc-tagsub {
+    width: 100%; box-sizing: border-box;
+    font-size: 11px; font-weight: 700; color: #7c3aed;
+    margin-top: 5px; padding-left: 7px; border-left: 2px solid #ddd6fe;
+}
+.dark #bc-up-tags .bc-taggroup { color: #9ca3af; }
+.dark #bc-up-tags .bc-tagsub { color: #a78bfa; border-left-color: #4c1d95; }
 /* 上传弹窗标签选项（独立类，避免作用域限定在 #bases-page 内不生效） */
 .bc-tagopt {
     border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;

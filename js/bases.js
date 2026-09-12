@@ -672,14 +672,15 @@
 
     /* ── 上传 ── */
     function renderUpTags() {
-        var LABEL = 'width:100%;font-size:11px;font-weight:800;color:#6b7280;margin-top:4px;';
-        function label(name) { return '<span style="' + LABEL + '">' + esc(name) + '</span>'; }
+        // 分组标题分两级、样式在 more.css：一级=维度（世界/大本/用途）、二级=用途下的子分组（日常/对战）
+        // （原来三者同款内联样式，用户反馈「用途 日常 对战 这三个依然没有区别」）
+        function label(name, sub) { return '<span class="' + (sub ? 'bc-tagsub' : 'bc-taggroup') + '">' + esc(name) + '</span>'; }
         function btn(t) {
             return '<button type="button" class="bc-tagopt' + (state.upTags.indexOf(t) >= 0 ? ' active' : '') + '" data-ut="' + esc(t) + '">' + esc(t) + '</button>';
         }
         $('bc-up-tags').innerHTML = TAG_GROUPS.map(function (g) {
-            // 用途分两个大类：大类标题与组标题同款（都不可点），标签跟在各自大类后面
-            if (g.subgroups) return label(g.name) + g.subgroups.map(function (s) { return label(s.name) + s.items.map(btn).join(''); }).join('');
+            // 用途分两个大类：大类标题与标签跟在各自大类后面（标题都不可点）
+            if (g.subgroups) return label(g.name) + g.subgroups.map(function (s) { return label(s.name, true) + s.items.map(btn).join(''); }).join('');
             return label(g.name) + groupItems(g, state.upTags).map(btn).join('');
         }).join('');
         $('bc-up-tags').querySelectorAll('[data-ut]').forEach(function (el) {
