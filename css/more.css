@@ -139,6 +139,13 @@
 #bases-page .bc-err { padding: 46px 20px; text-align: center; color: #9ca3af; font-size: 13px; grid-column: 1 / -1; line-height: 2; }
 /* 广场分页哨兵（#bc-grid 之后的兄弟节点，进入可视区即加载下一页） */
 #bases-page .bc-sentinel { padding: 14px 0 4px; text-align: center; color: #9ca3af; font-size: 12px; }
+/* 上传弹窗字段标签（阵型名称/区服/链接/说明/标签/截图）：比标签分组标题更亮一档，
+   与「用途」下的日常/对战等分组标题（#6b7280）明确区分——此前两者同色只差字号，用户反馈太像；
+   作用域不限定 #bases-page（弹窗在页面容器之外，同 .bc-tagopt 的处理） */
+#bc-upload-modal .bc-flabel {
+    display: block; font-size: 12px; font-weight: 700; color: #111827; margin: 10px 0 5px;
+}
+.dark #bc-upload-modal .bc-flabel { color: #f3f4f6; }
 /* 上传弹窗标签选项（独立类，避免作用域限定在 #bases-page 内不生效） */
 .bc-tagopt {
     border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;
