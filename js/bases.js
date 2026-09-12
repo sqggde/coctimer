@@ -739,6 +739,47 @@
         });
     }
 
+    /* ── tab 切换（广场/我的收藏/我的上传）：点击、左右滑动、打开页面三处共用同一入口 ── */
+    var TAB_ORDER = ['square', 'fav', 'mine']; // 顺序与 index.html 三个 .bc-tab 的 data-bctab 一致，同时是滑动的前后基准
+    function setTab(tab) {
+        state.tab = tab;
+        document.querySelectorAll('#bases-page .bc-tab').forEach(function (x) {
+            x.classList.toggle('active', x.getAttribute('data-bctab') === tab);
+        });
+        closeDrops(); // 滑动不产生 click，顶部筛选下拉不会自动收起，统一在这里收口
+        $('bc-filters').style.display = tab === 'square' ? '' : 'none';
+        if (tab === 'square') loadSquare(true);
+        else if (tab === 'mine') loadMine();
+        else loadFav();
+    }
+    // 左右滑动切 tab：沿用首页账号区那套自研手势（touchend 判定零开销）——竖向为主、位移不足、多指、弹窗打开均不触发
+    function initTabSwipe() {
+        var page = $('bases-page');
+        if (!page) return;
+        var startX = 0, startY = 0, started = false;
+        var SWIPE_THRESHOLD = 50, ANGLE_THRESHOLD = 1.5;
+        page.addEventListener('touchstart', function (e) {
+            started = e.touches.length === 1; // 双指（大图捏合等）不参与切 tab
+            if (!started) return;
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        }, { passive: true });
+        page.addEventListener('touchend', function (e) {
+            var valid = started && e.changedTouches.length === 1;
+            started = false;
+            if (!valid) return;
+            // 弹窗开着不切 tab：大图拖动平移、上传/反馈/云备份登录弹窗都不该带动底下页面
+            if (document.querySelector('.modal-overlay:not(.hidden)')) return;
+            var dx = e.changedTouches[0].clientX - startX, dy = e.changedTouches[0].clientY - startY;
+            if (Math.abs(dx) <= SWIPE_THRESHOLD || Math.abs(dx) <= Math.abs(dy) * ANGLE_THRESHOLD) return;
+            var i = TAB_ORDER.indexOf(state.tab);
+            var next = dx > 0 ? i - 1 : i + 1; // 右滑回上一个、左滑去下一个（与首页账号区方向一致；到两端停住不循环）
+            if (i < 0 || next < 0 || next >= TAB_ORDER.length) return;
+            setTab(TAB_ORDER[next]);
+            // 滑动切换给触感反馈（点击不震，与账号区滑动切账号一致）
+            if (CocTool.state.settings.vibrate !== false) CocTool.platform.call('vibrate', 40);
+        }, { passive: true });
+    }
+
     function bind() {
         $('more-help').onclick = function () { openHelp(); };
         $('help-back').onclick = function () { closeHelp(); };
@@ -746,16 +787,9 @@
         $('bases-back').onclick = function () { CocTool.features.bases.close(); };
 
         document.querySelectorAll('#bases-page .bc-tab').forEach(function (t) {
-            t.onclick = function () {
-                document.querySelectorAll('#bases-page .bc-tab').forEach(function (x) { x.classList.remove('active'); });
-                t.classList.add('active');
-                state.tab = t.getAttribute('data-bctab');
-                $('bc-filters').style.display = state.tab === 'square' ? '' : 'none';
-                if (state.tab === 'square') loadSquare(true);
-                else if (state.tab === 'mine') loadMine();
-                else loadFav();
-            };
+            t.onclick = function () { setTab(t.getAttribute('data-bctab')); };
         });
+        initTabSwipe();
         $('bc-f-reset').onclick = function () { state.filter = { world: '', th: '', server: '', uses: [] }; renderFilters(); applyFilter(); closeDrops(); };
         $('bc-fbtn-world').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-world'); };
         $('bc-fbtn-th').onclick = function (e) { e.stopPropagation(); toggleDrop('bc-drop-th'); };
@@ -890,10 +924,7 @@
         open: function () {
             $('bases-page').style.display = 'flex';
             renderFilters();
-            $('bc-filters').style.display = state.tab === 'square' ? '' : 'none';
-            if (state.tab === 'square') loadSquare(true);
-            else if (state.tab === 'mine') loadMine();
-            else loadFav();
+            setTab(state.tab);
         },
         close: function () {
             $('bases-page').style.display = 'none';
