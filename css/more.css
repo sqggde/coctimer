@@ -191,13 +191,20 @@
 #bases-page .bc-drop.open { display: flex; flex-direction: column; gap: 6px; }
 #bases-page .bc-drop.bc-drop-grid.open { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 #bases-page .bc-drop.bc-drop-grid-3.open { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+/* 下拉选项字号与筛选键（.bc-fbtn 11px）统一——此前是 13px，展开后比外面还大（用户反馈） */
 #bases-page .bc-dopt {
     border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 9px; padding: 9px 4px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center;
+    border-radius: 9px; padding: 9px 4px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
 }
 .dark #bases-page .bc-dopt { background: #1f2937; border-color: #374151; color: #9ca3af; }
 #bases-page .bc-dopt.on { background: #7c3aed; border-color: #7c3aed; color: #fff; }
 .dark #bases-page .bc-dopt.on { border-color: #a78bfa; }
+/* 用途下拉的大类标题（日常/对战）：整行占位、不可点（与上传弹窗的分组标题同款字号/字重） */
+#bases-page .bc-drop .bc-dopt-head {
+    grid-column: 1 / -1; font-size: 11px; font-weight: 800; color: #6b7280;
+    padding: 2px 2px 0;
+}
+.dark #bases-page .bc-drop .bc-dopt-head { color: #9ca3af; }
 /* 大图预览 lightbox */
 #bc-lightbox .bc-lb {
     background: rgba(10, 10, 16, .96); border-radius: 14px; overflow: hidden;

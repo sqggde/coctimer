@@ -101,8 +101,17 @@
           for (var i = 4; i <= max; i++) arr.push(i + '本');
           return arr;
         } },
-        { name: '用途', items: ['护资源', '防三星', '防二星', '排位', '图案', '文字', '升级', '种树', '日常', '传奇杯'], single: true }
+        { name: '用途', single: true, subgroups: [
+          // 大类只是分组标题（不可点）——用途整体仍是单选
+          { name: '日常', items: ['护资源', '升级', '图案', '文字', '日常', '种树', '整活', '娱乐'] },
+          { name: '对战', items: ['排位', '部落战', '联赛', '传奇杯', '防三星', '防二星', '坑一星', '电竞'] }
+        ] }
       ];
+    // 分组内的全部标签（子分组自动展开）——单选范围 / 必选校验 / 筛选下拉共用同一份，避免两套口径
+    function groupItems(g, selected) {
+      if (g.subgroups) return g.subgroups.reduce(function (a, s) { return a.concat(s.items); }, []);
+      return g.items || g.dynamic(selected);
+    }
 
     var state = { tab: 'square', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', upParsedLink: '', squareGen: 0, square: { items: [], offset: 0, hasMore: false, loading: false }, filter: { world: '', th: '', server: '', uses: [] } };
     var PAGE_SIZE = 24; // 广场每页条数（服务端分页，滚动到底自动加载下一页）
@@ -530,7 +539,10 @@
         var ths = ['全部'];
         for (var i = 4; i <= max; i++) ths.push(i + '本');
         var servers = ['全部', '国际服', '国服'];
-        var uses = (TAG_GROUPS.find(function (g) { return g.name === '用途'; }) || {}).items || [];
+        var uses = (TAG_GROUPS.find(function (g) { return g.name === '用途'; }) || {}).subgroups || [];
+        // 用途下拉选项：首个「全部」+ 各大类标题（不可点）+ 该类标签；四列网格由 .bc-drop-grid 提供
+        var useOpts = ['全部'];
+        uses.forEach(function (s) { useOpts.push({ head: s.name }); useOpts = useOpts.concat(s.items); });
         function chip(dim, v) { return v ? dim + '：' + v : dim; }
         $('bc-fbtn-world').innerHTML = chip('世界', state.filter.world || '') + ' <i class="fa fa-chevron-down"></i>';
         $('bc-fbtn-th').innerHTML = chip('大本', state.filter.th || '') + ' <i class="fa fa-chevron-down"></i>';
@@ -539,6 +551,8 @@
         function renderDrop(elId, opts, isSel, pick, keepOpen) {
             var el = $(elId); if (!el) return;
             el.innerHTML = opts.map(function (o) {
+                // { head: '大类' } = 分组标题，只占位不可点（不做成按钮，避免被当成标签选中）
+                if (o && typeof o === 'object') return '<span class="bc-dopt-head">' + esc(o.head) + '</span>';
                 return '<button type="button" class="bc-dopt' + (isSel(o) ? ' on' : '') + '" data-fv="' + esc(o) + '">' + esc(o) + '</button>';
             }).join('');
             el.querySelectorAll('[data-fv]').forEach(function (b) {
@@ -561,7 +575,7 @@
             state.filter.server = v === '全部' ? '' : v;
             renderFilters(); applyFilter();
         });
-        renderDrop('bc-drop-use', ['全部'].concat(uses), function (o) { return o === (state.filter.uses[0] || '全部'); }, function (v) {
+        renderDrop('bc-drop-use', useOpts, function (o) { return o === (state.filter.uses[0] || '全部'); }, function (v) {
             state.filter.uses = v === '全部' ? [] : [v];
             renderFilters(); applyFilter();
         }); // 用途单选（对齐上传弹窗），选完即关
@@ -658,18 +672,22 @@
 
     /* ── 上传 ── */
     function renderUpTags() {
+        var LABEL = 'width:100%;font-size:11px;font-weight:800;color:#6b7280;margin-top:4px;';
+        function label(name) { return '<span style="' + LABEL + '">' + esc(name) + '</span>'; }
+        function btn(t) {
+            return '<button type="button" class="bc-tagopt' + (state.upTags.indexOf(t) >= 0 ? ' active' : '') + '" data-ut="' + esc(t) + '">' + esc(t) + '</button>';
+        }
         $('bc-up-tags').innerHTML = TAG_GROUPS.map(function (g) {
-            return '<span style="width:100%;font-size:11px;font-weight:800;color:#6b7280;margin-top:4px;">' + g.name + '</span>' +
-                (g.items || g.dynamic(state.upTags)).map(function (t) {
-                    return '<button type="button" class="bc-tagopt' + (state.upTags.indexOf(t) >= 0 ? ' active' : '') + '" data-ut="' + esc(t) + '">' + esc(t) + '</button>';
-                }).join('');
+            // 用途分两个大类：大类标题与组标题同款（都不可点），标签跟在各自大类后面
+            if (g.subgroups) return label(g.name) + g.subgroups.map(function (s) { return label(s.name) + s.items.map(btn).join(''); }).join('');
+            return label(g.name) + groupItems(g, state.upTags).map(btn).join('');
         }).join('');
         $('bc-up-tags').querySelectorAll('[data-ut]').forEach(function (el) {
             el.onclick = function () {
                 var t = el.getAttribute('data-ut');
-                var g = TAG_GROUPS.find(function (x) { return (x.items || []).indexOf(t) >= 0 || (x.dynamic && /^\d+本$/.test(t)); });
+                var g = TAG_GROUPS.find(function (x) { return groupItems(x, state.upTags).indexOf(t) >= 0; });
                 if (g && g.single) {
-                  var range = g.items || g.dynamic(state.upTags);
+                  var range = groupItems(g, state.upTags);
                   state.upTags = state.upTags.filter(function (x) { return range.indexOf(x) < 0 || x === t; });
                 }
                 state.upTags = state.upTags.indexOf(t) >= 0 ? state.upTags.filter(function (x) { return x !== t; }) : state.upTags.concat([t]);
@@ -700,7 +718,7 @@
     function missingTagGroup() {
         for (var i = 0; i < TAG_GROUPS.length; i++) {
             var g = TAG_GROUPS[i];
-            var items = g.items || g.dynamic(state.upTags);
+            var items = groupItems(g, state.upTags);
             var ok = items.some(function (t) { return state.upTags.indexOf(t) >= 0; });
             if (!ok) return g.name;
         }
