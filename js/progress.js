@@ -501,6 +501,42 @@
     }
 
     // 单实例检查
+    // ========== 图标点击 → 图鉴详情页（条目 item.data 与图鉴数据同源；点图标不触发整卡的完成删除/长按备忘） ==========
+    // 精工形态（103000011+）：从精制台 1000097 的 types[].modules[] 取该形态模块等级数组（对齐 overview-detail.js craftModuleLevels）
+    function craftModulesFor(craftId, tag) {
+        if (!tag || !accounts[tag]) return null;
+        const b = accounts[tag].buildings || [];
+        for (let i = 0; i < b.length; i++) {
+            if (b[i] && b[i].data === 1000097 && b[i].types) {
+                for (let t = 0; t < b[i].types.length; t++) {
+                    const type = b[i].types[t];
+                    if (type && String(type.data) === String(craftId)) {
+                        return (type.modules || []).map(m => m.lvl || 0);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    function onIconTap(e) {
+        const card = e.target.closest('.upgrade-card');
+        if (!card || !CocTool.features.pokedex) return;
+        e.stopPropagation(); // 已完成条目整卡点击是删除确认：点图标不算
+        const id = card.getAttribute('data-item-id');
+        if (!id) return;
+        const lvl = Number(card.getAttribute('data-item-lvl')) || 1;
+        const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, state.currentAccount) : null;
+        CocTool.features.pokedex.open(id, lvl, state.currentAccount, modules);
+    }
+    // 渲染路径与缓存恢复路径共用（幂等标记用 JS property，同 bindCardDelete 的 data-* 教训）
+    function bindIconPokedex(card) {
+        const img = card.querySelector('img[data-cachekey]');
+        if (!img || img.__pdxBound) return;
+        img.__pdxBound = true;
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', onIconTap);
+    }
+
     function displayUpgradingItems(items, data) {
         // 刷新容器引用（hydrateCache 可能已替换 DOM 节点；Swiper 每账号 slide 独立容器）
         const els = getSlideEls();
@@ -588,6 +624,7 @@
                 card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + h3Inner + phaseIcon + '</h3>' + subLine + '</div></div><div class="text-right flex-shrink-0"><div class="text-sm ' + textColor + ' card-time-container" style="font-size:14px;font-weight:500;"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="text-xs text-gray-500">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
+                bindIconPokedex(card);
                 bindNoteLongPress(card);
                 if (categoryContainers[g]) categoryContainers[g].appendChild(card);
             });
@@ -647,6 +684,8 @@
             else card.classList.remove('cursor-pointer');
             // 补绑长按备忘监听（缓存恢复路径由此生效）
             bindNoteLongPress(card);
+            // 补绑图标跳图鉴（缓存恢复路径由此生效）
+            bindIconPokedex(card);
         });
     }
 
