@@ -519,24 +519,42 @@
         return null;
     }
     // ===== 统一「直达图鉴」链路（单一入口：首页升级图标与时间搜索结果图标共用，禁止两套行为）=====
-    // 去程直达（自动依次停靠）：① 底部导航同一套 showPage 切到账号进度（导航选中态同步；showPage 会先关弹层故必须最先调）
-    // ② openDetail 垫上当前账号详情页 ③ pokedex.open 盖最上。
-    // 返程逐层停靠：图鉴 → 账号详情页 → 账号进度（导航仍选中账号进度），再到首页点底部导航「首页」。
+    // 去程**真直达**（用户口径）：不切页面、不垫详情，只把底部导航高亮切到账号进度（图鉴归属该板块），
+    //   直接开图鉴——用户全程看不到中间页；图鉴数据异步加载期间也停在原页面（不再出现"停靠一下"的观感）。
+    // 返程逐层停靠：图鉴按返回键/返回按钮关闭时（pokedex-closed 的 fromBack），
+    //   此处再补出停靠站 —— 先把页面切到账号进度 + 打开账号详情页（露出站①详情页），
+    //   详情页再返回即落站②账号进度列表，最后点底部导航回首页。
+    let pendingPokedexStations = false;
+    function highlightNavOnly(page) {
+        document.querySelectorAll('.nav-btn').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.page === page);
+        });
+    }
     function openPokedexViaOverview(id, lvl) {
         if (!id || !CocTool.features.pokedex) return;
         const tag = state.currentAccount;
-        if (CocTool.navigation && CocTool.navigation.showPage) {
-            try { CocTool.navigation.showPage('overview'); } catch (err) { /* 导航异常时仍直接开图鉴 */ }
-        }
-        if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail && tag) {
-            try {
-                if (CocTool.overviewList && CocTool.overviewList.el && !CocTool.overviewList.el.detailPage) CocTool.overviewDetail.initDetail();
-                CocTool.overviewDetail.openDetail(tag);
-            } catch (err) { /* 详情层数据未就绪时仅开图鉴（渐进降级） */ }
-        }
+        pendingPokedexStations = true;
+        highlightNavOnly('overview'); // 只改高亮，不切页面（去程直达）
         const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, tag) : null;
         CocTool.features.pokedex.open(id, lvl, tag, modules);
     }
+    // 返程补站：仅当由返回键关闭（fromBack）且仍停在原页面时补；切页关闭不补（避免与导航操作打架）
+    window.addEventListener('pokedex-closed', function (e) {
+        if (!pendingPokedexStations) return;
+        pendingPokedexStations = false;
+        if (!(e && e.detail && e.detail.fromBack)) return;
+        const tag = state.currentAccount;
+        if (!tag) return;
+        if (CocTool.navigation && CocTool.navigation.showPage) {
+            try { CocTool.navigation.showPage('overview'); } catch (err) { return; } // 站②：账号进度列表（详情页之下）
+        }
+        if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail) {
+            try {
+                if (CocTool.overviewList && CocTool.overviewList.el && !CocTool.overviewList.el.detailPage) CocTool.overviewDetail.initDetail();
+                CocTool.overviewDetail.openDetail(tag); // 站①：账号详情页（返回时第一眼看到它）
+            } catch (err) {}
+        }
+    });
 
     function onIconTap(e) {
         const card = e.target.closest('.upgrade-card');

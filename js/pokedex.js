@@ -891,23 +891,25 @@
         open(id, accountLevel, currentTag);
     }
 
-    function close() {
+    // fromBack=true 表示用户点返回键/返回按钮（返程）；宿主据此决定是否补停靠站
+    function close(fromBack) {
         const page = els.page();
         page.style.display = 'none';
         page.classList.add('hidden');
         currentEntity = null;
         currentAbility = null;
+        try { window.dispatchEvent(new CustomEvent('pokedex-closed', { detail: { fromBack: !!fromBack } })); } catch (e) {}
     }
 
     function goBack() {
-        close();
+        close(true);
         return true;
     }
 
     // ---------- 事件绑定 ----------
     function init() {
         const back = els.backBtn();
-        if (back) back.addEventListener('click', close);
+        if (back) back.addEventListener('click', function () { close(true); });
         const refreshBtn = els.refreshBtn();
         if (refreshBtn) refreshBtn.addEventListener('click', refresh);
         const slider = els.slider();
