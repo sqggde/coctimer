@@ -369,10 +369,17 @@
         closeConfirm();
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
+        // 可选勾选行（opts.checkbox = { text, checked }）：onConfirm 会收到勾选态（老调用方不读该参数，零影响）
+        const checkboxHtml = (opts.checkbox && opts.checkbox.text)
+            ? '<label class="flex items-center justify-center gap-2 mb-3 text-sm text-gray-600 cursor-pointer select-none">' +
+                '<input type="checkbox" class="__confirm-cb"' + (opts.checkbox.checked ? ' checked' : '') + '>' +
+                '<span>' + opts.checkbox.text + '</span></label>'
+            : '';
         overlay.innerHTML =
             '<div class="modal-card w-xs">' +
                 '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + (opts.title || '确认') + '</h3>' +
                 '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">' + (opts.text || '') + '</p>' +
+                checkboxHtml +
                 '<div class="flex flex-col space-y-2">' +
                     '<button class="__confirm-ok w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">' + (opts.confirmText || '确定') + '</button>' +
                     '<button class="__confirm-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">' + (opts.cancelText || '取消') + '</button>' +
@@ -381,8 +388,10 @@
         confirmModalEl = overlay;
         document.body.appendChild(overlay);
         overlay.querySelector('.__confirm-ok').addEventListener('click', () => {
+            const cb = overlay.querySelector('.__confirm-cb');
+            const checked = cb ? cb.checked : undefined; // 先取勾选态再关弹窗（closeConfirm 会移除节点）
             closeConfirm();
-            if (typeof opts.onConfirm === 'function') opts.onConfirm();
+            if (typeof opts.onConfirm === 'function') opts.onConfirm(checked);
         });
         overlay.querySelector('.__confirm-cancel').addEventListener('click', () => {
             closeConfirm();

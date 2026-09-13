@@ -1290,6 +1290,15 @@
         // WebDAV 独立键：自动恢复开关（默认关，不进备份快照）与上传/恢复一致性标记（与云端标记分开互不干扰）
         const WEBDAV_SYNC_KEY = 'coc_webdav_last_sync';
         const AUTO_RESTORE_WEBDAV_KEY = 'coc_webdav_auto_restore_enabled';
+        // 「不再提醒，直接更新」勾选的本地记录（独立键不进快照，换设备/重装需重新勾选）；勾选时点「恢复」才记，取消不记
+        const SILENT_RESTORE_CLOUD_KEY = 'coc_cloud_auto_restore_silent';
+        const SILENT_RESTORE_WEBDAV_KEY = 'coc_webdav_auto_restore_silent';
+        function silentRestoreOn(key) {
+            try { return localStorage.getItem(key) === '1'; } catch (e) { return false; }
+        }
+        function rememberSilentRestore(key) {
+            try { localStorage.setItem(key, '1'); } catch (e) {}
+        }
         function userWantsAutoBackup() {
             try { return localStorage.getItem(AUTO_BACKUP_PREF_KEY) === '1'; } catch (e) { return false; }
         }
@@ -1450,13 +1459,22 @@
                 var t = new Date(cloudAt);
                 var pad = function (n) { return String(n).padStart(2, '0'); };
                 var timeStr = (t.getMonth() + 1) + '-' + pad(t.getDate()) + ' ' + pad(t.getHours()) + ':' + pad(t.getMinutes());
+                // 勾过「不再提醒，直接更新」：跳过询问直接恢复（互斥规则不变——WebDAV 优先在前已 return）
+                if (silentRestoreOn(SILENT_RESTORE_WEBDAV_KEY)) {
+                    performWebdavRestore(backupData).catch(() => {});
+                    return;
+                }
                 CocTool.ui.showConfirm({
                     title: 'WebDAV 自动恢复',
                     text: '检测到 WebDAV 备份较新（' + timeStr + '），是否恢复到本地？',
+                    checkbox: { text: '不再提醒，直接更新', checked: false },
                     confirmText: '恢复',
                     cancelText: '取消',
                     noOutsideClose: true, // 特例：自动恢复弹窗必须点按钮关闭，不允许点外部区域关闭
-                    onConfirm: () => { performWebdavRestore(backupData).catch(() => {}); },
+                    onConfirm: (dontAsk) => {
+                        if (dontAsk) rememberSilentRestore(SILENT_RESTORE_WEBDAV_KEY);
+                        performWebdavRestore(backupData).catch(() => {});
+                    },
                     onCancel: () => {}
                 });
             } catch (err) {
@@ -1607,13 +1625,22 @@
                 var timeStr = new Date(cloudAt);
                 var pad = function (n) { return String(n).padStart(2, '0'); };
                 timeStr = (timeStr.getMonth() + 1) + '-' + pad(timeStr.getDate()) + ' ' + pad(timeStr.getHours()) + ':' + pad(timeStr.getMinutes());
+                // 勾过「不再提醒，直接更新」：跳过询问直接恢复
+                if (silentRestoreOn(SILENT_RESTORE_CLOUD_KEY)) {
+                    performCloudRestore(backup).catch(() => {});
+                    return;
+                }
                 CocTool.ui.showConfirm({
                     title: '自动恢复',
                     text: '检测到云端备份较新（' + timeStr + '），是否恢复到本地？',
+                    checkbox: { text: '不再提醒，直接更新', checked: false },
                     confirmText: '恢复',
                     cancelText: '取消',
                     noOutsideClose: true, // 特例：自动恢复弹窗必须点按钮关闭，不允许点外部区域关闭
-                    onConfirm: () => { performCloudRestore(backup).catch(() => {}); },
+                    onConfirm: (dontAsk) => {
+                        if (dontAsk) rememberSilentRestore(SILENT_RESTORE_CLOUD_KEY);
+                        performCloudRestore(backup).catch(() => {});
+                    },
                     onCancel: () => {}
                 });
             } catch (err) {
