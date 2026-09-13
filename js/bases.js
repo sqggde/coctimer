@@ -1160,7 +1160,10 @@
         // 登录/退出后调用：我的上传重新拉取（登录时服务端自动认领本机旧阵型；退出后回到仅本机匿名视角）
         refreshMine: function () {
             if ($('bases-page').style.display === 'flex' && state.tab === 'mine') loadMine();
-        }
+        },
+        // 供设置页「反馈&建议」复用（settings.js 在本模块前加载，点击时调用无加载顺序问题）
+        compressImage: compressImage,
+        cloudAuth: cloudAuth
     };
 
     // 云备份登录/退出联动（services.js 登录成功、注册成功、退出登录时派发）

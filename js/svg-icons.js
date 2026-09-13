@@ -21,6 +21,7 @@
         'book': 'img/svg/help/book.svg',
         'lightbulb-o': 'img/svg/help/lightbulb-o.svg',
         'qq': 'img/svg/help/qq.svg',
+        'comments': 'img/svg/settings/comments.svg',
         'external-link': 'img/svg/help/external-link.svg',
         'file-text-o': 'img/svg/help/file-text-o.svg',
         'save': 'img/svg/help/save.svg',

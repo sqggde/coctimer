@@ -501,6 +501,119 @@
             showToast('QQ群号 941992024 已复制到剪贴板', 2000);
         });
 
+        // ===== 反馈&建议（三端通用 POST /api/feedback；类型/描述前端强制、图片可选 ≤3 张；5 分钟限流仅成功计时） =====
+        var FB_RATE_KEY = 'bc_last_feedback', FB_WIN = 5 * 60 * 1000, FB_MAX_IMAGES = 3;
+        var fbKind = '', fbImages = [], fbSubmitting = false;
+        var feedbackModal = document.getElementById('feedback-modal');
+        var fbContentEl = document.getElementById('fb-content');
+        var fbImagesEl = document.getElementById('fb-images');
+        var fbFileEl = document.getElementById('fb-file');
+        var fbSubmitBtn = document.getElementById('fb-submit');
+
+        function fbApiBase() { return (window.CocTool && CocTool.apiBase) || 'https://coctool.top'; }
+        function fbSetKind(kind) {
+            fbKind = kind;
+            var idea = document.getElementById('fb-kind-idea'), bug = document.getElementById('fb-kind-bug');
+            idea.style.borderColor = kind === 'idea' ? '#16a34a' : '#e5e7eb';
+            idea.style.background = kind === 'idea' ? 'rgba(22,163,74,0.08)' : 'transparent';
+            idea.style.color = kind === 'idea' ? '#16a34a' : '#64748b';
+            bug.style.borderColor = kind === 'bug' ? '#dc2626' : '#e5e7eb';
+            bug.style.background = kind === 'bug' ? 'rgba(220,38,38,0.08)' : 'transparent';
+            bug.style.color = kind === 'bug' ? '#dc2626' : '#64748b';
+        }
+        function fbRenderImages() {
+            fbImagesEl.innerHTML = '';
+            fbImages.forEach(function (dataUrl, i) {
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;';
+                var img = document.createElement('img');
+                img.src = dataUrl;
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                var del = document.createElement('button');
+                del.textContent = '✕';
+                del.style.cssText = 'position:absolute;top:0;right:0;border:none;background:rgba(0,0,0,0.55);color:#fff;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:20px;padding:0;';
+                del.addEventListener('click', function () { fbImages.splice(i, 1); fbRenderImages(); });
+                wrap.appendChild(img);
+                wrap.appendChild(del);
+                fbImagesEl.appendChild(wrap);
+            });
+            if (fbImages.length < FB_MAX_IMAGES) {
+                var add = document.createElement('button');
+                add.textContent = '＋';
+                add.style.cssText = 'width:64px;height:64px;border-radius:8px;border:1px dashed #cbd5e1;background:transparent;color:#94a3b8;font-size:24px;cursor:pointer;flex-shrink:0;';
+                add.addEventListener('click', function () { fbFileEl.click(); });
+                fbImagesEl.appendChild(add);
+            }
+        }
+        function fbResetSubmit() {
+            fbSubmitting = false;
+            fbSubmitBtn.disabled = false;
+            fbSubmitBtn.textContent = '提交反馈';
+            fbSubmitBtn.style.opacity = '1';
+        }
+        function openFeedback() {
+            fbKind = ''; fbImages = []; fbSubmitting = false;
+            fbContentEl.value = '';
+            document.getElementById('fb-count').textContent = '0/500';
+            fbSetKind('');
+            fbRenderImages();
+            fbResetSubmit();
+            feedbackModal.classList.remove('hidden');
+        }
+        function closeFeedback() { feedbackModal.classList.add('hidden'); }
+        document.getElementById('feedback-btn').addEventListener('click', openFeedback);
+        document.getElementById('feedback-close-btn').addEventListener('click', closeFeedback);
+        document.getElementById('fb-cancel').addEventListener('click', closeFeedback);
+        feedbackModal.addEventListener('click', function (e) { if (e.target === feedbackModal) closeFeedback(); });
+        document.getElementById('fb-kind-idea').addEventListener('click', function () { fbSetKind('idea'); });
+        document.getElementById('fb-kind-bug').addEventListener('click', function () { fbSetKind('bug'); });
+        fbContentEl.addEventListener('input', function () { document.getElementById('fb-count').textContent = fbContentEl.value.length + '/500'; });
+        fbFileEl.addEventListener('change', function () {
+            var files = Array.prototype.slice.call(fbFileEl.files || []);
+            fbFileEl.value = '';
+            var helper = window.CocTool && CocTool.features && CocTool.features.bases && CocTool.features.bases.compressImage;
+            if (!helper) { showToast('图片处理不可用', 2000); return; }
+            files.forEach(function (f) {
+                if (fbImages.length >= FB_MAX_IMAGES) return;
+                helper(f).then(function (dataUrl) {
+                    if (fbImages.length >= FB_MAX_IMAGES) return;
+                    fbImages.push(dataUrl);
+                    fbRenderImages();
+                }).catch(function () { showToast('图片处理失败，请换一张试试', 2000); });
+            });
+        });
+        fbSubmitBtn.addEventListener('click', function () {
+            if (fbSubmitting) return;
+            if (!fbKind) { showToast('请先选择反馈类型（建议或 Bug）', 2000); return; }
+            var content = fbContentEl.value.trim();
+            if (!content) { showToast('请填写描述', 2000); return; }
+            var last = parseInt(localStorage.getItem(FB_RATE_KEY) || '0', 10) || 0;
+            var left = last + FB_WIN - Date.now();
+            if (left > 0) { showToast('反馈太频繁了，请 ' + Math.ceil(left / 60000) + ' 分钟后再试', 2000); return; }
+            var body = { kind: fbKind, content: content, images: fbImages, platform: window.AndroidApp ? 'app' : 'web', version: '' };
+            if (window.AndroidApp && typeof window.AndroidApp.getVersionName === 'function') body.version = window.AndroidApp.getVersionName();
+            var headers = { 'Content-Type': 'application/json' };
+            var auth = (window.CocTool && CocTool.features && CocTool.features.bases && CocTool.features.bases.cloudAuth) ? CocTool.features.bases.cloudAuth() : null;
+            if (auth) headers['X-Auth-Token'] = auth.token;
+            fbSubmitting = true;
+            fbSubmitBtn.disabled = true;
+            fbSubmitBtn.textContent = '提交中…';
+            fbSubmitBtn.style.opacity = '0.6';
+            fetch(fbApiBase() + '/api/feedback', { method: 'POST', headers: headers, body: JSON.stringify(body) })
+                .then(function (r) { return r.json().catch(function () { throw new Error('服务器返回 ' + r.status); }); })
+                .then(function (j) {
+                    if (!j.success) throw new Error(j.error || '提交失败');
+                    localStorage.setItem(FB_RATE_KEY, String(Date.now())); // 限流窗口仅提交成功才计
+                    showToast('反馈已提交，感谢反馈', 2000);
+                    closeFeedback();
+                    fbResetSubmit();
+                })
+                .catch(function (err) {
+                    showToast(err.message || '提交失败，请稍后再试', 2000);
+                    fbResetSubmit();
+                });
+        });
+
         // 后台隐身运行
         const stealthToggle = document.getElementById('stealth-mode-toggle');
         if (stealthToggle) {
