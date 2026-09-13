@@ -624,24 +624,17 @@
                 if (result) result.textContent = futureResultText();
             }
         }, 60000);
-        // 结果行图标点击 → 图鉴详情：隐藏搜索弹窗（避免 z-1000 盖住 z-10 的图鉴），图鉴关闭后恢复
+        // 结果行图标点击 → 与首页升级图标**同一条**「直达图鉴」链路（统一入口 openPokedexViaOverview）：
+        // 去程自动停靠 账号进度（导航选中态同步）→ 账号详情页 → 图鉴；返程逐层：图鉴 → 详情页 → 账号进度。
+        // 搜索弹窗先显式关闭（切页时 closeAllModals 也会关，这里关掉避免残留盖住新页面）。
         document.addEventListener('click', function (e) {
             const box = e.target.closest ? e.target.closest('.ds-icon-jump') : null;
-            if (!box || !CocTool.features.pokedex) return;
+            if (!box) return;
             e.stopPropagation();
             const modal = document.getElementById('duration-search-modal');
             if (modal) modal.classList.add('hidden');
-            window.__dsRestoreOnPokedexClose = true;
-            CocTool.features.pokedex.open(box.getAttribute('data-ds-id'), Number(box.getAttribute('data-ds-lvl')) || 1, CocTool.state.currentAccount, null);
-        });
-        // 图鉴关闭后恢复搜索弹窗（仅当仍停留在首页时；导航切走则不恢复）
-        window.addEventListener('pokedex-closed', function () {
-            if (!window.__dsRestoreOnPokedexClose) return;
-            window.__dsRestoreOnPokedexClose = false;
-            const homeArea = document.getElementById('main-display-area');
-            if (!homeArea || homeArea.classList.contains('hidden')) return;
-            const modal = document.getElementById('duration-search-modal');
-            if (modal) { modal.classList.remove('hidden'); renderResults(modal); }
+            const fn = CocTool.features.progress && CocTool.features.progress.openPokedexViaOverview;
+            if (fn) fn(box.getAttribute('data-ds-id'), Number(box.getAttribute('data-ds-lvl')) || 1);
         });
     }
 

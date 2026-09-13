@@ -518,27 +518,33 @@
         }
         return null;
     }
-    function onIconTap(e) {
-        const card = e.target.closest('.upgrade-card');
-        if (!card || !CocTool.features.pokedex) return;
-        e.stopPropagation(); // 已完成条目整卡点击是删除确认：点图标不算
-        const id = card.getAttribute('data-item-id');
-        if (!id) return;
-        const lvl = Number(card.getAttribute('data-item-lvl')) || 1;
-        const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, state.currentAccount) : null;
-        // B 链路（用户拍板）：完全复刻 账号进度→账号卡→详情→图标 的真实路径——
-        // ① 先用底部导航同一套 showPage 真正切到账号进度（导航选中态同步，showPage 会先关弹层所以必须最先调）；
-        // ② openDetail 垫上当前账号详情页；③ pokedex.open 盖最上。返回即逐层：图鉴→详情→账号进度（导航仍选中账号进度）
+    // ===== 统一「直达图鉴」链路（单一入口：首页升级图标与时间搜索结果图标共用，禁止两套行为）=====
+    // 去程直达（自动依次停靠）：① 底部导航同一套 showPage 切到账号进度（导航选中态同步；showPage 会先关弹层故必须最先调）
+    // ② openDetail 垫上当前账号详情页 ③ pokedex.open 盖最上。
+    // 返程逐层停靠：图鉴 → 账号详情页 → 账号进度（导航仍选中账号进度），再到首页点底部导航「首页」。
+    function openPokedexViaOverview(id, lvl) {
+        if (!id || !CocTool.features.pokedex) return;
+        const tag = state.currentAccount;
         if (CocTool.navigation && CocTool.navigation.showPage) {
             try { CocTool.navigation.showPage('overview'); } catch (err) { /* 导航异常时仍直接开图鉴 */ }
         }
-        if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail && state.currentAccount) {
+        if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail && tag) {
             try {
                 if (CocTool.overviewList && CocTool.overviewList.el && !CocTool.overviewList.el.detailPage) CocTool.overviewDetail.initDetail();
-                CocTool.overviewDetail.openDetail(state.currentAccount);
+                CocTool.overviewDetail.openDetail(tag);
             } catch (err) { /* 详情层数据未就绪时仅开图鉴（渐进降级） */ }
         }
-        CocTool.features.pokedex.open(id, lvl, state.currentAccount, modules);
+        const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, tag) : null;
+        CocTool.features.pokedex.open(id, lvl, tag, modules);
+    }
+
+    function onIconTap(e) {
+        const card = e.target.closest('.upgrade-card');
+        if (!card) return;
+        e.stopPropagation(); // 已完成条目整卡点击是删除确认：点图标不算
+        const id = card.getAttribute('data-item-id');
+        if (!id) return;
+        openPokedexViaOverview(id, Number(card.getAttribute('data-item-lvl')) || 1);
     }
     // 渲染路径与缓存恢复路径共用（幂等标记用 JS property，同 bindCardDelete 的 data-* 教训）
     function bindIconPokedex(card) {
@@ -1210,6 +1216,7 @@
         hydrateCache,
         render,
         renderItems: displayUpgradingItems,
+        openPokedexViaOverview, // 统一「直达图鉴」链路（首页图标/时间搜索结果共用）
         refresh: refreshCurrentAccountDisplay,
         tick: updateTimersOnly,
         calculateCompletionTimestamp: calc.calculateCompletionTimestamp,
