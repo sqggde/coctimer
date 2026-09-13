@@ -708,55 +708,6 @@
                     <div id="ov-detail-night" style="display:none;"></div>
                 </div>
             </div>
-            <!-- 图鉴详情页（账号详情页网格图标进入） -->
-            <div id="pokedex-detail-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
-                <div class="pokedex-body">
-                    <div class="top-bar" style="justify-content:space-between;">
-                        <button id="pokedex-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-                        <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">
-                            <span id="pokedex-title"></span>
-                        </div>
-                        <div style="display:flex;align-items:center;">
-                            <button id="pokedex-refresh" class="detail-back" title="刷新数据"><i class="fa fa-refresh"></i></button>
-                        </div>
-                    </div>
-                    <div class="sec">
-                        <div class="sec-title">基本属性</div>
-                        <div class="grid" id="pokedex-basic"></div>
-                    </div>
-                    <div class="sec" id="pokedex-apt-sec" style="display:none;">
-                        <div class="sec-title">解锁数量</div>
-                        <div class="tbl-wrap">
-                            <table>
-                                <thead id="pokedex-apt-thead"></thead>
-                                <tbody id="pokedex-apt-tbody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div id="pokedex-ability-switch"></div>
-                    <div class="sec">
-                        <div class="sec-title" id="pokedex-lv-title">等级属性（当前：1级）</div>
-                        <div class="slider-row">
-                            <span style="color:var(--text-sub);font-size:13px;">等级</span>
-                            <button class="lv-step" id="pokedex-lv-minus" title="等级-1">−</button>
-                            <input type="range" id="pokedex-slider" min="1" max="1" value="1">
-                            <button class="lv-step" id="pokedex-lv-plus" title="等级+1">+</button>
-                            <span class="lv" id="pokedex-lv-label">1</span>
-                        </div>
-                        <div class="grid" id="pokedex-level"></div>
-                    </div>
-                    <div class="sec">
-                        <div class="sec-title">等级属性表格</div>
-                        <div class="tbl-wrap">
-                            <table>
-                                <thead id="pokedex-thead"></thead>
-                                <tbody id="pokedex-tbody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div style="text-align:center;color:var(--text-sub);font-size:12px;padding:8px 0 16px;">数据来源：官方wiki&热心玩家</div>
-                </div>
-            </div>
         </div>
 
         <!-- 进度明细弹窗（点击进度条打开） -->
@@ -1594,6 +1545,57 @@
     </div>
 
     <!-- ===== 更新日志弹窗（内容由 settings.js 数据驱动渲染） ===== -->
+    <!-- 图鉴详情页（账号详情页网格图标进入） -->
+<div id="pokedex-detail-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
+    <div class="pokedex-body">
+        <div class="top-bar" style="justify-content:space-between;">
+            <button id="pokedex-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
+            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">
+                <span id="pokedex-title"></span>
+                </div>
+            <div style="display:flex;align-items:center;">
+                <button id="pokedex-refresh" class="detail-back" title="刷新数据"><i class="fa fa-refresh"></i></button>
+                </div>
+            </div>
+        <div class="sec">
+            <div class="sec-title">基本属性</div>
+            <div class="grid" id="pokedex-basic"></div>
+            </div>
+        <div class="sec" id="pokedex-apt-sec" style="display:none;">
+            <div class="sec-title">解锁数量</div>
+            <div class="tbl-wrap">
+                <table>
+                <thead id="pokedex-apt-thead"></thead>
+                <tbody id="pokedex-apt-tbody"></tbody>
+                </table>
+                </div>
+            </div>
+        <div id="pokedex-ability-switch"></div>
+        <div class="sec">
+            <div class="sec-title" id="pokedex-lv-title">等级属性（当前：1级）</div>
+            <div class="slider-row">
+                <span style="color:var(--text-sub);font-size:13px;">等级</span>
+                <button class="lv-step" id="pokedex-lv-minus" title="等级-1">−</button>
+                <input type="range" id="pokedex-slider" min="1" max="1" value="1">
+                <button class="lv-step" id="pokedex-lv-plus" title="等级+1">+</button>
+                <span class="lv" id="pokedex-lv-label">1</span>
+                </div>
+            <div class="grid" id="pokedex-level"></div>
+            </div>
+        <div class="sec">
+            <div class="sec-title">等级属性表格</div>
+            <div class="tbl-wrap">
+                <table>
+                <thead id="pokedex-thead"></thead>
+                <tbody id="pokedex-tbody"></tbody>
+                </table>
+                </div>
+            </div>
+        <div style="text-align:center;color:var(--text-sub);font-size:12px;padding:8px 0 16px;">数据来源：官方wiki&热心玩家</div>
+        </div>
+    </div>
+
+
     <div id="changelog-modal" class="modal-overlay hidden">
         <div class="modal-card w-sm" style="padding:1.25rem">
             <div class="flex items-center justify-between mb-3">
