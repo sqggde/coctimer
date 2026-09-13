@@ -526,8 +526,12 @@
         if (!id) return;
         const lvl = Number(card.getAttribute('data-item-lvl')) || 1;
         const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, state.currentAccount) : null;
-        // B 链路：先垫上当前账号的详情页，图鉴盖其上——图鉴返回露出详情页，再返回才是进度页（与 账号进度→详情→图鉴 的返回链一致）
-        // initDetail 原本只在账号进度 tab 首开时执行；首页直达必须先补初始化（幂等），否则 openDetail 渲染时拿不到元素
+        // B 链路（用户拍板）：完全复刻 账号进度→账号卡→详情→图标 的真实路径——
+        // ① 先用底部导航同一套 showPage 真正切到账号进度（导航选中态同步，showPage 会先关弹层所以必须最先调）；
+        // ② openDetail 垫上当前账号详情页；③ pokedex.open 盖最上。返回即逐层：图鉴→详情→账号进度（导航仍选中账号进度）
+        if (CocTool.navigation && CocTool.navigation.showPage) {
+            try { CocTool.navigation.showPage('overview'); } catch (err) { /* 导航异常时仍直接开图鉴 */ }
+        }
         if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail && state.currentAccount) {
             try {
                 if (CocTool.overviewList && CocTool.overviewList.el && !CocTool.overviewList.el.detailPage) CocTool.overviewDetail.initDetail();
