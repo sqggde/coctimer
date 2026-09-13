@@ -762,6 +762,7 @@
     // 打开失败的统一出口（索引/实体加载失败）：弹层不开、给提示——否则表现就是「点了没反应」
     function failOpen() {
         resetReload();
+        close(); // 收起提前显示的弹层（加载失败不占屏），回到来时页面
         CocTool.ui.showToast('图鉴数据加载失败，请重试', 2500);
     }
 
@@ -807,9 +808,14 @@
         currentTag = tag || state.currentAccount;
         loadDiscountFactor(currentTag);
         const server = currentServer(currentTag);
+        // 先显示弹层（加载态）：数据拉取期间也盖住下面的页面——首页/时间搜索的小路直达因此"零停留"，
+        // 返回时弹层之下本就是原大路（账号进度列表 + 账号详情页），无需任何补站机制。
+        const earlyPage = els.page();
+        if (earlyPage) { earlyPage.style.display = 'flex'; earlyPage.classList.remove('hidden'); }
+        setSpinning(true);
         const finish = entity => {
             resetReload();
-            if (!entity) return;
+            if (!entity) { close(); return; }
             injectTopLevelFields(entity);
             // 数量型实体（夜世界兵营/预备营等 instances 多条）：升级数据按"建筑数量"组织，
             // 构造伪 levels 复用等级表格渲染（数量 1..N → 时间/花费/大本等级/经验）
@@ -891,25 +897,24 @@
         open(id, accountLevel, currentTag);
     }
 
-    // fromBack=true 表示用户点返回键/返回按钮（返程）；宿主据此决定是否补停靠站
-    function close(fromBack) {
+    function close() {
         const page = els.page();
         page.style.display = 'none';
         page.classList.add('hidden');
         currentEntity = null;
         currentAbility = null;
-        try { window.dispatchEvent(new CustomEvent('pokedex-closed', { detail: { fromBack: !!fromBack } })); } catch (e) {}
+        resetReload();
     }
 
     function goBack() {
-        close(true);
+        close();
         return true;
     }
 
     // ---------- 事件绑定 ----------
     function init() {
         const back = els.backBtn();
-        if (back) back.addEventListener('click', function () { close(true); });
+        if (back) back.addEventListener('click', close);
         const refreshBtn = els.refreshBtn();
         if (refreshBtn) refreshBtn.addEventListener('click', refresh);
         const slider = els.slider();
