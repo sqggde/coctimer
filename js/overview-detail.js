@@ -135,6 +135,7 @@
     }
 
     function initDetail() {
+        if (el.detailPage) return; // 幂等：元素只在首次绑定时赋值（首页直达图鉴也会经 openDetail，重复调用防重复绑监听）
         el.detailPage = document.getElementById('overview-detail-page');
         el.detailBack = document.getElementById('ov-detail-back');
         el.detailTitle = document.getElementById('ov-detail-title');
