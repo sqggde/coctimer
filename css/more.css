@@ -97,15 +97,15 @@
 .dark #bc-rank-modal .bc-rank-badge { background: rgba(124, 58, 237, .24); color: #c4b5fd; }
 #bc-rank-modal .bc-rank-title { font-size: 15px; font-weight: 800; color: #111827; letter-spacing: -.01em; }
 .dark #bc-rank-modal .bc-rank-title { color: #f3f4f6; }
-/* 分段控件：轨道内浮起选中块（比"三个描边胶囊"更像一个整体控件） */
+/* 分段控件：轨道内浮起选中块（比"三个描边胶囊"更像一个整体控件）；四榜后改四等列、字号降 1px 防挤 */
 #bc-rank-modal .bc-rank-segs {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 12px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 12px;
     padding: 3px; border-radius: 12px; background: #f3f4f6; border: 1px solid #e5e7eb;
 }
 .dark #bc-rank-modal .bc-rank-segs { background: #23233a; border-color: #374151; }
 #bc-rank-modal .bc-rank-seg {
     border: none; background: transparent; color: #6b7280; border-radius: 9px;
-    padding: 6px 4px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    padding: 6px 2px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
     transition: background-color .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease;
 }
 .dark #bc-rank-modal .bc-rank-seg { color: #9ca3af; }
@@ -364,8 +364,16 @@
     background: rgba(0, 0, 0, .42); color: #fff; display: flex; align-items: center; justify-content: center;
     cursor: pointer; backdrop-filter: blur(4px);
 }
-#bases-page .bc-favbtn { font-size: 15px; }
+#bases-page .bc-favbtn { font-size: 15px; position: relative; }
 #bases-page .bc-favbtn.on { color: #f43f5e; }
+/* 爱心键上的被收藏数角标：骑缝挂在按钮下缘（0 时隐藏，>999 显示 999+） */
+#bases-page .bc-favcnt {
+    position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%);
+    background: rgba(0, 0, 0, .55); color: #fff;
+    font-size: 9px; line-height: 1; font-weight: 700;
+    padding: 2px 4px; border-radius: 999px;
+    max-width: 36px; overflow: hidden; white-space: nowrap;
+}
 /* 我的上传专属：右上角垃圾桶（上传者自助删除）；有它时给顶部标题留出右侧空间，避免长标题压到图标下 */
 #bases-page .bc-delbtn {
     position: absolute; right: 6px; top: 6px; z-index: 3;

@@ -81,6 +81,31 @@
         if (i >= 0) arr.splice(i, 1); else arr.push(id);
         localStorage.setItem('clash_bases_fav', JSON.stringify(arr));
     }
+    // 云端收藏同步（跨端）：登录用户以服务端列表为唯一真值（无条件覆盖本地，含空列表——否则另一端
+    // 取消后本端会残留爱心态）；未登录保持纯本机。覆盖后按最新收藏状态刷新当前界面爱心态。
+    function fetchMyFavs() {
+        var auth = cloudAuth();
+        if (!auth) return; // 无身份：收藏仅本机，无跨端同步
+        var url = apiBase() + '/api/base/myfavs?deviceId=' + encodeURIComponent(deviceId());
+        fetchJson(url, { headers: { 'X-Auth-Token': auth.token } }).then(function (j) {
+            var ids = (j && j.ids) || [];
+            if (JSON.stringify(ids) === JSON.stringify(favList())) return; // 与本地一致：不写不刷
+            try { localStorage.setItem('clash_bases_fav', JSON.stringify(ids)); } catch (e) { return; }
+            if (state.tab === 'fav') loadFav();
+            else refreshCardHearts();
+        }).catch(function () {});
+    }
+    // 按最新本地收藏状态刷新当前网格里的爱心（不重拉列表；角标数值不动；注入的 i.fa 由 MutationObserver 自动水合）
+    function refreshCardHearts() {
+        document.querySelectorAll('#bc-grid .bc-card[data-lid]').forEach(function (card) {
+            var on = isFav(card.getAttribute('data-lid'));
+            var btn = card.querySelector('.bc-favbtn');
+            if (!btn) return;
+            var cnt = btn.querySelector('.bc-favcnt');
+            btn.classList.toggle('on', on);
+            btn.innerHTML = heartSvg(on) + (cnt ? cnt.outerHTML : '');
+        });
+    }
     // 一键打开：App 桥最稳（系统分发 app links 直达游戏）；网页版安卓拼 intent，其余新窗口
     function openLayout(link) {
         if (window.AndroidApp && AndroidApp.openInBrowser) { AndroidApp.openInBrowser(link); return; }
@@ -115,9 +140,9 @@
 
     var state = { tab: 'square', sort: 'recent', inited: false, upTags: [], upServer: '', upImage: null, upImageName: '', upParsedLink: '', squareGen: 0, square: { items: [], offset: 0, hasMore: false, loading: false }, filter: { world: '', th: '', server: '', uses: [] } };
     var PAGE_SIZE = 24; // 广场每页条数（服务端分页，滚动到底自动加载下一页）
-    // 广场排序（服务端 sort 参数）：recent=最近（默认，按审核时间）/ hot=最火（下载数）/ view=最吸睛（查看数）
+    // 广场排序（服务端 sort 参数）：口径用户拍板「最近 按收藏 按使用 按查看」
     // key 必须与服务端 LIST_SORTS 的键一致；未知值服务端回落 recent（老客户端不带该参数行为不变）
-    var SORT_OPTS = [{ k: 'recent', t: '最近' }, { k: 'hot', t: '最火' }, { k: 'view', t: '最吸睛' }];
+    var SORT_OPTS = [{ k: 'recent', t: '最近' }, { k: 'favs', t: '按收藏' }, { k: 'hot', t: '按使用' }, { k: 'view', t: '按查看' }];
     function sortLabel() {
         var hit = SORT_OPTS.find(function (o) { return o.k === state.sort; });
         return (hit || SORT_OPTS[0]).t;
@@ -261,6 +286,25 @@
     function heartSvg(filled) {
         return '<i class="fa ' + (filled ? 'fa-heart-filled' : 'fa-heart') + '"></i>';
     }
+    // 爱心键上的被收藏数角标（0 时不渲染，>999 显示 999+；更新走 applyFavCount）
+    function favCntHtml(favs) {
+        var n = favs || 0;
+        if (n <= 0) return '';
+        return '<span class="bc-favcnt">' + (n > 999 ? '999+' : n) + '</span>';
+    }
+    // 更新指定阵型卡片爱心键上的收藏角标（无则现建；0 隐藏）
+    function applyFavCount(id, val) {
+        var sel = String(id || '').replace(/["\\]/g, '');
+        var card = sel ? document.querySelector('#bc-grid .bc-card[data-lid="' + sel + '"]') : null;
+        if (!card) return;
+        var btn = card.querySelector('.bc-favbtn');
+        if (!btn) return;
+        var el = btn.querySelector('.bc-favcnt');
+        if (val <= 0) { if (el) el.style.display = 'none'; return; }
+        if (!el) { el = document.createElement('span'); el.className = 'bc-favcnt'; btn.appendChild(el); }
+        el.style.display = '';
+        el.textContent = val > 999 ? '999+' : val;
+    }
     function isCn(l) { return (l.tags || []).indexOf('国服') >= 0; }
     // 标签配色：只有区服标签按服着色（国际服紫 / 国服蓝），其余统一灰底黑字
     function tagHtml(t) {
@@ -321,7 +365,7 @@
             (l.image ? '<img src="' + esc(l.image.indexOf('http') === 0 ? l.image : apiBase() + l.image) + '" loading="lazy" alt="">' : '<span class="bc-img-none">🏰</span>') +
             '<div class="bc-img-title">' + esc(l.title) + '</div>' +
             '<div class="bc-img-acts">' +
-            '<button type="button" class="bc-favbtn' + (favOn ? ' on' : '') + '" data-fav data-idx="' + idx + '" aria-label="收藏">' + heartSvg(favOn) + '</button>' +
+            '<button type="button" class="bc-favbtn' + (favOn ? ' on' : '') + '" data-fav data-idx="' + idx + '" aria-label="收藏">' + heartSvg(favOn) + favCntHtml(l.favs) + '</button>' +
             '<button type="button" class="bc-repbtn" data-rep data-idx="' + idx + '" aria-label="反馈">⚑</button>' +
             '</div>' +
             // 我的上传专属：右上角删除（上传者自助下架，二次确认后服务端硬删除）
@@ -496,8 +540,25 @@
                 var l = (list || [])[+b.getAttribute('data-idx')];
                 if (!l) return;
                 toggleFav(l.id);
-                b.classList.toggle('on', isFav(l.id));
-                b.innerHTML = heartSvg(isFav(l.id));
+                var on = isFav(l.id);
+                b.classList.toggle('on', on);
+                b.innerHTML = heartSvg(on) + favCntHtml(l.favs);
+                // 被收藏数：乐观 ±1 → 服务端权威值校准（/base/fav 幂等切换）；失败回滚数字，本地收藏状态保留。
+                // 必须带 X-Auth-Token：服务端按它解析邮箱记录 owner 并认领本机匿名收藏——不带则落匿名，
+                // 其他设备（同邮箱）要等下一次带身份的 myfavs 认领才能看到，表现成「不同步」。
+                var prev = l.favs || 0;
+                var next = Math.max(0, prev + (on ? 1 : -1));
+                l.favs = next;
+                applyFavCount(l.id, next);
+                var favHeaders = { 'Content-Type': 'application/json' };
+                var favAuth = cloudAuth();
+                if (favAuth) favHeaders['X-Auth-Token'] = favAuth.token;
+                fetch(apiBase() + '/api/base/fav', {
+                    method: 'POST', headers: favHeaders,
+                    body: JSON.stringify({ id: l.id, deviceId: deviceId(), on: on })
+                }).then(function (r) { return r.json(); }).then(function (j) {
+                    if (j && j.success && typeof j.favs === 'number') { l.favs = j.favs; applyFavCount(l.id, j.favs); }
+                }).catch(function () { l.favs = prev; applyFavCount(l.id, prev); });
             };
         });
         root.querySelectorAll('[data-rep]').forEach(function (b) {
@@ -686,12 +747,13 @@
         });
     }
 
-    /* ── 榜单（贡献榜 / 下载榜 / 吸睛榜）── */
+    /* ── 榜单（贡献榜 / 收藏榜 / 使用榜(下载) / 吸睛榜）── */
     // 隐私口径：打码名由服务端生成（真实邮箱不出服务器），「我」由服务端比对后只回一个布尔；
     // 前端只负责渲染，不做任何基于掩码的自我识别（掩码区分度低，客户端比对会误亮别人那一行）。
     var RANK_BOARDS = [
         { key: 'upload', title: '贡献榜', unit: '个' },
-        { key: 'download', title: '下载榜', unit: '次' },
+        { key: 'favs', title: '收藏榜', unit: '次' },
+        { key: 'download', title: '使用榜', unit: '次' },
         { key: 'view', title: '吸睛榜', unit: '次' }
     ];
     var rankState = { board: 'upload', loading: false, data: null };
@@ -1090,6 +1152,7 @@
             $('bases-page').style.display = 'flex';
             renderFilters();
             setTab(state.tab);
+            fetchMyFavs(); // 云端收藏同步（跨端）
         },
         close: function () {
             $('bases-page').style.display = 'none';
@@ -1103,6 +1166,7 @@
     // 云备份登录/退出联动（services.js 登录成功、注册成功、退出登录时派发）
     window.addEventListener('cloud-auth-changed', function () {
         CocTool.features.bases.refreshMine();
+        fetchMyFavs(); // 登录身份变化后重新拉取云端收藏
     });
 
     // 更多页入口在脚本加载时即绑定（defer，DOM 已就绪）——若挂在 bases.init 懒加载里，
