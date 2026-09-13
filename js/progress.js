@@ -526,6 +526,10 @@
         if (!id) return;
         const lvl = Number(card.getAttribute('data-item-lvl')) || 1;
         const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, state.currentAccount) : null;
+        // B 链路：先垫上当前账号的详情页，图鉴盖其上——图鉴返回露出详情页，再返回才是进度页（与 账号进度→详情→图鉴 的返回链一致）
+        if (CocTool.overviewDetail && CocTool.overviewDetail.openDetail && state.currentAccount) {
+            try { CocTool.overviewDetail.openDetail(state.currentAccount); } catch (err) { /* 详情层数据未就绪时仅开图鉴（渐进降级） */ }
+        }
         CocTool.features.pokedex.open(id, lvl, state.currentAccount, modules);
     }
     // 渲染路径与缓存恢复路径共用（幂等标记用 JS property，同 bindCardDelete 的 data-* 教训）

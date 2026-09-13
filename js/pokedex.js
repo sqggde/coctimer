@@ -759,6 +759,11 @@
         forceReload = false;
         setSpinning(false);
     }
+    // 打开失败的统一出口（索引/实体加载失败）：弹层不开、给提示——否则表现就是「点了没反应」
+    function failOpen() {
+        resetReload();
+        CocTool.ui.showToast('图鉴数据加载失败，请重试', 2500);
+    }
 
     // index 无该 id 时的直连回退：按 ID 前缀推断已知类别路径（新增实体但 index 未更新的过渡期兜底）
     function tryKnownCategory(server, id, finish, onFail) {
@@ -837,7 +842,7 @@
             page.classList.remove('hidden');
         };
         loadIndex(server, idx => {
-            if (!idx) { resetReload(); return; }   // 本服数据加载失败：不静默跨服（避免国服账号显示国际服数据）
+            if (!idx) { failOpen(); return; }   // 本服数据加载失败：不静默跨服（避免国服账号显示国际服数据）
             if (idx[String(id)]) {
                 getEntityData(server, id, finish);
                 return;
@@ -849,7 +854,7 @@
                 delete indexCache[server];
                 loadIndex(server, idx2 => {
                     forceReload = false;
-                    if (!idx2) { resetReload(); return; }
+                    if (!idx2) { failOpen(); return; }
                     if (idx2[String(id)]) {
                         getEntityData(server, id, finish);
                         return;
@@ -858,7 +863,7 @@
                         // 直连也失败：账号 _server 判定错误 / 装备 ID 属于另一服 → 尝试另一服
                         const alt = server === 'cn' ? 'intl' : 'cn';
                         loadIndex(alt, altIdx => {
-                            if (!altIdx || !altIdx[String(id)]) { resetReload(); return; }
+                            if (!altIdx || !altIdx[String(id)]) { failOpen(); return; }
                             getEntityData(alt, id, finish);
                         });
                     });
@@ -869,7 +874,7 @@
             tryKnownCategory(server, id, finish, () => {
                 const alt = server === 'cn' ? 'intl' : 'cn';
                 loadIndex(alt, altIdx => {
-                    if (!altIdx || !altIdx[String(id)]) { resetReload(); return; }
+                    if (!altIdx || !altIdx[String(id)]) { failOpen(); return; }
                     getEntityData(alt, id, finish);
                 });
             });
