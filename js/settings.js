@@ -569,19 +569,21 @@
         document.getElementById('fb-kind-idea').addEventListener('click', function () { fbSetKind('idea'); });
         document.getElementById('fb-kind-bug').addEventListener('click', function () { fbSetKind('bug'); });
         fbContentEl.addEventListener('input', function () { document.getElementById('fb-count').textContent = fbContentEl.value.length + '/500'; });
+        // 选图统一走「单选」通道（对齐阵型上传的稳定实现）：<input> 不带 multiple、内联 display:none，
+        // multiple + accept 在部分 Android WebView / 国产 ROM 上会打不开选择器（用户反馈"有的手机传不了图"）。
+        // 需要多张就多次点＋添加，最多 3 张。
         fbFileEl.addEventListener('change', function () {
-            var files = Array.prototype.slice.call(fbFileEl.files || []);
-            fbFileEl.value = '';
+            var f = fbFileEl.files && fbFileEl.files[0];
+            fbFileEl.value = ''; // 复位：同一张图可再次选择
+            if (!f) return;
+            if (fbImages.length >= FB_MAX_IMAGES) { showToast('最多 3 张图片', 2000); return; }
             var helper = window.CocTool && CocTool.features && CocTool.features.bases && CocTool.features.bases.compressImage;
             if (!helper) { showToast('图片处理不可用', 2000); return; }
-            files.forEach(function (f) {
+            helper(f).then(function (dataUrl) {
                 if (fbImages.length >= FB_MAX_IMAGES) return;
-                helper(f).then(function (dataUrl) {
-                    if (fbImages.length >= FB_MAX_IMAGES) return;
-                    fbImages.push(dataUrl);
-                    fbRenderImages();
-                }).catch(function () { showToast('图片处理失败，请换一张试试', 2000); });
-            });
+                fbImages.push(dataUrl);
+                fbRenderImages();
+            }).catch(function () { showToast('图片处理失败，请换一张试试', 2000); });
         });
         fbSubmitBtn.addEventListener('click', function () {
             if (fbSubmitting) return;
