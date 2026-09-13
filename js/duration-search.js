@@ -557,7 +557,7 @@
             ? '<span class="text-xs text-gray-500 flex-shrink-0" style="background:#e5e7eb;border-radius:999px;padding:0 6px;">×' + item.count + '</span>'
             : '';
         return '<div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50 mb-0.5">' +
-            '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0">' + iconHtml + '</div>' +
+            '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0 ds-icon-jump" data-ds-id="' + item.id + '" data-ds-lvl="' + item.lvl + '" style="cursor:pointer;" title="查看图鉴">' + iconHtml + '</div>' +
             '<span class="text-sm text-gray-800 flex-1 truncate">' + name + '</span>' +
             countHtml +
             '<span class="text-xs text-gray-500 flex-shrink-0">等级 ' + item.lvl + '→' + item.nextLvl + '</span>' +
@@ -624,6 +624,25 @@
                 if (result) result.textContent = futureResultText();
             }
         }, 60000);
+        // 结果行图标点击 → 图鉴详情：隐藏搜索弹窗（避免 z-1000 盖住 z-10 的图鉴），图鉴关闭后恢复
+        document.addEventListener('click', function (e) {
+            const box = e.target.closest ? e.target.closest('.ds-icon-jump') : null;
+            if (!box || !CocTool.features.pokedex) return;
+            e.stopPropagation();
+            const modal = document.getElementById('duration-search-modal');
+            if (modal) modal.classList.add('hidden');
+            window.__dsRestoreOnPokedexClose = true;
+            CocTool.features.pokedex.open(box.getAttribute('data-ds-id'), Number(box.getAttribute('data-ds-lvl')) || 1, CocTool.state.currentAccount, null);
+        });
+        // 图鉴关闭后恢复搜索弹窗（仅当仍停留在首页时；导航切走则不恢复）
+        window.addEventListener('pokedex-closed', function () {
+            if (!window.__dsRestoreOnPokedexClose) return;
+            window.__dsRestoreOnPokedexClose = false;
+            const homeArea = document.getElementById('main-display-area');
+            if (!homeArea || homeArea.classList.contains('hidden')) return;
+            const modal = document.getElementById('duration-search-modal');
+            if (modal) { modal.classList.remove('hidden'); renderResults(modal); }
+        });
     }
 
     CocTool.durationSearch = {

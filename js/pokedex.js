@@ -897,6 +897,8 @@
         page.classList.add('hidden');
         currentEntity = null;
         currentAbility = null;
+        // 广播关闭事件：时长搜索等宿主弹窗据此恢复自己（图鉴曾盖在其上时）
+        try { window.dispatchEvent(new CustomEvent('pokedex-closed')); } catch (e) {}
     }
 
     function goBack() {
