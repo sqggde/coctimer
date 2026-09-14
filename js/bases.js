@@ -267,8 +267,9 @@
         var auth = cloudAuth();
         var opts = {};
         if (auth) opts.headers = { 'X-Auth-Token': auth.token };
-        // 已登录：服务端按 token 认领本机 deviceId 的旧阵型并返回账号名下全部；未登录：仅本机 deviceId 未归属的
-        var url = apiBase() + '/api/base/mine' + (auth ? '' : '?deviceId=' + encodeURIComponent(deviceId()));
+        // deviceId 恒必带：服务端的认领只在「身份 + 本机 deviceId」同时到齐时执行，已登录漏带会静默不认领
+        // （表现为登录后匿名上传的阵型从「我的」消失）。已登录：认领本机旧阵型后返回账号名下全部；未登录：仅本机未归属的
+        var url = apiBase() + '/api/base/mine?deviceId=' + encodeURIComponent(deviceId());
         fetchJson(url, opts).then(function (j) {
             renderMine(j.layouts || [], auth);
         }).catch(function (e) {
