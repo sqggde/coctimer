@@ -946,6 +946,20 @@
         renderSimList();
     }
 
+    // 推演中把总览卡钉在顶栏（含时间搜索那行按键）正下方 —— 见 app.css 的 `body.sim-pinned` 段。
+    // 顶栏高度随"标签栏 / 操作行是否显示"和顶部留白令牌变，所以量一次写进 CSS 变量（不是常量）。
+    function pinSummaryCard() {
+        const bar = document.getElementById('sticky-top-bar');
+        if (!bar) return;
+        document.body.style.setProperty('--sim-pin-top', Math.round(bar.getBoundingClientRect().height) + 'px');
+        document.body.classList.add('sim-pinned');
+    }
+
+    function unpinSummaryCard() {
+        document.body.classList.remove('sim-pinned');
+        document.body.style.removeProperty('--sim-pin-top');
+    }
+
     function enterSim() {
         if (sim.active) { exitSim(false); return; }   // 推演中再点入口键 = 退出
         if (!state.currentAccount || !accounts[state.currentAccount]) return;
@@ -957,6 +971,7 @@
         sim.counts = {};
         CocTool.features.services.pauseTicker();
         renderSimFrame();
+        pinSummaryCard();
     }
 
     function applySim() {
@@ -978,6 +993,7 @@
         sim.hiddenEls.forEach(el => { el.style.display = ''; el.__simHidden = false; });   // 分类头/标题行原内容恢复
         sim.hiddenEls = [];
         sim.active = false;
+        unpinSummaryCard();
         if (apply && sim.copy) {
             sim.copy.timestamp = Math.floor(Date.now() / 1000);   // 推演的未来变成现在
             accounts[sim.tag] = sim.copy;

@@ -506,6 +506,11 @@
         if (basesOv && basesOv.style.display !== 'none' && basesOv.style.display !== '') {
             basesOv.style.display = 'none';
         }
+        var dqPage = document.getElementById('data-query-page');
+        if (dqPage && dqPage.style.display !== 'none' && dqPage.style.display !== '') {
+            dqPage.style.display = 'none';
+            dqPage.classList.add('hidden');
+        }
         var dsModal = document.getElementById('duration-search-modal');
         if (dsModal && !dsModal.classList.contains('hidden')) {
             dsModal.classList.add('hidden');
@@ -665,6 +670,15 @@
         if (basesOv && basesOv.style.display !== 'none' && basesOv.style.display !== '') {
             basesOv.style.display = 'none';
             return 'true';
+        }
+        // 数据查询页（更多页入口的图鉴索引）：它在图鉴详情**下面**一层，所以这道检查必须排在
+        // 上面的 pokedex 之后——否则从数据查询点开图鉴后，返回键会一次跳掉两层
+        if (CocTool.features.dataQuery && CocTool.features.dataQuery.goBack) {
+            var dqPage = document.getElementById('data-query-page');
+            if (dqPage && dqPage.style.display !== 'none') {
+                CocTool.features.dataQuery.goBack();
+                return 'true';
+            }
         }
         var progressPage = document.getElementById('main-display-area');
         if (progressPage && progressPage.classList.contains('hidden')) {

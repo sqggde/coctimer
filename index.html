@@ -4,19 +4,19 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script src="shim.js?v=coc-tool-web-20260920-tlo3ub"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20260920-tlo3ub" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -488,7 +488,7 @@
         <div id="help-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
             <div class="top-bar" style="justify-content:space-between;">
                 <button id="help-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">使用说明</div>
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-question-circle"></i><span>使用说明</span></div>
                 <div></div>
             </div>
             <div class="help-scroll">
@@ -542,7 +542,7 @@
 
         <!-- ===== 更多页面（手机桌面式功能入口） ===== -->
         <div id="more-page" class="hidden">
-            <h2><i class="fa fa-th-large"></i>更多功能</h2>
+            <h2><i class="fa fa-th-large"></i><span>更多功能</span></h2>
             <div class="more-grid">
                 <div class="more-app" id="more-help">
                     <div class="more-icon">📖</div>
@@ -552,6 +552,10 @@
                     <div class="more-icon">🏰</div>
                     <div class="more-label">阵型中心</div>
                 </div>
+                <div class="more-app" id="more-dataquery">
+                    <div class="more-icon">🔍</div>
+                    <div class="more-label">数据查询</div>
+                </div>
             </div>
         </div>
 
@@ -559,7 +563,7 @@
         <div id="bases-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
             <div class="top-bar" style="justify-content:space-between;">
                 <button id="bases-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">阵型中心</div>
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-building"></i><span>阵型中心</span></div>
                 <div></div>
             </div>
             <div class="bases-scroll">
@@ -698,7 +702,8 @@
             <div id="overview-detail-page" style="display:none;flex-direction:column;background:var(--td-page2);position:fixed;inset:0;z-index:10;">
                 <div class="top-bar" style="justify-content:space-between;">
                     <button id="ov-detail-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-                    <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">
+                    <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
+                        <i class="fa fa-user"></i>
                         <span id="ov-detail-title"></span>
                     </div>
                     <div></div>
@@ -828,7 +833,7 @@
                     </button>
                 </div>
                 <div class="detail-center">
-                    <div class="title" style="gap:6px;font-size:15px;">
+                    <div class="title">
                         <img id="detail-badge" src="" style="width:24px;height:24px;border-radius:4px;display:none;">
                         <span id="detail-name"></span>
                     </div>
@@ -982,7 +987,8 @@
                     <i class="fa fa-arrow-left"></i>
                     <span>返回</span>
                 </button>
-                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);font-size:15px;">
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
+                    <i class="fa fa-table"></i>
                     <span id="log-title">部落对战日志</span>
                 </div>
                 <button class="icon-btn" id="log-refresh-btn" title="刷新">
@@ -1004,7 +1010,8 @@
                     <i class="fa fa-arrow-left"></i>
                     <span>返回</span>
                 </button>
-                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);font-size:15px;">
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
+                    <i class="fa fa-shield"></i>
                     <span id="history-title">对战详情</span>
                 </div>
                 <button class="icon-btn" id="history-refresh-btn" title="刷新" style="display:none;">
@@ -1020,7 +1027,7 @@
                     <i class="fa fa-arrow-left"></i>
                     <span>返回</span>
                 </button>
-                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);font-size:15px;">
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
                     <i class="fa fa-bar-chart"></i>
                     <span>部落战数据统计</span>
                 </div>
@@ -1120,8 +1127,9 @@
         </div>
 
         <!-- ===== 设置页面 ===== -->
-        <div id="settings-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: var(--td-page2); padding-top: 2px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
-            <h2 class="font-semibold text-gray-800 mb-3" style="font-size: 16px;">应用设置</h2>
+        <div id="settings-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: var(--td-page2); padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+            <!-- 标题走「图标 + 名称」，与其他三个主页面统一（样式在 app.css 的 .settings-title） -->
+            <h2 class="settings-title"><i class="fa fa-cog"></i><span>应用设置</span></h2>
             <div class="settings-card overflow-hidden">
                 <button id="check-update-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0" style="position:relative;">
@@ -1576,12 +1584,33 @@
     </div>
 
     <!-- ===== 更新日志弹窗（内容由 settings.js 数据驱动渲染） ===== -->
+    <!-- 数据查询页（更多页入口的图鉴索引：左侧分类 tab + 右侧图标卡；点卡片进图鉴详情）。
+         放在这里而不是跟着更多页的子页走：它与各整屏子页同为 `fixed; z-index:10`，**同档位时 DOM 顺序定谁在上面**
+         （2026-09-20 探针实测：写在更多页那一段时，账号进度页会盖在它上面）——排到图鉴详情页之前，
+         既压得住它下面的所有页，又保证图鉴详情仍开在它上面。 -->
+    <div id="data-query-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
+        <div class="top-bar" style="justify-content:space-between;">
+            <button id="dq-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
+            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-search"></i><span>数据查询</span><button id="dq-server" class="dq-srv" type="button" title="切换区服"><span id="dq-server-label">国际服</span></button></div>
+            <div></div>
+        </div>
+        <div class="dq-worlds" id="dq-worlds">
+            <button class="dq-wtab active" type="button" data-world="home">主世界</button>
+            <button class="dq-wtab" type="button" data-world="builder">夜世界</button>
+        </div>
+        <div class="dq-main">
+            <div class="dq-tabs" id="dq-tabs"></div>
+            <div class="dq-scroll" id="dq-scroll"><div id="dq-list"></div></div>
+        </div>
+    </div>
+
     <!-- 图鉴详情页（账号详情页网格图标进入） -->
 <div id="pokedex-detail-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
     <div class="pokedex-body">
         <div class="top-bar" style="justify-content:space-between;">
             <button id="pokedex-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">
+            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
+                <i class="fa fa-book"></i>
                 <span id="pokedex-title"></span>
                 </div>
             <div style="display:flex;align-items:center;">
@@ -1603,14 +1632,26 @@
             </div>
         <div id="pokedex-ability-switch"></div>
         <div class="sec">
-            <div class="sec-title" id="pokedex-lv-title">等级属性（当前：1级）</div>
-            <div class="slider-row">
-                <span style="color:var(--text-sub);font-size:13px;">等级</span>
-                <button class="lv-step" id="pokedex-lv-minus" title="等级-1">−</button>
-                <input type="range" id="pokedex-slider" min="1" max="1" value="1">
-                <button class="lv-step" id="pokedex-lv-plus" title="等级+1">+</button>
-                <span class="lv" id="pokedex-lv-label">1</span>
+            <div class="sec-title" id="pokedex-lv-title">等级属性（起点 1 → 终点 1）</div>
+            <!-- 等级区间：上行两个步进器（左起点 / 右终点），下行双滑块（两个原生 range 叠放，
+                 只能拖圆点；终端点在上一层，两点重合时抓到的是终点——与"拖滑块看终点"的老习惯一致） -->
+            <div class="lv-ends">
+                <div class="lv-end">
+                    <button class="lv-step" id="pokedex-lv-start-minus" title="起点-1">−</button>
+                    <input class="lv-end-input" id="pokedex-lv-start" type="number" inputmode="numeric" step="1" min="1" max="1" value="1" aria-label="起点等级">
+                    <button class="lv-step" id="pokedex-lv-start-plus" title="起点+1">+</button>
                 </div>
+                <div class="lv-end">
+                    <button class="lv-step" id="pokedex-lv-end-minus" title="终点-1">−</button>
+                    <input class="lv-end-input" id="pokedex-lv-end" type="number" inputmode="numeric" step="1" min="1" max="1" value="1" aria-label="终点等级">
+                    <button class="lv-step" id="pokedex-lv-end-plus" title="终点+1">+</button>
+                </div>
+            </div>
+            <div class="dual-range" id="pokedex-range">
+                <div class="dr-track"><div class="dr-fill" id="pokedex-range-fill"></div></div>
+                <input type="range" id="pokedex-slider-start" min="1" max="1" value="1" aria-label="起点等级">
+                <input type="range" id="pokedex-slider-end" min="1" max="1" value="1" aria-label="终点等级">
+            </div>
             <div class="grid" id="pokedex-level"></div>
             </div>
         <div class="sec">
@@ -1713,28 +1754,28 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/core.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/names.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/calc.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/progress.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/settings.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/services.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/clan.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20260920-tlngaj"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20260920-tlngaj"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20260920-tlngaj"></script>
-<script defer src="js/app.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/core.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/names.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/calc.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/progress.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/settings.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/services.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/clan.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20260920-tlo3ub"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20260920-tlo3ub"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20260920-tlo3ub"></script>
+<script defer src="js/app.js?v=coc-tool-web-20260920-tlo3ub"></script>
 </body>
 </html>

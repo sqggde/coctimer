@@ -364,6 +364,15 @@
 
         // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
         const UPDATE_LOG = [
+            ['1.5.0', '26.9.20', [
+                ['新增「道具推演」', ['首页时间搜索键左侧的药水瓶按键进入：页面切到此刻快照并冻结时间，分类头用药水步进器调数量、完成时间实时重算', '点升级卡片给助手派活（单次 / 预约 / 持续 / 取消），点总览区钟楼可直接启动', '「应用」替代源数据、「退出」丢弃；推演中总览卡片钉在顶部按键行下方不随滚动']],
+                '新增「数据查询」（更多页）：按分类浏览图鉴全部实体（主世界 13 类 / 夜世界 8 类），顶部一键切国际服 / 国服，点卡片进图鉴详情',
+                '账号详情新增「分享图」：一键出 2× 进度长图，可保存到相册或分享',
+                '图鉴：等级区改为「起点 + 终点」双滑块，等级可直接敲数字；累计时间 / 花费按「起点→终点」区间求和',
+                '计算修正：两种加速道具同时使用时按 A+B−1 叠加（如工人药水 + 工人大餐 = 11×）；首页总览的分类倒计时同时显示两种道具的剩余时间',
+                '界面：四个主页面与所有带顶栏的子页面统一（标题字号 / 留白 / 「图标 + 名称」）；账号详情英雄装备区改为固定 6 行、放不下时该行独立左右滑动',
+                '修复：超级充能项目不显示剩余时间、深色模式满防进度条金色丢失、极简主题的若干选中态与深色底色问题'
+            ]],
             ['1.4.10', '26.9.18', ['ui升级，新增「主题」设置（设置页）：圆润3D（默认，大圆角+立体）/ 极简（旧版观感）两套风格，各自都支持深色模式；圆润3D 已覆盖全部页面（含设置页、图鉴、使用说明、阵型中心、对战统计）', '修复未登录时上传阵型无法认领的问题。更新后退出重登账号，可将未登录的上传的阵型认领至重新登录的账号下']],
             ['1.4.9', '26.9.13', ['阵型中心新增「榜单」：贡献榜 / 收藏榜 / 使用榜 / 吸睛榜，可查看自己的名次', '阵型中心广场支持排序（最近 / 按收藏 / 按使用 / 按查看），并可左右滑动切换 广场 / 收藏 / 我的', '阵型中心用途标签扩充为「日常 / 对战」两大类共 16 个，上传弹窗层级更清晰；阵型卡上的爱心键直接显示被收藏数', '新增「反馈&建议」（设置页）：选择类型（建议 / Bug）+ 填写描述 + 可选配图，App / 网页 / 小程序三端均可提交', '自动恢复弹窗新增「不再提醒，直接更新」：勾选后每次检测到云端备份或 WebDAV 备份较新时直接恢复，不再询问', '首页升级项目图标、时间搜索结果图标支持点击直达对应图鉴详情，返回时逐层回退（图鉴 → 账号详情 → 账号进度）']],
             ['1.4.8', '26.9.10', ['新增「阵型中心」：进入「更多」即可使用，支持上传、广场浏览、我的上传、收藏与被反馈', '桌面小组件改版：账号名淡彩胶囊样式、透明度随深浅模式自动适配、账号颜色不再重复、文字深浅对比更清晰', '账号切换优化：选中的账号标签自动居中显示，左右两侧标签始终可见', '自动备份开关优化，修复了旧版本无法关闭自动备份的问题', '超快捷导入优化', '自动恢复弹窗增加防误触关闭']],
@@ -407,22 +416,34 @@
         const changelogBody = document.getElementById('changelog-body');
         const changelogCloseBtn = document.getElementById('changelog-close-btn');
 
+        // 更新日志两档：顶级条（13px + 主色圆点）/ 子点（12px 灰 + 缩进 18px）。
+        // 嵌套写法 = `[标题, [子点…]]`（1.1.0 / 1.2.3 / 1.2.7 与 1.5.0 都在用）——**标题也是顶级条**。
+        // 2026-09-20 修：原先 `Array.isArray` 那一支把整段数组连同标题一律当子点渲染（全 12px 灰），
+        // 于是"带子点的那条"在列表里比同版本的其它条小一号（用户报「一部分小字一部分大字」）。
+        function logTop(text) {
+            return '<div class="flex">' +
+                '<span class="text-primary mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">•</span>' +
+                '<span class="text-gray-600" style="font-size:13px;line-height:20px;">' + escapeHtml(text) + '</span>' +
+            '</div>';
+        }
+        function logSub(text) {
+            return '<div class="flex" style="padding-left:18px;">' +
+                '<span class="text-gray-400 mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">·</span>' +
+                '<span class="text-gray-500" style="font-size:12px;line-height:20px;">' + escapeHtml(text) + '</span>' +
+            '</div>';
+        }
+
         function renderChangelog() {
             const html = UPDATE_LOG.map(function(entry) {
                 const isCurrent = entry[0] === localVersionName;
                 const itemsHtml = entry[2].map(function(item) {
                     if (Array.isArray(item)) {
-                        return item.map(function(sub) {
-                            return '<div class="flex" style="padding-left:18px;">' +
-                                '<span class="text-gray-400 mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">·</span>' +
-                                '<span class="text-gray-500" style="font-size:12px;line-height:20px;">' + escapeHtml(sub) + '</span>' +
-                            '</div>';
+                        // 首元素是标题，其余是子点（子点允许再包一层数组，即 `[标题, [子点…]]`）
+                        return logTop(item[0]) + item.slice(1).map(function(s) {
+                            return Array.isArray(s) ? s.map(logSub).join('') : logSub(s);
                         }).join('');
                     }
-                    return '<div class="flex">' +
-                        '<span class="text-primary mr-2 flex-shrink-0" style="font-size:12px;line-height:20px;">•</span>' +
-                        '<span class="text-gray-600" style="font-size:13px;line-height:20px;">' + escapeHtml(item) + '</span>' +
-                    '</div>';
+                    return logTop(item);
                 }).join('');
                 return '<div class="mb-4">' +
                     '<div class="flex items-center mb-1.5">' +

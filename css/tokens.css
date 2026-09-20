@@ -39,8 +39,13 @@
     --td-line-2: #d1d5db;                     /* 再亮一档（hover / 输入框描边） */
     --td-bar: #eef3fa;                        /* 首页顶栏底（与页面底同色） */
     --td-page2: var(--td-page);               /* 整屏子页面底（总进度/部落/更多/图鉴…都是 fixed 整屏覆盖页） */
-    --td-bar2: var(--td-bar);                 /* 整屏子页面顶栏底（圆润3D 与页面同色，无分割线） */
-    --td-bar2-bd: 1px solid transparent;      /* 子页面顶栏下边线（极简是 1px 实线，圆润3D 不画） */
+    --td-bar2: var(--td-bar);                 /* 顶栏底（与页面同色） */
+    --td-bar2-bd: 1px solid transparent;      /* 顶栏下边线：浅色不画（2026-09-20 起极简档也不画，见极简段注释） */
+    /* 顶栏的两个共用值（2026-09-20 立）：**四个主页面 + 所有带顶栏的子页面都取这两个**，改这里全站顶栏一起动。
+       此前标题字号是 15/16/18 三种混用（子页面靠内联 font-size:15px 各自为政），页面最顶端留白一律 2px
+       （2026-09-18「状态栏与主题同色后顶部读成空」那次收的），用户 2026-09-20 反馈「过于逼仄」→ 统一抬到 8px。 */
+    --td-topbar-fs: 17px;                     /* 顶栏标题字号 */
+    --td-topbar-pt: 8px;                      /* 页面最顶端那条的上内边距 */
     --td-card-bg: #ffffff;                    /* 区卡 / 信息卡 / 总览卡底 */
     --td-row-bg: #ffffff;                     /* 升级行卡底 */
     --td-tab-bg: #ffffff;                     /* 账号 tab 未选中底 */
@@ -253,8 +258,9 @@ html[data-style="minimal"] {
     --td-line-2: #d1d5db;
     --td-bar: #f9fafb;
     --td-page2: #f9fafb;                      /* 子页面底：旧版就是 Tailwind bg-gray-50 */
-    --td-bar2: #ffffff;                       /* 子页面顶栏：旧版是白底 + 1px 分割线 */
-    --td-bar2-bd: 1px solid #e5e7eb;
+    --td-bar2: #ffffff;                       /* 顶栏白底（旧版观感保留） */
+    /* 下边线：2026-09-20 用户「跟圆润3D一样，不要保留明显的顶部栏分界线了」→ 极简档不再声明 --td-bar2-bd，
+       直接吃 :root（浅色 transparent）/ html.dark（深色 #33334d）那一对值 —— 与圆润3D 完全一致。 */
     --td-card-bg: #ffffff;
     --td-row-bg: #f9fafb;
     --td-tab-bg: transparent;
@@ -398,10 +404,13 @@ html.dark[data-style="minimal"] {
     --td-line: #33334d;
     --td-line-2: #3f3f5a;
     --td-page: #1b1b30;
-    --td-bar: #14141f;                        /* 旧版顶栏比页面更深一块 */
+    /* 首页顶栏：旧版故意比页面更深一块（#14141f），2026-09-20 用户「极简模式下，深色模式，首页顶部按键区
+       颜色较深的区域的底色改掉」→ 改成与页面同色（浅色档本来就是同色、圆润3D 两档也是同色）。
+       连带影响：安卓状态栏（core.js syncStatusBar 读的就是 --td-bar）在这一档也从 #14141f 变成页面色。 */
+    --td-bar: var(--td-page);
     --td-page2: #14141f;                      /* 旧版整屏子页面底 */
     --td-bar2: #252539;
-    --td-bar2-bd: 1px solid #33334d;
+    /* 下边线不声明：第 3 段已不再声明它，本段也就不需要"盖回来"（取 html.dark 的 #33334d，与圆润3D 同值） */
     --td-card-bg: #252539;
     --td-row-bg: #1b1b30;
     --td-shell-bg: #252539;
@@ -460,8 +469,7 @@ html.dark[data-style="minimal"] #help-page,
 html.dark[data-style="minimal"] #bases-page,
 html.dark[data-style="minimal"] #pokedex-detail-page {
     --td-page2: #0e131c;                      /* 旧版这三页底比别的子页更深一档（原 #111827，2026-09-17 加深） */
-    --td-bar2: #19212c;                       /* 原 #1f2937 */
-    --td-bar2-bd: 1px solid #2c3542;          /* 原 #374151 */
+    --td-bar2: #19212c;                       /* 原 #1f2937（下边线同上：不声明，吃 html.dark 的 #33334d） */
     --td-panel-bd: #2c3542;
 }
 html.dark[data-style="minimal"] #bases-page,

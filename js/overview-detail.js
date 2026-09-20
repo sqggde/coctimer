@@ -185,12 +185,16 @@
                     CocTool.features.pokedex.open(id, level, currentDetailTag, craftModuleLevels(id));
                 }
             });
-            var startX = 0, startY = 0;
+            var startX = 0, startY = 0, swipeFromEq = false;
             el.detailScroll.addEventListener('touchstart', function (e) {
-                if (e.touches.length === 1) { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }
+                if (e.touches.length === 1) {
+                    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                    // 起手落在英雄装备行里 → 这一笔是"横滑看装备"（.ov-eq-wrap 可横向滚动），不切世界
+                    swipeFromEq = !!(e.target && e.target.closest && e.target.closest('.ov-eq-wrap'));
+                }
             }, { passive: true });
             el.detailScroll.addEventListener('touchend', function (e) {
-                if (e.changedTouches.length === 1) {
+                if (e.changedTouches.length === 1 && !swipeFromEq) {
                     var dx = e.changedTouches[0].clientX - startX;
                     var dy = e.changedTouches[0].clientY - startY;
                     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {

@@ -14,17 +14,19 @@
             color: #374151;
         }
         /* 顶部栏 */
+        /* 顶栏取值全站统一（--td-topbar-fs / --td-topbar-pt，见 tokens.css）：
+           这条是**后代**选择器，部落页与它下面带顶栏的子页（对战日志/对战详情/对战统计）一起吃 */
         #clan-page .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 2px 20px;   /* 顶部留白 16→2px（用户 2026-09-18：状态栏与主题同色后，顶部留白读成"空"）*/
+            padding: var(--td-topbar-pt) 20px;
             background: var(--td-bar2);
             border-bottom: var(--td-bar2-bd);
             position: relative;
         }
         #clan-page .top-bar .title {
-            font-size: 18px;
+            font-size: var(--td-topbar-fs);
             font-weight: 600;
             color: #1f2937;
             display: flex;
@@ -482,7 +484,8 @@
 #clan-page .detail-top-bar .detail-left,
 #clan-page .detail-top-bar .detail-right { display: flex; align-items: center; gap: 8px; }
 #clan-page .detail-top-bar .detail-center { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
-#clan-page .detail-top-bar .title { position: static; }
+/* 部落详情顶栏的标题行：字号跟全站顶栏统一（--td-topbar-fs）；这行自带部落徽章当图标，不再另加 fa 图标 */
+#clan-page .detail-top-bar .title { position: static; font-size: var(--td-topbar-fs); }
 .mode-tabs { display: flex; justify-content: center; }
 .mode-tab-group { display: flex; gap: 10px; }
 .mode-tab {

@@ -8,9 +8,10 @@
  *   返回键：子页 → 更多 → 首页（core.js handleBack/closeDetailOverlays 已接）
  * ========================================================================== */
 
-#more-page { padding: 2px 20px 20px; }   /* 顶部留白 20→2px（同上）*/
+#more-page { padding: 0 20px 20px; }   /* 顶部留白改由标题行自己的 --td-topbar-pt 给（与其他页同源） */
 #more-page h2 {
-    font-size: 15px; font-weight: 600; color: #1f2937;
+    font-size: var(--td-topbar-fs); font-weight: 600; color: #1f2937;
+    padding-top: var(--td-topbar-pt);
     margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
 }
 #more-page h2 i { color: #3b82f6; }
@@ -38,14 +39,19 @@
 .more-app.soon .more-icon { filter: grayscale(1); opacity: .55; }
 .more-app.soon .more-label { color: #9ca3af; }
 
-/* ---- 子页面顶栏（对齐账号详情页 pokedex-detail 那套） ---- */
+/* ---- 子页面顶栏（使用说明 / 阵型中心 / 数据查询共用；取值与主页面同源：--td-topbar-fs / -pt） ---- */
 #help-page, #bases-page { padding: 0; background: var(--td-page2); }
 #help-page .top-bar, #bases-page .top-bar {
     flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-    padding: 2px 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
+    padding: var(--td-topbar-pt) 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
 }
-#help-page .top-bar .title, #bases-page .top-bar .title { color: #1f2937; font-weight: 700; white-space: nowrap; }
-.dark #help-page .top-bar .title, .dark #bases-page .top-bar .title { color: #f3f4f6; }
+#help-page .top-bar .title, #bases-page .top-bar .title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: var(--td-topbar-fs); font-weight: 600; color: #1f2937; white-space: nowrap;
+}
+#help-page .top-bar .title i, #bases-page .top-bar .title i { color: #3b82f6; }
+.dark #help-page .top-bar .title, .dark #bases-page .top-bar .title { color: #e5e7eb; }
+.dark #help-page .top-bar .title i, .dark #bases-page .top-bar .title i { color: #60a5fa; }
 #help-page .detail-back, #bases-page .detail-back {
     display: inline-flex; align-items: center; gap: 6px;
     border: none; background: none; color: #3b82f6; font-size: 14px; font-weight: 700; cursor: pointer;
@@ -448,6 +454,162 @@
 }
 .bc-toast.show { opacity: 1; }
 
+/* ---- 数据查询页（图鉴索引：左侧分类 tab + 右侧图标卡） ----
+   新建页面（2026-09-20），没有"旧版观感"要还，所以两套主题都直接消费 tokens.css 的通用值。 */
+#data-query-page { padding: 0; background: var(--td-page2); }
+#data-query-page .top-bar {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: var(--td-topbar-pt) 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
+}
+#data-query-page .top-bar .title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: var(--td-topbar-fs); font-weight: 600; color: #1f2937; white-space: nowrap;
+}
+#data-query-page .top-bar .title i { color: #3b82f6; }
+.dark #data-query-page .top-bar .title { color: #e5e7eb; }
+.dark #data-query-page .top-bar .title i { color: #60a5fa; }
+#data-query-page .detail-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; background: none; color: #3b82f6; font-size: 14px; font-weight: 700; cursor: pointer;
+    padding: 4px 2px; -webkit-tap-highlight-color: transparent;
+}
+#data-query-page .detail-back i { font-size: 18px; }
+.dark #data-query-page .detail-back { color: #60a5fa; }
+/* 区服键（紧跟「数据查询」四个字，是个小胶囊）+ 页内区服色的**唯一取法**
+   —— 选中侧 tab 与它共用 --dq-srv-bg/--dq-srv-bd：圆润3D 取账号 tab 的区服令牌（国际服紫 / 国服蓝），
+   极简档那两颗令牌是"白底黑框"的账号 tab 语言（直接吃会白底白字），故在这一档给项目现用的区服色常量。 */
+#data-query-page { --dq-srv-bg: var(--td-tab-active-bg); --dq-srv-bd: var(--td-tab-active-bd); }
+#data-query-page[data-srv="cn"] { --dq-srv-bg: var(--td-tab-cn-bg); }
+#data-query-page .dq-srv {
+    /* 挂在标题盒子右侧之外（left:100%）：标题本身仍严格居中，胶囊紧贴其右——两者连成一体读成
+       「数据查询 国际服」，而不会把标题整体挤偏 */
+    position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 6px;
+    display: inline-flex; align-items: center; white-space: nowrap;
+    padding: 2px 9px;
+    border: 1px solid var(--dq-srv-bd); border-radius: 999px;
+    background-color: var(--dq-srv-bg); background-image: var(--td-sel-on-img);
+    color: #fff; font-size: 11px; font-weight: 700; line-height: 1.5;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+#data-query-page .dq-srv:active { opacity: .7; }
+html[data-style="minimal"] #data-query-page { --dq-srv-bg: #7c3aed; --dq-srv-bd: #7c3aed; }
+html[data-style="minimal"] #data-query-page[data-srv="cn"] { --dq-srv-bg: #2563eb; --dq-srv-bd: #2563eb; }
+html.dark[data-style="minimal"] #data-query-page { --dq-srv-bd: #a78bfa; }
+html.dark[data-style="minimal"] #data-query-page[data-srv="cn"] { --dq-srv-bd: #93c5fd; }
+
+/* 世界 tab（主世界 / 夜世界 分两页）：形状语言同账号详情页的世界切换 `.ov-tab`（选择控件 + 选中蓝实底） */
+#data-query-page .dq-worlds {
+    flex-shrink: 0; display: flex; gap: 8px; padding: 8px 12px;
+    background: var(--td-bar2); border-bottom: var(--td-bar2-bd);
+}
+#data-query-page .dq-wtab {
+    flex: 1; padding: 7px 0; text-align: center;
+    font-size: 14px; font-weight: 500;
+    color: var(--td-sel-color);
+    background-color: var(--td-sel-bg);
+    background-image: var(--td-sel-sheen);
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    border-radius: var(--td-sel-r);
+    box-shadow: var(--td-sel-shadow);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+#data-query-page .dq-wtab.active {
+    color: var(--td-sel-on-color);
+    /* 实底选中态用 600 档蓝（同 .ov-tab）：500 档压白字只有 3.7:1 */
+    background-color: #2563eb;
+    background-image: var(--td-sel-on-img);
+    border-color: transparent;
+    box-shadow: var(--td-sel-on-shadow);
+    font-weight: 600;
+}
+
+/* 主区：左 tab 列（定宽、独立纵向滚动）+ 右内容列 */
+#data-query-page .dq-main { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 10px 12px 0; }
+#data-query-page .dq-tabs {
+    flex: 0 0 64px; width: 64px; overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; gap: 4px; padding-bottom: 88px;
+    position: relative;   /* tab 的 offsetTop 要相对本列（选中 tab 自动滚入可视区） */
+    scrollbar-width: none;
+}
+#data-query-page .dq-tabs::-webkit-scrollbar { display: none; }
+/* tab = 选择控件（大圆角方框 + 描边 + 光泽 + 轻投影；形状语言同账号 tab） */
+/* 分类 tab 两行：名称在上、数量在下（列宽收到 64px，名与数并排会挤） */
+#data-query-page .dq-tab {
+    flex-shrink: 0; min-height: var(--td-tab-h); padding: 5px 3px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    background-color: var(--td-sel-bg);
+    background-image: var(--td-sel-sheen);
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    border-radius: var(--td-sel-r);
+    box-shadow: var(--td-sel-shadow);
+    color: var(--td-sel-color);
+    font-size: 12px; font-weight: 500; line-height: 1.15;
+    text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+}
+#data-query-page .dq-tab .t { max-width: 100%; white-space: nowrap; }
+#data-query-page .dq-tab .n { font-size: 10.5px; color: #6b7280; }   /* 白底上 4.75:1（浅色）；深色另给一档 */
+#data-query-page .dq-tab.active {
+    background-color: var(--dq-srv-bg);
+    background-image: var(--td-tab-active-img);
+    border-color: var(--dq-srv-bd);
+    box-shadow: var(--td-sel-on-shadow);
+    color: var(--td-sel-on-color);
+    font-weight: 600;
+}
+#data-query-page .dq-tab.active .n { color: inherit; }
+/* 选中态底色按区服取（国际服紫 / 国服蓝）——与账号 tab 同一套区服色语义 */
+#data-query-page[data-srv="cn"] .dq-tab.active { background-image: var(--td-tab-cn-img); }
+
+/* 内容列：当前世界全部分类从上到下排（瀑布式下滑），tab 点击跳转 */
+#data-query-page .dq-scroll { flex: 1; min-width: 0; overflow-y: auto; position: relative; padding-bottom: 88px; }
+#data-query-page .dq-sec { margin-bottom: 16px; scroll-margin-top: 4px; }
+#data-query-page .dq-sec-title {
+    display: flex; align-items: center; gap: 6px; margin: 0 2px 6px;
+    font-size: 13px; font-weight: 600; color: #374151;
+}
+#data-query-page .dq-sec-title .n { font-size: 11px; font-weight: 500; color: #6b7280; }
+.dark #data-query-page .dq-sec-title { color: #d1d5db; }
+/* 次文字（数量/满级/提示）：浅色 #6b7280 压白卡 4.75:1、压页面底 4.3:1；深色统一 #9ca3af。
+   ⚠ tab 计数这条必须排除选中态：同权重且写在后面，会把选中态的 `color: inherit`（白字）压成
+   灰字压在区服色实底上（实测 2.04:1）——同 DESIGN §五 规则 8 的 `.ov-bar-fill:not(.ov-bar-full)` */
+.dark #data-query-page .dq-tab:not(.active) .n,
+.dark #data-query-page .dq-sec-title .n,
+.dark #data-query-page .dq-max,
+.dark #data-query-page .dq-msg { color: #9ca3af; }
+#data-query-page .dq-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+/* 实体卡 = 面板（图标 / 名称 / 满级），一行 4 个，点开进图鉴详情 */
+#data-query-page .dq-card {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    padding: 7px 3px 6px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
+    transition: transform .12s ease;
+}
+#data-query-page .dq-card:active { transform: scale(.96); }
+#data-query-page .dq-icon { width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; }
+/* 一行 4 个后卡宽 ≈74px：名字给到 10.5px 才装得下 6 个字（再长就省略号，全名在图鉴详情里） */
+#data-query-page .dq-name {
+    font-size: 10.5px; font-weight: 600; color: #374151; text-align: center;
+    line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dark #data-query-page .dq-name { color: #e5e7eb; }
+#data-query-page .dq-max { font-size: 10.5px; color: #6b7280; font-variant-numeric: tabular-nums; }
+#data-query-page .dq-msg { padding: 24px 8px; font-size: 13px; color: #6b7280; text-align: center; }
+
+/* 极简档：选中态用区服色实底（同阵型中心页 tab 在那一档的取值）；不吃 --td-tab-active-bg
+   ——那是账号 tab 的语言（白底黑框），套到这里的侧 tab 上会变成"白底白字"（2026-09-20 量数抓到）。
+   区服色的具体值来自页面顶部的 --dq-srv-bg/--dq-srv-bd（那一处已按主题分档声明）。 */
+html[data-style="minimal"] #data-query-page .dq-tab.active {
+    background-color: var(--dq-srv-bg); background-image: none; border-color: var(--dq-srv-bd); box-shadow: none; color: #fff;
+}
+
 /* =============================================================================
  * 极简档 · 本页旧值（圆润3D 用 tokens.css 的通用值；这里只写"本页当年不是通用值"的几处）
  * ========================================================================== */
@@ -469,19 +631,26 @@ html[data-style="minimal"] #bases-page .bc-btn.ghost { background-color: #f1f2f7
 html[data-style="minimal"] #bases-page .bc-btn.white { border-radius: 8px; }
 html[data-style="minimal"] #bases-page .bc-fbtn { background-color: #fff; background-image: none; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #374151; }
 html[data-style="minimal"] #bases-page .bc-dopt { background-color: #fff; border-color: #e5e7eb; border-radius: 9px; color: #6b7280; }
+html[data-style="minimal"] #bases-page .bc-dopt.on { background-color: #7c3aed; border-color: #7c3aed; color: #fff; }
 html[data-style="minimal"] #bases-page .bc-drop { border-radius: 12px; }
 html[data-style="minimal"] .bc-tagopt { background-color: #fff; background-image: none; border-width: 1.5px; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #6b7280; }
-html[data-style="minimal"] .bc-tagopt.active { background-image: none; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); }
+/* ⚠ 选中态必须逐条写回来：`html[data-style="minimal"] .x`（0,2,1）比 `.x.active`（0,2,0）、
+   `#page .x.on`（1,2,0）特异性高，会把基础态的底色/字色/描边盖在选中态之上——只留个投影，
+   看起来就是"选中了没有紫底"（2026-09-20 用户报上传弹窗标签）。深色段同理（0,3,1，且写在后面） */
+html[data-style="minimal"] .bc-tagopt.active { background-color: #7c3aed; background-image: none; border-color: #7c3aed; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); color: #fff; }
 html[data-style="minimal"] .bc-login2 { border-radius: 7px; background-image: none; box-shadow: none; }
 html[data-style="minimal"] #bc-lightbox .bc-lb-acts .bc-btn { border-radius: 9px; background-image: none; box-shadow: none; }
 /* 极简 · 深色：旧版深色值 */
 html.dark[data-style="minimal"] #bases-page .bc-tab { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bases-page .bc-tab.active { background-color: #7c3aed; border-color: #7c3aed; color: #fff; }
 html.dark[data-style="minimal"] #bases-page .bc-rank-btn { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
 html.dark[data-style="minimal"] #bases-page .bc-tag { background: #2c3542; }
 html.dark[data-style="minimal"] #bases-page .bc-btn.ghost { background-color: #2c3542; }
 html.dark[data-style="minimal"] #bases-page .bc-fbtn { background-color: #19212c; border-color: #2c3542; color: #e5e7eb; }
 html.dark[data-style="minimal"] #bases-page .bc-dopt { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bases-page .bc-dopt.on { background-color: #7c3aed; border-color: #a78bfa; color: #fff; }
 html.dark[data-style="minimal"] #bases-page .bc-drop { background: #19212c; border-color: #2c3542; }
 html.dark[data-style="minimal"] .bc-tagopt { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] .bc-tagopt.active { background-color: #7c3aed; border-color: #a78bfa; color: #fff; }
 html.dark[data-style="minimal"] #bc-rank-modal .bc-rank-segs { background-color: #1c1c30; border-color: #2c3542; }
 html.dark[data-style="minimal"] #bc-rank-modal .bc-rank-mine { background: rgba(255, 255, 255, .045); }

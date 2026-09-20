@@ -12,16 +12,18 @@
             color: #374151;
             overflow-y: auto;
         }
+        /* 顶栏取值全站统一（--td-topbar-fs / --td-topbar-pt，见 tokens.css）：
+           账号进度页与嵌在它里面的账号详情页共用这一条 */
         #overview-page .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 2px 20px;   /* 顶部留白 16→2px（同上）*/
+            padding: var(--td-topbar-pt) 20px;
             background: var(--td-bar2);
             border-bottom: var(--td-bar2-bd);
         }
         #overview-page .top-bar .title {
-            font-size: 18px;
+            font-size: var(--td-topbar-fs);
             font-weight: 600;
             color: #1f2937;
             display: flex;
@@ -709,6 +711,22 @@
             gap: 2px;
             flex: 1;
         }
+        /* 详情页英雄装备：**每个英雄恒一行**（6 个英雄 = 6 行，超宽不再折行），装备放不下就本行独立横滑；
+           英雄图标在滚动容器之外 → 左侧英雄列固定不动。
+           裁剪边界取**本行右缘**（= 卡片内边），与同一行那条分隔线同边——不按 DESIGN §五 规则 7 铺到屏幕边：
+           那是给"满宽行"定的（页面留白造成禁区），这里是卡片内的表格型横滑区，铺到屏幕边会让图标越出卡片边框。
+           滚动条一律隐藏（手机是悬浮细条闪一下，网页版会占掉 15px 行高，撑歪 6 行等高）。
+           只作用于详情页：分享页是同一份 markup 的克隆（挂在 body 下），行宽由 .ovs-* 的 max-width 定死。 */
+        #overview-detail-page .ov-eq-wrap {
+            flex-wrap: nowrap;
+            min-width: 0;      /* flex 子项默认按内容撑开，不写这条横滑不成立（会顶出页面横向溢出） */
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        #overview-detail-page .ov-eq-wrap::-webkit-scrollbar { display: none; }
+        #overview-detail-page .ov-eq-wrap > .ov-icon-wrap { flex-shrink: 0; }   /* 不缩：默认会压扁图标而不是溢出 */
         .ov-locked {
             filter: grayscale(1);
             opacity: 0.6;
@@ -852,6 +870,7 @@ html.dark[data-style="minimal"] .ov-tab { color: #6b7280; }
 html.dark[data-style="minimal"] .ov-tab.active { color: #60a5fa; }
 html.dark[data-style="minimal"] .ov-toggle-b { border-color: var(--td-line); }
 html.dark[data-style="minimal"] .ov-toggle-b .ov-seg { color: #e5e7eb; }
+html.dark[data-style="minimal"] .ov-toggle-b .ov-seg.active { color: #fff; }
 html.dark[data-style="minimal"] .ov-pg-summary { background: #191928; border-color: var(--td-surface); }
 
 /* =============================================================================

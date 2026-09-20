@@ -442,12 +442,16 @@
    `.upgrade-card { background-color: #ffffff !important }` 打平局（同为 !important 时后写的赢，太脆）。
    深色不受影响（下面 `.dark` 段照旧覆盖成 `#1a1a2e`）。 */
 /* 深色不受影响（tokens.css 的 `html.dark` 段给同一对令牌另一个值）。
-   **顶栏单独一个令牌 `--td-bar`**：圆润3D 下它与页面底同色，极简的深色档下顶栏比页面更深一块（#1a1a2e）。 */
+   **顶栏单独一个令牌 `--td-bar`**：现在**四档都是"与页面底同色"**（圆润3D 浅/深、极简浅本就这样；
+   极简深原来故意深一块 #14141f，2026-09-20 用户「首页顶部按键区颜色较深的区域的底色改掉」后跟着页面走）。 */
 body.bg-gray-50 {
     background-color: var(--td-page) !important;
 }
 #sticky-top-bar {
     background-color: var(--td-bar) !important;
+    /* 页面最顶端留白全站统一（2026-09-20 用户：「顶部栏过于逼仄」，2026-09-18 收的 2px 抬到 8px）。
+       这行的 `pt-0.5`（Tailwind，2px）留在 class 里不撤：Tailwind 是运行时注入、同权重它赢，靠 !important 压。 */
+    padding-top: var(--td-topbar-pt) !important;
 }
 /* ===== 深色模式覆盖 =====
    表面类**全部走令牌**（`--td-backdrop` 最底层 < `--td-page` 页面底 < `--td-surface` 卡面/白面；
@@ -533,7 +537,10 @@ body.bg-gray-50 {
 }
 /* （`#main-display-area .bg-white` / `#data-info .bg-white` / `#settings-page .bg-white` 三条
    与上面的 `.dark .bg-white` 同值、且已被它覆盖，一并删除） */
-.dark input, .dark textarea, .dark select {
+/* ⚠ 必须排除 `input[type=range]`：滑块要的是**透明底**（视觉全交给自绘轨道与填充），
+   被这条 `!important` 涂上不透明底后会盖住它下面的轨道——图鉴双滑块 2026-09-20 就是这么在深色下
+   "轨道整条消失"的（浅色正常，因为这条只在深色生效）。文字类输入框不受影响。 */
+.dark input:not([type=range]), .dark textarea, .dark select {
     background-color: var(--td-inset-bg) !important;
     color: #e2e8f0 !important;
     border-color: var(--td-line) !important;
@@ -589,6 +596,22 @@ body.bg-gray-50 {
     border-radius: var(--td-panel-r);
     box-shadow: var(--td-panel-shadow);
 }
+/* 设置页标题（2026-09-20）：与其他三个主页面（更多/账号进度/部落）统一成「图标 + 名称」，
+   字号/上内边距取顶栏共用令牌（--td-topbar-fs / -pt）；原来的 Tailwind 组合（`text-gray-800 mb-3`
+   + 内联 font-size:16px）已从 index.html 撤掉 —— 挂着 Tailwind 类就压不住（同下面的 settings-card）。 */
+#settings-page .settings-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: var(--td-topbar-pt);
+    margin: 0 0 12px;
+    font-size: var(--td-topbar-fs);
+    font-weight: 600;
+    color: #1f2937;
+}
+#settings-page .settings-title i { color: #3b82f6; }
+.dark #settings-page .settings-title { color: #e5e7eb; }
+.dark #settings-page .settings-title i { color: #60a5fa; }
 /* 行内分隔线（原 `hr.border-gray-100`）：浅色 #f3f4f6 / 深色描边档——`.dark .border-gray-200/300` 那条
    覆盖不到 gray-100，深色下会留一条近白亮线 */
 #settings-page hr {
@@ -939,6 +962,21 @@ html.dark .peer:checked ~ .peer-checked\:bg-primary {
 }
 #sim-apply-btn {
     background: #2563eb;
+}
+/* 推演中把总览卡钉在操作行（时间搜索那行按键）**正下方**：往下滚去调药水步进器时总览不跟着滚走
+   （用户 2026-09-20：「把首页总览卡片定在时间搜索这行按键之下」）。
+   `top` 用变量而不是常量：顶栏高度是变的（账号标签栏 / 操作行可被设置隐藏、顶部留白走 `--td-topbar-pt`），
+   所以由 `progress.js` 在进入推演时量一次 `#sticky-top-bar` 的高度写进 `--sim-pin-top`，退出时摘掉。
+   z-index 9：顶栏是 z-10（Tailwind），卡片要压住升级行卡、又不能盖住顶栏。
+   ID 选择器 (1,1,2) 本来就高过 Tailwind 的 `.relative`（0,1,0）→ 不需要 !important。
+   **底必须换成实色**：深色档的 `--td-card-bg` 是半透明白（`rgba(255,255,255,.045)`），钉住时下面的
+   升级行卡会透上来（实测截图里「退出/应用」与倒计时叠在卡片上）；`--td-panel-solid` 就是"同一块面的
+   不透明等价色"（四个档都与卡片底等值，见 tokens.css 该行注释），复用它、不新增令牌。 */
+body.sim-pinned #category-summary-card {
+    position: sticky;
+    top: var(--sim-pin-top, 0px);
+    z-index: 9;
+    background-color: var(--td-panel-solid);
 }
 
 /* ===== 推演·助手指派弹窗 ===== */
