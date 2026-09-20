@@ -1,0 +1,475 @@
+/* =============================================================================
+ * tokens.css —— 设计令牌层（App / WebView）
+ *
+ * 【这是什么】全站唯一的外观取值来源。组件规则（app.css 及各页样式表）只消费 var(--td-*)，
+ *   不再写死颜色/圆角/阴影/尺寸——这是"换主题"能成立的前提。
+ *
+ * 【两条轴，正交】
+ *   ① 明暗（mode）：`html.dark` —— 入口沿用首页设置弹窗的「夜间模式」开关，`settings.darkMode`
+ *   ② 主题（style）：`html[data-style]` —— 「设置 → 主题」行，`settings.uiStyle`
+ *   每套主题**自带明暗两组取值**，所以是 2×2 = 4 组。
+ *
+ * 【四层，顺序即裁决】——同权重靠先后，故顺序不能改：
+ *   1. `:root`                            圆润3D · 浅色（默认主题的完整令牌集）
+ *   2. `html.dark`                        圆润3D · 深色（只列与浅色不同的）
+ *   3. `html[data-style="minimal"]`       极简 · 浅色
+ *   4. `html.dark[data-style="minimal"]`  极简 · 深色（权重最高，放最后）
+ *   用属性选择器而不是类名：`html[data-style=x]` 权重 (0,2,1)，比 `.dark` 的 (0,2,0) 高一档，
+ *   能压过 Tailwind 运行时注入的工具类，少写一批 !important。
+ *   第 5 段是**页面级覆盖**（只在极简下给个别页面派它自己的旧值），按页面选择器写、与上面四层不冲突。
+ *
+ * 【新增第三套主题】= 在 core.js 的 THEMES 加一项 + 在这里加两个块（浅/深），无其他改动。
+ *   命名与口径见 DESIGN.md「主题与令牌层」，与 design-preview/01-minimal.html 的"暖白极简"**不是**同一个东西。
+ *
+ * 【改值的规矩】改哪个值改哪一层，只改一次；不要在某页的规则里再写死一遍同义色值
+ *   （这正是"给同一套色值再造第三份拷贝"的老毛病）。
+ *
+ * 【令牌清单怎么读】按"这个元素是什么"分组：页面与顶栏 → 卡片与面板 → 选择控件 → 操作按键 →
+ *   浅底块与输入 → 浮层（弹窗/下拉）→ 账号 tab → 底部导航 → 倒计时。改某页样式时先在这一组里找令牌，
+ *   找不到同类再新增（新增前先答一句"现有的为什么不能用"，见 AGENTS.md「新增即举证」）。
+ * ========================================================================== */
+
+/* ===== 1. 圆润3D · 浅色（默认，对应 2026-09-15/16 首页改版后的观感） ===== */
+:root {
+    /* —— 表面：页面与顶栏 —— */
+    --td-page: #eef3fa;                       /* 首页页面底（body） */
+    --td-backdrop: #eef3fa;                   /* 最底层（html；深色下比页面底再深一档） */
+    --td-surface: #ffffff;                    /* 通用白面（Tailwind `.bg-white` 那类） */
+    --td-line: #e5e7eb;                       /* 通用描边 / 次级面 */
+    --td-line-2: #d1d5db;                     /* 再亮一档（hover / 输入框描边） */
+    --td-bar: #eef3fa;                        /* 首页顶栏底（与页面底同色） */
+    --td-page2: var(--td-page);               /* 整屏子页面底（总进度/部落/更多/图鉴…都是 fixed 整屏覆盖页） */
+    --td-bar2: var(--td-bar);                 /* 整屏子页面顶栏底（圆润3D 与页面同色，无分割线） */
+    --td-bar2-bd: 1px solid transparent;      /* 子页面顶栏下边线（极简是 1px 实线，圆润3D 不画） */
+    --td-card-bg: #ffffff;                    /* 区卡 / 信息卡 / 总览卡底 */
+    --td-row-bg: #ffffff;                     /* 升级行卡底 */
+    --td-tab-bg: #ffffff;                     /* 账号 tab 未选中底 */
+    --td-shell-bg: transparent;               /* 升级列表外壳（极简下是"白卡包整块列表"） */
+    --td-shell-r: 0px;
+    --td-shell-p: 0px;
+    --td-shell-shadow: none;
+
+    /* —— 卡片形状与立体（首页区卡与行卡共用）—— */
+    --td-r-card: 11px;
+    --td-card-bd: #e5e7eb;                    /* 左右描边色（上下交给模糊线） */
+    --td-card-bw: 1px;                        /* 左右描边宽（极简是 0——旧版没有描边，靠 shadow-md 造边） */
+    --td-card-sheen: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+    --td-card-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.30), inset 0 -1px 2px rgba(148, 163, 184, 0.22), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
+    --td-row-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.30), inset 0 -1px 2px rgba(148, 163, 184, 0.22), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
+    --td-info-margin: 0 0 4px;                /* #data-info 外边距 */
+    --td-sum-margin: 0 0 4px;                 /* #category-summary-card 外边距 */
+
+    /* —— 面板（子页面里的卡片：账号卡/部落卡/分类卡/统计卡/图鉴区块/阵型卡…）
+          与首页区卡同一套立体：左右 hairline + 竖向明暗 + 模糊顶底线 + 轻投影（上下不画硬描边） —— */
+    --td-panel-bg: var(--td-card-bg);
+    --td-panel-solid: #ffffff;                /* 面板的**不透明**等价色（冻结列/吸顶行要它，半透明底会透出滚动内容） */
+    --td-panel-r: var(--td-r-card);
+    --td-panel-bd: var(--td-card-bd);
+    --td-panel-bw: var(--td-card-bw);         /* 左右描边宽 */
+    --td-panel-bw-tb: 0px;                    /* 上下描边宽（圆润3D 一律 0，交给立体的模糊线） */
+    --td-panel-sheen: var(--td-card-sheen);
+    --td-panel-shadow: var(--td-card-shadow);
+
+    /* —— 选择控件（页内 tab / 分段 / 标签选项 / 筛选胶囊）：大圆角方框 + 宽而淡的光泽 + 很轻的投影 —— */
+    --td-sel-r: 13px;
+    --td-sel-bg: #ffffff;
+    --td-sel-bd: #e5e7eb;
+    --td-sel-bw: 1px;
+    --td-sel-color: #6b7280;
+    --td-sel-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%);
+    --td-sel-shadow: 0 2px 6px -3px rgba(0, 0, 0, 0.35);
+    --td-sel-hover-color: #374151;
+    --td-sel-on-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%);
+    --td-sel-on-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -5px rgba(0, 0, 0, 0.5);
+    --td-sel-on-color: #ffffff;               /* 实底选中态的兜底字色（各组件自己的语义色在前） */
+    --td-ind-display: none;                   /* 下划线指示条（页签式 tab）：圆润3D 不用它，极简要 */
+
+    /* —— 操作按键（页内主按钮：确认/查询/上传/保存…；胶囊 + 顶光 + 底部暗边 + 外投影）—— */
+    --td-act-r: 999px;
+    --td-act-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%);
+    --td-act-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -5px rgba(0, 0, 0, 0.5);
+
+    /* —— 浅底块与输入框（卡内浅底、倒计时底、输入框…）—— */
+    --td-inset-bg: #f8fafc;
+    --td-inset-bd: #e5e7eb;
+    --td-inset-r: 12px;
+    --td-inset-color: #374151;
+    --td-pill-bg: #e5e7eb;                    /* 阶段胶囊底色（比 inset 深一档，浅色下可辨） */
+
+    /* —— 浮层：弹窗与下拉 —— */
+    --td-modal-bg: #ffffff;                   /* 弹窗底：**不跟随卡面的半透明**（弹窗浮在遮罩上，要实底） */
+    --td-modal-r: 14px;
+    --td-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --td-modal-p: 1rem;
+    --td-pop-bg: #ffffff;
+    --td-pop-bd: #e5e7eb;
+    --td-pop-r: 12px;
+    --td-pop-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+    /* —— 账号 tab —— */
+    --td-tab-h: 34px;
+    --td-tab-pad: 0 8px;
+    --td-tab-r: 13px;
+    --td-tab-fs: 12.5px;
+    --td-tab-fw-active: 600;
+    --td-tab-bw: 1px;
+    --td-tab-bd: #e5e7eb;
+    --td-tab-color: #6b7280;
+    --td-tab-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 25%);
+    /* 未选中 tab 的"月牙纱"（2026-09-17 用户：「把 tab 换成快捷导入那种样式……月牙型的纱」）：
+       与快捷导入/选中 tab 同一套语言——圆心在左上 24% -2%、42% 起铺、96% 到顶，压在底色上当下缘偏右的暗部。
+       中性 tab 的"另一色"取石板灰（同卡片描边那一族），α 比彩色版（.525）低一档。 */
+    --td-veil: radial-gradient(110% 110% at 24% -2%, rgba(148, 163, 184, 0) 58%, rgba(148, 163, 184, 0.42) 96%);
+    --td-tab-shadow: 0 2px 6px -3px rgba(0, 0, 0, 0.35);
+    --td-tab-hover-bg: #f3f4f6;
+    --td-tab-hover-color: #374151;
+    --td-tab-active-bg: #7c3aed;              /* 国际服：紫底 */
+    --td-tab-active-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 25%), radial-gradient(110% 110% at 24% -2%, rgba(37, 99, 235, 0) 58%, rgba(37, 99, 235, 0.525) 96%);
+    --td-tab-cn-bg: #2563eb;                  /* 国服：蓝底 */
+    --td-tab-cn-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 25%), radial-gradient(110% 110% at 24% -2%, rgba(124, 58, 237, 0) 58%, rgba(124, 58, 237, 0.525) 96%);
+    --td-tab-active-color: #ffffff;
+    --td-tab-active-bd: transparent;
+    --td-tab-active-bw: 1px;
+    --td-tab-active-bbw: 1px;
+    --td-tab-active-shadow: 0 4px 10px -6px rgba(24, 22, 60, 0.5);
+    --td-tab-baseline: none;                  /* #account-tabs 下边框（极简是页签基线） */
+    --td-tab-trans: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+
+    /* —— 顶栏 / 操作行按键 —— */
+    --td-btn-h: 34px;
+    --td-btn-r: 999px;
+    --td-btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%);
+    --td-btn-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -5px rgba(0, 0, 0, 0.5);
+    --td-btn-hover: brightness(1.06);
+    --td-settings-pad: 0;
+    --td-settings-minw: 34px;
+    --td-settings-icon: 16px;
+    --td-qi-bg: #7c3aed;
+    --td-qi-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(110% 110% at 24% -2%, rgba(37, 99, 235, 0) 42%, rgba(37, 99, 235, 0.525) 96%);
+    --td-qi2-bg: #2563eb;                     /* 粘贴导入模式 */
+    --td-qi2-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(110% 110% at 24% -2%, rgba(124, 58, 237, 0) 42%, rgba(124, 58, 237, 0.525) 96%);
+    --td-qi-fs: 13px;
+    --td-qi-fw: 600;
+    --td-round-size: 34px;                    /* 排序 / 打开游戏两个圆键 */
+    --td-round-r: 999px;
+    --td-launch-right: 0px;
+    --td-lg-intl-bg: #7c3aed;                 /* 打开游戏键：国际服 */
+    --td-lg-intl-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(110% 110% at 24% -2%, rgba(37, 99, 235, 0) 42%, rgba(37, 99, 235, 0.525) 96%);
+    --td-lg-cn-bg: #2563eb;                   /* 打开游戏键：国服 */
+    --td-lg-cn-img: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 50%), radial-gradient(110% 110% at 24% -2%, rgba(124, 58, 237, 0) 42%, rgba(124, 58, 237, 0.525) 96%);
+    --td-divider-display: none;               /* 快捷导入键内的分隔线（极简有） */
+
+    /* —— 底部导航（5 个页面共用）—— */
+    --td-nav-bg: #ffffff;
+    --td-nav-bd: #e5e7eb;
+    --td-nav-justify: flex-start;
+    --td-nav-gap: 4px;
+    --td-nav-pad: 6px 10px;
+    --td-nav-color: #6b7280;
+    --td-nav-fs: 10px;
+    --td-nav-fw: 600;
+    --td-nav-icon: 18px;
+    --td-nav-icon-gap: 3px;
+    --td-nav-r: 12px;
+    --td-nav-active-color: #2563eb;
+    --td-nav-active-bg: rgba(59, 130, 246, 0.10);
+    --td-nav-active-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px -5px rgba(0, 0, 0, 0.5);
+    --td-nav-trans: background-color 0.18s ease, color 0.18s ease;
+
+    /* —— 升级卡倒计时 —— */
+    --td-count-fs: 15px;
+    --td-count-fw: 600;
+    --td-count-ls: 0.01em;
+    --td-count-lh: 1.25;
+    --td-unit-fs: 10.5px;
+    --td-unit-margin: 0 1px;
+    --td-unit-color: #6b7280;
+    --td-done-fs: 12px;
+    --td-donetime-fs: 11px;
+    --td-donetime-mt: 2px;
+    --td-donetime-color: #6b7280;
+}
+
+/* ===== 2. 圆润3D · 深色 =====
+   【深色三档底，2026-09-17 整体加深一档】用户口径：「极简还有圆润3D的深色模式我都觉得有点不够深，
+   把这两个的深色模式下的卡片和背景都变得颜色再深一点」。三档（由深到浅）：
+     `--td-backdrop`（html 最底层，overscroll 露出的那层） < `--td-page`（页面底） < `--td-surface`（卡面/白面）
+   旧值：backdrop #1a1a2e / page #252540 / 卡面 #2d2d44（或页面底 +4.5% 白）。
+   两个主题的**深色底共用同一套值**（浅色仍各走各的），所以这次加深两边一起变。 */
+html.dark {
+    --td-backdrop: #14141f;
+    --td-page: #1b1b30;
+    --td-bar: #1b1b30;
+    --td-surface: #252539;                    /* 通用白面（Tailwind `.bg-white` 那类） */
+    --td-line: #33334d;                       /* 深色描边 / 次级面 */
+    --td-line-2: #3f3f5a;                     /* 再亮一档（hover / 输入框描边） */
+    --td-card-bg: rgba(255, 255, 255, 0.045);
+    --td-row-bg: rgba(255, 255, 255, 0.045);
+    --td-panel-solid: #252539;                /* ≈ rgba(255,255,255,.045) 压在 #1b1b30 上的实色 */
+    --td-tab-bg: #252539;                     /* 未选中 tab 底：比页面底浅一档（= 卡面档），否则黑纱压下去整颗发闷 */
+    --td-card-bd: rgba(255, 255, 255, 0.09);
+    --td-card-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.062) 0%, rgba(255, 255, 255, 0.034) 100%);
+    --td-card-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.14), inset 0 -1px 2px rgba(255, 255, 255, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
+    --td-row-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.14), inset 0 -1px 2px rgba(255, 255, 255, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
+    --td-sel-bg: #252539;
+    --td-sel-bd: #33334d;
+    --td-sel-color: #a0aec0;
+    --td-sel-hover-color: #e5e7eb;
+    --td-inset-bg: #1b1b30;
+    --td-inset-bd: #33334d;
+    --td-inset-color: #e2e8f0;
+    --td-pill-bg: #1b1b30;
+    --td-pop-bg: #252539;
+    --td-pop-bd: #33334d;
+    --td-modal-bg: #252539;
+    --td-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+    --td-tab-bd: #33334d;
+    --td-tab-color: #a0aec0;
+    --td-tab-hover-bg: #2f2f47;
+    --td-tab-hover-color: #a0aec0;
+    /* 深色 tab：**去顶光**（用户 2026-09-17：「顺便去掉深色模式的 tab 顶光」，选中态一并去掉）。
+       纱的走向试过两版：白纱（边缘光，.22）→ **现行 = 更深的黑纱**（用户：「深色模式换成更深的黑纱看看」）：
+       底色本来就近黑，黑纱把下缘继续压暗成"实心球的下半部"，比白纱更收敛；想回白纱就把这里换回
+       rgba(255,255,255,.22)。α 是浓淡旋钮（早前试过 .45，现 .62）。 */
+    --td-tab-sheen: none;
+    --td-veil: radial-gradient(110% 110% at 24% -2%, rgba(0, 0, 0, 0) 58%, rgba(0, 0, 0, 0.70) 96%);
+    --td-tab-active-img: radial-gradient(110% 110% at 24% -2%, rgba(37, 99, 235, 0) 58%, rgba(37, 99, 235, 0.525) 96%);
+    --td-tab-cn-img: radial-gradient(110% 110% at 24% -2%, rgba(124, 58, 237, 0) 58%, rgba(124, 58, 237, 0.525) 96%);
+    --td-nav-bg: #252539;
+    --td-nav-bd: #33334d;
+    --td-nav-color: #9aa3b2;
+    --td-nav-active-color: #60a5fa;
+    --td-nav-active-bg: rgba(96, 165, 250, 0.16);
+    --td-unit-color: #a0aec0;
+    --td-donetime-color: #a0aec0;
+}
+
+/* ===== 3. 极简 · 浅色（= HEAD 旧观感；值取自 HEAD 源码 + 旧构建计算样式实测） ===== */
+html[data-style="minimal"] {
+    --td-page: #f9fafb;
+    --td-backdrop: #f9fafb;
+    --td-surface: #ffffff;
+    --td-line: #e5e7eb;
+    --td-line-2: #d1d5db;
+    --td-bar: #f9fafb;
+    --td-page2: #f9fafb;                      /* 子页面底：旧版就是 Tailwind bg-gray-50 */
+    --td-bar2: #ffffff;                       /* 子页面顶栏：旧版是白底 + 1px 分割线 */
+    --td-bar2-bd: 1px solid #e5e7eb;
+    --td-card-bg: #ffffff;
+    --td-row-bg: #f9fafb;
+    --td-tab-bg: transparent;
+    --td-shell-bg: #ffffff;
+    --td-shell-r: 8px;
+    --td-shell-p: 2px;
+    --td-shell-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+    --td-r-card: 8px;
+    --td-card-bd: transparent;
+    --td-card-bw: 0px;
+    --td-card-sheen: none;
+    --td-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --td-row-shadow: none;                    /* 旧版行卡没有投影（只有 data-info/总览卡有 shadow-md） */
+    --td-info-margin: 0;
+    --td-sum-margin: 6px 0 4px;
+
+    /* 面板：旧版 = 白底 + 12px + 很轻的投影，**不画描边**（shadow 造边） */
+    --td-panel-bg: #ffffff;
+    --td-panel-solid: #ffffff;
+    --td-panel-r: 12px;
+    --td-panel-bd: #e5e7eb;
+    --td-panel-bw: 0px;
+    --td-panel-bw-tb: 0px;
+    --td-panel-sheen: none;
+    --td-panel-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+    /* 选择控件：旧版没有统一形状（8px 小圆角 / 胶囊各有），统一按 8px 给，短控件上 8px 与胶囊本就分不出 */
+    --td-sel-r: 8px;
+    --td-sel-bg: #ffffff;
+    --td-sel-bd: #e5e7eb;
+    --td-sel-color: #6b7280;
+    --td-sel-sheen: none;
+    --td-sel-shadow: none;
+    --td-sel-hover-color: #374151;
+    --td-sel-on-img: none;
+    --td-sel-on-shadow: none;
+    --td-ind-display: block;
+
+    --td-act-r: 10px;
+    --td-act-sheen: none;
+    --td-act-shadow: none;
+
+    --td-inset-bg: #f3f4f6;
+    --td-inset-bd: #d1d5db;
+    --td-inset-r: 10px;
+    --td-inset-color: #374151;
+    --td-pill-bg: #e5e7eb;
+
+    --td-modal-r: 12px;                       /* 旧版 .modal-card 是 0.75rem */
+    --td-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --td-pop-bg: #ffffff;
+    --td-pop-bd: #e5e7eb;
+    --td-pop-r: 10px;
+    --td-pop-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+    --td-tab-h: auto;
+    --td-tab-pad: 4px 6px;
+    --td-tab-r: 8px 8px 0 0;
+    --td-tab-fs: 14px;
+    --td-tab-fw-active: 700;
+    --td-tab-bw: 0px;
+    --td-tab-color: #6b7280;
+    --td-tab-sheen: none;
+    --td-veil: none;                      /* 极简 = 扁平，没有这层纱 */
+    --td-tab-shadow: none;
+    --td-tab-hover-bg: #f9fafb;
+    --td-tab-hover-color: #374151;
+    --td-tab-active-bg: #ffffff;
+    --td-tab-active-img: none;
+    --td-tab-cn-bg: var(--td-tab-active-bg);  /* 旧版没有区服底色之分（深色段同理，见第 4 段） */
+    --td-tab-cn-img: none;
+    --td-tab-active-color: #000000;
+    --td-tab-active-bd: #000000;
+    --td-tab-active-bw: 2px;
+    --td-tab-active-bbw: 4px;
+    --td-tab-active-shadow: none;
+    --td-tab-baseline: 1px solid #e5e7eb;
+    --td-tab-trans: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);   /* 旧版 tab 上挂着 Tailwind 的 transition-all duration-200 */
+
+    --td-btn-h: 25px;
+    --td-btn-r: 8px;
+    --td-btn-sheen: none;
+    --td-btn-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);                    /* Tailwind shadow-sm */
+    --td-btn-hover: brightness(0.93);                                    /* 旧版 hover 一律变深 */
+    --td-settings-pad: 0 8px;
+    --td-settings-minw: 28px;
+    --td-settings-icon: 12px;
+    --td-qi-bg: #8b5cf6;                                                 /* violet-500 */
+    --td-qi-img: none;
+    --td-qi2-bg: #3b82f6;                                                /* blue-500 */
+    --td-qi2-img: none;
+    --td-qi-fs: 14px;
+    --td-qi-fw: 400;
+    --td-round-size: 32px;
+    --td-round-r: 9999px;
+    --td-launch-right: 8px;
+    --td-lg-intl-bg: #8b5cf6;                                            /* violet-500 */
+    --td-lg-intl-img: none;
+    --td-lg-cn-bg: #3b82f6;                                              /* blue-500 */
+    --td-lg-cn-img: none;
+    --td-divider-display: block;
+
+    --td-nav-bg: #ffffff;
+    --td-nav-bd: #e5e7eb;
+    --td-nav-justify: space-around;
+    --td-nav-gap: 0px;
+    --td-nav-pad: 0px;
+    --td-nav-color: #9ca3af;
+    --td-nav-fs: 11px;
+    --td-nav-fw: 400;
+    --td-nav-icon: 20px;
+    --td-nav-icon-gap: 2px;
+    --td-nav-r: 0px;
+    --td-nav-active-color: #3b82f6;
+    --td-nav-active-bg: transparent;
+    --td-nav-active-shadow: none;
+    --td-nav-trans: color 0.2s;
+
+    --td-count-fs: 14px;
+    --td-count-fw: 500;
+    --td-count-ls: normal;
+    --td-count-lh: 1.5;
+    --td-unit-fs: 10px;
+    --td-unit-margin: 0;
+    --td-unit-color: inherit;                 /* 旧版单位跟数字同色 */
+    --td-done-fs: 14px;
+    --td-donetime-fs: 12px;
+    --td-donetime-mt: 0px;
+    --td-donetime-color: #6b7280;
+}
+
+/* ===== 4. 极简 · 深色（权重最高，必须放最后） ===== */
+html.dark[data-style="minimal"] {
+    /* 旧版的"深浅三级"（页面底 > 子页底 > 顶栏）原样保留，只是**整体加深一档**（2026-09-17）：
+       旧 #252540 / #1a1a2e / #2d2d44 → 现 #1b1b30 / #14141f / #252539
+       ⚠ 第 3 段（极简·浅色）权重与 `html.dark` 相同、且写在后面——**凡是第 3 段声明过的令牌，
+       这里都必须重新声明一次**，否则极简深色会拿到浅色的值（backdrop/surface/line 当初就漏了）。 */
+    --td-backdrop: #14141f;
+    --td-surface: #252539;
+    --td-line: #33334d;
+    --td-line-2: #3f3f5a;
+    --td-page: #1b1b30;
+    --td-bar: #14141f;                        /* 旧版顶栏比页面更深一块 */
+    --td-page2: #14141f;                      /* 旧版整屏子页面底 */
+    --td-bar2: #252539;
+    --td-bar2-bd: 1px solid #33334d;
+    --td-card-bg: #252539;
+    --td-row-bg: #1b1b30;
+    --td-shell-bg: #252539;
+    --td-tab-bg: transparent;
+    --td-panel-bg: #252539;
+    --td-panel-solid: #252539;
+    --td-panel-bd: #33334d;
+    --td-sel-bg: #252539;
+    --td-sel-bd: #33334d;
+    --td-sel-color: #9ca3af;
+    --td-sel-hover-color: #e5e7eb;
+    --td-inset-bg: #33334d;                   /* 旧版深色下这块是灰-700（输入框/浅底块） */
+    --td-inset-bd: #3f3f5a;
+    --td-inset-color: #e5e7eb;
+    --td-pill-bg: #33334d;
+    --td-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --td-pop-bg: #252539;
+    --td-pop-bd: #33334d;
+    --td-tab-bd: transparent;
+    /* 第 3/2 段声明过的令牌，这里必须再声明一次（见本文件顶部警示）；极简档一律扁平 */
+    --td-veil: none;
+    --td-tab-sheen: none;
+    --td-tab-active-img: none;
+    --td-tab-cn-img: none;
+    --td-tab-color: #a0aec0;
+    --td-tab-hover-bg: transparent;
+    --td-tab-hover-color: #a0aec0;
+    --td-tab-active-bg: #252539;
+    /* ⚠ 极简档**没有区服底色之分**（旧版的选中 tab 就是同一个底）：国服的选中底 = 国际服那支
+       （浅色两格都是 `#ffffff`）。第 3 段声明过 `--td-tab-cn-bg`，这里**必须再声明一次**——
+       漏了的话极简深色下国服 tab 会拿到浅色的 `#ffffff`，配上白字白描边就是**一整块白板**
+       （用户 2026-09-19 报的「国服账号的 tab 会是一个大白块」，实测 `rgb(255,255,255)`）。 */
+    --td-tab-cn-bg: var(--td-tab-active-bg);
+    --td-tab-active-bd: #ffffff;
+    --td-tab-active-color: #ffffff;
+    --td-tab-baseline: 1px solid #33334d;
+    --td-nav-bg: #252539;
+    --td-nav-bd: #33334d;
+    --td-nav-color: #888888;
+    --td-nav-active-color: #60a5fa;
+    --td-nav-active-bg: transparent;
+    --td-donetime-color: #94a3b8;             /* 旧版深色下"完成时刻"是 slate-400 */
+}
+
+/* ===== 5. 页面级覆盖（极简档专用：个别页面在旧版里用的不是"通用值"）=====
+   只写"圆润3D 与极简不同、且该页与全站默认也不同"的那几处；值仍只此一份。
+   选择器权重高于第 3、4 段（多一个 ID），故不受块顺序影响。 */
+html[data-style="minimal"] #help-page,
+html[data-style="minimal"] #bases-page,
+html[data-style="minimal"] #pokedex-detail-page {
+    --td-panel-bw: 1px;                       /* 这三页的卡旧版是有描边的（不是光靠投影造边） */
+    --td-panel-bw-tb: 1px;
+}
+html[data-style="minimal"] #pokedex-detail-page { --td-page2: #f5f6f8; }   /* 旧版图鉴页底比别的子页冷一档 */
+html.dark[data-style="minimal"] #help-page,
+html.dark[data-style="minimal"] #bases-page,
+html.dark[data-style="minimal"] #pokedex-detail-page {
+    --td-page2: #0e131c;                      /* 旧版这三页底比别的子页更深一档（原 #111827，2026-09-17 加深） */
+    --td-bar2: #19212c;                       /* 原 #1f2937 */
+    --td-bar2-bd: 1px solid #2c3542;          /* 原 #374151 */
+    --td-panel-bd: #2c3542;
+}
+html.dark[data-style="minimal"] #bases-page,
+html.dark[data-style="minimal"] #pokedex-detail-page {
+    --td-panel-bg: #19212c;                   /* 旧版这两页的卡面是 gray-800 而不是全站的深灰紫（原 #1f2937） */
+    --td-panel-solid: #19212c;
+}
+html.dark[data-style="minimal"] #war-stats-view {
+    --td-panel-bg: #101a33;                   /* 旧版对战统计的深色卡面（比全站深灰紫更蓝一档；原 #16213e，2026-09-17 加深） */
+    --td-panel-solid: #101a33;
+}

@@ -69,7 +69,7 @@
         try { localStorage.setItem('ov_sort_mode', mode); } catch (e) {}
         var btn = document.getElementById('ov-sort-btn');
         if (btn) {
-            btn.innerHTML = (mode === 'time' ? '时间排序' : '默认排序') + ' <i class="fa fa-chevron-down" style="font-size:10px;margin-left:4px"></i>';
+            btn.innerHTML = '<span class="ov-sort-label">' + (mode === 'time' ? '时间排序' : '默认排序') + '</span><i class="fa fa-chevron-down ov-sort-caret"></i>';
         }
         var options = document.querySelectorAll('.ov-sort-option');
         for (var i = 0; i < options.length; i++) {
@@ -249,21 +249,19 @@
                     var wrap = document.createElement('div');
                     wrap.style.cssText = 'position:relative;display:inline-flex;';
                     wrap.appendChild(iconImg);
-                    var sci = document.createElement('img');
-                    sci.src = 'img/icons/Icon_Supercharge.webp';
-                    sci.style.cssText = 'position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:14px;height:14px;';
-                    wrap.appendChild(sci);
-                    if (sc === 1) {
-                        var sci2 = document.createElement('img');
-                        sci2.src = 'img/icons/Icon_Supercharge.webp';
-                        sci2.style.cssText = 'width:14px;height:14px;';
-                        var inner = document.createElement('span');
-                        inner.style.cssText = 'position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);display:flex;gap:1px;line-height:0;';
-                        inner.appendChild(sci);
-                        inner.appendChild(sci2);
-                        wrap.removeChild(sci);
-                        wrap.appendChild(inner);
+                    // 充能角标：个数与首页卡片（progress.js）/小程序同规——supercharge 0 → 1 个、≥1 → 2 个并排
+                    // （资源类三栋有 3 级充能，第三充能进行中时 sc=2 也按 2 个画）。
+                    // **尺寸与定位一律归 CSS**（`.acc-sc-wrap` / `.acc-sc-badge`，角标高 = 项目图标高的 1/3）——
+                    // 这里只建节点。原先两个分支各自搬 DOM，才会出现"对已搬走的节点 removeChild"那种崩溃。
+                    var scWrap = document.createElement('span');
+                    scWrap.className = 'acc-sc-wrap';
+                    for (var bi = 0, bn = sc > 0 ? 2 : 1; bi < bn; bi++) {
+                        var badge = document.createElement('img');
+                        badge.className = 'acc-sc-badge';
+                        badge.src = 'img/icons/Icon_Supercharge.webp';
+                        scWrap.appendChild(badge);
                     }
+                    wrap.appendChild(scWrap);
                     countdownRow.appendChild(wrap);
                 } else {
                     countdownRow.appendChild(iconImg);
@@ -326,7 +324,11 @@
                 })(doneList[di]);
             }
             if (extrasRow.children.length > 0) rightDiv.appendChild(extrasRow);
-        } catch (e) {}
+        } catch (e) {
+            // 这里吞异常，整块右侧（倒计时/助手/钟楼/已完成）会**静默消失**（2026-09-19 超级充能角标那次
+            // 就是被这条空 catch 藏了整整一个版本）→ 至少留一行日志，别再让它无声无息
+            console.warn('[overview] 账号卡右侧渲染失败', e);
+        }
         card.appendChild(rightDiv);
         return card;
     }

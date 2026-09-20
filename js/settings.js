@@ -39,6 +39,48 @@
     function applyDarkMode() { CocTool.theme.apply(settings.darkMode); }
     function checkAutoDarkMode() { return CocTool.theme.syncAutomatic(); }
 
+    /* ===== 主题（风格）轴：圆润3D / 极简 =====
+       与"明暗"正交（明暗仍归 `applyDarkMode` / 夜间模式开关）。
+       唯一入口 = 设置页「主题」行 → 选项弹窗（首页顶栏那个临时试切键 `#style-btn` 已于 2026-09-17 撤掉）。
+       主题清单来自 `CocTool.theme.THEMES`（core.js 单一数据源），加主题不需要改这里。 */
+    function themeList() { return CocTool.theme.THEMES || []; }
+    function themeName(key) {
+        const hit = themeList().filter(t => t.k === key)[0];
+        return hit ? hit.t : key;
+    }
+    function renderStyleOptions() {
+        const list = document.getElementById('ui-style-list');
+        if (!list) return;
+        list.innerHTML = themeList().map(t =>
+            '<button class="ui-style-opt' + (t.k === settings.uiStyle ? ' on' : '') + '" data-style="' + t.k + '">' +
+            '<span class="ui-style-opt-t">' + t.t + '</span>' +
+            '<span class="ui-style-opt-d">' + t.d + '</span>' +
+            '<i class="fa fa-check ui-style-opt-ck"></i>' +
+            '</button>'
+        ).join('');
+        list.querySelectorAll('[data-style]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setStyle(btn.dataset.style);
+                const modal = document.getElementById('ui-style-modal');
+                if (modal) modal.classList.add('hidden');
+            });
+        });
+    }
+    function applyUiStyle() {
+        // 立即生效：与夜间模式同一套做法（只切根节点属性，不重渲染页面）
+        CocTool.theme.applyStyle(settings.uiStyle);
+        const nameEl = document.getElementById('current-style-name');
+        if (nameEl) nameEl.textContent = themeName(settings.uiStyle);
+        renderStyleOptions();
+    }
+    function setStyle(key) {
+        if (settings.uiStyle === key) return;
+        settings.uiStyle = key;
+        saveSettings();
+        applyUiStyle();
+        showToast('已切换到「' + themeName(key) + '」主题', 1500);
+    }
+
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const settingsCloseBtn = document.getElementById('settings-close-btn');
@@ -79,6 +121,7 @@
         sleepTimeBtn.textContent = settings.nightMode ? '设置睡眠时间' : '设置睡眠时间';
         calc.invalidateSleepRange();
         applyDarkMode();
+        applyUiStyle();
     }
     function showSettingsModal() { settingsModal.classList.remove('hidden'); }
     function hideSettingsModal() { settingsModal.classList.add('hidden'); }
@@ -321,6 +364,7 @@
 
         // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
         const UPDATE_LOG = [
+            ['1.4.10', '26.9.18', ['ui升级，新增「主题」设置（设置页）：圆润3D（默认，大圆角+立体）/ 极简（旧版观感）两套风格，各自都支持深色模式；圆润3D 已覆盖全部页面（含设置页、图鉴、使用说明、阵型中心、对战统计）', '修复未登录时上传阵型无法认领的问题。更新后退出重登账号，可将未登录的上传的阵型认领至重新登录的账号下']],
             ['1.4.9', '26.9.13', ['阵型中心新增「榜单」：贡献榜 / 收藏榜 / 使用榜 / 吸睛榜，可查看自己的名次', '阵型中心广场支持排序（最近 / 按收藏 / 按使用 / 按查看），并可左右滑动切换 广场 / 收藏 / 我的', '阵型中心用途标签扩充为「日常 / 对战」两大类共 16 个，上传弹窗层级更清晰；阵型卡上的爱心键直接显示被收藏数', '新增「反馈&建议」（设置页）：选择类型（建议 / Bug）+ 填写描述 + 可选配图，App / 网页 / 小程序三端均可提交', '自动恢复弹窗新增「不再提醒，直接更新」：勾选后每次检测到云端备份或 WebDAV 备份较新时直接恢复，不再询问', '首页升级项目图标、时间搜索结果图标支持点击直达对应图鉴详情，返回时逐层回退（图鉴 → 账号详情 → 账号进度）']],
             ['1.4.8', '26.9.10', ['新增「阵型中心」：进入「更多」即可使用，支持上传、广场浏览、我的上传、收藏与被反馈', '桌面小组件改版：账号名淡彩胶囊样式、透明度随深浅模式自动适配、账号颜色不再重复、文字深浅对比更清晰', '账号切换优化：选中的账号标签自动居中显示，左右两侧标签始终可见', '自动备份开关优化，修复了旧版本无法关闭自动备份的问题', '超快捷导入优化', '自动恢复弹窗增加防误触关闭']],
             ['1.4.7', '26.9.6', ['新增云端自动备份/自动恢复', 'WebDAV备份功能优化，消除备份卡顿，新增自动恢复', '类别屏蔽强化：按账号屏蔽任意分类，账号切换栏配色/主标题/通知不再受被屏蔽类目干扰', '主标题新增空闲检测与账号跳转功能', '弱化重复导入带来的负反馈', '图鉴修正：夜世界英雄升级资源种类、攻城机器解锁大本等级；等级滑块起点对齐真实解锁等级（如战斗直升机 15 级起）', '界面优化：倒计时去「秒」字且单位数居中、首页贴图圆角、设置页更紧凑并新增「更新日志」入口、更新红点与绿色升级圆钮更醒目']],
@@ -465,6 +509,14 @@
         iconPickerSaveBtn.addEventListener('click', saveIconSelection);
         selectIconBtn.addEventListener('click', openIconPicker);
         iconPickerModal.addEventListener('click', (e) => { if (e.target === iconPickerModal) iconPickerModal.classList.add('hidden'); });
+
+        // ===== 主题切换入口（状态与函数在模块层，见文件上方「主题（风格）轴」）=====
+        const uiStyleModal = document.getElementById('ui-style-modal');
+        const uiStyleCloseBtn = document.getElementById('ui-style-close-btn');
+        const uiStyleRowBtn = document.getElementById('ui-style-btn');
+        if (uiStyleRowBtn) uiStyleRowBtn.addEventListener('click', () => { renderStyleOptions(); uiStyleModal.classList.remove('hidden'); });
+        if (uiStyleCloseBtn) uiStyleCloseBtn.addEventListener('click', () => uiStyleModal.classList.add('hidden'));
+        if (uiStyleModal) uiStyleModal.addEventListener('click', (e) => { if (e.target === uiStyleModal) uiStyleModal.classList.add('hidden'); });
 
         // ===== 网页版链接 =====
         const WEB_APP_URL = 'https://sqggde.github.io/coctimer/';

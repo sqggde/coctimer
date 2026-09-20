@@ -58,14 +58,14 @@ let initialized = false;
 
     function saveToLocalStorage() { return storage.saveAccounts(); }
     function saveSettings() { return storage.saveSettings(); }
-    // 链式启动按钮：背景色随当前账号区服（国际服紫 / 国服蓝 / 未设置灰）
+    // 链式启动按钮：底色随当前账号区服（国际服紫 / 国服蓝 / 未设置灰）——语义不变，配色真源在 app.css
+    // （#launch-game-btn 的三条渐变规则）。这里只切类：写 style.background 简写会把 background-image 一起
+    // 重置成 none，渐变就写不进去了
     function updateLaunchGameBtn() {
         if (!launchGameBtn) return;
-        var color = '#6b7280';
         const data = state.currentAccount ? accounts[state.currentAccount] : null;
-        if (data && data._server === 'cn') color = '#3b82f6';
-        else if (data && data._server === 'intl') color = '#8b5cf6';
-        launchGameBtn.style.background = color;
+        launchGameBtn.classList.toggle('lg-cn', !!(data && data._server === 'cn'));
+        launchGameBtn.classList.toggle('lg-intl', !!(data && data._server === 'intl'));
     }
 
     function doLaunchGame(server) {
@@ -377,6 +377,7 @@ let initialized = false;
         }, { passive: true });
 
         mainDisplayArea.addEventListener('touchend', (e) => {
+            if (CocTool.features.progress && CocTool.features.progress.simActive && CocTool.features.progress.simActive()) return;   // 推演中禁用左右滑切号
             if (e.changedTouches.length === 1 && accountOrder.length > 1 && state.currentAccount) {
                 const endX = e.changedTouches[0].clientX, endY = e.changedTouches[0].clientY;
                 const dx = endX - startX, dy = endY - startY;
@@ -385,8 +386,8 @@ let initialized = false;
                     if (target && target.closest('#tab-container')) return;
                     const currentIndex = accountOrder.indexOf(state.currentAccount);
                     if (currentIndex === -1) return;
-                    if (dx > 0) { if (currentIndex > 0) { switchAccount(accountOrder[currentIndex - 1], 'right'); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
-                    else { if (currentIndex < accountOrder.length - 1) { switchAccount(accountOrder[currentIndex + 1], 'left'); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
+                    if (dx > 0) { if (currentIndex > 0) { switchAccount(accountOrder[currentIndex - 1]); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
+                    else { if (currentIndex < accountOrder.length - 1) { switchAccount(accountOrder[currentIndex + 1]); if (settings.vibrate !== false) CocTool.platform.call('vibrate', 40); } }
                 }
             }
         }, { passive: true });
@@ -433,20 +434,20 @@ let initialized = false;
         updateLaunchGameBtn();
     }
 
-    function switchAccount(accountTag, direction) {
+    // 切号 = 直接换内容（2026-09-17 起不再有"内容滑入"动效，用户要求删掉；见 app.css 同处注释）
+    function switchAccount(accountTag) {
+        // 道具推演中限制切号（tab 点击/左右滑共同入口）：目标不同即拦截并提示
+        const progress = CocTool.features.progress;
+        if (progress && progress.simActive && progress.simActive() && accountTag !== state.currentAccount) {
+            if (CocTool.ui && CocTool.ui.showToast) CocTool.ui.showToast('推演中无法切换账号，请先退出推演');
+            return;
+        }
         if (isSortMode) exitSortMode(false);
         if (!accounts[accountTag]) return;
         state.currentAccount = accountTag;
         saveToLocalStorage();
         updateTabActiveState(accountTag);
         renderCurrentAccount();
-        // 切换内容入场动画（左右滑按方向滑入，其余从右滑入；重触发需强制 reflow）
-        if (mainDisplayArea) {
-            const cls = direction === 'left' ? 'tab-slide-right' : 'tab-slide-left';
-            mainDisplayArea.classList.remove('tab-slide-left', 'tab-slide-right');
-            void mainDisplayArea.offsetWidth;
-            mainDisplayArea.classList.add(cls);
-        }
     }
 
     function rebuildAllTabs() {
@@ -458,6 +459,10 @@ let initialized = false;
             const tab = document.createElement('button');
             tab.className = 'account-tab px-1.5 py-1 text-sm font-medium rounded-t-lg transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50';
             tab.setAttribute('data-account', tag);
+            // 区服标记：选中态的底色按区服取（国际服紫底+蓝纱 / 国服蓝底+紫纱），与"打开游戏"键同一套语义
+            const srv = accounts[tag] && accounts[tag]._server;
+            if (srv === 'cn') tab.classList.add('srv-cn');
+            else if (srv === 'intl') tab.classList.add('srv-intl');
             const note = accountNotes[tag] || tag;
             const mode = settings.noteDisplayMode && settings.noteDisplayMode[tag];
             let displayText = note;
@@ -830,20 +835,16 @@ let initialized = false;
                 if (menu && !menu.classList.contains('hidden')) menu.classList.add('hidden');
             });
         });
-        // 快捷导入分体按钮（首页 header + 账号进度页顶部多处实例共享）：左 80% 执行当前模式，右 20%（▾）切换模式（持久化 settings.quickImportMode）
-        // 模式视觉：快捷导入=紫、粘贴导入=蓝（按钮背景随模式变化）
+        // 快捷导入分体按钮（首页 header + 账号进度页顶部多处实例共享）：左段执行当前模式、右段（v）切换模式（持久化 settings.quickImportMode）
+        // 模式视觉：只切 .qi-paste 类，配色（渐变）真源在 app.css 的 .qi-btn 段——渐变是 background-image，
+        // 用不了 Tailwind 的 bg-* 换色
         function updateQuickImportMode() {
             quickImportWraps.forEach(wrap => {
                 const label = wrap.querySelector('.qi-label');
                 const btn = wrap.querySelector('.qi-btn');
                 if (!label || !btn) return;
                 label.textContent = settings.quickImportMode === 'paste' ? '粘贴导入' : '快捷导入';
-                btn.classList.remove('bg-violet-500', 'bg-blue-500', 'hover:bg-violet-600', 'hover:bg-blue-600');
-                if (settings.quickImportMode === 'paste') {
-                    btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-                } else {
-                    btn.classList.add('bg-violet-500', 'hover:bg-violet-600');
-                }
+                btn.classList.toggle('qi-paste', settings.quickImportMode === 'paste');
             });
         }
         function bindQuickImport(wrap) {

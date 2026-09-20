@@ -434,9 +434,10 @@ $('ws-result').innerHTML = h;
     }
 
     // ====== 表格分享（生成完整图片 → 保存相册/社交分享） ======
-    var SHARE_SVG = '<svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34 6H14C9.58172 6 6 9.58172 6 14V34C6 38.4183 9.58172 42 14 42H34C38.4183 42 42 38.4183 42 34V14C42 9.58172 38.4183 6 34 6Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24 32C28.4183 32 32 28.4183 32 24C32 19.5817 28.4183 16 24 16C19.5817 16 16 19.5817 16 24C16 28.4183 19.5817 32 24 32Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M35 15C36.1046 15 37 14.1046 37 13C37 11.8954 36.1046 11 35 11C33.8954 11 33 11.8954 33 13C33 14.1046 33.8954 15 35 15Z" fill="currentColor"/></svg>';
+    // 图标走 `img/svg/common/share-image.svg` + svg-icons.js 注册表（`<i class="fa">` 由 svgIcons.init() 水合）——
+    // 原来这里是内联 `<svg>` 常量，属 AGENTS.md「禁止内联 SVG」的存量违规，2026-09-19 随分享图功能一并清偿
     function shareBtnHtml() {
-        return '<button class="ws-share-btn" title="分享表格">' + SHARE_SVG + '</button>';
+        return '<button class="ws-share-btn" title="分享表格"><i class="fa fa-share-image"></i></button>';
     }
     function bindShareButtons() {
         document.querySelectorAll('.ws-share-btn').forEach(function (btn) {
@@ -584,17 +585,18 @@ $('ws-result').innerHTML = h;
     function downloadImage(dataUrl) {
         var a = document.createElement('a');
         a.href = dataUrl;
-        a.download = 'war_stats.png';
+        a.download = shareFileName || 'coc_image.png';
         document.body.appendChild(a);
         a.click();
         a.remove();
     }
     // 网页版降级：Web Share API（不支持则下载）
     function webShareImage(dataUrl) {
+        var name = shareFileName || 'coc_image.png';
         try {
-            var file = new File([dataUriToBlob(dataUrl)], 'war_stats.png', { type: 'image/png' });
+            var file = new File([dataUriToBlob(dataUrl)], name, { type: 'image/png' });
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({ files: [file], title: '部落战统计' });
+                navigator.share({ files: [file], title: shareTitle || '分享图片' });
             } else {
                 downloadImage(dataUrl);
                 showShareToast('已下载图片，可自行分享');
@@ -611,7 +613,7 @@ $('ws-result').innerHTML = h;
         m.id = 'ws-share-modal';
         m.innerHTML = ''
             + '<div class="modal-card w-sm" style="text-align:center;">'
-            + '<div style="font-size:15px;font-weight:600;color:#1f2937;margin-bottom:10px;">分享统计表</div>'
+            + '<div id="ws-share-title" style="font-size:15px;font-weight:600;color:#1f2937;margin-bottom:10px;">分享图片</div>'
             + '<img id="ws-share-img" style="width:100%;border-radius:8px;background:#fff;">'
             + '<div style="display:flex;gap:8px;margin-top:12px;">'
             + '<button class="ws-share-action save" id="ws-share-save-btn">保存到相册</button>'
@@ -641,6 +643,25 @@ $('ws-result').innerHTML = h;
                 webShareImage(img.src);
             }
         });
+    }
+    // 图片分享弹窗（保存到相册 / 分享 / 取消）—— **部落战统计的表格图与账号详情页的「分享图」共用这一套**，
+    // 见 AGENTS.md「不重复实现」：第二个用图的地方走这里，不要再写一套弹窗 + 派发。
+    // 参数：dataUrl（data:image/png;base64,…）、opts { title, filename }（标题与下载/分享时的文件名）
+    var shareFileName = '';
+    var shareTitle = '';
+    function imageShare(dataUrl, opts) {
+        if (!dataUrl) { showShareToast('图片生成失败'); return false; }
+        opts = opts || {};
+        shareFileName = opts.filename || 'coc_image.png';
+        shareTitle = opts.title || '分享图片';
+        ensureShareModal();
+        var t = document.getElementById('ws-share-title');
+        if (t) t.textContent = shareTitle;
+        var img = $('ws-share-img');
+        img.src = dataUrl;
+        img.dataset.b64 = dataUrl.split(',')[1] || '';
+        document.getElementById('ws-share-modal').classList.remove('hidden');
+        return true;
     }
     function showShareToast(msg) {
         var t = document.getElementById('ws-share-toast');
@@ -674,11 +695,7 @@ $('ws-result').innerHTML = h;
             return;
         }
         if (!dataUrl) { showShareToast('图片生成失败'); return; }
-        ensureShareModal();
-        var img = $('ws-share-img');
-        img.src = dataUrl;
-        img.dataset.b64 = dataUrl.split(',')[1] || '';
-        $('ws-share-modal').classList.remove('hidden');
+        imageShare(dataUrl, { title: '分享统计表', filename: 'war_stats.png' });
     }
 
     // ====== 配置面板 ======
@@ -816,7 +833,10 @@ var c = loadCache();
         if (refresh) refresh.addEventListener('click', function () { if (_tag) { renderPanel(); query(); } });
     }
 
-    C.features.warStats = { open: open, close: close, init: init };
+    // imageShare：**共用**的图片分享弹窗（保存到相册 / 分享 / 取消）——部落战统计的表格图与账号详情页的
+    // 「分享图」（overview-share.js）都走这里，不再各写一套弹窗与派发（AGENTS.md「不重复实现」）。
+    // 这个弹窗生在本模块（它最早为战况统计做的），所以放在 features.warStats 下导出。
+    C.features.warStats = { open: open, close: close, init: init, imageShare: imageShare };
 })(window);
 
 

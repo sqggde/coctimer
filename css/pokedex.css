@@ -1,27 +1,28 @@
-/* ===== 图鉴详情页 ===== */
+/* =============================================================================
+ * pokedex.css —— 图鉴详情页
+ *
+ * 本页自带一套局部变量（--bg/--card/--text/…），这里把它们接到 tokens.css 的通用令牌上：
+ * 圆润3D 与极简两套主题因此自动生效（不再需要本文件里的 `html.dark #pokedex-detail-page` 那一大段覆盖）。
+ * 本页在极简档下的旧值见 tokens.css 第 5 段（页面底 #f5f6f8 / 深色 #111827）。
+ * ========================================================================== */
 #pokedex-detail-page {
     position: fixed;
     inset: 0;
     z-index: 10;
-    background: var(--bg, #f5f6f8);
+    background: var(--bg, var(--td-page2));
     flex-direction: column;
     overflow-y: auto;
-    --bg: #f5f6f8;
-    --card: #ffffff;
+    --bg: var(--td-page2);
     --text: #1f2937;
     --text-sub: #6b7280;
-    --border: #e5e7eb;
+    --border: var(--td-panel-bd);
     --accent: #2563eb;
-    --table-head-bg: #f3f4f6;
+    --table-head-bg: var(--td-inset-bg);
 }
 html.dark #pokedex-detail-page {
-    --bg: #111827;
-    --card: #1f2937;
     --text: #e5e7eb;
     --text-sub: #9ca3af;
-    --border: #374151;
     --accent: #60a5fa;
-    --table-head-bg: #374151;
 }
 #pokedex-detail-page * { box-sizing: border-box; }
 #pokedex-detail-page .pokedex-body {
@@ -40,7 +41,7 @@ html.dark #pokedex-detail-page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 0;
+    padding: 2px 0;   /* 顶部留白 14→2px（同上）*/
 }
 #pokedex-detail-page .top-bar .title {
     display: flex;
@@ -71,25 +72,31 @@ html.dark #pokedex-detail-page {
     display: inline-block;
     animation: pokedex-rotate 0.8s linear infinite;
 }
-/* 能力切换：等宽横向铺满 */
+/* 能力切换：等宽横向铺满（选择控件） */
 #pokedex-ability-switch { display: flex; gap: 8px; margin-bottom: 14px; }
 #pokedex-ability-switch .e-btn {
     flex: 1 1 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text-sub);
-    border-radius: 999px;
+    background-color: var(--td-sel-bg);
+    background-image: var(--td-sel-sheen);
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    color: var(--td-sel-color);
+    border-radius: var(--td-sel-r);
+    box-shadow: var(--td-sel-shadow);
     padding: 6px 4px;
     font-size: 13px;
     cursor: pointer;
     text-align: center;
     white-space: nowrap;
 }
-/* 区块 */
+/* 区块：面板 */
 #pokedex-detail-page .sec {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
     padding: 14px;
     margin-bottom: 14px;
 }
@@ -110,11 +117,12 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page .slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 #pokedex-detail-page .slider-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); }
 #pokedex-detail-page .slider-row .lv { font-size: 14px; font-weight: 700; min-width: 30px; text-align: center; color: var(--text); }
-/* 等级微调 +/- 按钮 */
+/* 等级微调 +/- 按钮（选择控件同族） */
 #pokedex-detail-page .slider-row .lv-step {
     width: 28px; height: 28px; flex-shrink: 0;
-    border: 1px solid var(--border); border-radius: 8px;
-    background: var(--card); color: var(--text);
+    border: var(--td-sel-bw) solid var(--td-sel-bd); border-radius: var(--td-sel-r);
+    background-color: var(--td-sel-bg); color: var(--text);
+    background-image: var(--td-sel-sheen); box-shadow: var(--td-sel-shadow);
     font-size: 17px; line-height: 1;
     display: flex; align-items: center; justify-content: center;
 }
@@ -125,7 +133,7 @@ html.dark #pokedex-detail-page {
 #pokedex-detail-page th, #pokedex-detail-page td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
 #pokedex-detail-page th { background: var(--table-head-bg); font-weight: 600; color: var(--text-sub); font-size: 12px; }
 #pokedex-detail-page th.th-long { font-size: 8px; white-space: nowrap; }
-/* 冻结「等级」首列（横向滚动时保持可见） */
+/* 冻结「等级」首列（横向滚动时保持可见）——吸顶/固定列要**不透明**底：半透明会透出滚过去的单元格 */
 #pokedex-detail-page .tbl-wrap table th:first-child,
 #pokedex-detail-page .tbl-wrap table td:first-child {
     position: sticky;
@@ -134,9 +142,14 @@ html.dark #pokedex-detail-page {
     border-right: 1px solid var(--border);
 }
 #pokedex-detail-page .tbl-wrap table th:first-child { z-index: 3; background: var(--table-head-bg); }
-#pokedex-detail-page .tbl-wrap table td:first-child { background: var(--bg); }
+#pokedex-detail-page .tbl-wrap table td:first-child { background: var(--bg); }   /* 旧版就是页面底色；它天然不透明，冻结列不会透出滚过去的单元格 */
 /* 等级列内充能行：图标+序号（方案 B，inline-block 覆盖 Tailwind preflight 的 img block） */
 #pokedex-detail-page .lv-icon { display: inline-block; width: 16px; height: 16px; max-width: none; object-fit: contain; vertical-align: -3px; margin-right: 2px; }
 #pokedex-detail-page th .th-icon { width: 20px; height: 20px; max-width: none; object-fit: contain; vertical-align: middle; display: block; margin: 0 auto; }
 #pokedex-detail-page tr.cur { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 #pokedex-detail-page tr.cur td { font-weight: 600; color: var(--accent); }
+
+/* ===== 极简档 · 本页旧值（圆润3D 用 tokens.css 的通用值） ===== */
+html[data-style="minimal"] #pokedex-ability-switch .e-btn { background-image: none; border-radius: 999px; box-shadow: none; }
+html[data-style="minimal"] #pokedex-detail-page .slider-row .lv-step { background-image: none; box-shadow: none; }
+html[data-style="minimal"] #pokedex-detail-page .sec { box-shadow: none; }

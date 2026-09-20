@@ -4,18 +4,19 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20260914-tlct5i"></script>
+<script src="shim.js?v=coc-tool-web-20260920-tlngaj"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <link href="css/icons.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20260914-tlct5i" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20260920-tlngaj" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -337,7 +338,7 @@
             </div>
         </div>
 
-        <div id="sticky-top-bar" class="sticky top-0 z-10 bg-gray-50 pt-2">
+        <div id="sticky-top-bar" class="sticky top-0 z-10 bg-gray-50 pt-0.5">
         <header class="mb-0.5 py-1">
             <div class="flex items-center justify-between">
                 <div style="display:flex;align-items:center;">
@@ -347,12 +348,12 @@
                     </button>
                 </div>
                 <div class="flex space-x-1" style="align-items:center;">
-                    <button id="settings-btn" class="px-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md text-xs" style="height:25px;min-width:28px;"><i class="fa fa-cog"></i></button>
+                    <button id="settings-btn" class="transition-all duration-200 flex items-center justify-center"><i class="fa fa-cog"></i></button>
                     <div class="quick-import-wrap" style="position:relative;">
-                        <button class="qi-btn bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-all duration-200 flex items-center shadow-sm hover:shadow-md overflow-hidden" style="font-size:14px; padding:0; min-width:94px; height:25px;">
-                            <span class="qi-label px-2 py-0.5" style="flex:0 0 80%; white-space:nowrap;">快捷导入</span>
+                        <button class="qi-btn text-white transition-all duration-200 flex items-center overflow-hidden" style="padding:0; min-width:94px; justify-content:center;">
+                            <span class="qi-label" style="padding:0 4px 0 8px; white-space:nowrap;">快捷导入</span>
                             <span class="qi-divider" style="width:1px;background:rgba(255,255,255,0.4);height:14px;flex-shrink:0;"></span>
-                            <span class="qi-caret px-1 py-0.5" style="flex:0 0 20%;text-align:center;font-size:14px;">▾</span>
+                            <i class="fa fa-chevron-down qi-caret" style="flex:0 0 auto;padding:0 5px 0 1px;font-size:18px;line-height:1;"></i>
                         </button>
                         <div class="qi-menu more-menu hidden" style="left:0;right:auto;">
                             <button class="more-menu-item" data-quick-mode="clipboard">快捷导入</button>
@@ -364,21 +365,22 @@
         </header>
 
         <!-- 账号标签栏 -->
-        <div id="account-tabs" class="mb-1 border-b border-gray-200">
+        <div id="account-tabs" class="mb-1">
             <div class="flex space-x-1 overflow-x-auto scrollbar-thin" id="tab-container"></div>
         </div>
 
         <!-- 账号操作按钮区域 -->
         <div id="account-actions" class="relative mb-1 flex justify-center items-center space-x-2 hidden" style="position:relative;">
-            <button id="launch-game-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:14px; background:#6b7280;" title="打开游戏">
+            <button id="launch-game-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; top:50%; transform:translateY(-50%); font-size:14px;" title="打开游戏">
                 <i class="fa fa-launch-game" style="font-size:20px;"></i>
             </button>
-            <button id="sort-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; left:0; top:50%; transform:translateY(-50%); background:#8b5cf6;" title="调整账号顺序">
+            <button id="sort-btn" class="w-8 h-8 flex items-center justify-center rounded-full text-white transition-all duration-200 shadow-md hover:shadow-lg" style="position:absolute; left:0; top:50%; transform:translateY(-50%); background-color:#8b5cf6;" title="调整账号顺序">
                 <img src="img/svg/progress/sort.svg" width="16" height="16" style="filter:brightness(0) invert(1);" alt="排序">
             </button>
-            <button id="duration-search-btn" class="px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="升级时长搜索"><i class="fa fa-search" style="font-size:16px;"></i></button>
+            <button id="sim-entry-btn" class="px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" title="道具使用推演"><i class="fa fa-potion" style="font-size:16px;"></i></button>
+            <button id="duration-search-btn" class="px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" title="升级时长搜索"><i class="fa fa-search" style="font-size:16px;"></i></button>
             <div class="more-wrap" style="position:relative;">
-                <button id="more-btn" class="px-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" style="height:25px;" title="更多操作">
+                <button id="more-btn" class="px-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center" title="更多操作">
                     <img src="img/svg/progress/more.svg" width="16" height="16" style="filter:brightness(0) invert(1);" alt="更多">
                 </button>
                 <div id="more-menu" class="more-menu hidden">
@@ -389,10 +391,10 @@
         </div>
         </div>
 
-        <div class="space-y-2 pb-2">
+        <div id="home-shell" class="space-y-2 pb-2 clip-x">
             <div id="main-display-area">
             <div>
-                <div id="data-info" class="bg-white rounded-lg shadow-md px-1 py-0.5">
+                <div id="data-info" class="section-card">
                     <div class="flex justify-between items-center" style="font-size: 13px;">
                         <span class="text-gray-600">账号标签:</span>
                         <span id="account-tag" class="font-medium text-gray-800">未导入</span>
@@ -405,7 +407,7 @@
             </div>
 
             <!-- 分类概览卡片 -->
-            <div id="category-summary-card" class="bg-white rounded-lg shadow-md px-2 py-1 mt-1.5 mb-1 hidden relative">
+            <div id="category-summary-card" class="section-card hidden relative">
                 <!-- 建筑工人月卡图标（左上角，仅国服有工人助手时显示） -->
                 <img id="builder-monthly-pass-icon" src="img/icons/moreb.webp" class="absolute top-1 left-1 w-4 h-4 object-contain cursor-pointer hidden" style="filter: grayscale(100%) brightness(0.6);" title="建筑工人月卡" alt="月卡">
                 <!-- 活动加速挡位选择器（仅活动期间显示） -->
@@ -455,21 +457,24 @@
                     </div>
                 </div>
                 <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 10px;margin-top:4px"></div>
-
-</div>
+                </div>
 
             <div class="mt-1">
-                <div class="bg-white rounded-lg shadow-md p-0.5">
+                <!-- 升级列表外壳：圆润3D 下无样式（裸标题 + 每实体一张卡）；极简主题靠 `--td-shell-*` 还原成
+                     旧版的"白卡包住整块列表（bg-white rounded-lg shadow-md p-0.5）"——见 tokens.css -->
+                <div class="list-shell">
                     <h2 class="font-semibold text-gray-800 mb-1 flex items-center" style="font-size: 14px;"><i class="fa fa-clock-o mr-2 text-primary"></i><span id="upgrade-title-text" style="font-size: 14px;">正在升级的项目</span><span id="upgrades-count-badge" class="ml-2 px-2 py-1 bg-primary text-white text-xs rounded-full hidden" style="font-size: 10px;">0</span><span id="chest-notification" class="hidden ml-auto bg-green-500 text-white text-sm rounded-lg px-2 py-0.5">宝箱已刷新</span></h2>
                     <div id="loading-indicator" class="flex items-center justify-center py-12"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div><span class="ml-3 text-gray-600">正在加载...</span></div>
                     <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-4"></div>
                     <div id="empty-state" class="text-center py-12 hidden"><i class="fa fa-database text-gray-300 text-5xl mb-4"></i><p class="text-gray-500">点击「导入数据」添加账号，数据将自动保存</p></div>
                     <div id="upgrades-container" class="hidden">
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界建筑</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span><span id="builder-boost-toggle" class="ml-auto" style="cursor:pointer;display:none;align-items:center;gap:2px;margin-left:auto"><img id="builder-boost-icon" src="img/icons/builder_boost.webp" width="16" height="16" style="vertical-align:middle;display:inline-block;border-radius:4px"><span id="builder-boost-label" style="font-size:11px;font-weight:500;font-variant-numeric:tabular-nums">10x</span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-flask mr-2 text-secondary"></i><span style="font-size: 14px;">实验室</span><span id="lab-count" class="ml-1 px-1 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full hidden"></span></h3><div id="lab-list" class="space-y-0.5"></div></div>
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-paw mr-2 text-pink-500"></i><span style="font-size: 14px;">战宠</span><span id="pets-count" class="ml-1 px-1 py-0.5 bg-pink-500/10 text-pink-500 text-xs rounded-full hidden"></span></h3><div id="pets-list" class="space-y-0.5"></div></div>
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-moon-o mr-2 text-warning"></i><span style="font-size: 14px;">🌙 建筑</span><span id="buildings2-count" class="ml-1 px-1 py-0.5 bg-warning/10 text-warning text-xs rounded-full hidden"></span></h3><div id="buildings2-list" class="space-y-0.5"></div></div>
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-2 flex items-center" style="font-size: 13px;"><i class="fa fa-rocket mr-2 text-purple-500"></i><span style="font-size: 14px;">星空实验室</span><span id="units2-count" class="ml-1 px-1 py-0.5 bg-purple-500/10 text-purple-500 text-xs rounded-full hidden"></span></h3><div id="units2-list" class="space-y-0.5"></div></div>
+                        <!-- 首组**不带 mt-2**：一级标题自己的 mb-1(4px) 与它折叠后就是 4px —— 一级标题离它的组更近；
+                             其余四组用 mt-2(8px) 与上一组末卡隔开（间距口径见 DESIGN.md §4.9） -->
+                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界建筑</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span><span id="builder-boost-toggle" class="ml-auto" style="cursor:pointer;display:none;align-items:center;gap:2px;margin-left:auto"><img id="builder-boost-icon" src="img/icons/builder_boost.webp" width="16" height="16" style="vertical-align:middle;display:inline-block;border-radius:4px"><span id="builder-boost-label" style="font-size:11px;font-weight:500;font-variant-numeric:tabular-nums">10x</span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-flask mr-2 text-secondary"></i><span style="font-size: 14px;">实验室</span><span id="lab-count" class="ml-1 px-1 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full hidden"></span></h3><div id="lab-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-paw mr-2 text-pink-500"></i><span style="font-size: 14px;">战宠</span><span id="pets-count" class="ml-1 px-1 py-0.5 bg-pink-500/10 text-pink-500 text-xs rounded-full hidden"></span></h3><div id="pets-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-moon-o mr-2 text-warning"></i><span style="font-size: 14px;">🌙 建筑</span><span id="buildings2-count" class="ml-1 px-1 py-0.5 bg-warning/10 text-warning text-xs rounded-full hidden"></span></h3><div id="buildings2-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-rocket mr-2 text-purple-500"></i><span style="font-size: 14px;">星空实验室</span><span id="units2-count" class="ml-1 px-1 py-0.5 bg-purple-500/10 text-purple-500 text-xs rounded-full hidden"></span></h3><div id="units2-list" class="space-y-0.5"></div></div>
                     </div>
                 </div>
             </div>
@@ -668,17 +673,17 @@
                     <span>账号进度</span>
                 </div>
                 <div class="quick-import-wrap" style="position:relative; margin-left:auto; margin-right:8px;">
-                    <button class="qi-btn bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-all duration-200 flex items-center shadow-sm hover:shadow-md overflow-hidden" style="font-size:14px; padding:0; min-width:94px; height:25px;">
-                        <span class="qi-label px-2 py-0.5" style="flex:0 0 80%; white-space:nowrap;">快捷导入</span>
+                    <button class="qi-btn text-white transition-all duration-200 flex items-center overflow-hidden" style="padding:0; min-width:94px; justify-content:center;">
+                        <span class="qi-label" style="padding:0 4px 0 8px; white-space:nowrap;">快捷导入</span>
                         <span class="qi-divider" style="width:1px;background:rgba(255,255,255,0.4);height:14px;flex-shrink:0;"></span>
-                        <span class="qi-caret px-1 py-0.5" style="flex:0 0 20%;text-align:center;font-size:14px;">▾</span>
+                        <i class="fa fa-chevron-down qi-caret" style="flex:0 0 auto;padding:0 5px 0 1px;font-size:18px;line-height:1;"></i>
                     </button>
                     <div class="qi-menu more-menu hidden" style="left:0;right:auto;">
                         <button class="more-menu-item" data-quick-mode="clipboard">快捷导入</button>
                         <button class="more-menu-item" data-quick-mode="paste">粘贴导入</button>
                     </div>
                 </div>
-                <button id="ov-sort-btn" class="ov-sort-btn">默认排序 <i class="fa fa-chevron-down" style="font-size:10px;margin-left:4px"></i></button>
+                <button id="ov-sort-btn" class="ov-sort-btn"><span class="ov-sort-label">默认排序</span><i class="fa fa-chevron-down ov-sort-caret"></i></button>
                 <div id="ov-sort-dropdown" class="ov-sort-dropdown hidden">
                     <div class="ov-sort-option" data-mode="default">默认排序</div>
                     <div class="ov-sort-option" data-mode="time">时间排序</div>
@@ -690,7 +695,7 @@
             </div>
             <div class="content" id="overview-cards"></div>
             <!-- 账号进度详情页（嵌套在 overview-page 内） -->
-            <div id="overview-detail-page" style="display:none;flex-direction:column;background:#f9fafb;position:fixed;inset:0;z-index:10;">
+            <div id="overview-detail-page" style="display:none;flex-direction:column;background:var(--td-page2);position:fixed;inset:0;z-index:10;">
                 <div class="top-bar" style="justify-content:space-between;">
                     <button id="ov-detail-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
                     <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);gap:6px;font-size:15px;">
@@ -703,6 +708,8 @@
                     <button class="ov-tab" id="ov-tab-night">夜世界</button>
                     <div class="ov-tab-indicator" id="ov-tab-indicator"></div>
                 </div>
+                <!-- 分享图键不在这里：它渲染进「等级/时间」那一行（overview-detail.js 的 shareBtnHtml；
+                     用户 2026-09-19：原来独占一行、留白太多），动作 = CocTool.features.share.open() -->
                 <div class="ov-detail-scroll" id="ov-detail-scroll">
                     <div id="ov-detail-home"></div>
                     <div id="ov-detail-night" style="display:none;"></div>
@@ -812,7 +819,7 @@
         </div>
 
         <!-- 部落详情页 -->
-        <div id="clan-detail-page" style="position:fixed;inset:0;z-index:10;display:none;flex-direction:column;background:#f9fafb;">
+        <div id="clan-detail-page" style="position:fixed;inset:0;z-index:10;display:none;flex-direction:column;background:var(--td-page2);">
             <div class="top-bar detail-top-bar">
                 <div class="detail-left">
                     <button class="detail-back" id="detail-back-btn">
@@ -940,11 +947,11 @@
                     </div>
                     <!-- 成员筛选 -->
                     <div id="prep-filter-bar" class="member-filter-bar" style="display:flex;align-items:center;justify-content:center;padding:8px 0;position:relative;">
-                        <button id="prep-filter-btn" style="display:flex;align-items:center;gap:4px;font-size:13px;padding:4px 12px;background:#f3f4f6;border:none;border-radius:6px;color:#374151;cursor:pointer;">
+                        <button id="prep-filter-btn" class="filter-btn" style="display:flex;align-items:center;gap:4px;font-size:13px;padding:4px 12px;cursor:pointer;">
                             <span id="prep-filter-label">全部</span>
                             <i class="fa fa-chevron-down" style="font-size:10px;"></i>
                         </button>
-                        <div id="prep-filter-dropdown" class="filter-dropdown hidden" style="position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:10;min-width:110px;overflow:hidden;"></div>
+                        <div id="prep-filter-dropdown" class="filter-dropdown hidden" style="position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:10;min-width:110px;overflow:hidden;"></div>
                     </div>
                     <!-- 成员列表 -->
                     <div style="display:flex;gap:12px;margin-top:20px;padding:0 0 56px 0;width:100%;">
@@ -969,7 +976,7 @@
         </div>
 
         <!-- 日志页面（独立层） -->
-        <div id="clan-log-view" class="hidden" style="position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:#f9fafb;">
+        <div id="clan-log-view" class="hidden" style="position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--td-page2);">
             <div class="top-bar" style="justify-content:space-between;">
                 <button class="detail-back" id="log-back-btn">
                     <i class="fa fa-arrow-left"></i>
@@ -987,11 +994,11 @@
                 <button class="ov-tab" id="log-tab-league">联赛</button>
                 <div class="ov-tab-indicator" id="log-tab-indicator" style="width:50%;"></div>
             </div>
-            <div id="log-card-container" style="flex:1;overflow-y:auto;padding:0 8px 72px 8px;display:flex;flex-direction:column;gap:8px;"></div>
+            <div id="log-card-container" style="flex:1;overflow-y:auto;padding:10px 8px 72px 8px;display:flex;flex-direction:column;gap:8px;"></div>
         </div>
 
         <!-- 历史详情页（独立层） -->
-        <div id="war-history-detail" class="hidden" style="position:fixed;inset:0;z-index:30;display:none;flex-direction:column;background:#f9fafb;">
+        <div id="war-history-detail" class="hidden" style="position:fixed;inset:0;z-index:30;display:none;flex-direction:column;background:var(--td-page2);">
             <div class="top-bar" style="justify-content:space-between;">
                 <button class="detail-back" id="history-back-btn">
                     <i class="fa fa-arrow-left"></i>
@@ -1007,7 +1014,7 @@
             <div id="history-content" style="flex:1;overflow-y:auto;padding:0 8px 72px 8px;"></div>
         </div>
         <!-- 对战统计（独立层，JS 模块 war-stats.js 渲染面板与结果；必须在 #clan-page 内以继承 .hidden/.top-bar 样式） -->
-        <div id="war-stats-view" class="hidden" style="position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:#f9fafb;">
+        <div id="war-stats-view" class="hidden" style="position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:var(--td-page2);">
             <div class="top-bar" style="justify-content:space-between;">
                 <button class="detail-back" id="war-stats-back-btn">
                     <i class="fa fa-arrow-left"></i>
@@ -1113,9 +1120,9 @@
         </div>
 
         <!-- ===== 设置页面 ===== -->
-        <div id="settings-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+        <div id="settings-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: var(--td-page2); padding-top: 2px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
             <h2 class="font-semibold text-gray-800 mb-3" style="font-size: 16px;">应用设置</h2>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="settings-card overflow-hidden">
                 <button id="check-update-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0" style="position:relative;">
                         <i class="fa fa-refresh text-primary" style="font-size: 15px;"></i>
@@ -1133,13 +1140,23 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+            <div class="settings-card overflow-hidden mt-1.5">
                 <button id="select-icon-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-picture-o text-purple-600" style="font-size: 15px;"></i>
                     </span>
                     <span class="flex-1 text-left text-gray-800">选择应用图标</span>
                     <span id="current-icon-name" class="text-xs text-gray-400 mr-2">zzhus</span>
+                    <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
+                </button>
+                <hr class="border-gray-100 m-0">
+                <!-- 主题（风格轴：圆润3D / 极简）。明暗（夜间模式）入口仍在首页设置弹窗 -->
+                <button id="ui-style-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
+                    <span class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fa fa-palette text-pink-600" style="font-size: 15px;"></i>
+                    </span>
+                    <span class="flex-1 text-left text-gray-800">主题</span>
+                    <span id="current-style-name" class="text-xs text-gray-400 mr-2">圆润3D</span>
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
                 <hr class="border-gray-100 m-0">
@@ -1178,7 +1195,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+            <div class="settings-card overflow-hidden mt-1.5">
                 <button id="widget-settings-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-th-large text-orange-600" style="font-size: 15px;"></i>
@@ -1195,7 +1212,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+            <div class="settings-card overflow-hidden mt-1.5">
                 <button id="copy-web-link-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-link text-green-600" style="font-size: 15px;"></i>
@@ -1212,7 +1229,7 @@
                     <i class="fa fa-chevron-right text-gray-300" style="font-size: 14px;"></i>
                 </button>
             </div>
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mt-1.5">
+            <div class="settings-card overflow-hidden mt-1.5">
                 <button id="qq-group-btn" class="w-full flex items-center px-4 py-2.5 hover:bg-gray-50 transition-all duration-200 border-none bg-transparent cursor-pointer" style="font-size: 14px;">
                     <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
                         <i class="fa fa-qq text-blue-600" style="font-size: 15px;"></i>
@@ -1242,17 +1259,17 @@
         </div>
 
         <!-- ===== 小组件管理页面 ===== -->
-        <div id="widget-list-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+        <div id="widget-list-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: var(--td-page2); padding-top: 2px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
             <div class="flex items-center mb-3">
                 <button id="widget-list-back-btn" class="mr-2 p-1 text-gray-600 hover:text-gray-800"><i class="fa fa-arrow-left text-lg"></i></button>
                 <h2 class="font-semibold text-gray-800" style="font-size: 16px;">小组件管理</h2>
             </div>
-            <div id="widget-list-container" class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div id="widget-list-container" class="settings-card overflow-hidden">
             </div>
         </div>
 
         <!-- ===== 小组件配置页面 ===== -->
-        <div id="widget-config-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: #eef0f2; padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
+        <div id="widget-config-page" class="hidden fixed inset-0 z-10 overflow-y-auto" style="background-color: var(--td-page2); padding-top: 2px; padding-left: 16px; padding-right: 16px; padding-bottom: 72px;">
             <div class="flex items-center mb-3">
                 <button id="widget-config-back-btn" class="mr-2 p-1 text-gray-600 hover:text-gray-800"><i class="fa fa-arrow-left text-lg"></i></button>
                 <h2 id="widget-config-title" class="font-semibold text-gray-800" style="font-size: 16px;">账号选择</h2>
@@ -1474,6 +1491,20 @@
     </div>
 
     <!-- ===== 选择应用图标弹窗 ===== -->
+    <!-- 主题选择弹窗：选项列表由 settings.js 从 `CocTool.theme.THEMES` 渲染（加主题只改注册表 + tokens.css） -->
+    <div id="ui-style-modal" class="modal-overlay hidden">
+        <div class="modal-card w-sm">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800" style="font-size: 15px;">选择主题</h3>
+                <button id="ui-style-close-btn" class="text-gray-500 hover:text-gray-700 p-1">
+                    <i class="fa fa-times text-lg"></i>
+                </button>
+            </div>
+            <div id="ui-style-list"></div>
+            <p class="text-xs text-gray-400 mt-3">明暗（浅色 / 深色）在首页「设置 → 夜间模式」里切换——两套主题各自都有浅色与深色。</p>
+        </div>
+    </div>
+
     <div id="icon-picker-modal" class="modal-overlay hidden">
         <div class="modal-card w-sm">
             <div class="flex items-center justify-between mb-4">
@@ -1682,27 +1713,28 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/core.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/names.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/calc.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/progress.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/settings.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/services.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/clan.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20260914-tlct5i"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20260914-tlct5i"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20260914-tlct5i"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20260914-tlct5i"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20260914-tlct5i"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20260914-tlct5i"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20260914-tlct5i"></script>
-<script defer src="js/app.js?v=coc-tool-web-20260914-tlct5i"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/core.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/names.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/calc.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/progress.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/settings.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/services.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/clan.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20260920-tlngaj"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20260920-tlngaj"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20260920-tlngaj"></script>
+<script defer src="js/app.js?v=coc-tool-web-20260920-tlngaj"></script>
 </body>
 </html>

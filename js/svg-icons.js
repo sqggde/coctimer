@@ -10,6 +10,8 @@
     // 用户替换 img/svg/ 下文件后重启即生效，无需改此表）
     const ICON_PATHS = {
         'question-circle': 'img/svg/nav/question-circle.svg',
+        'palette': 'img/svg/common/palette.svg',
+        'share-image': 'img/svg/common/share-image.svg',
         'pie-chart': 'img/svg/nav/pie-chart.svg',
         'tasks': 'img/svg/nav/tasks.svg',
         'shield': 'img/svg/nav/shield.svg',
@@ -78,7 +80,10 @@
         'launch-game': 'img/svg/common/launch-game.svg',
         'search': 'img/svg/progress/search.svg',
         'heart': 'img/svg/bases/heart.svg',
-        'heart-filled': 'img/svg/bases/heart-filled.svg'
+        'heart-filled': 'img/svg/bases/heart-filled.svg',
+        'bolt': 'img/svg/progress/bolt.svg',
+        'hourglass': 'img/svg/progress/hourglass.svg',
+        'potion': 'img/svg/progress/potion.svg'
     };
 
     let iconData = null;  // { svgs: {name: text}, imgFallback: {name: path} }

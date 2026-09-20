@@ -149,6 +149,8 @@
         if (el.detailBack) el.detailBack.addEventListener('click', goBack);
         if (el.tabHome) el.tabHome.addEventListener('click', function () { switchTab('home'); });
         if (el.tabNight) el.tabNight.addEventListener('click', function () { switchTab('night'); });
+        // 分享图键不在这里绑定：它是渲染进 `.ov-top-row` 的（`shareBtnHtml()`，onclick 硬引用），
+        // 两个世界各一份、每次重渲染都会被重建 —— 挂监听会随 innerHTML 一起丢掉，必须走 onclick
 
         if (el.detailScroll) {
             // 等级/时间切换（事件委托：renderHomeDetail/renderNightDetail 重建 innerHTML 后事件不丢失）
@@ -475,16 +477,34 @@
         });
     }
 
-    // 防御建筑合并组合：组合内建筑连续排列在同一行（防空+迫击炮 / X连弩+地狱塔 / 空气炮+炸弹塔+投石炮+法术塔 / 多人+弹跳+复合 / 火焰喷射器+超级法师塔）
+    // 防御建筑合并组合：组合内建筑连续排列在同一行（防空+迫击炮 / X连弩+地狱塔 / 空气炮+炸弹塔+投石炮+法术塔 / 多人+弹跳+复合 / 天鹰+火焰喷射器+超级法师塔+擎天巨柱+复仇塔）
     // 加农炮+箭塔+法师塔 单独一组（合成后各自仅剩 1 个图标，合成一行放防御区最前）
+    // 末行（2026-09-19 用户口径）：「火焰喷射器 火焰喷射器 超级法师塔 超级法师塔」这一行扩成
+    // 「天鹰火炮 火焰喷射器 火焰喷射器 超级法师塔 超级法师塔 擎天巨柱 复仇塔」（按 ids 顺序渲染，
+    // 各建筑按自己 cap 出图标数）；余下的 **精制台 1000097 + 它的三个形态** 自然独占最后的 max=1 网格一行。
     var DEFENSE_MERGED_ROWS = [
         ['1000012', '1000013'],
         ['1000021', '1000027'],
         ['1000028', '1000032', '1000067', '1000072'],
         ['1000084', '1000085', '1000079'],
-        ['1000089', '1000102']
+        ['1000031', '1000089', '1000102', '1000077', '1000086']
     ];
     var DEFENSE_FIRST_ROW = ['1000008', '1000009', '1000011'];
+
+    // max=1 建筑的单个图标（天鹰被大本吸收的特例也在这里）：合并行与最后的 max=1 网格**共用同一支**，
+    // 所以「图标外观」只有一处口径——天鹰这类 max=1 建筑在合并行里的样子与它原来在网格里完全一致。
+    function appendMax1Icon(container, id, metaObj, uMap, countMap, iconCat) {
+        var maxLv = mlv(metaObj, id);
+        var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
+        var fbSrc = iconPath(id, iconCat);
+        var lv = uMap[id] || 0;
+        if (id === '1000031' && (uMap['1000001'] || 0) >= 17) {
+            // 天鹰火炮在 16 本→17 本升级时被大本吸收（账号无记录）：满级图片点亮、无等级角标
+            container.appendChild(imgEl(base + maxLv + '.webp', 'ov-grid-icon', 0, maxLv, 1, id, (countMap && countMap[id]) || 0, true, fbSrc));
+        } else {
+            container.appendChild(imgEl(base + (lv || 1) + '.webp', 'ov-grid-icon', lv, maxLv, 1, id, (countMap && countMap[id]) || 0, false, fbSrc));
+        }
+    }
 
     // 防御建筑行模式：每建筑一行（max count 图标），账号记录点亮 + 合成折算，未点亮灰锁定
     function appendDefenseRow(parent, id, metaObj, uMap, lvlList, countMap, iconCat, caps) {
@@ -536,6 +556,9 @@
         for (var b = 0; b < ids.length; b++) {
             var id = ids[b];
             var cap = (caps || BUILDING_CAPS)[id] || 1;
+            // max=1 建筑（天鹰/擎天巨柱/复仇塔 等）：走与 max=1 网格同一支渲染——它们从网格搬进合并行时
+            // 外观必须一模一样（含天鹰被大本吸收的点亮规则），不给同一栋建筑两套画法
+            if (cap === 1) { appendMax1Icon(row, id, metaObj, uMap, countMap, iconCat); continue; }
             var levels = (lvlList[id] || []).slice().sort(function (a, b) { return b - a; });
             var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
             var fbSrc = iconPath(id, iconCat);
@@ -644,6 +667,7 @@
     function renderDefenseSection(parent, p, uMap, countMap, lvlList, m, server, workers) {
         var sec = document.createElement('div');
         sec.className = 'ov-cat';
+        sec.setAttribute('data-ov-sec', 'defense');
         sec.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/Village_Guard.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -692,15 +716,8 @@
             if (dcap > 1) {
                 appendDefenseRow(body, did, m.defense, uMap, lvlList, countMap, 'buildings');
             } else {
-                // max=1（天鹰/擎天巨柱/复仇塔/精制台）：网格 + 带等级图标（不同等级不同外观）
-                var dlv = uMap[did] || 0;
-                var eagleMaxLv = mlv(m.defense, did);
-                if (did === '1000031' && (uMap['1000001'] || 0) >= 17) {
-                    // 天鹰火炮在 16 本→17 本升级时被大本吸收：满级图片点亮、无等级角标
-                    max1Grid.appendChild(imgEl('img/icons/buildings/' + did + '_' + eagleMaxLv + '.webp', 'ov-grid-icon', 0, eagleMaxLv, 1, did, countMap[did] || 0, true, iconPath(did, 'buildings')));
-                } else {
-                    max1Grid.appendChild(imgEl('img/icons/buildings/' + did + '_' + (dlv || 1) + '.webp', 'ov-grid-icon', dlv, eagleMaxLv, 1, did, countMap[did] || 0, false, iconPath(did, 'buildings')));
-                }
+                // max=1（精制台与它的三个形态；天鹰/擎天巨柱/复仇塔已并入合并行）
+                appendMax1Icon(max1Grid, did, m.defense, uMap, countMap, 'buildings');
             }
         }
         // 合并组合行（按用户顺序）
@@ -1181,6 +1198,7 @@
         var discHtml = discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
+                shareBtnHtml() +
                 '<div class="ov-toggle-b">' +
                     '<button class="ov-seg active" data-mode="level">等级</button>' +
                     '<button class="ov-seg" data-mode="time">时间</button>' +
@@ -1214,6 +1232,7 @@
         var epicEq = data._server === 'cn' ? cnEpicEq() : EPIC_EQ;
         var heroSection = document.createElement('div');
         heroSection.className = 'ov-cat';
+        heroSection.setAttribute('data-ov-sec', 'heroes');   // 分享图（overview-share.js）按此搬运整块，别改名
         heroSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/hero_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1251,6 +1270,7 @@
         var petKeys = getPets();
         var petSection = document.createElement('div');
         petSection.className = 'ov-cat';
+        petSection.setAttribute('data-ov-sec', 'pets');
         petSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/pet_icom.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1270,6 +1290,7 @@
         var lab = getLabItems();
         var labSection = document.createElement('div');
         labSection.className = 'ov-cat';
+        labSection.setAttribute('data-ov-sec', 'lab');
         labSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/lab_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1312,6 +1333,7 @@
         // 其他区：资源建筑 + 军队建筑 + 其他（行模式）+ 墙（按等级分组）
         var otherSection = document.createElement('div');
         otherSection.className = 'ov-cat';
+        otherSection.setAttribute('data-ov-sec', 'other');
         otherSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/other_bulid.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1374,6 +1396,7 @@
         var discHtml = discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
+                shareBtnHtml() +
                 '<div class="ov-toggle-b">' +
                     '<button class="ov-seg active">等级</button>' +
                     '<button class="ov-seg">时间</button>' +
@@ -1403,6 +1426,7 @@
         var bb = getBBItems();
         var heroSection = document.createElement('div');
         heroSection.className = 'ov-cat';
+        heroSection.setAttribute('data-ov-sec', 'heroes');   // 分享图（overview-share.js）按此搬运整块，别改名
         heroSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/hero_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1421,6 +1445,7 @@
 
         var troopSection = document.createElement('div');
         troopSection.className = 'ov-cat';
+        troopSection.setAttribute('data-ov-sec', 'troops');
         troopSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/lab_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1442,6 +1467,7 @@
         var countMap = buildUserCountMap(data);
         var defSection = document.createElement('div');
         defSection.className = 'ov-cat';
+        defSection.setAttribute('data-ov-sec', 'defense');
         defSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/Village_Guard.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1486,6 +1512,7 @@
         // 夜世界其他区：资源/军队/其他（行模式）+ 墙（等级分组 ×数量）
         var otherSection = document.createElement('div');
         otherSection.className = 'ov-cat';
+        otherSection.setAttribute('data-ov-sec', 'other');
         otherSection.innerHTML =
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/other_bulid.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
@@ -1546,6 +1573,13 @@
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
         try { CocTool.ui.showToast(next === 'th' ? '已切换：当前大本进度' : '已切换：满防进度'); } catch (e) {}
+    }
+
+    // ===== 分享图键（跟「等级/时间」同一行；用户 2026-09-19：原来独占一行、留白太多）=====
+    // 动作在 overview-share.js（出图 + 复用战况统计那套分享弹窗）；用 onclick 硬引用，
+    // 与同排的折扣键/模式键同一写法——两个世界各渲染一份，所以**不能给 id**（会有两个同 id 节点）
+    function shareBtnHtml() {
+        return '<button class="ov-share-btn" type="button" title="分享图" onclick="CocTool.features.share.open()"><i class="fa fa-share-image"></i></button>';
     }
 
     // ===== 升级时间折扣按钮（底框：左侧图标 + 右侧折扣数）=====

@@ -712,16 +712,18 @@
             var fb=document.getElementById('prep-filter-bar'),btn=document.getElementById('prep-filter-btn'),lbl=document.getElementById('prep-filter-label'),dd=document.getElementById('prep-filter-dropdown');
             var fopts=CocTool.warView._fopts;
             for(var fi=0;fi<fopts.length;fi++){(function(opt){
+                // 颜色/字重交给 CSS（.member-filter-bar .filter-dropdown button[.active]，见 clan.css）——
+                // 内联写死会连主题轴一起绕过去（同 war-view.js 的 createFilterBar）
                 var ob=document.createElement('button');ob.textContent=opt.l;ob.setAttribute('data-value',opt.v);
-                ob.style.cssText='display:block;width:100%;padding:8px 16px;border:none;background:transparent;font-size:13px;color:#374151;cursor:pointer;text-align:center;';
-                if(opt.v===CocTool.warView._memberFilter){ob.className='active';ob.style.background='#eff6ff';ob.style.color='#3b82f6';ob.style.fontWeight='600'}
+                ob.style.cssText='display:block;width:100%;padding:8px 16px;border:none;font-size:13px;cursor:pointer;text-align:center;';
+                if(opt.v===CocTool.warView._memberFilter){ob.className='active'}
                 ob.addEventListener('click',function(e){
                     e.stopPropagation();
                     CocTool.warView.setFilter(opt.v);
                     lbl.textContent=opt.l;dd.classList.add('hidden');
                     var bs=dd.querySelectorAll('button');
-                    for(var bi=0;bi<bs.length;bi++){bs[bi].className='';bs[bi].style.background='transparent';bs[bi].style.color='#374151';bs[bi].style.fontWeight='400'}
-                    ob.className='active';ob.style.background='#eff6ff';ob.style.color='#3b82f6';ob.style.fontWeight='600';
+                    for(var bi=0;bi<bs.length;bi++){bs[bi].className=''}
+                    ob.className='active';
                 });
                 dd.appendChild(ob);
             })(fopts[fi])}

@@ -1,8 +1,14 @@
-/* ===== 更多页（手机桌面式功能入口） + 使用说明/阵型中心（账号详情页式子页面） ===== */
-/* 约定：底部导航「更多」为壳页面，使用说明/阵型中心为其固定覆盖子页（顶栏返回+居中标题）；
-   返回键：子页 → 更多 → 首页（core.js handleBack/closeDetailOverlays 已接） */
+/* =============================================================================
+ * more.css —— 更多页（桌面式功能入口） + 使用说明 / 阵型中心（含榜单弹窗）
+ *
+ * 外观取值一律在 css/tokens.css（圆润3D 是默认值，这里的规则直接消费 var(--td-*)）；
+ * 本页**极简档下的旧值**统一收在文件末尾的 `html[data-style="minimal"]` 段。
+ *
+ * 约定：底部导航「更多」为壳页面，使用说明/阵型中心为其固定覆盖子页（顶栏返回+居中标题）；
+ *   返回键：子页 → 更多 → 首页（core.js handleBack/closeDetailOverlays 已接）
+ * ========================================================================== */
 
-#more-page { padding: 20px; }
+#more-page { padding: 2px 20px 20px; }   /* 顶部留白 20→2px（同上）*/
 #more-page h2 {
     font-size: 15px; font-weight: 600; color: #1f2937;
     margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
@@ -17,28 +23,27 @@
 }
 .more-app { display: flex; flex-direction: column; align-items: center; gap: 9px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .more-app:active .more-icon { transform: scale(.92); }
+/* 图标砖：面板（圆润3D = 卡面 + 宽而淡的光泽 + 很轻的投影；极简回旧版的斜向渐变白） */
 .more-icon {
     width: 72px; height: 72px; border-radius: 20px;
     display: flex; align-items: center; justify-content: center;
     font-size: 34px; color: #fff;
-    background: linear-gradient(145deg, #ffffff, #e8edf6);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, .12), inset 0 0 0 1px rgba(15, 23, 42, .04);
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    box-shadow: var(--td-panel-shadow);
     transition: transform .12s ease;
 }
-.dark .more-icon { background: linear-gradient(145deg, #2d3350, #232742); box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
 .more-app .more-label { font-size: 13px; color: #374151; font-weight: 600; }
 .dark .more-app .more-label { color: #d1d5db; }
 .more-app.soon .more-icon { filter: grayscale(1); opacity: .55; }
 .more-app.soon .more-label { color: #9ca3af; }
 
 /* ---- 子页面顶栏（对齐账号详情页 pokedex-detail 那套） ---- */
-#help-page, #bases-page { padding: 0; background: #f9fafb; }
-.dark #help-page, .dark #bases-page { background: #111827; }
+#help-page, #bases-page { padding: 0; background: var(--td-page2); }
 #help-page .top-bar, #bases-page .top-bar {
     flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; background: #ffffff; border-bottom: 1px solid #e5e7eb; position: relative;
+    padding: 2px 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
 }
-.dark #help-page .top-bar, .dark #bases-page .top-bar { background: #1f2937; border-bottom-color: #374151; }
 #help-page .top-bar .title, #bases-page .top-bar .title { color: #1f2937; font-weight: 700; white-space: nowrap; }
 .dark #help-page .top-bar .title, .dark #bases-page .top-bar .title { color: #f3f4f6; }
 #help-page .detail-back, #bases-page .detail-back {
@@ -53,17 +58,21 @@
 
 /* ---- 阵型中心 ---- */
 #bases-page .bc-tabs { display: flex; gap: 4px; }
+/* 页内 tab / 筛选键 / 标签选项：选择控件（圆润3D = 大圆角方框 + 光泽 + 轻投影） */
 #bases-page .bc-tab {
-    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: var(--td-sel-bw) solid var(--td-sel-bd); 
+    background-color: var(--td-sel-bg); color: var(--td-sel-color);
+    background-image: var(--td-sel-sheen);
+    border-radius: var(--td-sel-r); box-shadow: var(--td-sel-shadow);
+    padding: 4px 9px; font-size: 12px; font-weight: 700; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
-.dark #bases-page .bc-tab { background: #1f2937; border-color: #374151; color: #9ca3af; }
-#bases-page .bc-tab.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+#bases-page .bc-tab.active { background-color: #7c3aed; background-image: var(--td-sel-on-img); box-shadow: var(--td-sel-on-shadow); border-color: #7c3aed; color: #fff; }
 #bases-page .bc-headrow { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 /* 上传按钮与 tab 同族胶囊（统一样式）：窄屏放不下时整体折行，文字不内部断行 */
 #bases-page .bc-upload-btn {
-    border: none; background: #7c3aed; color: #fff; border-radius: 999px; margin-left: auto;
+    border: none; background-color: #7c3aed; color: #fff; border-radius: var(--td-act-r); margin-left: auto;
+    background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow);
     padding: 4px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
@@ -72,12 +81,13 @@
    图标 12→13px 把点击区补回 26px+（与相邻胶囊齐平，不低于 24px 的触摸底线） */
 #bases-page .bc-rank-btn {
     display: inline-flex; align-items: center; gap: 3px;
-    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    background-color: var(--td-sel-bg); color: var(--td-sel-color);
+    background-image: var(--td-sel-sheen); box-shadow: var(--td-sel-shadow);
+    border-radius: var(--td-sel-r); padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
     white-space: nowrap; flex-shrink: 0;
 }
 #bases-page .bc-rank-btn i { font-size: 13px; }
-.dark #bases-page .bc-rank-btn { background: #1f2937; border-color: #374151; color: #9ca3af; }
 /* 榜单弹窗：它在 #bases-page 之外，故样式不套页面前缀（同 .bc-tagopt 的处理）；内边距沿用 .modal-card 的 1rem
    质感要点（不换字体：离线 WebView + 中文 + 全 App 统一系统字体，一致性优先）：
    ① 卡片加"带主色倾向的阴影"而非纯黑投影（纯黑投影是所有弹窗的通用脸）；② 分段控件做成"轨道 + 浮起选中块"；
@@ -100,21 +110,22 @@
 /* 分段控件：轨道内浮起选中块（比"三个描边胶囊"更像一个整体控件）；四榜后改四等列、字号降 1px 防挤 */
 #bc-rank-modal .bc-rank-segs {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 12px;
-    padding: 3px; border-radius: 12px; background: #f3f4f6; border: 1px solid #e5e7eb;
+    padding: 3px; border-radius: var(--td-inset-r);
+    background-color: var(--td-inset-bg); border: 1px solid var(--td-inset-bd);
 }
-.dark #bc-rank-modal .bc-rank-segs { background: #23233a; border-color: #374151; }
 #bc-rank-modal .bc-rank-seg {
-    border: none; background: transparent; color: #6b7280; border-radius: 9px;
+    border: none; background: transparent; color: var(--td-sel-color); border-radius: var(--td-sel-r);
     padding: 6px 2px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
     transition: background-color .16s ease, color .16s ease, box-shadow .16s ease, transform .12s ease;
 }
-.dark #bc-rank-modal .bc-rank-seg { color: #9ca3af; }
-#bc-rank-modal .bc-rank-seg:hover { color: #374151; }
-.dark #bc-rank-modal .bc-rank-seg:hover { color: #e5e7eb; }
+#bc-rank-modal .bc-rank-seg:hover { color: var(--td-sel-hover-color); }
 #bc-rank-modal .bc-rank-seg:active { transform: scale(.98); }
 #bc-rank-modal .bc-rank-seg:focus-visible { outline: 2px solid #7c3aed; outline-offset: 1px; }
-#bc-rank-modal .bc-rank-seg.active { background: #fff; color: #6d28d9; font-weight: 800; box-shadow: 0 1px 3px rgba(17, 24, 39, .14); }
-.dark #bc-rank-modal .bc-rank-seg.active { background: #3b3b58; color: #ddd6fe; box-shadow: 0 1px 3px rgba(0, 0, 0, .45); }
+#bc-rank-modal .bc-rank-seg.active {
+    background-color: var(--td-sel-bg); color: #6d28d9; font-weight: 800;
+    background-image: var(--td-sel-sheen); box-shadow: 0 1px 3px rgba(17, 24, 39, .14);
+}
+.dark #bc-rank-modal .bc-rank-seg.active { color: #ddd6fe; box-shadow: 0 1px 3px rgba(0, 0, 0, .45); }
 #bc-rank-modal .bc-rank-body { min-height: 0; overflow-y: auto; margin-top: 10px; }
 #bc-rank-modal .bc-rank-row {
     display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px;
@@ -151,9 +162,9 @@
 .dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-name,
 .dark #bc-rank-modal .bc-rank-row.is-me .bc-rank-val { color: #fb923c; }
 /* 我在前 N 名之外时，底部固定一行「我的名次」（做成浅底块而不是虚线分割线） */
-#bc-rank-modal .bc-rank-mine { margin-top: 10px; padding: 9px 10px; border-radius: 10px; background: #f9fafb; font-size: 12px; color: #4b5563; }
+#bc-rank-modal .bc-rank-mine { margin-top: 10px; padding: 9px 10px; border-radius: 10px; background: var(--td-inset-bg); font-size: 12px; color: #4b5563; }
 #bc-rank-modal .bc-rank-mine b { color: #6d28d9; font-weight: 800; }
-.dark #bc-rank-modal .bc-rank-mine { background: rgba(255, 255, 255, .045); color: #9ca3af; }
+.dark #bc-rank-modal .bc-rank-mine { color: #9ca3af; }
 .dark #bc-rank-modal .bc-rank-mine b { color: #c4b5fd; }
 #bc-rank-modal .bc-rank-empty { padding: 8px 12px 26px; text-align: center; color: #9ca3af; font-size: 12px; line-height: 1.7; }
 #bc-rank-modal .bc-rank-empty-ic {
@@ -169,7 +180,7 @@
 #bc-rank-modal .bc-rank-sk span { height: 10px; border-radius: 6px; background: #e5e7eb; animation: bcRankPulse 1.2s ease-in-out infinite; }
 #bc-rank-modal .bc-rank-sk span:first-child { width: 22px; height: 22px; border-radius: 7px; }
 #bc-rank-modal .bc-rank-sk span:last-child { margin-left: auto; width: 40px; }
-.dark #bc-rank-modal .bc-rank-sk span { background: #374151; }
+.dark #bc-rank-modal .bc-rank-sk span { background: #2c3542; }
 /* 行入场上浮：只动 opacity/transform（GPU 友好），按序号错落，避免整屏同时出现。
    仅用于"首次拿到数据"那一次；缓存重绘与静默刷新走 .bc-no-anim（否则重放动画＝用户眼里的"闪一下"） */
 @keyframes bcRankIn { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
@@ -182,10 +193,18 @@
 }
 /* 固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局 */
 #bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-#bases-page .bc-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
-.dark #bases-page .bc-card { background: #1f2937; border-color: #374151; }
+#bases-page .bc-card {
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
+    overflow: hidden; display: flex; flex-direction: column;
+}
 #bases-page .bc-img { position: relative; background: linear-gradient(135deg, #e9ecf4, #dde3ee); aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; color: #9aa5b8; font-size: 30px; overflow: hidden; }
-.dark #bases-page .bc-img { background: linear-gradient(135deg, #2a2f47, #232842); }
+.dark #bases-page .bc-img { background: linear-gradient(135deg, #232840, #1d2238); }
 /* 完整高度展示，宽度按比例溢出部分隐藏（横屏图裁左右；窄图居中留白） */
 #bases-page .bc-img img { height: 100%; width: auto; max-width: none; flex-shrink: 0; display: block; }
 #bases-page .bc-img-none { font-size: 30px; }
@@ -218,23 +237,25 @@
 #bases-page .bc-info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
 #bases-page .bc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
 /* 标签：只有区服标签按服着色（国际服紫 / 国服蓝），其余统一灰底黑字 */
-#bases-page .bc-tag { background: #f3f4f6; color: #111827; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
-.dark #bases-page .bc-tag { background: #374151; color: #e5e7eb; }
+#bases-page .bc-tag { background: var(--td-inset-bg); color: #111827; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+.dark #bases-page .bc-tag { color: #e5e7eb; }
 #bases-page .bc-tag.srv-intl { background: #f5f3ff; color: #7c3aed; }
 .dark #bases-page .bc-tag.srv-intl { background: rgba(139, 92, 246, .18); color: #c4b5fd; }
 #bases-page .bc-tag.srv-cn { background: #eff6ff; color: #2563eb; }
 .dark #bases-page .bc-tag.srv-cn { background: rgba(37, 99, 235, .18); color: #93c5fd; }
 #bases-page .bc-acts { display: flex; gap: 7px; margin-top: auto; }
+/* 卡片内主按钮：操作按键（圆润3D = 胶囊 + 光泽 + 底部暗边） */
 #bases-page .bc-btn {
-    flex: 1; border: none; border-radius: 8px; padding: 7px 0; font-size: 12px;
-    font-weight: 800; cursor: pointer; background: #7c3aed; color: #fff;
+    flex: 1; border: none; border-radius: var(--td-act-r); padding: 7px 0; font-size: 12px;
+    background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow);
+    font-weight: 800; cursor: pointer; background-color: #7c3aed; color: #fff;
 }
-#bases-page .bc-btn.ghost { background: #f1f2f7; color: #4b5563; }
-.dark #bases-page .bc-btn.ghost { background: #374151; color: #d1d5db; }
+#bases-page .bc-btn.ghost { background-color: var(--td-inset-bg); box-shadow: none; background-image: none; color: #4b5563; }
+.dark #bases-page .bc-btn.ghost { color: #d1d5db; }
 /* 卡片双按钮：国际服「一键打开」白底紫字 +「复制链接」紫底白字；国服「复制阵型码」蓝底白字 */
-#bases-page .bc-btn.white { background: #fff; color: #7c3aed; border: 1px solid #dcd7f0; }
-.dark #bases-page .bc-btn.white { background: #1f2937; color: #c4b5fd; border-color: #4c445e; }
-#bases-page .bc-card.srv-cn .bc-btn.solid { background: #2563eb; }
+#bases-page .bc-btn.white { background-color: var(--td-sel-bg); color: #7c3aed; border: 1px solid #dcd7f0; box-shadow: none; }
+.dark #bases-page .bc-btn.white { background-color: #19212c; color: #c4b5fd; border-color: #4c445e; }
+#bases-page .bc-card.srv-cn .bc-btn.solid { background-color: #2563eb; }
 #bases-page .bc-st { display: inline-block; border-radius: 6px; padding: 2px 10px; font-size: 12px; font-weight: 800; }
 #bases-page .bc-st.pending { background: #fef3c7; color: #b45309; }
 #bases-page .bc-st.approved { background: #ecfdf5; color: #059669; }
@@ -276,13 +297,13 @@
 .dark #bc-up-tags .bc-tagsub { color: #a78bfa; border-left-color: #4c1d95; }
 /* 上传弹窗标签选项（独立类，避免作用域限定在 #bases-page 内不生效） */
 .bc-tagopt {
-    border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 999px; padding: 6px 15px; font-size: 12px; font-weight: 700; cursor: pointer;
+    border: 1.5px solid var(--td-sel-bd); background-color: var(--td-sel-bg); color: var(--td-sel-color);
+    background-image: var(--td-sel-sheen); box-shadow: var(--td-sel-shadow);
+    border-radius: var(--td-sel-r); padding: 6px 15px; font-size: 12px; font-weight: 700; cursor: pointer;
     transition: background .1s ease, color .1s ease, border-color .1s ease;
 }
-.bc-tagopt.active { background: #7c3aed; border-color: #7c3aed; color: #ffffff; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); }
-.dark .bc-tagopt { background: #1f2937; border-color: #374151; color: #9ca3af; }
-.dark .bc-tagopt.active { background: #7c3aed; border-color: #a78bfa; color: #ffffff; }
+.bc-tagopt.active { background-color: #7c3aed; background-image: var(--td-sel-on-img); border-color: #7c3aed; color: #ffffff; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); }
+.dark .bc-tagopt.active { border-color: #a78bfa; }
 /* 上传弹窗登录提示行（bases.js：未登录提醒 + 去登录入口） */
 .bc-loginhint {
     display: none; align-items: center; justify-content: space-between; gap: 10px;
@@ -292,47 +313,54 @@
 .dark .bc-loginhint { background: rgba(180, 83, 9, .16); border-color: rgba(180, 83, 9, .4); color: #fcd34d; }
 .bc-loginhint.on { display: flex; }
 .bc-login2 {
-    flex-shrink: 0; border: none; background: #7c3aed; color: #fff;
-    border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 800; cursor: pointer;
+    flex-shrink: 0; border: none; background-color: #7c3aed; color: #fff;
+    background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow);
+    border-radius: var(--td-act-r); padding: 5px 12px; font-size: 12px; font-weight: 800; cursor: pointer;
 }
 /* 我的上传空态内的登录提示 */
 .bc-mine-tip { padding: 26px 20px 8px; text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.9; grid-column: 1 / -1; }
 /* 广场筛选器（顶部一行下拉：世界/大本/区服/用途，bases.js renderFilters） */
 #bases-page .bc-filters {
     position: relative;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
     padding: 9px 10px; margin-bottom: 12px;
 }
-.dark #bases-page .bc-filters { background: #1f2937; border-color: #374151; }
 #bases-page .bc-fbar { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 #bases-page .bc-fbtn {
-    border: 1px solid #e5e7eb; background: #fff; color: #374151;
-    border-radius: 999px; padding: 4px 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    background-color: var(--td-sel-bg); color: var(--td-sel-color);
+    background-image: var(--td-sel-sheen); box-shadow: var(--td-sel-shadow);
+    border-radius: var(--td-sel-r); padding: 4px 6px; font-size: 11px; font-weight: 700; cursor: pointer;
     display: inline-flex; align-items: center; gap: 3px; max-width: 180px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 #bases-page .bc-fbtn i { font-size: 9px; color: #9ca3af; }
-.dark #bases-page .bc-fbtn { background: #1f2937; border-color: #374151; color: #e5e7eb; }
 #bases-page .bc-freset { margin-left: auto; border: none; background: none; color: #7c3aed; font-size: 12px; font-weight: 800; cursor: pointer; padding: 4px 2px; }
 .dark #bases-page .bc-freset { color: #c4b5fd; }
 /* 下拉面板：绝对定位于筛选栏下方，默认隐藏；.open 显示 */
 #bases-page .bc-drop {
     display: none;
     position: absolute; left: 10px; right: 10px; top: calc(100% - 4px); z-index: 40;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    background: var(--td-pop-bg); border: 1px solid var(--td-pop-bd);
+    border-radius: var(--td-pop-r);
     box-shadow: 0 12px 32px rgba(0, 0, 0, .18); padding: 10px;
 }
-.dark #bases-page .bc-drop { background: #1f2937; border-color: #374151; }
 #bases-page .bc-drop.open { display: flex; flex-direction: column; gap: 6px; }
 #bases-page .bc-drop.bc-drop-grid.open { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 #bases-page .bc-drop.bc-drop-grid-3.open { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 /* 下拉选项字号与筛选键（.bc-fbtn 11px）统一——此前是 13px，展开后比外面还大（用户反馈） */
 #bases-page .bc-dopt {
-    border: 1px solid #e5e7eb; background: #fff; color: #6b7280;
-    border-radius: 9px; padding: 9px 4px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    background-color: var(--td-sel-bg); color: var(--td-sel-color);
+    border-radius: var(--td-sel-r); padding: 9px 4px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
 }
-.dark #bases-page .bc-dopt { background: #1f2937; border-color: #374151; color: #9ca3af; }
-#bases-page .bc-dopt.on { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+#bases-page .bc-dopt.on { background-color: #7c3aed; border-color: #7c3aed; color: #fff; }
 .dark #bases-page .bc-dopt.on { border-color: #a78bfa; }
 /* 用途下拉的大类标题（日常/对战）：整行占位、不可点（与上传弹窗的分组标题同款字号/字重） */
 #bases-page .bc-drop .bc-dopt-head {
@@ -394,8 +422,8 @@
 #bc-lightbox .bc-tag.srv-intl { background: rgba(139, 92, 246, .2); color: #c4b5fd; }
 #bc-lightbox .bc-tag.srv-cn { background: rgba(37, 99, 235, .2); color: #93c5fd; }
 #bc-lightbox .bc-lb-acts { display: flex; gap: 10px; padding: 10px 14px 14px; }
-#bc-lightbox .bc-lb-acts .bc-btn { flex: 1; border: none; border-radius: 9px; padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; background: #7c3aed; color: #fff; }
-#bc-lightbox .bc-lb-acts .bc-btn.ghost { background: #2a2f45; color: #d1d5db; }
+#bc-lightbox .bc-lb-acts .bc-btn { flex: 1; border: none; border-radius: var(--td-act-r); padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; background-color: #7c3aed; background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #fff; }
+#bc-lightbox .bc-lb-acts .bc-btn.ghost { background-color: #2a2f45; box-shadow: none; background-image: none; color: #d1d5db; }
 #bc-lightbox .bc-lb-close { color: #9ca3af; }
 /* 大图弹窗避让底部导航（同上传弹窗参考：遮罩 padding-bottom 64px，88vh 面板随内容区整体上移，底部不再被盖） */
 #bc-lightbox { padding-bottom: 64px; }
@@ -419,3 +447,41 @@
     opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 200;
 }
 .bc-toast.show { opacity: 1; }
+
+/* =============================================================================
+ * 极简档 · 本页旧值（圆润3D 用 tokens.css 的通用值；这里只写"本页当年不是通用值"的几处）
+ * ========================================================================== */
+html[data-style="minimal"] .more-icon { background-color: #ffffff; background-image: linear-gradient(145deg, #ffffff, #e8edf6); box-shadow: 0 6px 16px rgba(15, 23, 42, .12), inset 0 0 0 1px rgba(15, 23, 42, .04); }
+html.dark[data-style="minimal"] .more-icon { background-color: #252b44; background-image: linear-gradient(145deg, #252b44, #1d2038); box-shadow: 0 6px 16px rgba(0, 0, 0, .4); }
+html[data-style="minimal"] #bases-page .bc-card { box-shadow: none; }
+html[data-style="minimal"] #bases-page .bc-filters { box-shadow: none; }
+html[data-style="minimal"] #bases-page .bc-tab { background-color: #fff; background-image: none; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #6b7280; }
+html[data-style="minimal"] #bases-page .bc-tab.active { background-color: #7c3aed; background-image: none; box-shadow: none; border-color: #7c3aed; color: #fff; }
+html[data-style="minimal"] #bases-page .bc-rank-btn { background-color: #fff; background-image: none; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #6b7280; }
+html[data-style="minimal"] #bases-page .bc-upload-btn { border-radius: 999px; background-image: none; box-shadow: none; }
+html[data-style="minimal"] #bc-rank-modal .bc-rank-segs { background-color: #f3f4f6; border-color: #e5e7eb; border-radius: 12px; }
+html[data-style="minimal"] #bc-rank-modal .bc-rank-seg { border-radius: 9px; }
+html[data-style="minimal"] #bc-rank-modal .bc-rank-seg.active { background-image: none; }
+html[data-style="minimal"] #bc-rank-modal .bc-rank-mine { background: #f9fafb; }
+html[data-style="minimal"] #bases-page .bc-tag { background: #f3f4f6; }
+html[data-style="minimal"] #bases-page .bc-btn { border-radius: 8px; background-image: none; box-shadow: none; }
+html[data-style="minimal"] #bases-page .bc-btn.ghost { background-color: #f1f2f7; }
+html[data-style="minimal"] #bases-page .bc-btn.white { border-radius: 8px; }
+html[data-style="minimal"] #bases-page .bc-fbtn { background-color: #fff; background-image: none; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #374151; }
+html[data-style="minimal"] #bases-page .bc-dopt { background-color: #fff; border-color: #e5e7eb; border-radius: 9px; color: #6b7280; }
+html[data-style="minimal"] #bases-page .bc-drop { border-radius: 12px; }
+html[data-style="minimal"] .bc-tagopt { background-color: #fff; background-image: none; border-width: 1.5px; border-color: #e5e7eb; border-radius: 999px; box-shadow: none; color: #6b7280; }
+html[data-style="minimal"] .bc-tagopt.active { background-image: none; box-shadow: 0 2px 8px rgba(124, 58, 237, .35); }
+html[data-style="minimal"] .bc-login2 { border-radius: 7px; background-image: none; box-shadow: none; }
+html[data-style="minimal"] #bc-lightbox .bc-lb-acts .bc-btn { border-radius: 9px; background-image: none; box-shadow: none; }
+/* 极简 · 深色：旧版深色值 */
+html.dark[data-style="minimal"] #bases-page .bc-tab { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bases-page .bc-rank-btn { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bases-page .bc-tag { background: #2c3542; }
+html.dark[data-style="minimal"] #bases-page .bc-btn.ghost { background-color: #2c3542; }
+html.dark[data-style="minimal"] #bases-page .bc-fbtn { background-color: #19212c; border-color: #2c3542; color: #e5e7eb; }
+html.dark[data-style="minimal"] #bases-page .bc-dopt { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bases-page .bc-drop { background: #19212c; border-color: #2c3542; }
+html.dark[data-style="minimal"] .bc-tagopt { background-color: #19212c; border-color: #2c3542; color: #9ca3af; }
+html.dark[data-style="minimal"] #bc-rank-modal .bc-rank-segs { background-color: #1c1c30; border-color: #2c3542; }
+html.dark[data-style="minimal"] #bc-rank-modal .bc-rank-mine { background: rgba(255, 255, 255, .045); }

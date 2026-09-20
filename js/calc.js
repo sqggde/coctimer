@@ -156,6 +156,15 @@
     }
 
     function getRecurrentPhase(item, data) {
+        const scheduledAt = item.helper_scheduled || 0;
+        if (scheduledAt > 0 && item.helper_recurrent !== true) {
+            // 单次预约窗（推演指派）：hc 归零后加速一次，结束即无图标
+            const timestamp0 = data.timestamp || Math.floor(Date.now() / 1000);
+            const elapsed0 = Math.floor(Date.now() / 1000) - timestamp0;
+            if (elapsed0 < scheduledAt) return 'wait';
+            if (elapsed0 < scheduledAt + 3600) return 'boost';
+            return null;
+        }
         if (item.helper_recurrent !== true) return null;
         const helpers = data.helpers || [];
         const timestamp = data.timestamp || Math.floor(Date.now() / 1000);
@@ -181,9 +190,14 @@
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
     function getItemPhaseIcon(item, data) {
+        const buildBtn = (icon, phase, helperTimer, recurrent) => {
+            const usage = getHelperUsage(item, data);
+            const countHtml = usage ? '<span class="phase-count">' + usage.count + '</span>' : '';
+            return ' <span class="phase-icon-btn" data-phase="' + phase + '" data-unique="' + escapeHtml(item.uniqueId) + '" data-helper-timer="' + helperTimer + '" data-helper-recurrent="' + recurrent + '" data-helper-scheduled="' + (item.helper_scheduled || 0) + '" data-usage-count="' + (usage ? usage.count : '') + '" data-usage-saved="' + (usage ? usage.savedSec : 0) + '" style="cursor:pointer;" title="点击查看详情"><i class="' + icon + '"></i>' + countHtml + '</span>';
+        };
         const phase = getRecurrentPhase(item, data);
-        if (phase === 'boost') return ' <span class="phase-icon-btn" data-phase="boost" data-unique="' + escapeHtml(item.uniqueId) + '" data-helper-timer="' + (item.helper_timer || 0) + '" data-helper-recurrent="true" style="cursor:pointer;" title="点击查看详情">⚡</span>';
-        if (phase === 'wait') return ' <span class="phase-icon-btn" data-phase="wait" data-unique="' + escapeHtml(item.uniqueId) + '" data-helper-timer="' + (item.helper_timer || 0) + '" data-helper-recurrent="true" style="cursor:pointer;" title="点击查看详情">⌛</span>';
+        if (phase === 'boost') return buildBtn('fa fa-bolt', 'boost', (item.helper_timer || 0), 'true');
+        if (phase === 'wait') return buildBtn('fa fa-hourglass', 'wait', (item.helper_timer || 0), 'true');
 
         if (item.helper_timer > 0) {
             const helpers = data.helpers || [];
@@ -191,10 +205,190 @@
             const now = Math.floor(Date.now() / 1000);
             const elapsed = now - timestamp;
             if (elapsed < item.helper_timer) {
-                return ' <span class="phase-icon-btn" data-phase="boost" data-unique="' + escapeHtml(item.uniqueId) + '" data-helper-timer="' + item.helper_timer + '" data-helper-recurrent="false" style="cursor:pointer;" title="点击查看详情">⚡</span>';
+                return buildBtn('fa fa-bolt', 'boost', item.helper_timer, 'false');
             }
         }
         return '';
+    }
+
+    // 助手生效用量：count = 完成时刻前开始的工作窗个数（整数；首段被游戏消耗、末次被完成截断
+    // 都计整次，不出现小数）；savedSec = 无助手完成时刻 − 有助手完成时刻。
+    // 窗口表与 calculateStaged 的锚定一致（ht>0：[0,ht) 后每 82800 一个 1h 窗；ht=0：[hc,hc+3600) 起）。
+    function getHelperUsage(item, data) {
+        const helpers = data.helpers || [];
+        let helper = null;
+        if (["buildings", "heroes", "traps", "guardians"].includes(item.category)) {
+            helper = helpers.find(h => h.data === 124000000 || h.data === 93000000);
+        } else if (["units", "siege_machines", "spells"].includes(item.category)) {
+            helper = helpers.find(h => h.data === 124000001 || h.data === 93000001);
+        }
+        if (!helper) return null;
+
+        const doneAt = calculateCompletionTimestamp(item, data);
+        const bare = Object.assign({}, item);
+        delete bare.helper_timer;
+        delete bare.helper_recurrent;
+        const savedSec = Math.max(0, calculateCompletionTimestamp(bare, data) - doneAt);
+        const horizon = doneAt - (data.timestamp || Math.floor(Date.now() / 1000));   // 导出时刻 → 完成时刻
+
+        const ht = item.helper_timer || 0;
+        const sched = item.helper_scheduled || 0;
+        const wins = [];
+        if (helper.lvl > 0 && sched > 0 && item.helper_recurrent !== true) {
+            wins.push([sched, 3600]);   // 单次预约窗：hc 归零后加速一次
+        } else if (helper.lvl > 0 && item.helper_recurrent === true) {
+            if (ht > 0) {
+                wins.push([0, ht]);
+                for (let s = ht + 79200; wins.length < 2000; s += 82800) wins.push([s, 3600]);
+            } else {
+                const hc = helper.helper_cooldown || 0;
+                wins.push([hc, 3600]);
+                for (let s = hc + 82800; wins.length < 2000; s += 82800) wins.push([s, 3600]);
+            }
+        } else if (helper.lvl > 0 && ht > 0) {
+            wins.push([0, ht]);
+        }
+        let count = 0;
+        for (const w of wins) {
+            if (w[0] >= horizon) break;
+            count++;
+        }
+        return { count: count, savedSec: savedSec };
+    }
+
+    // ===== 道具使用推演（字面截断副本，2026-09-19 定稿）=====
+    // 药水一瓶 → 秒：钟楼 1800s，其余 3600s
+    function potionUnitSec(key) {
+        return key === 'clocktower_boost' ? 1800 : 3600;
+    }
+
+    // 钟楼自身启动的加速时长：1级14分钟，每级+2分钟（10级32分钟）
+    function clockTowerBoostSec(lvl) {
+        return (12 + 2 * (lvl || 1)) * 60;
+    }
+
+    // 已消耗工程量：max{W : completion(timer=W) ≤ now}——完成时刻对 timer 单调，
+    // 二分反演公开的完成时刻函数（黑盒），calculateStaged 内部零改动
+    function workDoneBy(item, data, now) {
+        if (calculateCompletionTimestamp(item, data) <= now) return item.timer;   // 整项已完成
+        const probe = Object.assign({}, item);
+        let lo = 0, hi = item.timer;
+        while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1;
+            probe.timer = mid;
+            if (calculateCompletionTimestamp(probe, data) <= now) lo = mid; else hi = mid - 1;
+        }
+        return lo;
+    }
+
+    // 助手时间线截断：e<冷却结束 → 线性减（htBase=null 表示逐项 max(0, ht−e)）；
+    // 已进 82800 循环 → 窗口中 htBase=3600−cyc、cooldown=htBase+79200；冷却中 htBase=0、cooldown=82800−cyc
+    function truncateHelperTiming(cooldown, e) {
+        const C = cooldown || 0;
+        if (e < C) return { cooldown: C - e, htBase: null };
+        const cyc = (e - C) % 82800;
+        if (cyc < 3600) {
+            const ht = 3600 - cyc;
+            return { cooldown: ht + 79200, htBase: ht };
+        }
+        return { cooldown: 82800 - cyc, htBase: 0 };
+    }
+
+    const SNAPSHOT_CATEGORIES = ["buildings", "buildings2", "heroes", "heroes2", "units", "units2", "spells", "siege_machines", "pets", "traps", "traps2", "guardians"];
+    function snapshotHelperIds(cat) {
+        if (["buildings", "heroes", "traps", "guardians"].includes(cat)) return [124000000, 93000000];
+        if (["units", "siege_machines", "spells"].includes(cat)) return [124000001, 93000001];
+        return null;
+    }
+
+    // 快照 = 字面截断副本：timestamp=now、boosts 换剩余、升级项 timer 折算剩余工程量、助手字段取模截断。
+    // 纯游戏格式（无私有字段）；不变量：截断后每个计时条目的完成时刻与截断前位级相等（性质测试钉死）。
+    function snapshotAccount(data, now) {
+        const snap = JSON.parse(JSON.stringify(data));
+        const e = now - (data.timestamp || now);
+        snap.timestamp = now;
+        if (e <= 0) return snap;
+        // ① 剩余工程量：对原始时间轴二分（须在 boosts/助手截断之前收集）
+        SNAPSHOT_CATEGORIES.forEach(cat => {
+            const arr = Array.isArray(snap[cat]) ? snap[cat] : [];
+            arr.forEach(entry => {
+                const objs = entry.types && Array.isArray(entry.types)
+                    ? entry.types.reduce((acc, t) => acc.concat(t.modules || []), [])
+                    : [entry];
+                objs.forEach(obj => {
+                    if (!(obj.timer > 0)) return;
+                    const probe = Object.assign({}, obj, { category: cat, helper_timer: obj.helper_timer || entry.helper_timer || 0 });
+                    // 注意：反演必须对**原始时间轴**（data）——snap.timestamp 已改为 now；
+                    // 已完成项（完成时刻 ≤ now）清零：避免其在推演中复活为未来完成（应用时等价"清理已完成"）
+                    if (calculateCompletionTimestamp(probe, data) > now) {
+                        obj.timer = obj.timer - workDoneBy(probe, data, now);
+                    } else {
+                        obj.timer = 0;
+                    }
+                });
+            });
+        });
+        // ② 助手时间线截断：按**助手分组**判定循环（与总览区 getHelperCooldowns 的 hasRecurrentItem 同口径，
+        // 分组内任一条目带循环标记即为该助手走周期投影），整组共用；无循环条目（含完全未指派）→ 线性递减
+        //（否则就绪助手会被误判为"窗口进行中"投影出 23h，且实验室的循环条目在 spells 时会漏判 units）
+        const HELPER_GROUPS = [["buildings", "heroes", "traps", "guardians"], ["units", "spells", "siege_machines"]];
+        const groupHasRec = cats => cats.some(c => {
+            const arr = Array.isArray(snap[c]) ? snap[c] : [];
+            let r = false;
+            arr.forEach(entry => {
+                if (entry.helper_recurrent === true) r = true;
+                (entry.types || []).forEach(t => (t.modules || []).forEach(m => { if (m.helper_recurrent === true) r = true; }));
+            });
+            return r;
+        });
+        const catParams = {};
+        SNAPSHOT_CATEGORIES.forEach(cat => {
+            const ids = snapshotHelperIds(cat);
+            if (!ids) return;
+            const helper = (snap.helpers || []).find(h => ids.includes(h.data));
+            const C = helper ? (helper.helper_cooldown || 0) : 0;
+            const group = HELPER_GROUPS.find(g => g.includes(cat));
+            catParams[cat] = groupHasRec(group)
+                ? truncateHelperTiming(C, e)
+                : { cooldown: Math.max(0, C - e), htBase: null };
+        });
+        (snap.helpers || []).forEach(h => {
+            for (const cat in catParams) {
+                if (snapshotHelperIds(cat).includes(h.data)) { h.helper_cooldown = catParams[cat].cooldown; break; }
+            }
+        });
+        SNAPSHOT_CATEGORIES.forEach(cat => {
+            const params = catParams[cat];
+            if (!params) return;
+            const arr = Array.isArray(snap[cat]) ? snap[cat] : [];
+            arr.forEach(entry => {
+                const targets = entry.types && Array.isArray(entry.types)
+                    ? entry.types.reduce((acc, t) => (t.modules || []).forEach(m => acc.push({
+                        obj: m,
+                        recurrent: m.helper_recurrent === true || entry.helper_recurrent === true,
+                        ht: m.helper_timer || entry.helper_timer || 0
+                    })) || acc, []).concat([{ obj: entry, recurrent: entry.helper_recurrent === true, ht: entry.helper_timer || 0 }])
+                    : [{ obj: entry, recurrent: entry.helper_recurrent === true, ht: entry.helper_timer || 0 }];
+                targets.forEach(t => {
+                    if (params.htBase !== null) {
+                        if (t.recurrent) t.obj.helper_timer = params.htBase;
+                        else if (t.ht > 0) t.obj.helper_timer = Math.max(0, t.ht - e);
+                    } else if (t.ht > 0) {
+                        t.obj.helper_timer = Math.max(0, t.ht - e);
+                    }
+                    // 单次预约窗截断：未到点→平移；进行中→转为会话（helper_timer）；已结束→清除
+                    if (t.obj.helper_scheduled > 0) {
+                        const ws = t.obj.helper_scheduled;
+                        if (e < ws) t.obj.helper_scheduled = ws - e;
+                        else if (e < ws + 3600) { delete t.obj.helper_scheduled; if (!(t.obj.helper_timer > 0)) t.obj.helper_timer = ws + 3600 - e; }
+                        else delete t.obj.helper_scheduled;
+                    }
+                });
+            });
+        });
+        // ③ boosts 换剩余时长（钟楼冷却等同规则线性折算）
+        if (snap.boosts) Object.keys(snap.boosts).forEach(k => { snap.boosts[k] = Math.max(0, (snap.boosts[k] || 0) - e); });
+        return snap;
     }
 
     function getHelperCooldowns() {
@@ -239,84 +433,99 @@
     }
 
     // ========== 分阶段叠加计算 ==========
-    function calculateStaged(timer, helperLevel, helperDuration, helperCooldown, boostDuration, boostMult, recurrent, eventMult = 1) {
+    // 药水与辅食（工人药水+工人大餐、实验室药水/战宠药水+研究浓汤）可同时生效：
+    // 两者都是自 timestamp 起的前缀窗口，重叠段速率 = A + B − 1（倍率相加扣回基准 1：
+    // 实测 10+2=11、国服 24h 模式 24+2=25、24+4=27）。
+    function mergeBoostPhases(a, b) {
+        const wins = [a, b].filter(w => w && w.duration > 0 && w.mult > 0);
+        if (wins.length === 2) {
+            const [x, y] = wins;
+            const lo = Math.min(x.duration, y.duration);
+            const hi = Math.max(x.duration, y.duration);
+            const phases = [];
+            if (lo > 0) phases.push({ duration: lo, mult: x.mult + y.mult - 1 });
+            if (hi > lo) phases.push({ duration: hi - lo, mult: x.duration >= y.duration ? x.mult : y.mult });
+            return phases;
+        }
+        if (wins.length === 1) return [{ duration: wins[0].duration, mult: wins[0].mult }];
+        return [];
+    }
+
+    // boostA/boostB：{duration, mult} | null，均为自 timestamp 起的前缀加速窗口
+    function calculateStaged(timer, helperLevel, helperDuration, helperCooldown, boostA, boostB, recurrent, eventMult = 1, scheduledAt = 0) {
+        const em = eventMult || 1;
+        const phases = mergeBoostPhases(boostA, boostB).map(p => ({ ...p }));
         let remaining = timer;
         let elapsed = 0;
+        const segs = [];
+        const pushSeg = (dur, rate) => { if (dur > 0) segs.push({ dur, rate }); };
+        let phaseIdx = 0;
+        // 从当前加速位置起取 want 秒加速段（速率 = 段倍率 + extra），返回加速段未覆盖的剩余时长
+        const takePhases = (want, extra) => {
+            let left = want;
+            while (left > 0 && phaseIdx < phases.length) {
+                const t = Math.min(left, phases[phaseIdx].duration);
+                pushSeg(t, phases[phaseIdx].mult + extra);
+                phases[phaseIdx].duration -= t;
+                left -= t;
+                if (phases[phaseIdx].duration <= 0) phaseIdx++;
+            }
+            return left;
+        };
 
         let hasHelper = helperDuration > 0 && helperLevel > 0;
+        let workStart = 0;
+        let workDur = 0;
 
         if (helperLevel > 0 && helperDuration === 0 && helperCooldown > 0) {
-            const cooldownBoostDuration = Math.min(helperCooldown, boostDuration);
-            if (cooldownBoostDuration > 0 && boostDuration > 0) {
-                const rate = boostMult;
-                const maxReduce = cooldownBoostDuration * rate;
-                if (remaining <= maxReduce) return elapsed + Math.ceil(remaining / rate);
-                remaining -= maxReduce;
-                elapsed += cooldownBoostDuration;
-                helperCooldown -= cooldownBoostDuration;
-                boostDuration -= cooldownBoostDuration;
-            }
-            if (helperCooldown > 0) {
-                if (remaining <= helperCooldown * eventMult) return elapsed + Math.ceil(remaining / eventMult);
-                remaining -= helperCooldown * eventMult;
-                elapsed += helperCooldown;
-            }
+            // 助手冷却段：加速窗口覆盖其前缀（按段倍率），未被覆盖的余量按常速
+            const uncovered = takePhases(helperCooldown, 0);
+            pushSeg(uncovered, em);
         }
-
         if (recurrent === true && !hasHelper && helperLevel > 0) {
             hasHelper = true;
-            helperDuration = 3600;
+            workDur = 3600;
+            workStart = helperCooldown;   // 循环注入：工作窗从冷却结束后开始
+        } else if (hasHelper) {
+            workDur = helperDuration;
+        } else if (scheduledAt > 0 && helperLevel > 0) {
+            hasHelper = true;             // 单次预约窗（推演指派）：hc 归零后加速一次，不循环
+            workDur = 3600;
+            workStart = scheduledAt;
         }
 
-        const overlapDuration = hasHelper ? Math.min(helperDuration, boostDuration) : 0;
-        if (overlapDuration > 0 && boostDuration > 0) {
-            const rate = boostMult + helperLevel;
-            const maxReduce = overlapDuration * rate;
-            if (remaining <= maxReduce) return elapsed + Math.ceil(remaining / rate);
-            remaining -= maxReduce;
-            elapsed += overlapDuration;
-        }
-
-        const boostOnlyDuration = Math.max(0, boostDuration - overlapDuration);
-        if (boostOnlyDuration > 0) {
-            const rate = boostMult;
-            const maxReduce = boostOnlyDuration * rate;
-            if (remaining <= maxReduce) return elapsed + Math.ceil(remaining / rate);
-            remaining -= maxReduce;
-            elapsed += boostOnlyDuration;
-        }
-
-        let helperOnlyDuration = 0;
         if (hasHelper) {
-            helperOnlyDuration = Math.max(0, helperDuration - overlapDuration);
-            if (helperOnlyDuration > 0) {
-                const rate = helperLevel + eventMult;
-                const maxReduce = helperOnlyDuration * rate;
-                if (remaining <= maxReduce) return elapsed + Math.ceil(remaining / rate);
-                remaining -= maxReduce;
-                elapsed += helperOnlyDuration;
-            }
+            const uncovered = takePhases(workDur, helperLevel);   // 工作窗 ∩ 加速段
+            pushSeg(uncovered, helperLevel + em);                 // 工作窗在加速段外的部分
+        }
+        takePhases(Infinity, 0);                                  // 加速段余量（工作窗之后，无助手加成）
+
+        for (const s of segs) {
+            if (remaining <= s.dur * s.rate) return elapsed + Math.ceil(remaining / s.rate);
+            remaining -= s.dur * s.rate;
+            elapsed += s.dur;
         }
 
         if (recurrent === true && helperLevel > 0) {
-            let cooldownRemaining = 22 * 3600;
-            if (helperOnlyDuration > 0) {
-            } else if (overlapDuration > 0) {
-                cooldownRemaining = Math.max(0, 22 * 3600 - boostOnlyDuration);
+            // 下一工作窗起点：首个会话结束后，若共享冷却时钟（hc）晚于会话结束则对齐它（助手共享冷却：
+            // 后进入冷却的一方对齐先进入方，hc 归零后双方同时开工），否则标准 22h；之后按 82800 周期
+            let nextWindow = workStart + workDur + 22 * 3600;
+            if (helperDuration > 0 && helperCooldown > 0) {
+                nextWindow = Math.max(workStart + workDur, helperCooldown);   // 共享冷却对齐（含 hc < 会话时长：会话结束即开工）
             }
-
+            let cooldownRemaining = Math.max(0, nextWindow - elapsed);
             while (remaining > 0) {
                 if (cooldownRemaining > 0) {
-                    if (remaining <= cooldownRemaining * eventMult) {
-                        return elapsed + Math.ceil(remaining / eventMult);
+                    if (remaining <= cooldownRemaining * em) {
+                        return elapsed + Math.ceil(remaining / em);
                     }
-                    remaining -= cooldownRemaining * eventMult;
+                    remaining -= cooldownRemaining * em;
                     elapsed += cooldownRemaining;
                 }
 
-                const workPerCycle = 3600 * (helperLevel + eventMult);
+                const workPerCycle = 3600 * (helperLevel + em);
                 if (remaining <= workPerCycle) {
-                    return elapsed + Math.ceil(remaining / (helperLevel + eventMult));
+                    return elapsed + Math.ceil(remaining / (helperLevel + em));
                 }
                 remaining -= workPerCycle;
                 elapsed += 3600;
@@ -325,10 +534,38 @@
             }
         }
 
-        return elapsed + Math.ceil(remaining / eventMult);
+        return elapsed + Math.ceil(remaining / em);
     }
 
     // ========== 核心：计算完成时间 ==========
+    // 按类别取当前生效的加速窗口（药水与辅食可同时生效，各自独立计时）
+    function getBoostWindows(data, category) {
+        const boosts = data.boosts || {};
+        if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
+            const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+            return [
+                boosts.builder_boost ? { duration: boosts.builder_boost, mult: is24 ? 24 : 10 } : null,
+                boosts.builder_consumable ? { duration: boosts.builder_consumable, mult: 2 } : null
+            ];
+        }
+        if (["units", "siege_machines", "spells"].includes(category)) {
+            return [
+                boosts.lab_boost ? { duration: boosts.lab_boost, mult: 24 } : null,
+                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: 4 } : null
+            ];
+        }
+        if (category === "pets") {
+            return [
+                boosts.pet_boost ? { duration: boosts.pet_boost, mult: 24 } : null,
+                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: 4 } : null
+            ];
+        }
+        if (["buildings2", "traps2", "heroes2", "units2"].includes(category)) {
+            return [boosts.clocktower_boost ? { duration: boosts.clocktower_boost, mult: 10 } : null, null];
+        }
+        return [null, null];
+    }
+
     function calculateCompletionTimestamp(item, data) {
         const { timer, category } = item;
         const { timestamp } = data;
@@ -345,7 +582,6 @@
                 return timestamp + timer;
             }
 
-            const boosts = data.boosts || {};
             const helpers = data.helpers || [];
 
             let helper = null;
@@ -359,37 +595,16 @@
             const itemHelperTimer = item.helper_timer || 0;
             const helperCooldown = helper ? (helper.helper_cooldown || 0) : 0;
 
-            let boostDuration = 0;
-            let boostMult = 1;
-            if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
-                if (boosts.builder_boost) {
-                    const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-                    boostMult = is24 ? 24 : 10;
-                    boostDuration = boosts.builder_boost;
-                } else if (boosts.builder_consumable) {
-                    boostMult = 2;
-                    boostDuration = boosts.builder_consumable;
-                }
-            } else if (["units", "siege_machines", "spells"].includes(category)) {
-                if (boosts.lab_boost) {
-                    boostMult = 24;
-                    boostDuration = boosts.lab_boost;
-                } else if (boosts.lab_consumable) {
-                    boostMult = 4;
-                    boostDuration = boosts.lab_consumable;
-                }
-            }
-
-            const additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostDuration, boostMult, true, eventMult);
+            const [boostA, boostB] = getBoostWindows(data, category);
+            const additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, true, eventMult);
             completionTimestamp = timestamp + additional;
             if (isNaN(completionTimestamp) || completionTimestamp < timestamp) return timestamp + timer;
             return completionTimestamp;
         }
 
-        const boosts = data.boosts || {};
         const helpers = data.helpers || [];
-        const hasHelperSession = item.helper_recurrent === true || (item.helper_timer || 0) > 0;
-        const isRecurrent = item.helper_recurrent === true;
+        const scheduledAt = item.helper_scheduled || 0;   // 单次预约窗（推演指派）：hc 归零后加速一次
+        const hasHelperSession = (item.helper_timer || 0) > 0 || scheduledAt > 0;
         const workerHelper = helpers.find(h => h.data === 124000000 || h.data === 93000000);
         const labHelper = helpers.find(h => h.data === 124000001 || h.data === 93000001);
         const itemHelperTimer = hasHelperSession ? (item.helper_timer || 0) : 0;
@@ -409,36 +624,10 @@
             }
         }
 
-        let additional = Math.ceil(timer / eventMult);
-        if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
-            if (boosts.builder_boost) {
-                const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-                const mult = is24 ? 24 : 10;
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boosts.builder_boost, mult, false, eventMult);
-            } else if (boosts.builder_consumable) {
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boosts.builder_consumable, 2, false, eventMult);
-            } else if (helperLevel > 0 && itemHelperTimer > 0) {
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, 0, 0, false, eventMult);
-            }
-        } else if (["units", "siege_machines", "spells"].includes(category)) {
-            if (boosts.lab_boost) {
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boosts.lab_boost, 24, false, eventMult);
-            } else if (boosts.lab_consumable) {
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boosts.lab_consumable, 4, false, eventMult);
-            } else if (helperLevel > 0 && itemHelperTimer > 0) {
-                additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, 0, 0, false, eventMult);
-            }
-        } else if (category === "pets") {
-            if (boosts.pet_boost) {
-                additional = calculateStaged(timer, 0, 0, 0, boosts.pet_boost, 24, false, eventMult);
-            } else if (boosts.lab_consumable) {
-                additional = calculateStaged(timer, 0, 0, 0, boosts.lab_consumable, 4, false, eventMult);
-            }
-        } else if (["buildings2", "traps2", "heroes2", "units2"].includes(category)) {
-            if (boosts.clocktower_boost) {
-                additional = calculateStaged(timer, 0, 0, 0, boosts.clocktower_boost, 10);
-            }
-        }
+        const [boostA, boostB] = getBoostWindows(data, category);
+        // 夜世界（钟楼）无活动倍率；无道具无助手时 calculateStaged 退化为 ceil(timer / em)
+        const isNightWorld = ["buildings2", "traps2", "heroes2", "units2"].includes(category);
+        const additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, false, isNightWorld ? 1 : eventMult, scheduledAt);
 
         completionTimestamp = timestamp + additional;
         if (isNaN(completionTimestamp) || completionTimestamp < timestamp) return timestamp + timer;
@@ -953,6 +1142,10 @@
         isClockTowerReady,
         getRecurrentPhase,
         getItemPhaseIcon,
+        getHelperUsage,
+        potionUnitSec,
+        clockTowerBoostSec,
+        snapshotAccount,
         escapeHtml,
         getHelperCooldowns,
         calculateStaged,

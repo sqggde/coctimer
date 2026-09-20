@@ -1,15 +1,25 @@
+/* =============================================================================
+ * help.css —— 使用说明页内容样式（顶栏与滚动容器在 more.css）
+ *
+ * 外观取值一律在 css/tokens.css（圆润3D 是默认值，这里的规则直接消费 var(--td-*)）；
+ * 本页**极简档下的旧值**见文件末尾（圆润3D 的卡走面板令牌，极简回旧版白卡 + 很轻的投影）。
+ * ========================================================================== */
 #help-page, #help-page * { margin: 0; padding: 0; box-sizing: border-box; }
         #help-page {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f9fafb;
+            background: var(--td-page2);
             color: #374151;
             padding: 20px;
         }
         #help-page .card {
-            background: #ffffff;
-            border-radius: 12px;
+            background-color: var(--td-panel-bg);
+            background-image: var(--td-panel-sheen);
+            border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+            border-style: solid;
+            border-color: var(--td-panel-bd);
+            border-radius: var(--td-panel-r);
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: var(--td-panel-shadow);
             margin-bottom: 16px;
         }
         #help-page .card h2 {
@@ -38,7 +48,7 @@
         }
         .dark #help-page .help-sec-title { color: #60a5fa; }
         .dark #help-page .help-sec-body { color: #cbd5e1; }
-        .dark #help-page .help-sec { border-bottom-color: #3d3d5c; }
+        .dark #help-page .help-sec { border-bottom-color: var(--td-line); }
         #help-page .step {
             display: flex;
             align-items: flex-start;
@@ -89,10 +99,12 @@
         }
         #help-page .tip i { color: #22c55e; margin-top: 2px; }
 
-        .dark #help-page { background: #1a1a2e; color: #d1d5db; }
-        .dark #help-page .card { background: #2d2d44; }
+        .dark #help-page { color: #d1d5db; }
         .dark #help-page .card h2 { color: #e5e7eb; }
         .dark #help-page .step-content { color: #9ca3af; }
         .dark #help-page .step-content strong { color: #e5e7eb; }
         .dark #help-page .highlight { background: #1e3a5f; color: #60a5fa; }
         .dark #help-page .tip { background: #1a3a2a; color: #86efac; }
+
+/* ===== 极简档 · 本页旧值 ===== */
+html[data-style="minimal"] #help-page .card { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }

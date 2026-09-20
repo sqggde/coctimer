@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20260914-tlct5i';
+const CACHE = 'coc-tool-web-20260920-tlngaj';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -24,6 +24,7 @@ const CORE_FILES = [
     "./js/duration-search.js",
     "./js/names.js",
     "./js/overview-detail.js",
+    "./js/overview-share.js",
     "./js/overview.js",
     "./js/pokedex.js",
     "./js/progress-meta-cn.js",

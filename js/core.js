@@ -17,6 +17,7 @@
         sleepEnd: '08:00',
         darkMode: false,
         darkModeAuto: false,
+        uiStyle: 'round3d',
         logEnabled: false,
         appIcon: 'helper_hut',
         webdavEnabled: false,
@@ -292,8 +293,24 @@
     let mediaQuery;
     let mediaListenerBound = false;
 
+    /* ===== 状态栏配色（Android 原生那条）=====
+       此前它吃的是主题里模板遗留的 colorPrimaryDark（purple_700），跟 App 配色毫无关系。
+       这里把它拉齐到**顶栏底**：颜色直接读当前主题的 `--td-bar`（tokens.css，唯一真源），
+       所以"圆润3D / 极简 × 浅 / 深"四种组合、以及运行时切换，都会同步过去。
+       两个外观状态源（明暗 `applyTheme`、主题 `applyUiStyle`）各调一次；无桥接（网页版）时是空操作。 */
+    function syncStatusBar() {
+        if (!hasAndroidMethod('setStatusBar')) return;
+        try {
+            const root = document.documentElement;
+            const bar = getComputedStyle(root).getPropertyValue('--td-bar').trim();
+            const isDark = root.classList.contains('dark');
+            callAndroid('setStatusBar', bar || (isDark ? '#252540' : '#eef3fa'), !isDark);
+        } catch (e) { }
+    }
+
     function applyTheme(isDark) {
         document.documentElement.classList.toggle('dark', Boolean(isDark));
+        syncStatusBar();
     }
 
     function getSystemDarkMode() {
@@ -335,12 +352,35 @@
         mediaListenerBound = true;
     }
 
+    /* ===== 主题（style）轴：圆润3D / 极简 =====
+       与"明暗（darkMode）"正交：每套主题在 tokens.css 里自带浅色与深色两组取值（共四层块）。
+       **注册表是全站唯一数据源**——设置页「主题」行、首页顶栏临时试切键、选择弹窗都读它，
+       加第三套主题 = 这里加一项 + tokens.css 加两个块，无其他代码改动。
+       命名说明：字段叫 `uiStyle` 而不是 `theme`，因为 `theme`/`.theme-dark` 在本仓库已经指"明暗"了。 */
+    const UI_THEMES = Object.freeze([
+        { k: 'round3d', t: '圆润3D', d: '大圆角 + 立体光泽（当前默认）' },
+        { k: 'minimal', t: '极简', d: '小圆角 + 扁平细线（旧版观感）' }
+    ]);
+    function applyUiStyle(style) {
+        // 默认主题不写属性，让 tokens.css 的 `:root` 生效；其他主题写 `data-style`
+        const known = UI_THEMES.some(t => t.k === style);
+        if (known && style !== 'round3d') {
+            document.documentElement.setAttribute('data-style', style);
+        } else {
+            document.documentElement.removeAttribute('data-style');
+        }
+        syncStatusBar();
+    }
+
     CocTool.theme = Object.freeze({
         apply: applyTheme,
         syncAutomatic: syncAutomaticTheme,
+        applyStyle: applyUiStyle,
+        THEMES: UI_THEMES,
         initialize() {
             syncAutomaticTheme();
             watchSystemTheme();
+            try { applyUiStyle(CocTool.storage.loadSettings().uiStyle); } catch (e) { }
         }
     });
 
@@ -496,6 +536,10 @@
         if (page !== 'progress' && CocTool.features.accounts && CocTool.features.accounts.exitSortModeIfActive) {
             CocTool.features.accounts.exitSortModeIfActive();
         }
+        // 切出首页时若处于道具推演则自动退出（丢弃副本，不应用）
+        if (page !== 'progress' && CocTool.features.progress && CocTool.features.progress.exitSimIfActive) {
+            CocTool.features.progress.exitSimIfActive();
+        }
         const navButtons = document.querySelectorAll('.nav-btn');
         const progressPage = document.getElementById('main-display-area');
         const helpPage = document.getElementById('help-page');
@@ -505,8 +549,12 @@
         const morePage = document.getElementById('more-page');
         const basesPage = document.getElementById('bases-page');
         const stickyTopBar = document.getElementById('sticky-top-bar');
+        // 首页内容的外壳（`#home-shell`）：它带 `pb-2`（8px），内容藏起来后这 8px 还在，
+        // 会给"更多"页顶上多留一条——切出首页时整壳一起藏掉（2026-09-18 收顶部留白时发现）
+        const homeShell = document.getElementById('home-shell');
         navButtons.forEach(button => button.classList.toggle('active', button.dataset.page === page));
         const isProgress = page === 'progress';
+        if (homeShell) homeShell.classList.toggle('hidden', !isProgress);
         if (stickyTopBar) stickyTopBar.classList.toggle('hidden', !isProgress);
         if (progressPage) progressPage.classList.toggle('hidden', !isProgress);
         if (clanPage) clanPage.classList.toggle('hidden', page !== 'clan');

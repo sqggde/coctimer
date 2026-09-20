@@ -32,54 +32,104 @@
     border: 1px dashed #3b82f6;
 }
 
-/* ===== 账号标签 ===== */
+/* ===== 账号标签（**大圆角方框**，2026-09-15 由"纯胶囊"改来） ===== */
+/* 形状口径（用户 2026-09-15）：「tab 不要纯胶囊，改成大圆角方框，短边留差不多 6~8 的直边，左右间距 13 改成 10」。
+   算法：高 34px，`border-radius: 13px` → **短边（竖边）直段 = 34 − 2×13 = 8px**（落在"6~8"的上沿；
+   想挪到 6px 就把半径调成 14px，仍然只有这一个旋钮）。纯胶囊（999px 会被夹到 17px）时直段为 0，
+   所以这批 tab 从此与"操作按键"的胶囊形状分开，shape 上也认得出是选择控件。
+   左右内边距 13 → 10 → **8px**（2026-09-15 两步收窄；`!important` 是为了压过 JS 里那个 Tailwind 的 `px-1.5`＝6px）。
+   选中态 = 按区服取"底色 + 纱"（国际服紫底蓝纱 / 国服蓝底紫纱），白字。 */
+/* 横向滚动行要"铺到屏幕边"：`.container` 有 16px 页面留白（Tailwind `px-4`），而**滚动容器的裁剪边界
+   就是它自己的盒边**——不抵消的话，tab 会在离屏幕还有 16px 的地方就消失（用户 2026-09-15 报的"提前消失"，
+   方案 1-5 的预览页里没有这个问题，正是因为那边是满宽的）。
+   做法：负外边距把盒子撑到屏幕两侧、再用等量内边距把内容顶回来（第一个 tab 仍从 16px 开始）。
+   **这个 16px 与页面留白 `px-4` 是同一个值**——哪天页面留白改了，这里要一起改。 */
+#account-tabs {
+    /* 旧版这里是 Tailwind 的 `border-b border-gray-200`（页签基线），圆润3D 撤掉了它——
+       用令牌承载：圆润3D = none，极简 = 1px 实线（深色档换深色描边）。 */
+    border-bottom: var(--td-tab-baseline);
+}
 #tab-container {
     position: relative;
+    margin: 0 -16px;
+    padding: 2px 16px 4px;
 }
-.account-tab {
+#tab-container .account-tab {
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    height: var(--td-tab-h);
+    padding: var(--td-tab-pad) !important;
+    border: var(--td-tab-bw) solid var(--td-tab-bd) !important;
+    border-radius: var(--td-tab-r) !important;
+    background-color: var(--td-tab-bg) !important;
+    /* 两层：**下缘偏右的月牙纱**（与快捷导入/选中 tab 同一套语言）+ **淡而宽的光泽**（14% 起、25% 处归零）。
+       纱压在底色上、光泽在最上层（与 .qi-btn 的层次一致）；极简档两层的令牌都是 none，回到扁平。
+       原来只有光泽那一层（无硬线），2026-09-17 用户要求「把 tab 换成快捷导入那种样式……月牙型的纱」。 */
+    background-image: var(--td-veil), var(--td-tab-sheen);
+    color: var(--td-tab-color) !important;
+    font-size: var(--td-tab-fs) !important;
+    font-weight: 500 !important;
+    display: inline-flex;
+    align-items: center;
+    /* 账号 tab 是**选择控件**不是操作按键：立体感弱一档——**不做底部暗边**（12 个排一起那条暗线很突兀，
+       用户 2026-09-15 明确否掉），也不做顶部亮边；只留顶部光泽与一层很轻的投影 */
+    box-shadow: var(--td-tab-shadow);
+    transition: var(--td-tab-trans);
 }
-.account-tab.active-tab {
-    border: 2px solid #000000 !important;
-    border-bottom-width: 4px !important;
-    background-color: #ffffff;
-    color: #000000;
-    font-weight: 700;
+#tab-container .account-tab:hover:not(.active-tab) {
+    background-color: var(--td-tab-hover-bg) !important;
+    color: var(--td-tab-hover-color) !important;
 }
-.dark .account-tab.active-tab {
-    border: 2px solid #ffffff !important;
-    border-bottom-width: 4px !important;
-    background-color: #2d2d44 !important;
-    color: #ffffff !important;
+/* 睡眠区间账号的底色（原 .sleep-highlight-tab），让位给选中态 */
+#tab-container .account-tab.sleep-highlight-tab:not(.active-tab) {
+    background-color: #dbeafe !important;
 }
+#tab-container .account-tab.active-tab {
+    border-color: var(--td-tab-active-bd) !important;
+    border-width: var(--td-tab-active-bw) !important;
+    border-bottom-width: var(--td-tab-active-bbw) !important;
+    /* 选中态也走"**底色 + 纱**"那套（跟快捷导入/打开游戏同一套语言），底色按**区服**取：
+       国际服＝紫底+蓝纱、国服＝蓝底+紫纱 → 选中哪个 tab 顺带告诉你这个号是哪个服
+       （极简主题下这两支都还原成旧版的"白底黑框 + 下边 4px"页签） */
+    background-color: var(--td-tab-active-bg) !important;
+    background-image: var(--td-tab-active-img) !important;
+    /* 白字是**兜底**：只有"没被 `updateAllAccountTabColors()` 打上紧迫度类"的账号才吃到它（靠继承）。
+       有类的账号文字走各自的 `text-*` 色——见下方"选中态不再把字色统一盖成白色"那条注释 */
+    color: var(--td-tab-active-color) !important;
+    font-weight: var(--td-tab-fw-active) !important;
+    /* 不再有 1px 亮边/暗边——硬线是这批 tab 上反复出问题的那一处；立体感只由"宽而淡的光泽 + 轻投影"给 */
+    box-shadow: var(--td-tab-active-shadow);
+}
+/* 国服：蓝底 + 紫纱（镜像） */
+#tab-container .account-tab.active-tab.srv-cn {
+    background-color: var(--td-tab-cn-bg) !important;
+    background-image: var(--td-tab-cn-img) !important;
+}
+/* **选中态不再把字色统一盖成白色**（用户 2026-09-15：「被选中账号的字色不要统一覆盖成白色，保留时间提示色」）——
+   文字色由 `accounts.js` 的 `updateAllAccountTabColors()` 按紧迫度打的 Tailwind 类（`text-success` /
+   `text-danger_red` / `text-warning_orangered` / `text-warning_orange` / `text-warning_yellow`）决定，
+   这里**一条都不许覆盖**；只有"没有紧迫度类"的账号才落到上面那条 `color: #ffffff`（靠继承拿到）。
+   未选中 tab 走同一条文字色逻辑，两态一致。 */
+/* 深色覆盖**已全部并入令牌**（`--td-tab-*` 在 tokens.css 里按"圆润3D 深色"给值）——上面那条
+   `:not(.active-tab)` 的深色规则因此整段删除，不再需要"靠写在后面 + 排除选中态"来抢权重。
+   下图这条留着：睡眠覆盖色两套主题同值（深色 `#000`），不属于主题差异。 */
+.dark #tab-container .account-tab.sleep-highlight-tab:not(.active-tab) {
+    background-color: #000000 !important;
+}
+/* 选中态的**深色覆盖已全删**：① 底色——改成"底色+纱"之后它与浅色完全相同，留着反而会因写在文件末尾、
+   权重追平 `.srv-cn`，把国服那支的蓝底盖回紫底；② 字色——紧迫度色是**信息**，两态同值，不给深色另配一套。 */
 #tab-container > .account-tab[data-sort="true"] {
     position: sticky !important;
     left: 0 !important;
     z-index: 2 !important;
 }
-/* 账号切换内容入场动画：左滑/右滑按方向滑入，其余从右滑入（过渡自然不突兀） */
-.tab-slide-left {
-    animation: tabSlideInFromRight 0.2s ease-out;
-}
-.tab-slide-right {
-    animation: tabSlideInFromLeft 0.2s ease-out;
-}
-@keyframes tabSlideInFromRight {
-    from { opacity: 0; transform: translateX(24px); }
-    to { opacity: 1; transform: none; }
-}
-@keyframes tabSlideInFromLeft {
-    from { opacity: 0; transform: translateX(-24px); }
-    to { opacity: 1; transform: none; }
-}
+/* 账号切换的"内容入场滑动"动画（.tab-slide-left/.tab-slide-right + 两个 @keyframes）已于 2026-09-17
+   按用户要求删除（「首页那个切换页面的动画删掉吧」）——切号现在是**直接换内容**，不再有 0.2s 的位移+淡入。
+   `.clip-x` 留着：它一半是为这条动画兜横向溢出，另一半（也是现在唯一的作用）是给卡片外扩的阴影挣左右 16px。 */
 .sleep-highlight {
     background-color: #dbeafe !important;
 }
-.sleep-highlight-tab {
-    background-color: #dbeafe;
-}
+/* .sleep-highlight-tab（账号标签的睡眠底色）已并入上方「账号标签（胶囊 chip）」段 */
 
 /* ===== 助手行 ===== */
 .helper-row {
@@ -87,7 +137,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--td-panel-bd);
 }
 .helper-row:last-child {
     border-bottom: none;
@@ -134,18 +184,136 @@
     flex-shrink: 0;
 }
 
+/* ===== 顶栏与操作行按钮（方案 03 的胶囊语言 + 渐变，取代原来的"小圆角纯色块"） ===== */
+/* 渐变两端用 blue-600/violet-600 而非 03 原稿的 blue-500/violet-500：白字压上去时 500 那档只有 3.7:1。 */
+/* **顶光全体软化（2026-09-15，账号 tab 除外）**：这一段所有按键的"顶部亮边"——`inset 0 1px 0 rgba(255,255,255,.5)`
+   那条 1px 硬线——**已删除**，光泽从 `18% 起 / 42% 归零` 放成 **`14% 起 / 50% 归零`**，与账号 tab 早先定下的那条
+   完全同款 → 全页只剩一种顶光语言。理由和 tab 那次是同一处毛病：1px 硬线在小控件上读作"划痕"而不是倒角
+   （判据见 DESIGN.md §4.6），且 §2.2 本来就写着"不引入白光/黑影倒角"。**底部暗边（`inset 0 -1px 0`）与外投影未动。** */
+/* 设置键 = **纯灰底 + 白色齿轮**（用户 2026-09-15 两轮口径）：底色回归原来的浅灰 `#9ca3af`（gray-400），
+   浅灰在两套主题下都用同一个值——这就是它原来的样子（当年没有深色覆盖），别自作主张给深色换色；
+   上面加现在的立体方案（宽而淡的顶光 + 底部暗边 + 投影，1px 亮边已随"顶光软化"去掉）。**图标底下那层蓝紫渐变圆已按用户要求去掉**。
+   **边框也去掉**（用户 2026-09-15 追问"设置键比别的键立体重"）：那条 `1px solid #e5e7eb` 是"描边胶囊"那版
+   留下的，全页其他键的 border 全是 `0px`，只有这一支多一圈亮边——深色下 #e5e7eb 压在 #1a1a2e 上是 13:1，
+   浅灰圆心被包成一枚"带亮边压花的实体币"；加上底色的关系（见下），它就成了全页最厚的一颗。
+   **底色越浅、同样的暗边读数越重**：`inset 0 -1px 0 rgba(0,0,0,.3)` 在 #9ca3af 上明度掉了约 ΔL*19，
+   在紫/蓝键（#7c3aed / #2563eb）上只有约 ΔL*13——α 相同，浅底上掉的光更多。所以浅色中性底**不该再叠边缘**。 */
+/* 设置键（首页顶栏唯一的圆键；同排那个主题试切键 `#style-btn` 已于 2026-09-17 撤掉，
+   主题入口现在只在「设置页 → 主题」行） */
+#settings-btn {
+    height: var(--td-btn-h);
+    min-width: var(--td-settings-minw);
+    padding: var(--td-settings-pad) !important;
+    background-color: #9ca3af !important;
+    background-image: var(--td-btn-sheen);
+    border: 0;
+    border-radius: var(--td-btn-r);
+    box-shadow: var(--td-btn-shadow);
+}
+/* 齿轮尺寸**只调 font-size 这一个旋钮**（项目既有机制：icons.css 里 `.fa` 是 1em、内部 svg/img 再 100% 撑满）。
+   16px = 与同行其它图标对齐（排序 / 更多 / 时长搜索都是 16px；打开游戏 20px、底部导航 18px）。
+   原来这里写死过 `width/height:24px` + `svg{13px}`——那是给"24px 渐变圆底"当内芯用的尺寸，
+   圆底撤掉后这层壳就没有约束意义了，留着只会让齿轮比谁都小。 */
+#settings-btn i.fa {
+    font-size: var(--td-settings-icon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+/* 悬停反馈从图标移到按钮本体：图标底下没有底色了，对它调亮度看不出变化（极简主题下取"变深"） */
+#settings-btn:hover {
+    filter: var(--td-btn-hover);
+}
+/* 深色下不加覆盖：保持原样的浅灰（与改动前的行为一致） */
+/* 快捷导入（配色真源在本段，JS 只切 .qi-paste 类）。三层背景自上而下：
+   ① 顶部光泽（立体按键统一规则，取自试验台 C 案；2026-09-15 随"顶光软化"放宽为 .14@50%）
+   ② 径向"纱"——主色实底 + 辅色半透明盖上去，不是"渐变拼接到边缘换成另一个色"：底色一路透出来才像同一颗球上的暗部。
+      圆心在**左上方（24% -2%）**：纱压在下缘偏右、45° 斜（不是"）"也不是"‿"），方向与选中账号 tab 那条 135deg 一致。
+      停止点按包围盒归一化推：圆心到最近点 ~7%、最远点 ~98% → 42% 起铺、96% 到 α 上限。
+      当前参数：**覆盖 42%（周长约 72%）+ α 上限 0.525**（用户 2026-09-15 定：先取 0.7，再要求"最实处再虚 25%"）。
+      想调宽窄**报覆盖率**即可，见表：起点 58%→60%、50%→66%、42%→72%（圆键与胶囊一致，"纯圆同理"天然成立）。
+   ③ 底色：#7c3aed（快捷导入）/ #2563eb（粘贴导入）。两个模式是同一对相邻色的镜像，用"谁是底色"表达"以谁为主"。
+   色调都从 600 档起：白字压在 500 档上只有 3.7~4.2:1。 */
+.qi-btn {
+    height: var(--td-btn-h);
+    font-size: var(--td-qi-fs);
+    border-radius: var(--td-btn-r) !important;
+    background-color: var(--td-qi-bg) !important;
+    background-image: var(--td-qi-img);
+    font-weight: var(--td-qi-fw);
+    box-shadow: var(--td-btn-shadow);
+}
+.qi-btn.qi-paste {
+    background-color: var(--td-qi2-bg) !important;
+    background-image: var(--td-qi2-img);
+}
+.qi-btn:hover {
+    filter: var(--td-btn-hover);
+}
+/* 分隔线按方案 04 从圆润3D 里去掉，但元素**留在 DOM 里**（极简主题要它）——用令牌控显隐。 */
+.qi-btn .qi-divider {
+    display: var(--td-divider-display);
+}
+/* 标签在 80% 区内居中，视觉上跟 caret 成一组 */
+.qi-btn .qi-label {
+    text-align: center;
+}
+/* 操作行四键：胶囊形状 + 立体按键统一规则（宽而淡的顶部光泽 + 底部暗边 + 外投影）。
+   配色沿用用户 2026-08-30 拍板的方案 A（排序紫 #8b5cf6 / 搜索蓝 #3b82f6 / 更多深灰蓝 #475569 / 游戏灰 #6b7280），
+   底色都来自 background-color，所以光泽层直接叠上去即可，不用改渐变 */
+#account-actions button {
+    background-image: var(--td-btn-sheen);
+    box-shadow: var(--td-btn-shadow);
+}
+#account-actions button:hover {
+    filter: brightness(1.08);
+}
+/* 圆角**按控件分两档**（不能挂在上面那条组规则上）：胶囊键（时长搜索/更多）取 `--td-btn-r`，
+   两个圆键（排序/打开游戏）取 `--td-round-r`——极简主题下它们各回各的旧值（8px / 正圆）。
+   光泽与投影两套主题同源：圆键不单独写 `background-image`，继续吃组规则那条（极简下为 none）。 */
+#duration-search-btn, #more-btn {
+    height: var(--td-btn-h);
+    border-radius: var(--td-btn-r) !important;
+}
+#sort-btn, #launch-game-btn {
+    width: var(--td-round-size);
+    height: var(--td-round-size);
+    border-radius: var(--td-round-r) !important;
+}
+#launch-game-btn {
+    right: var(--td-launch-right);
+}
+/* 打开游戏键：区服语义不变（国际服紫 / 国服蓝 / 未设置灰）。配色真源在这几条（JS 只切 .lg-intl / .lg-cn 类）——
+   原来 JS 写 style.background 简写会把 background-image 重置掉，所以底色一律走 background-color */
+#launch-game-btn {
+    background-color: #6b7280 !important;
+}
+#launch-game-btn.lg-intl {
+    background-color: var(--td-lg-intl-bg) !important;
+    background-image: var(--td-lg-intl-img);
+}
+#launch-game-btn.lg-cn {
+    background-color: var(--td-lg-cn-bg) !important;
+    background-image: var(--td-lg-cn-img);
+}
+
 /* ===== 底部导航栏 ===== */
+/* 选中态 = 圆角色块 + 主色文字 + 加粗标签（取自方案 04）。旧版只有文字变色、标签 11px 常规字重、未选中色
+   #9ca3af（对白底对比度仅 2.8），选中/未选中在斜看或深色下不易区分。 */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     height: 56px;
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    background: var(--td-nav-bg);
+    border-top: 1px solid var(--td-nav-bd);
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: var(--td-nav-justify);
+    gap: var(--td-nav-gap);
+    padding: var(--td-nav-pad);
     z-index: 100;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
 }
@@ -159,27 +327,73 @@
     height: 100%;
     border: none;
     background: transparent;
-    color: #9ca3af;
-    font-size: 11px;
+    color: var(--td-nav-color);
+    font-size: var(--td-nav-fs);
+    font-weight: var(--td-nav-fw);
+    border-radius: var(--td-nav-r);
     cursor: pointer;
-    transition: color 0.2s;
+    transition: var(--td-nav-trans);
     padding: 0;
-    gap: 2px;
+    gap: var(--td-nav-icon-gap);
 }
 .bottom-nav .nav-btn i {
-    font-size: 20px;
+    font-size: var(--td-nav-icon);
 }
+/* 选中色用 blue-600 而非 blue-500：10px 标签压在 10% 蓝底上，blue-500 只有 3.3:1（不达标），
+   blue-600 约 4.6:1。blue-600 本来就是本项目按钮的 hover 色，不引入新色。 */
+/* 底部导航的选中项**不做顶光**（用户 2026-09-15：「导航栏的被选中示意的顶光去掉」）——
+   它是"当前在哪一页"的示意块，不是可按的实体键：一层白纱压上去像导航条上鼓起一块。
+   于是这里只剩"色调块 + 底部暗边 + 外投影"，全条 5 项里只有它是实底。
+   未选中项本来就不做立体（底色透明：加光泽会糊成一片白纱、加内阴影会在每一项下面画暗线，
+   导航条会变成 5 块阴影区）——**现在全条都无顶光，见 DESIGN.md §4.1**。 */
 .bottom-nav .nav-btn.active {
-    color: #3b82f6;
+    color: var(--td-nav-active-color);
+    background-color: var(--td-nav-active-bg);
+    box-shadow: var(--td-nav-active-shadow);
 }
 .bottom-nav .nav-btn.active i {
-    color: #3b82f6;
+    color: var(--td-nav-active-color);
+}
+/* 账号切换入场动画把 #main-display-area 右移 24px；容器不裁剪时文档会宽出可视区 → 出现横向滚动条 →
+   可视高度少 15px → 固定定位的底部导航被顶起（切回首页时"导航栏跳一下"）。clip 只裁横向、不建立滚动容器。 */
+.clip-x {
+    overflow-x: clip;
+    /* **满血到屏幕边**（同 DESIGN.md §5 规则 7）：裁剪边界就是本盒的盒边，不抵消页面留白的话，
+       卡片外扩的阴影会在离屏幕还有 16px 处被切断（"两边像有禁区"），且卡片本身只剩 2px 余量。
+       负外边距把盒子撑到屏幕两侧、等量内边距把内容顶回原位——内容位置不变，只是裁剪框变宽了。 */
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 .page-content {
     padding-bottom: 64px;
 }
 
 /* ===== 阶段气泡提示 ===== */
+/* 助手阶段胶囊（bolt/hourglass + 生效次数，svg-icons.js 水合）：底色/文字色走令牌，
+   四层主题（圆润3D/极简 × 浅/深）由 tokens.css 自动给值（--td-pill-bg 浅色比 inset 深一档） */
+.phase-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 2px;
+    padding: 0 6px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--td-pill-bg);
+    vertical-align: -3px;
+}
+.phase-icon-btn .fa {
+    font-size: 13px;
+}
+.phase-icon-btn .phase-count {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--td-unit-color);
+    font-variant-numeric: tabular-nums;
+}
 .phase-tooltip {
     position: fixed;
     z-index: 9999;
@@ -220,15 +434,37 @@
     border-top-color: #334155;
 }
 
-/* ===== 深色模式覆盖 ===== */
-.dark {
-    background-color: #1a1a2e;
+/* ===== 浅色页面底 = 方案 04 的 `--page`（2026-09-16）=====
+   用户口径：「先做第一个改动，浅色模式应用方案 04 的背景色」——04 的浅色底色是 `#EEF3FA`（偏蓝的浅灰），
+   替掉 Tailwind `bg-gray-50` 的 `#F9FAFB`。**顶栏必须同色**：`#sticky-top-bar` 也挂着 `bg-gray-50`，
+   只改 body 会留下一条色带（2026-09-15 那条"顶部深色斑块"的教训就是顶栏与页面底脱钩）。
+   两条都用比 Tailwind 更高的权重（`body.bg-gray-50` / ID），**不用 `!important`**——避免和
+   `.upgrade-card { background-color: #ffffff !important }` 打平局（同为 !important 时后写的赢，太脆）。
+   深色不受影响（下面 `.dark` 段照旧覆盖成 `#1a1a2e`）。 */
+/* 深色不受影响（tokens.css 的 `html.dark` 段给同一对令牌另一个值）。
+   **顶栏单独一个令牌 `--td-bar`**：圆润3D 下它与页面底同色，极简的深色档下顶栏比页面更深一块（#1a1a2e）。 */
+body.bg-gray-50 {
+    background-color: var(--td-page) !important;
 }
-.dark body, .dark .bg-gray-50, .dark .bg-gray-100 {
-    background-color: #1a1a2e !important;
+#sticky-top-bar {
+    background-color: var(--td-bar) !important;
+}
+/* ===== 深色模式覆盖 =====
+   表面类**全部走令牌**（`--td-backdrop` 最底层 < `--td-page` 页面底 < `--td-surface` 卡面/白面；
+   `--td-line` / `--td-line-2` 描边与次级面）——2026-09-17 加深深色模式时就是把三档值各降一档，
+   这里一处都不用改。浅色不写在这段。 */
+.dark {
+    background-color: var(--td-backdrop);
+}
+.dark body, .dark .bg-gray-50 {
+    background-color: var(--td-page) !important;
+}
+/* `bg-gray-100` 在浅色下是"卡内浅底"（#f3f4f6），深色给同义的浅底档而不是页面底 */
+.dark .bg-gray-100 {
+    background-color: var(--td-inset-bg) !important;
 }
 .dark .bg-white {
-    background-color: #2d2d44 !important;
+    background-color: var(--td-surface) !important;
 }
 .dark .text-gray-800, .dark .text-gray-700 {
     color: #e2e8f0 !important;
@@ -240,26 +476,19 @@
     color: #718096 !important;
 }
 .dark .border-gray-200, .dark .border-gray-300 {
-    border-color: #3d3d5c !important;
+    border-color: var(--td-line) !important;
 }
 .dark .bg-gray-200 {
-    background-color: #3d3d5c !important;
+    background-color: var(--td-line) !important;
 }
 .dark .bg-gray-300 {
-    background-color: #4a4a6a !important;
+    background-color: var(--td-line-2) !important;
 }
-.dark .bg-gray-50 {
-    background-color: #252540 !important;
-}
-.dark .account-tab {
-    background-color: transparent !important;
-}
-.dark .account-tab.text-gray-500 {
-    color: #a0aec0 !important;
-}
+/* （`.dark .bg-gray-50` 的第二条重复规则已删：与上面 `body, .bg-gray-50` 那条同值） */
+/* .dark .account-tab 的底色/字色已并入上方「账号标签（胶囊 chip）」段 */
 .dark .sort-item {
-    background-color: #252540 !important;
-    border-color: #3d3d5c !important;
+    background-color: var(--td-inset-bg) !important;
+    border-color: var(--td-line) !important;
 }
 
 /* ===== 更多操作展开菜单（备注/删除等低频键折叠；未来新键直接加 .more-menu-item） ===== */
@@ -268,9 +497,9 @@
     top: calc(100% + 6px);
     right: 0;
     min-width: 96px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    background: var(--td-pop-bg);
+    border-radius: var(--td-pop-r);
+    box-shadow: var(--td-pop-shadow);
     padding: 4px;
     z-index: 50;
     display: flex;
@@ -296,79 +525,77 @@
 .more-menu-danger {
     color: #dc2626;
 }
-.dark .more-menu {
-    background: #252540 !important;
-}
 .dark .more-menu-item {
     color: #e2e8f0 !important;
 }
 .dark .more-menu-item:active {
-    background: #3d3d5c !important;
+    background: var(--td-line) !important;
 }
-.dark #main-display-area .bg-white {
-    background-color: #2d2d44 !important;
-}
-.dark #data-info .bg-white {
-    background-color: #2d2d44 !important;
-}
+/* （`#main-display-area .bg-white` / `#data-info .bg-white` / `#settings-page .bg-white` 三条
+   与上面的 `.dark .bg-white` 同值、且已被它覆盖，一并删除） */
 .dark input, .dark textarea, .dark select {
-    background-color: #252540 !important;
+    background-color: var(--td-inset-bg) !important;
     color: #e2e8f0 !important;
-    border-color: #3d3d5c !important;
+    border-color: var(--td-line) !important;
 }
 .dark input::placeholder, .dark textarea::placeholder {
     color: #718096 !important;
 }
-.dark #sticky-top-bar {
-    background-color: #1a1a2e !important;
-}
-.dark #tab-container > .account-tab[data-sort="true"] {
-    background-color: #1a1a2e !important;
-}
-.dark .modal-content {
-    background-color: #2d2d44 !important;
-}
-.dark .helper-row {
-    border-bottom-color: #3d3d5c !important;
-}
+/* 顶栏不再单独染深色：原来这里有一条 `.dark #sticky-top-bar { #1a1a2e }`，ID 优先级压过
+   `.dark .bg-gray-50 { #252540 }`，于是深色下顶部出现一块比页面更深、且左右各内缩 16px 的矩形
+   （被误读成"左右有看不见的禁区"）。删掉后顶栏与 body 走同一条 `bg-gray-50` 规则，页面底色再改也会同步。
+   注：原同款覆盖 `.dark #tab-container > .account-tab[data-sort="true"]` 一并删除——data-sort 属性全仓已无 JS 写入。 */
 .dark #chest-notification {
-    background-color: #1a1a2e !important;
-    border-top-color: #3d3d5c !important;
+    background-color: var(--td-backdrop) !important;
+    border-top-color: var(--td-line) !important;
 }
-.dark .bottom-nav .nav-btn {
-    color: #888 !important;
-}
-.dark .bottom-nav .nav-btn.active {
-    color: #60a5fa !important;
-}
-.dark #settings-page .bg-white {
-    background-color: #2d2d44 !important;
-}
+/* 底部导航的深色覆盖**已并入令牌**（`--td-nav-*`），原先这两条删除 */
 .dark #settings-page .text-gray-800 {
     color: #e5e7eb !important;
 }
 .dark #settings-page button:hover {
-    background-color: #3d3d5c !important;
+    background-color: var(--td-line) !important;
 }
-.dark #settings-page {
-    background-color: #1a1a2e !important;
-}
-.dark .sleep-highlight, .dark .sleep-highlight-tab {
+/* 设置页底走令牌（#settings-page 的内联底已改成 var(--td-page2)，深浅两态都在 tokens.css 里定） */
+.dark .sleep-highlight {
     background-color: #000000 !important;
 }
-.dark .bottom-nav {
-    background: #2d2d44 !important;
-    border-top-color: #3d3d5c !important;
-}
+/* 深色底同样并入令牌（`--td-nav-bg` / `--td-nav-bd`），原先 `.dark .bottom-nav` 那条删除 */
 .dark .ho-timer-left, .dark .ho-timer-right {
     color: #e2e8f0 !important;
 }
-.dark .upgrade-card {
-    background-color: #252540 !important;
-    border-color: #3d3d5c !important;
-}
+/* 深色行卡（2026-09-16 按用户口径改）：「升级卡片左右两侧的颜色条要跟浅色模式一致，按时间显示不同颜色；
+   升级卡片颜色改成跟卡片 1 2 一致」——
+   ① 底色与区卡同值（`.dark .section-card` 的 `rgba(255,255,255,.045)`），不再是 `#252540`；
+   ② **不再整条覆盖 `border-color`**（那条会把左右分级色条也抹成灰），只把**上下两条 hairline**顶成深色描边，
+      左右交给 JS 打的 `border-<分级色>` 类 → 深浅两态都按剩余时间显色。 */
+/* 深色行卡底**已并入令牌**（`--td-row-bg` 的 `html.dark` 段 = 区卡同值）——原先那条 `.dark .upgrade-card` 删除 */
 .dark .upgrade-card .text-gray-500 {
     color: #94a3b8 !important;
+}
+
+/* ===== 设置页的分组卡（2026-09-17 补齐圆润3D）=====
+   用户口径：「设置页面似乎完全没有圆润3D」。这里原本是一串 Tailwind 组合（`bg-white rounded-xl shadow-md`），
+   白卡是白卡、但没有区卡那套"边界 + 立体"。改成与首页区卡/各页面板同一套令牌：
+   圆润3D = 11px + 左右 hairline + 竖向明暗 + 模糊顶底线 + 轻投影；极简 = 12px + 原来的 shadow-md（无描边）。
+   **index.html 里的那 6 个组卡已把 Tailwind 外观类换成 `settings-card`**（留 `overflow-hidden` 与 `mt-*` 间距）
+   ——Tailwind 是运行时注入、同权重它赢，挂着 `bg-white`/`rounded-xl`/`shadow-md` 就压不住。 */
+.settings-card {
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
+}
+/* 行内分隔线（原 `hr.border-gray-100`）：浅色 #f3f4f6 / 深色描边档——`.dark .border-gray-200/300` 那条
+   覆盖不到 gray-100，深色下会留一条近白亮线 */
+#settings-page hr {
+    border-color: #f3f4f6;
+}
+.dark #settings-page hr {
+    border-color: var(--td-line) !important;
 }
 
 /* ===== 模态弹窗壳 ===== */
@@ -385,11 +612,12 @@
 .modal-overlay.z-higher {
     z-index: 60;
 }
+/* 弹窗壳：底/圆角/投影走令牌（圆润3D 与极简各自的取值见 tokens.css；深色不再单独覆盖） */
 .modal-card {
-    background: #ffffff;
-    border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-    padding: 1rem;
+    background: var(--td-modal-bg);
+    border-radius: var(--td-modal-r);
+    box-shadow: var(--td-modal-shadow);
+    padding: var(--td-modal-p);
     margin: 0 1rem;
     width: 100%;
 }
@@ -415,17 +643,152 @@
     overflow-y: auto;
 }
 
-.dark .modal-card {
-    background-color: #2d2d44 !important;
-}
 .boost-time-text { font-size:11px; font-weight:500; color:#374151; font-variant-numeric:tabular-nums; }
 .dark .boost-time-text { color:#fff !important; }
-/* 卡片倒计时单位：字号小/不加粗（颜色继承数字的剩余时间分级色） */
-.cr-unit { font-size: 10px; font-weight: 400; }
+/* ===== 首页区卡（**只剩 2 张**；2026-09-15 按**方案 03**的 `.card` 口径）=====
+   **区卡（`.section-card`，2 张）**：账号信息卡 `#data-info`、分类总览卡 `#category-summary-card`。
+   升级列表区**没有区卡**：一级标题「XX的升级项目」与各组标题「主世界建筑…」都是**裸标题**，
+   列表区里唯一的卡片就是**每个升级实体自己那张行卡**（见下面"升级行卡"段）。
+   沿革：曾经有第三张区卡把整段列表包起来 → 用户指出 2-3 卡之间阴影重叠 → 改成"每组一张组卡" →
+   用户 2026-09-16 表示不好看，改回"裸标题 + 每个实体一张卡"，并把行卡换成方案 04 的底/边界。
+   外壳：**11px 圆角 + 一整圈 1px hairline + 面板底 + 4px 下间距**
+   （11px = 03 原稿 22px 的一半，用户点名"减半"；间距 4px = "首页优先密度"，见 §3）。
+   立体（顶光 + 投影）**与行卡共用同一条规则**，见下面"首页所有卡片的立体"段
+   （`.clip-x` 已满血到屏幕边，阴影左右各有 16px 舒展空间，见 §5 规则 7）。
+   外壳（底色/圆角/描边/阴影/间距）全部收在这一个类里——所以 index.html 里挂它的元素
+   **不许再挂 `bg-white` / `rounded-lg` / `shadow-md` / `px-*` / `mt-*`**：Tailwind 是运行时注入，
+   同权重时它赢，`bg-white` 还会被 `.dark .bg-white{!important}` 接管，整套主题就乱了。 */
+/* ===== 升级列表外壳（index.html 的 `.list-shell`）=====
+   圆润3D = 无外壳（裸标题 + 每实体一张卡）；极简 = 旧版的"白卡包住整块列表"（bg-white rounded-lg
+   shadow-md p-0.5）——四项全部走令牌，本类在圆润3D 下不产生任何视觉效果。 */
+.list-shell {
+    background-color: var(--td-shell-bg);
+    border-radius: var(--td-shell-r);
+    padding: var(--td-shell-p);
+    box-shadow: var(--td-shell-shadow);
+}
+.section-card {
+    border-radius: var(--td-r-card);
+    /* 描边**只留左右**：上下两条边交给下面那条"模糊的 1px"（用户 2026-09-16：「无论是顶线还是底线，
+       都显得太硬朗了，变模糊一点，但是宽度不要变得太宽」）——留着 1px 硬描边再叠模糊线＝又硬又重。
+       （极简主题下描边色是 transparent＝旧版靠 shadow-md 造边，细边不占位、布局不变） */
+    border-left: var(--td-card-bw) solid var(--td-card-bd);
+    border-right: var(--td-card-bw) solid var(--td-card-bd);
+    background-color: var(--td-card-bg);
+    /* 间距**不给**这个类：两张卡各自的旧值不同（见下方 `#data-info` / `#category-summary-card` 的 margin） */
+}
+
+/* ===== 首页**所有卡片**的立体（区卡 + 行卡，2026-09-16）=====
+   **当前 = 试验台 buttons.html 的「方案 A · 竖向明暗（经典 3D）」**（用户 2026-09-16：
+   「用 buttons.html 里的方案 A 的经典 3D 应用在卡片上看看」）——A 的配方逐条搬到卡片上：
+   ① **竖向明暗渐变**（上亮下暗＝有受光面），② **1px 白顶线**，③ **1px 黑底线**（＝倒角），
+   ④ **轻投影** `0 2px 5px rgba(0,0,0,.35)`。A 原稿的数值：`inset 0 1px 0 rgba(255,255,255,.45)` +
+   `inset 0 -1px 0 rgba(0,0,0,.25)` + `0 2px 5px rgba(0,0,0,.35)`，**内嵌值原样保留**（两态同值：
+   浅色下白顶线压白卡看不见、黑底线可见；深色下正好反过来）。
+   **2026-09-16 两轮降档**：先整体降一档（「立体感又有点太重了」），随后按「**常规立方体观感是突起，不是台阶；
+   台阶是两层突起，太重了**」再修一轮——**底边那条 1px 暗线整条去掉**，顶线按主题分别处理：
+   | 成分 | A 原值 | 现在 | 说明 |
+   |---|---|---|---|
+   | 顶线 `inset 0 1px 0` | `rgba(255,255,255,.45)`（两态同值） | 浅 **`#f1f3f7`**（很浅的灰）；深 **`rgba(255,255,255,.16)`** | 浅色下"白压白"根本看不见，**换成很浅的灰才读得出受光面**；深色那条再淡一档 |
+   | 底线 `inset 0 -1px 0` | `rgba(0,0,0,.25)` | **整条删除** | 它和卡片自带的 1px 浅色描边在底部叠成"白底→深灰→浅灰"**三级**，读出来就是**台阶**（两层突起）；删掉后底边只剩"一种浅灰"＝那条描边 |
+   | 投影 | `0 2px 5px rgba(0,0,0,.35)` | **`0 1px 4px -1px rgba(0,0,0,.22)`** | 更淡、更贴（`-1px` spread 收回来，2px 行距下不糊） |
+   | 竖向明暗 | 浅 `#fff → #f6f8fb`；深 `.075 → .03` | 浅 **`#fff → #fafbfd`**；深 **`.062 → .034`** | 对比收窄，均值不变——**"突起"的感觉主要靠它 + 顶线，不靠底边的暗线** |
+   **要再降**：继续压顶线 α 与投影；**要退回"宽而淡的面"那套**（§4.6 判据一）：
+   把 background-image 换回 `linear-gradient(180deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 8px)`、
+   box-shadow 换成 `0 2px 6px -3px rgba(0,0,0,.35)` 即可（两条都在 git 历史与本文档里）。
+   沿革：03 弥散阴影（`0 14px 28px -20px rgba(16,24,40,.22)`）已撤——那条宽阴影正是"2-3 卡阴影重叠"的成因。 */
+.section-card, .upgrade-card {
+    background-image: var(--td-card-sheen);
+    /* 顶/底两条边 = **1~2px 宽、边缘渐隐**的线（`0 ±1px **2px**` 而不是 `0 ±1px **0**`）——
+       用户 2026-09-16：「无论是顶线还是底线，都显得太硬朗了，变模糊一点，但是**宽度不要变得太宽**」。
+       `2px` 是模糊半径（不是线宽）：线仍只有 1~2px，但没有刀切感；配合"上下硬描边已撤"（区卡只留左右、
+       行卡上下删），同一处边缘不会叠成两层。
+       深色那组取值与上面的 `.dark` 覆盖**都已收进 tokens.css**（`--td-card-sheen`/`--td-card-shadow`
+       在 `:root` 与 `html.dark` 两段各给一套），这里只消费、不再分态。极简主题给的是 `none` + shadow-md。 */
+    box-shadow: var(--td-card-shadow);
+}
+
+/* ===== 睡眠区间的"覆盖色"在卡片上要压过卡片外壳（2026-09-16 用户报「升级卡片的覆盖色丢失了」）=====
+   `.sleep-highlight`（浅 `#dbeafe` / 深 `#000`）走的是 `background-color`，而卡片现在自带
+   ① `background-color !important` ② 竖向明暗（`background-image`）——**两层都会把它盖住**：
+   浅色下卡片的 `#ffffff !important` 与它同权重但写在后面 → 直接赢；深色下 `.dark .upgrade-card` 同理；
+   就算底色赢了，那层渐变也还盖在上面。所以这里给卡片补一条权重更高的兜底：
+   ① **撤掉明暗渐变**（睡眠卡是特殊态，平底色即可，模糊顶/底线仍在）；② 底色用 `!important` + 更高权重。
+   注意这两条必须写在**深色渐变那条之后**（`background-image` 的平局靠"后写的赢"）。
+   账号列表里的 `.sort-item.sleep-highlight` 不受影响——它没有卡片外壳，继续吃通用那条规则。 */
+.upgrade-card.sleep-highlight, .section-card.sleep-highlight {
+    background-image: none;
+    background-color: #dbeafe !important;
+}
+.dark .upgrade-card.sleep-highlight, .dark .section-card.sleep-highlight {
+    background-color: #000000 !important;
+}
+/* **两张区卡的内边距 = 各自"改风格之前"的原值**（用户 2026-09-15：「或许三个卡片，你都应用回风格改前的
+   内边距，上下左右」）——就是它们原来挂的 Tailwind 间距类。ID 权重高于类，所以基础规则里不写 padding。
+   （**别写 `:last-child{margin-bottom:0}`**：账号信息卡外面还套了一层裸 `<div>`，它自己是那个盒子的
+   last-child，一写就等于"两张卡贴一起"——实测间距变成 0。） */
+#data-info { padding: 2px 4px; margin: var(--td-info-margin); }              /* 原 class="… px-1 py-0.5" */
+/* 顶部留白 4→8px（用户 2026-09-17：「总览卡片内顶部留白加大一点」——卡内第一行是 5 个分类图标，
+   原来贴着 11px 圆角与顶线画，显得挤）；左右与底部保持原值 */
+#category-summary-card { padding: 8px 8px 4px; margin: var(--td-sum-margin); }  /* 原 class="… px-2 py-1 mt-1.5 mb-1" */
+/* 深色只换底与描边（现在由 `--td-card-bg` / `--td-card-bd` 两段令牌给值），**投影留着**
+   （与账号 tab 一致——黑投影在深底上看不见，但不必为它写一条覆盖规则） */
+
+/* ===== 升级行卡（**底色/边界按方案 04 补**，2026-09-16）=====
+   结构：一级标题与各组标题都是**裸标题**，列表区里只有"每个升级实体一张卡"。形状/色条仍是老样子——
+   JS 里的 Tailwind 组合 `bg-gray-50 rounded-lg p-1 border-l-4 border-r-4 <分级色>`：
+   **8px 圆角 + 4px 内边距 + 左右各 4px 分级色条 + 无阴影**（用户：「保留当前卡片形状与左右颜色条」）。
+   这里只补方案 04 的两件事（用户：「背景色可以改成方案 04 那样，同时每个卡片要跟方案 04 那样有清晰的边界」）：
+   ① **底色换成 04 的 `--card` 白**——外层大卡取消后行卡直接坐在页面底 `#f9fafb` 上，原来的灰-50 与页面同色、
+      卡的"面"看不见了（这就是用户说的"不好看"那一版）；
+   ② **上下各补一条 1px 中性 hairline**（04 的 `--line` `#e3e9f2`）——04 的"清晰边界"，左右仍是 4px 分级色条。
+   深色**不照抄 04 的深色卡 `#151D31`**（那是配它自己更暗的页面 `#0B1220` 的，本项目照抄会让卡比页面还暗）；
+   现行深色取法见下面 `.dark .upgrade-card`（底与区卡同值、左右色条保留分级色）。
+   **立体（顶光 + 投影）与区卡共用"首页所有卡片"那条规则**，见上。 */
+.upgrade-card, .dark .upgrade-card {
+    background-color: var(--td-row-bg) !important;
+    /* **行卡的投影单独一档**（`--td-row-shadow`）：圆润3D 与区卡同值，极简是 `none`——旧版行卡只有
+       `bg-gray-50 rounded-lg`（无阴影），投影只在 data-info / 总览卡上。 */
+    box-shadow: var(--td-row-shadow);
+    /* 上下**不再用 1px 硬描边**（用户 2026-09-16：顶线底线太硬朗）——上下两条边改由上面那条
+       `inset 0 ±1px 2px` 的模糊线承担；**04 那对 `#e3e9f2` 上下描边已撤**，避免"硬 + 模糊"叠两层。
+       左右仍是 4px 分级色条（JS 的 border-l-4 / border-r-4），不动。
+       深色那两条（底与区卡同值、不再覆盖 border-color）**已并入 `--td-row-bg`**——旧版深色下
+       `border-color:#3d3d5c` 会把左右分级色条一起抹灰（那是缺陷，不还原），极简主题沿用现行做法。
+       **`.dark .upgrade-card` 这个选择器必须留着**（别只写 `.upgrade-card`）：行卡的 HTML 上还挂着
+       Tailwind 的 `bg-gray-50`，而 `.dark .bg-gray-50 { … !important }` 是 (0,2,0)——只写 `.upgrade-card`
+       会在深色下被它盖成 `#252540`（实测过一次回归）。带上 `.dark` 才同权重、靠"写在后面"取胜。 */
+}
+
+/* ===== 升级卡片倒计时（排版照**方案 05**；**配色 2026-09-16 已按用户要求改回原色**）=====
+   排版（保留）：数字 15px / 600 + `letter-spacing: .01em` + `line-height: 1.25`；单位小一号（10.5px）、
+   常规字重、两侧各留 1px；「就绪」小一号（12px）；完成时刻行 11px + `tabular-nums`。
+   **配色（已回退）**：用户 2026-09-16：「倒计时颜色改回修改前**深浅色模式都统一**那组颜色」——
+   所以这里**一条颜色都不写**，倒计时数字/单位/「就绪」全部回到全局 `text-*`（`accounts.js` 与
+   `calc.getRemainingClasses` 给的那套 Tailwind 原色：`#3b82f6 / #FFC107 / #FF9800 / #FF5722 /
+   #C62828 / #10b981`，浅深同值）。曾按 05 换过一组 p0~p5 的"文字可读档"（浅深各一套），已撤。
+   **已知代价（用户明确要原色，记录备查）**：原色在白底上很低——`#FFC107` 1.63 / `#FF9800` 2.07 /
+   `#FF5722` 2.72 / `#10b981` 2.54，只有 `#2563eb` 档与 `#C62828` 达标（详见 §4.7 的表）。
+   **唯一没照抄 05 的是固定槽宽**：05 用 `1.6ch`，但秒位每秒都在 1↔2 位之间来回跳，
+   1.6ch 会让整块每秒左右抖一次——这里保留项目的 `2ch` 槽（不补零、单数字在两位槽内居中）。 */
+.card-time-container { font-size: var(--td-count-fs); font-weight: var(--td-count-fw); letter-spacing: var(--td-count-ls); line-height: var(--td-count-lh); }
+/* 单位（天/时/分）：**不跟着数字染色**，固定用次文字色（用户 2026-09-16：「天时分这三个单位可以应用之前的
+   不染色的样式」）——数字保留分级色、单位安静下来，读起来数字更跳。左右各 1px 是 05 的口径。
+   （极简主题下单位回到旧版：10px、无外边距、**跟数字同色**） */
+.cr-unit { font-size: var(--td-unit-fs); font-weight: 400; margin: var(--td-unit-margin); color: var(--td-unit-color); }
 /* 数字等宽：10→9、2→1 等跳变时倒计时宽度不变，避免跳动 */
 .cr-digit { font-variant-numeric: tabular-nums; }
 /* 时分秒固定占两位宽（不补零，单数字在两位槽内居中） */
 .cr-digit-fixed { display: inline-block; min-width: 2ch; text-align: center; }
+/* 「就绪」小一号；**颜色不写**——继承容器那套 `text-success`（改回原色后浅深同值 `#10b981`）
+   （极简主题下它回到旧版的 14px——旧版没有这个类，文字直接在倒计时容器里） */
+.cr-done { font-size: var(--td-done-fs); }
+/* 完成时刻行（"今天 21:30"）：11px + 等宽数字 + 次文字色（极简主题下是旧版的 12px + 无上边距） */
+.card-done-time { font-size: var(--td-donetime-fs); margin-top: var(--td-donetime-mt); color: var(--td-donetime-color); font-variant-numeric: tabular-nums; }
+/* **倒计时分级色（已按用户要求全部撤掉）**：这里曾按方案 05 写过 12 条 `.card-time-container.text-*`
+   （浅深各一套 p0~p5）。用户 2026-09-16 要"改回修改前深浅统一那组颜色"，于是数字/单位/就绪
+   一律回到全局 `text-*` 原色（`#3b82f6 / #FFC107 / #FF9800 / #FF5722 / #C62828 / #10b981`）。
+   **不要再往这里加颜色**——要改分级色就去改 index.html 里 `tailwind.config` 的那 6 个色值（全局生效）。 */
 /* 有备忘卡片：名称后的等级（如 100→101），小字灰色 */
 .card-lv { font-size: 11px; color: #6b7280; font-weight: 400; }
 #builder-boost-label { color:#374151; }
@@ -434,4 +797,169 @@
 html.dark .peer:checked ~ .peer-checked\:bg-primary {
     background-color: #a78bfa !important;
 }
+
+/* ===== 主题选择弹窗的选项（选中态用紫色描边，两套主题通用——"选中"是状态不是配色） ===== */
+.ui-style-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border: 2px solid transparent;
+    border-radius: var(--td-inset-r);
+    background-color: var(--td-inset-bg);
+    cursor: pointer;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+    font-family: inherit;
+}
+.ui-style-opt .ui-style-opt-t {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+.dark .ui-style-opt .ui-style-opt-t {
+    color: #e2e8f0;
+}
+.ui-style-opt .ui-style-opt-d {
+    flex: 1;
+    font-size: 12px;
+    color: #6b7280;
+}
+.dark .ui-style-opt .ui-style-opt-d {
+    color: #a0aec0;
+}
+.ui-style-opt .ui-style-opt-ck {
+    font-size: 13px;
+    color: #8b5cf6;
+    opacity: 0;
+}
+.ui-style-opt.on {
+    border-color: #8b5cf6;
+}
+.ui-style-opt.on .ui-style-opt-ck {
+    opacity: 1;
+}
 /* 总览区类目屏蔽：图标正常显示，分数由 JS 显示 -/-（绿角标/红点由 JS 隐藏）；.summary-dismissed 仅作状态标记无样式 */
+
+/* ===== 道具使用推演（分类头步进器 + 标题行退出/应用）=====
+   圆角一律走令牌，与相邻部件同族：步进器那组（`.sim-potion` / `.sim-btn`）取按键档 `--td-btn-r`，
+   退出/应用与弹窗按钮取操作按键档 `--td-act-r` —— 极简档因此自动回到 8px / 10px 的旧版形状（圆润3D 不变）。 */
+/* 入口键与相邻两键（时长搜索/更多）**同一行**：尺寸与圆角一律吃同一对令牌，
+   否则极简档下它是胶囊、旁边两键是 25px 小圆角方框（用户 2026-09-19 报「推演模式按钮形状要变」）。
+   圆润3D：`--td-btn-h/-r` = 34px / 999px（与原来一致，无视觉变化）；极简：25px / 8px。 */
+#sim-entry-btn {
+    height: var(--td-btn-h);
+    border-radius: var(--td-btn-r) !important;
+}
+/* 步进器：分类头右侧、药水图标 + − / 数量输入 / +；底色/边线/文字走令牌，四层主题自动适配 */
+.sim-steppers {
+    margin: 0 auto;   /* 推演中分类头只剩它：水平居中 */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.sim-potion {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--td-inset-bg);
+    border: 1px solid var(--td-inset-bd);
+    border-radius: var(--td-btn-r);
+    padding: 4px 6px;
+}
+.sim-btn {
+    width: 30px;
+    height: 30px;
+    line-height: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--td-inset-color);
+    background: transparent;
+    border: none;
+    border-radius: var(--td-btn-r);
+    padding: 0;
+    position: relative;
+    cursor: pointer;
+}
+/* 视觉 24px、触控热区扩到 ≥34px（DESIGN.md §六 触控目标） */
+.sim-btn::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+}
+/* 触屏 :hover 会粘住不消失（用户反馈误以为卡住）：按压态即按即显、松手即消；悬停只给有鼠标的设备 */
+.sim-btn:active {
+    background: var(--td-inset-bd);
+}
+@media (hover: hover) {
+    .sim-btn:hover {
+        background: var(--td-inset-bd);
+    }
+}
+.sim-input {
+    width: 44px;
+    height: 30px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--td-inset-color);
+    background: transparent;
+    border: 1px solid var(--td-inset-bd);
+    border-radius: 6px;
+    padding: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.sim-input::-webkit-outer-spin-button,
+.sim-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* 标题行退出/应用：小面积强调色（DESIGN.md §2.2 #2563eb 两主题同值） */
+.sim-actions {
+    margin: 0 auto;   /* 推演中标题行只剩它：水平居中 */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.sim-actions button {
+    height: 32px;
+    padding: 0 18px;
+    border-radius: var(--td-act-r);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+#sim-exit-btn {
+    background: #64748b;
+}
+#sim-apply-btn {
+    background: #2563eb;
+}
+
+/* ===== 推演·助手指派弹窗 ===== */
+.sim-modal-btn {
+    width: 100%;
+    height: 36px;
+    border-radius: var(--td-act-r);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: #2563eb;
+    border: none;
+    cursor: pointer;
+}
+.sim-modal-btn.secondary {
+    background: #64748b;
+}
+.sim-modal-btn.close {
+    background: transparent;
+    color: var(--td-inset-color);
+}
+.dark .sim-modal-btn.close {
+    color: #a0aec0;
+}

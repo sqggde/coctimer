@@ -1,7 +1,14 @@
+/* =============================================================================
+ * overview.css —— 总进度页（账号卡片列表）+ 总进度详情页（分类进度）
+ *
+ * 外观取值一律在 css/tokens.css（圆润3D 是默认值，写在这里的规则直接消费 var(--td-*)）；
+ * 本页**极简档下的旧值**统一收在文件末尾的 `html[data-style="minimal"]` 段——
+ * 只列"这一页当年用的不是全站通用值"的那几处，通用值由 tokens.css 第 3/4 段给。
+ * ========================================================================== */
 #overview-page, #overview-page > .top-bar, #overview-page > .empty-state, #overview-page > .content { margin:0; padding:0; box-sizing:border-box; }
         #overview-page {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f9fafb;
+            background: var(--td-page2);
             color: #374151;
             overflow-y: auto;
         }
@@ -9,9 +16,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 2px 20px;   /* 顶部留白 16→2px（同上）*/
+            background: var(--td-bar2);
+            border-bottom: var(--td-bar2-bd);
         }
         #overview-page .top-bar .title {
             font-size: 18px;
@@ -22,31 +29,61 @@
             gap: 8px;
         }
         #overview-page .top-bar .title i { color: #3b82f6; }
+        /* 排序键 —— 与顶栏「导入」键**同尺寸、同结构，但用"选择控件"的语言**（用户 2026-09-17 四步口径：
+           「跟导入键一样高」→「一样的外形」→「跟导入键一样，只有颜色不一样」→「立体渲染也用纱，不要顶光」）。
+           跟导入键一致的：高度 `--td-btn-h`、`min-width: 94px`（两键同宽，并排在顶栏才齐）、
+           胶囊 `--td-btn-r`、字号字重 `--td-qi-fs/-fw`、内层「标签 span + 向下箭头 i.fa」的 padding。
+           与导入键不同的两处：① **颜色**（白底 + 次文字色，不抢导入键的强调色）；
+           ② **立体的语言**——导入键走"按键"那套（顶光 + 底部暗边），它走**账号 tab 那套**
+           （只有纱 + 一层轻投影，无顶光、无底部暗边），见下面两条注释。极简档回到灰底扁平。 */
         .ov-sort-btn {
-            font-size: 12px;
-            background: #e5e7eb;
-            border: none;
-            border-radius: 6px;
-            padding: 4px 10px;
-            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: var(--td-btn-h);
+            min-width: 94px;
+            padding: 0;
+            font-size: var(--td-qi-fs);
+            font-weight: var(--td-qi-fw);
+            background-color: var(--td-sel-bg);
+            /* **立体用"纱"不用顶光**（用户 2026-09-17：「排序键的立体渲染也用纱，不要顶光」）——
+               与账号 tab 同一支 `--td-veil`（两者的底色在深浅两态都相同，所以能共用一支）：
+               下缘偏右一道弯月，浅色是石板灰暗部、深色是黑纱。**没有顶光层**，也**不做底部暗边**——
+               顶光与底边暗线都是"按键"的语言；这里是选择控件，跟 tab 一样只靠纱 + 一层轻投影。
+               shadow 相应从 `--td-btn-shadow` 换成 `--td-sel-shadow`（轻投影，与 tab 同档）。 */
+            background-image: var(--td-veil);
+            /* **1px 描边照画**——与账号 tab 同款（用户 2026-09-17：「排序键对齐 tab 的底部效果，
+               tab 是参考」）。曾经把它去掉是为了修"台阶感"，但那次真正的原因是**底边同时叠了三样**
+               （白底 + `--td-btn-shadow` 的 `inset 0 -1px 0` 暗线 + 描边，§4.6 判据五）；
+               现在底部暗边已经换成选择控件那档轻投影（`--td-sel-shadow`，没有 inset），
+               底边自上而下只有"纱 → 1px 描边"两样——和 tab 完全同构，台阶不会回来。 */
+            border: var(--td-sel-bw) solid var(--td-sel-bd);
+            border-radius: var(--td-btn-r);
+            box-shadow: var(--td-sel-shadow);
+            color: var(--td-sel-color);
             cursor: pointer;
             white-space: nowrap;
         }
-        .ov-sort-btn:hover { background: #d1d5db; }
-        .dark .ov-sort-btn { background: #3d3d5c; color: #e5e7eb; }
-        .dark .ov-sort-btn:hover { background: #4f4f6b; }
+        /* 内层两段与快捷导入键逐字同款（那边写在行内样式上，这边收进类） */
+        .ov-sort-btn .ov-sort-label { padding: 0 4px 0 8px; white-space: nowrap; }
+        /* 箭头尺寸 **18px**（用户 2026-09-17：「两个键的符号就都变得很小了，超级小」）。
+           这个 svg 的 viewBox 是 24×24、而箭头的墨迹只占中间约 12×6 个单位（外框的 58%×33%），
+           所以"盒子 10px"实际只画出 **5×2.5px、笔宽 0.8px** 的一道细线——等于看不见；
+           18px 盒子 → 墨迹约 **10.5×6px、笔宽 1.5px**，与改造前那颗实心 `▾`（14px）的体量相当。
+           **量图标要看墨迹，不能看盒子的 font-size**（`.fa` 的盒子是 1em，与墨迹不是一回事）。 */
+        .ov-sort-btn .ov-sort-caret { flex: 0 0 auto; padding: 0 5px 0 1px; font-size: 18px; line-height: 1; }
+        .ov-sort-btn:hover { background-color: #f3f4f6; }
         .ov-sort-dropdown {
             position: absolute;
             top: 52px;
             right: 20px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: var(--td-pop-bg);
+            border: 1px solid var(--td-pop-bd);
+            border-radius: var(--td-pop-r);
+            box-shadow: var(--td-pop-shadow);
             z-index: 20;
             overflow: hidden;
         }
-        .dark .ov-sort-dropdown { background: #2d2d44; border-color: #3d3d5c; }
         .ov-sort-option {
             padding: 8px 16px;
             font-size: 13px;
@@ -55,8 +92,6 @@
             white-space: nowrap;
         }
         .ov-sort-option:hover { background: #f3f4f6; }
-        .dark .ov-sort-option { color: #e5e7eb; }
-        .dark .ov-sort-option:hover { background: #3d3d5c; }
         .ov-sort-option.active { color: #3b82f6; font-weight: 600; }
         #overview-page .empty-state {
             display: flex;
@@ -78,12 +113,17 @@
         #overview-page .content { display: none; }
         #overview-page #overview-cards { padding-bottom: 80px; }
         #overview-page .hidden { display: none !important; }
+        /* 账号卡片：面板（圆润3D = 左右 hairline + 竖向明暗 + 模糊顶底线 + 轻投影） */
         #overview-page .account-card {
             margin: 8px 20px;
-            background: #ffffff;
-            border-radius: 12px;
+            background-color: var(--td-panel-bg);
+            background-image: var(--td-panel-sheen);
+            border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+            border-style: solid;
+            border-color: var(--td-panel-bd);
+            border-radius: var(--td-panel-r);
             padding: 12px 16px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            box-shadow: var(--td-panel-shadow);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -146,20 +186,42 @@
             border: 1px solid #d1d5db;
             background: radial-gradient(circle, #93c2ff, #4962b4);
         }
-        .dark #overview-page .account-card .acc-extra-icon.acc-comp-bg {
-            border-color: #3d3d5c;
+        /* 账号卡图标尺度：`--acc-item-icon` = 倒计时行那个**升级项图标**的边长，充能角标取它的 1/3
+           （用户 2026-09-19 口径：「充能图标再小一些，高度只有项目图标的 1/3 即可」）。
+           角标的尺寸/定位只在这里给值——JS 只建节点加类名，不再写 px。 */
+        #overview-page .account-card {
+            --acc-item-icon: 20px;
+            --acc-sc-size: calc(var(--acc-item-icon) / 3);
         }
         #overview-page .account-card .acc-upgrade-icon {
-            width: 20px;
-            height: 20px;
+            width: var(--acc-item-icon);
+            height: var(--acc-item-icon);
             object-fit: contain;
             border-radius: 4px;
         }
+        /* 充能角标容器：叠在项目图标下缘居中；1 个或 2 个并排都走它（两颗靠 flex 排开，不再搬节点） */
+        #overview-page .account-card .acc-sc-wrap {
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1px;
+            line-height: 0;
+        }
+        #overview-page .account-card .acc-sc-badge {
+            width: var(--acc-sc-size);
+            height: var(--acc-sc-size);
+            flex: 0 0 auto;   /* 不参与 flex 收缩：否则两颗并排会被压成非正方（实测 10×14） */
+            display: block;
+        }
+        /* 倒计时小底块：浅底块（圆润3D = 卡内浅底 + 描边 + 12px，极简回旧版的灰底 4px） */
         #overview-page .account-card .acc-countdown {
             font-size: 14px;
             font-weight: 700;
-            background: #f3f4f6;
-            border-radius: 4px;
+            background: var(--td-inset-bg);
+            border: 1px solid var(--td-inset-bd);
+            border-radius: var(--td-inset-r);
             padding: 2px 6px;
             min-width: 100px;
             text-align: center;
@@ -167,24 +229,12 @@
             font-variant-numeric: tabular-nums;
             box-sizing: border-box;
         }
-        .dark #overview-page .account-card .acc-countdown { background: #3d3d5c; }
+        /* 倒计时分级色（信息色，两套主题同值） */
         .acc-countdown.cd-blue { color: #60a5fa; }
         .acc-countdown.cd-yellow { color: #fbbf24; }
         .acc-countdown.cd-orange { color: #fb923c; }
         .acc-countdown.cd-orangered { color: #f87171; }
         .acc-countdown.cd-red { color: #ef4444; }
-        .dark .acc-countdown.cd-blue { color: #60a5fa; }
-        .dark .acc-countdown.cd-yellow { color: #fbbf24; }
-        .dark .acc-countdown.cd-orange { color: #fb923c; }
-        .dark .acc-countdown.cd-orangered { color: #f87171; }
-        .dark .acc-countdown.cd-red { color: #ef4444; }
-        .dark #overview-page { background: #1a1a2e; color: #e5e7eb; }
-        .dark #overview-page .top-bar { background: #2d2d44; border-bottom-color: #3d3d5c; }
-        .dark #overview-page .top-bar .title { color: #e5e7eb; }
-        .dark #overview-page .top-bar .title i { color: #60a5fa; }
-        .dark #overview-page .account-card { background: #2d2d44; }
-        .dark #overview-page .account-card .acc-name { color: #e5e7eb; }
-
         /* ===== Detail page ===== */
         #overview-detail-page { margin:0; padding:0; box-sizing:border-box; }
         #overview-detail-page {
@@ -202,27 +252,42 @@
             cursor: pointer;
         }
         #overview-page .detail-back i { font-size: 18px; }
+        /* 详情页 tab 条：圆润3D = 页底色（无分割线）+ 页签做成大圆角方框 chip；
+           极简 = 旧版的"白底 + 1px 分割线 + 文字变色 + 2px 下划线指示条"（见文件末尾覆盖段） */
         .ov-tab-bar {
             display: flex;
+            gap: 8px;
             position: relative;
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--td-bar2);
+            border-bottom: var(--td-bar2-bd);
             flex-shrink: 0;
+            padding: 8px 16px;
         }
         .ov-tab {
             flex: 1;
-            padding: 10px 0;
+            padding: 8px 0;
             text-align: center;
             font-size: 14px;
             font-weight: 500;
-            color: #9ca3af;
-            background: none;
-            border: none;
+            color: var(--td-sel-color);
+            background-color: var(--td-sel-bg);
+            background-image: var(--td-sel-sheen);
+            border: var(--td-sel-bw) solid var(--td-sel-bd);
+            border-radius: var(--td-sel-r);
+            box-shadow: var(--td-sel-shadow);
             cursor: pointer;
             transition: color 0.2s;
         }
-        .ov-tab.active { color: #3b82f6; }
+        .ov-tab.active {
+            color: var(--td-sel-on-color);
+            /* 实底选中态用 **600 档**：白字压在 500 档 #3b82f6 上只有 3.7:1，600 档 5.2:1 */
+            background-color: #2563eb;
+            background-image: var(--td-sel-on-img);
+            box-shadow: var(--td-sel-on-shadow);
+            font-weight: 600;
+        }
         .ov-tab-indicator {
+            display: var(--td-ind-display);
             position: absolute;
             bottom: 0;
             height: 2px;
@@ -235,25 +300,29 @@
             -webkit-overflow-scrolling: touch;
             padding-bottom: 80px;
         }
+        /* 满防/当前大本 模式切换：选择控件（同上） */
         .ov-toggle-b {
             display: inline-flex;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border: 1px solid var(--td-sel-bd);
+            border-radius: var(--td-sel-r);
+            background-color: var(--td-sel-bg);
+            box-shadow: var(--td-sel-shadow);
             overflow: hidden;
             align-self: flex-start;
         }
         .ov-toggle-b .ov-seg {
             padding: 4px 14px;
             border: none;
-            background: #ffffff;
+            background: transparent;
             font-size: 13px;
-            color: #374151;
+            color: var(--td-sel-color);
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
         .ov-toggle-b .ov-seg.active {
             background: #3b82f6;
             color: #ffffff;
+            background-image: var(--td-sel-on-img);
         }
         .ov-icon-col {
             position: relative;
@@ -321,7 +390,9 @@
             display: flex;
             gap: 16px;
             align-items: center;
+            position: relative;   /* 分享键绝对定位在这一行的左端（见 .ov-share-btn） */
         }
+        /* ⚠ 这一行左端那块 `::before { min-width: 80px }` 空位是给「等级/时间」对齐用的，见 `.ov-share-btn`。 */
         /* 升级时间折扣按钮（底框：左侧图标 + 右侧折扣数）+ 下拉选项 */
         .ov-disc-wrap {
             position: relative;
@@ -332,9 +403,11 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background: #ffffff;
+            border: 1px solid var(--td-sel-bd);
+            border-radius: var(--td-sel-r);
+            background-color: var(--td-sel-bg);
+            background-image: var(--td-sel-sheen);
+            box-shadow: var(--td-sel-shadow);
             padding: 4px 8px;
             cursor: pointer;
             transition: background 0.15s;
@@ -354,10 +427,10 @@
             position: absolute;
             top: calc(100% + 4px);
             right: 0;   /* 右对齐按钮右缘，避免靠右时下拉溢出屏幕 */
-            background: #ffffff;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            background: var(--td-pop-bg);
+            border: 1px solid var(--td-pop-bd);
+            border-radius: var(--td-pop-r);
+            box-shadow: var(--td-pop-shadow);
             z-index: 30;
             min-width: 64px;
             overflow: hidden;
@@ -372,12 +445,9 @@
         }
         .ov-disc-opt:hover { background: #f3f4f6; }
         .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
-        .dark .ov-disc-btn { background: #2d2d44; border-color: #3d3d5c; }
-        .dark .ov-disc-val { color: #f59e0b; }
-        .dark .ov-disc-menu { background: #2d2d44; border-color: #3d3d5c; }
-        .dark .ov-disc-opt { color: #e5e7eb; }
-        .dark .ov-disc-opt:hover { background: #3d3d5c; }
-        .dark .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
+        /* 把「等级/时间」顶到与下方进度条同左缘（48 + 80 + 16 = 144）。
+           分享键是**绝对定位**在左端空位里的（见 `.ov-share-btn`），不吃 flex 布局，
+           所以这条空位规则必须留着——删了「等级/时间」会左移到 48。 */
         .ov-top-row::before {
             content: '';
             min-width: 80px;
@@ -470,13 +540,14 @@
         .ov-pg-fill { height: 100%; border-radius: 3px; background: #3b82f6; }
         .ov-pg-pct { width: 50px; text-align: right; color: #6b7280; font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
         .ov-pg-remain { width: 72px; text-align: right; color: #6b7280; font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+        /* 明细表头汇总块：浅底块（圆润3D = 卡内浅底 + 描边 + 12px） */
         .ov-pg-summary {
             display: flex;
             flex-wrap: wrap;
             gap: 6px 0;
-            background: #f9fafb;
-            border: 1px solid #f0f0f0;
-            border-radius: 6px;
+            background: var(--td-inset-bg);
+            border: 1px solid var(--td-inset-bd);
+            border-radius: var(--td-inset-r);
             padding: 6px 4px;
             margin-bottom: 8px;
         }
@@ -484,14 +555,6 @@
         .ov-pg-summary .ov-pg-cell:nth-child(-n+3) { width: 33.333%; }
         .ov-pg-cell .k { font-size: 10px; color: #9ca3af; white-space: nowrap; }
         .ov-pg-cell .v { font-size: 13px; font-weight: 600; color: #374151; font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .dark .ov-pg-summary { background: #1f1f30; border-color: #2d2d44; }
-        .dark .ov-pg-cell .k { color: #6b7280; }
-        .dark .ov-pg-cell .v { color: #e5e7eb; }
-        .dark .ov-pg-row { border-bottom-color: #2d2d44; }
-        .dark .ov-pg-name { color: #e5e7eb; }
-        .dark .ov-pg-track { background: #3d3d5c; }
-        .dark .ov-pg-pct { color: #9ca3af; }
-        .dark .ov-pg-remain { color: #9ca3af; }
         .ov-bar-cat {
             font-size: 12px;
             color: #6b7280;
@@ -523,12 +586,14 @@
         }
         .ov-tip-card { padding: 1.5rem; text-align: center; line-height: 1.6; }
         .ov-tip-text { font-size: 14px; margin: 0 0 1rem; color: #374151; }
-        .dark .ov-tip-text { color: #e5e7eb; }
+        /* 弹窗主按钮：操作按键（圆润3D = 胶囊 + 顶光 + 底部暗边 + 外投影） */
         .ov-modal-btn {
-            background: #3b82f6;
+            background-color: #3b82f6;
+            background-image: var(--td-act-sheen);
             color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--td-act-r);
+            box-shadow: var(--td-act-shadow);
             padding: 8px 24px;
             font-size: 14px;
             cursor: pointer;
@@ -539,11 +604,16 @@
             flex-direction: column;
             gap: 10px;
         }
+        /* 分类卡：面板 */
         .ov-cat {
-            background: #ffffff;
-            border-radius: 12px;
+            background-color: var(--td-panel-bg);
+            background-image: var(--td-panel-sheen);
+            border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+            border-style: solid;
+            border-color: var(--td-panel-bd);
+            border-radius: var(--td-panel-r);
             padding: 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            box-shadow: var(--td-panel-shadow);
         }
         .ov-cat-header {
             position: relative;
@@ -559,11 +629,16 @@
             object-fit: contain;
             flex-shrink: 0;
         }
+        /* 卡片头部的「图标 百分比 … 图标 时间」**一律右顶格**（用户 2026-09-19：「跟英雄装备区保持一致」）。
+           标题的两种写法各挂一处 auto 余量：英雄卡是 `.ov-cat-title-wrap`（标题多包一层），其余卡是裸 `.ov-cat-title`。
+           **别只写 `.ov-cat-title`**：包在 wrap 里时它是 wrap 的子项，而 wrap 宽度由内容决定 → auto 解析成 0，
+           英雄卡那行就不右顶格了（实测踩过：`marginRight: 0px`、离右内缘差 51px）。分享页克隆同一份 DOM，自动一致。 */
+        .ov-cat-header .ov-cat-title-wrap,
+        .ov-cat-header > .ov-cat-title { margin-right: auto; }
         .ov-cat-title-wrap {
             display: flex;
             align-items: center;
             gap: 0;
-            margin-right: auto;
         }
         .ov-cat-title {
             font-size: 14px;
@@ -689,9 +764,6 @@
             flex-wrap: wrap;
             gap: 2px;
         }
-            object-fit: contain;
-            border-radius: 6px;
-        }
         .ov-sub-label {
             font-size: 12px;
             font-weight: 500;
@@ -700,30 +772,286 @@
         }
         .ov-sub-label:first-child { padding-top: 0; }
 
-        /* Dark mode */
-        .dark #overview-detail-page { background: #1a1a2e !important; color: #e5e7eb; }
+        /* ===== Dark mode ===== */
+        .dark #overview-detail-page { background: var(--td-page2) !important; color: #e5e7eb; }
         .dark #overview-page .detail-back { color: #60a5fa; }
-        .dark .ov-tab-bar { background: #2d2d44; border-bottom-color: #3d3d5c; }
-        .dark .ov-tab { color: #6b7280; }
-        .dark .ov-tab.active { color: #60a5fa; }
-        .dark .ov-tab-indicator { background: #60a5fa; }
-        .dark .ov-toggle-b { border-color: #3d3d5c; }
-        .dark .ov-toggle-b .ov-seg { background: #2d2d44; color: #e5e7eb; }
+        .dark .ov-tab.active { color: var(--td-sel-on-color); }
         .dark .ov-icon-name { color: #e5e7eb; }
         .dark .ov-right-name { color: #e5e7eb; }
-        .dark .ov-toggle-b .ov-seg.active { background: #3b82f6; color: #fff; }
-        .dark .ov-bar-track { background: #3d3d5c; }
-        .dark .ov-bar-fill { background: #60a5fa; }
+        .dark .ov-bar-track { background: var(--td-line); }
+        /* ⚠ 必须排除 `.ov-bar-full`：它与上面那条满防金色（`.ov-bar-fill.ov-bar-full`）**同权重 (0,2,0)
+           且写在后面**，而 `background` 简写会把金色渐变的 `background-image` 一并重置成 none ——
+           深色下满防 100% 的条就变回纯蓝了（用户 2026-09-19 报「渐变金渲染丢失」，实测
+           `background-image: none` + `background-color: rgb(96,165,250)`）。
+           与 DESIGN.md §4.2 记的 `.dark .account-tab` 必须带 `:not(.active-tab)` 是同一类教训。 */
+        .dark .ov-bar-fill:not(.ov-bar-full) { background: #60a5fa; }
         .dark .ov-bar-cat { color: #9ca3af; }
         .dark .ov-bar-pct { color: #6b7280; }
-        .dark .ov-icon-wrap:not(.ov-maxed) { box-shadow: inset 0 0 0 1px #3d3d5c; }
+        .dark .ov-icon-wrap:not(.ov-maxed) { box-shadow: inset 0 0 0 1px var(--td-line); }
         .dark .ov-icon-wrap.ov-maxed { box-shadow: inset 0 0 0 3px #fdc367; }
         .dark .ov-icon-wrap:has(> .ov-hero-icon),
         .dark .ov-icon-wrap:has(> .ov-grid-icon) {
             background: radial-gradient(circle, #93c2ff, #4962b4);
         }
-        .dark .ov-cat { background: #2d2d44; }
         .dark .ov-cat-title { color: #e5e7eb; }
         .dark .ov-cat-pct { color: #9ca3af; }
-        .dark .ov-hero-row { border-bottom-color: #3d3d5c; }
+        .dark .ov-hero-row { border-bottom-color: var(--td-line); }
         .dark .ov-sub-label { color: #6b7280; }
+        .dark #overview-page { color: #e5e7eb; }
+        .dark #overview-page .top-bar .title { color: #e5e7eb; }
+        .dark #overview-page .top-bar .title i { color: #60a5fa; }
+        .dark #overview-page .account-card .acc-name { color: #e5e7eb; }
+        .dark .ov-tab-indicator { background: #60a5fa; }
+        .dark .ov-sort-option { color: #e5e7eb; }
+        .dark .ov-sort-option:hover { background: var(--td-line); }
+        .dark .ov-disc-val { color: #f59e0b; }
+        .dark .ov-disc-opt { color: #e5e7eb; }
+        .dark .ov-disc-opt:hover { background: var(--td-line); }
+        .dark .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
+        .dark .ov-pg-cell .k { color: #6b7280; }
+        .dark .ov-pg-cell .v { color: #e5e7eb; }
+        .dark .ov-pg-row { border-bottom-color: var(--td-surface); }
+        .dark .ov-pg-name { color: #e5e7eb; }
+        .dark .ov-pg-track { background: var(--td-line); }
+        .dark .ov-pg-pct { color: #9ca3af; }
+        .dark .ov-pg-remain { color: #9ca3af; }
+        .dark .ov-tip-text { color: #e5e7eb; }
+        .dark .acc-countdown.cd-blue { color: #60a5fa; }
+        .dark .acc-countdown.cd-yellow { color: #fbbf24; }
+        .dark .acc-countdown.cd-orange { color: #fb923c; }
+        .dark .acc-countdown.cd-orangered { color: #f87171; }
+        .dark .acc-countdown.cd-red { color: #ef4444; }
+        .dark .ov-sort-btn { color: #e5e7eb; }
+        .dark .ov-sort-btn:hover { background-color: var(--td-line); }
+        .dark .ov-sort-option.active { color: #60a5fa; }
+        .dark #overview-page .account-card .acc-extra-icon.acc-comp-bg { border-color: var(--td-line); }
+        /* 深色下"选择控件/浅底块/面板"的取值全部来自 tokens.css（`html.dark` 段），此处不再逐条覆盖 */
+
+/* =============================================================================
+ * 极简档 · 本页旧值（圆润3D 用 tokens.css 的通用值；这里只写"本页当年不是通用值"的几处）
+ * ========================================================================== */
+/* 极简：灰底扁平、不描边（形状仍跟导入键——`--td-btn-r` 8px；极简的 tab 也是 0 描边） */
+html[data-style="minimal"] .ov-sort-btn { background-color: #e5e7eb; background-image: none; border-color: transparent; color: #374151; }
+html[data-style="minimal"] #overview-page .account-card { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+html[data-style="minimal"] #overview-page .account-card .acc-countdown { background: #f3f4f6; border-color: transparent; border-radius: 4px; }
+html[data-style="minimal"] .ov-cat { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+/* 详情页 tab：旧版是"白底页签条 + 文字变色 + 下划线指示条"（不填底、不描边） */
+html[data-style="minimal"] .ov-tab-bar { gap: 0; padding: 0; }
+html[data-style="minimal"] .ov-tab { padding: 10px 0; background-color: transparent; background-image: none; border-color: transparent; border-radius: 0; box-shadow: none; color: #9ca3af; }
+html[data-style="minimal"] .ov-tab.active { color: #3b82f6; background-color: transparent; background-image: none; box-shadow: none; font-weight: 500; }
+html[data-style="minimal"] .ov-toggle-b { border-color: #d1d5db; border-radius: 8px; box-shadow: none; }
+html[data-style="minimal"] .ov-toggle-b .ov-seg.active { background-image: none; }
+html[data-style="minimal"] .ov-disc-btn { border-color: #d1d5db; border-radius: 8px; box-shadow: none; }
+html[data-style="minimal"] .ov-modal-btn { border-radius: 8px; background-image: none; box-shadow: none; }
+html[data-style="minimal"] .ov-pg-summary { background: #f9fafb; border-color: #f0f0f0; border-radius: 6px; }
+/* 极简 · 深色：旧版深色值 */
+html.dark[data-style="minimal"] .ov-sort-btn { background-color: var(--td-line); color: #e5e7eb; }
+html.dark[data-style="minimal"] .ov-sort-btn:hover { background-color: #4f4f6b; }
+html.dark[data-style="minimal"] #overview-page .account-card .acc-countdown { background: var(--td-line); }
+html.dark[data-style="minimal"] .ov-tab { color: #6b7280; }
+html.dark[data-style="minimal"] .ov-tab.active { color: #60a5fa; }
+html.dark[data-style="minimal"] .ov-toggle-b { border-color: var(--td-line); }
+html.dark[data-style="minimal"] .ov-toggle-b .ov-seg { color: #e5e7eb; }
+html.dark[data-style="minimal"] .ov-pg-summary { background: #191928; border-color: var(--td-surface); }
+
+/* =============================================================================
+ * 分享图（无头页面：`js/overview-share.js` 克隆详情页各块后按固定布局重排）
+ *
+ * 宽度**写死**、不受设备缩放影响，且由"每行最多 N 个图标"反算（图标 cell 36px + 间隙 2px ⇒ 一行 N 个需 `38N−2`）：
+ *   主世界页宽 **920** = 页留白 24 + 两列（各 440，含卡内 24 ⇒ 可用 416 = 正好 11 个）+ 列间距 16；
+ *     下展区通栏卡 896 宽、卡内左右各 13px（**比通用值多 1px**）⇒ 可用 870：22 个要 834 能容、
+ *     23 个要 872 容不下 ⇒ 正好卡在"最多 22"。那 1px 就是为此留的，不是随手写的。
+ *   夜世界页宽 **502** = 页留白 24 + 卡 478（含卡内 24 ⇒ 可用 454 = 正好 12 个）。
+ *   **每行个数不写 JS 计数**——宽度写死 + 既有 flex-wrap 自然换行就是上限。
+ *
+ * 配色**故意不跟主题**：分享出去的图不该随发送者当前主题变（与部落战分享图内联浅色 `--ws-*` 同一思路）。
+ * 做法不是重写一套颜色，而是①在 `.ovs-page` 上把克隆块消费的令牌钉回**浅色档的值**（颜色仍只有一处来源），
+ * ②对 `.dark .ov-x` / 极简档那几条**类选择器**覆盖补 `!important`（它们写在文件前面但权重更高，不补就压不住）。
+ * ========================================================================== */
+.ovs-page {
+    /* ① 令牌钉回 :root（圆润3D·浅）取值 —— 克隆块继续消费 var(--td-*)，此处即"固定浅色"的唯一开关 */
+    --td-panel-bg: #ffffff;
+    --td-panel-bd: #e5e7eb;
+    --td-panel-bw: 1px;
+    --td-panel-bw-tb: 0px;
+    --td-panel-sheen: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+    --td-panel-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.30), inset 0 -1px 2px rgba(148, 163, 184, 0.22), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
+    --td-panel-r: 11px;
+    --td-line: #e5e7eb;
+    --td-page2: #eef3fa;
+
+    box-sizing: border-box;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--td-page2);
+    color: #1f2937;
+}
+/* ② 类选择器覆盖的钉法（值 = 该组件的浅色值；`.dark`/极简档写在前面，不 !important 压不住） */
+.ovs-page .ov-cat { background-image: var(--td-panel-sheen) !important; box-shadow: var(--td-panel-shadow) !important; }
+.ovs-page .ov-cat-title { color: #1f2937 !important; }
+.ovs-page .ov-cat-pct { color: #6b7280 !important; }
+.ovs-page .ov-sub-label { color: #9ca3af !important; }
+.ovs-page .ov-bar-track { background: #e5e7eb !important; }
+.ovs-page .ov-bar-cat { color: #6b7280 !important; }
+.ovs-page .ov-bar-pct { color: #9ca3af !important; }
+.ovs-page .ov-hero-row { border-bottom-color: #f3f4f6 !important; }
+.ovs-page .ov-icon-wrap { box-shadow: inset 0 0 0 1px #d1d5db !important; }
+/* 大本图标上方的账号名：出图用**纯黑**（用户 2026-09-19：「现在看不太清」，要黑色）。
+   必须 !important：`.dark .ov-icon-name`（浅灰 #e5e7eb）写在文件前面但权重更高 ——
+   深色模式下出图会变成浅灰字压在浅色画布上，几乎看不见（就是这个坑） */
+.ovs-page .ov-icon-name, .ovs-page .ov-right-name { color: #000000 !important; }
+
+/* 顶部块（名称 + 大本图标 + 进度条）：克隆详情页的 `.ov-body` —— 那 48px 左右留白是详情页为整屏布局留的，
+   分享页里去掉，把宽度让给进度条；`flex:1` 让它吸收左列多余高度（见 `.ovs-col` 注释） */
+.ovs-page .ov-body { padding: 0; flex: 1 1 auto; }
+
+/* 夜世界顶部块**左右各让出留白**（用户 2026-09-19：「夜世界顶部进度条区显得太宽了，
+   （左侧增加留白大概2个图标宽度）大本图标 进度条（右侧增加留白大概2个图标宽度）」→ 后随
+   「页宽收到 8 个图标后，左右留白由 76px 缩小到 20px」）：一个图标位 = 单元格 36 + 间隙 2 = 38。
+   顶部块内容宽 = (页宽 360 − 页留白 24) − 20×2 = **296**。
+   ⚠ 这条必须写在上面 `.ovs-page .ov-body { padding: 0 }` **之后**：两者同权重 (0,2,0)，
+   后写的赢（写前面会被 `padding: 0` 整个吃掉，静默失效，契约测试按文本下标钉住顺序）。
+   **只作用于分享页的夜世界**：`.ovs-night` 是分享页的容器类，账号详情页的 `.ov-body` 不受影响。 */
+.ovs-night .ov-body { padding-left: 20px; padding-right: 20px; }
+
+/* 固定布局：上半区两列（左 = 顶部块 + 英雄；右 = 战宠 + 科技）、下半区**左右分区**（防御 | 其他） */
+.ovs-upper { display: flex; gap: 16px; }
+.ovs-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+/* 两列**等高**（默认 stretch）：左列的顶部块把多余高度吃掉（= 进度条区上下多出来的留白），
+   于是「英雄+装备」卡片的下边缘正好落在列底；右列若反而更高，则把余量放进卡片间距、让末张卡片贴底。
+   两个方向都对齐，且不依赖账号内容多少（不写死 padding 数值）。 */
+.ovs-col:last-child { justify-content: space-between; }
+
+/* 下半区（主世界）：防御 / 其他 **左右分区**（用户 2026-09-19：「太占空间了，而且留白还多」）——
+   防御列更宽（面积比例大），两列等高；行数由 `ROW_SPEC` 按建筑 id 分组决定（见 overview-share.js）。
+   宽度：下半区可用 904（页宽 928 − 页留白 24），减列间距 16 = 888 → **防御 530 / 其他 358**（比例 1.48）。
+   换算成"每行几个"：防御列卡内 530−24−2 = **504** → **13 个**（口径里最长一行 13 个 = 492；14 个要 530 装不下）；
+   其他列 358−24−2 = **332** → **8 个**（口径里最长一行 8 个 = 302；9 个要 340 装不下）。
+   两处都留了 ≥12px 余量 —— **别贴着边界**，差 1px 就会掉一个图标（上面 `.ovs-page` 注释里那次的实测教训）。 */
+.ovs-lower { display: flex; gap: 16px; align-items: stretch; }
+.ovs-lower-col { display: flex; flex-direction: column; min-width: 0; }
+.ovs-lower-col > .ov-cat { flex: 1 1 auto; display: flex; flex-direction: column; }
+.ovs-lower-defense { flex: 0 0 530px; }   /* 防御面积比例大一点 */
+.ovs-lower-other { flex: 1 1 auto; }
+/* 两列等高（stretch）时，矮的那张卡多出来的高度**摊到分节之间**，不留一块大白：
+   `.ov-cat-body` 撑满卡片并 space-between（只作用于下半区这两张卡）。 */
+.ovs-lower .ov-cat-body { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; }
+
+/* ★ 需要显式上限的两处（"每行最多 N 个图标"，N 个占 `36N + 2(N−1) = 38N−2`）：
+   上半区两列各 416（11 个）、夜世界单列 302（**8 个**）——这里仍需 max-width，因为它们的列宽
+   是"够用就好"，不靠页宽凑数（**差 1px 就会掉一个图标**，实测过 11→10）。
+   下半区两列**不再设上限**：列宽本身（502/386）就是"每行 12/9"的落点，行由 joinOne 自动铺满。 */
+.ovs-upper .ov-icon-row, .ovs-upper .ov-icon-grid { max-width: 416px; }   /* 11 个 */
+.ovs-upper .ov-eq-wrap { max-width: 376px; }                             /* 装备 9 个/行 + 英雄图标 = 10 ≤ 11 */
+/* 夜世界内容少（用户 2026-09-19「12 个图标的宽度页显得稍微有些空旷」）→ 每行 **8 个**（302 = 38×8−2），
+   页宽随之 520 → 360（卡内 360−24−24−2 = 310 ≥ 302，留 8px 余量） */
+.ovs-night .ov-icon-row, .ovs-night .ov-icon-grid { max-width: 302px; }   /* 8 个 */
+.ovs-night .ov-hero-row .ov-eq-wrap { max-width: 302px; }                 /* 夜世界无装备，留着占位对齐 */
+
+/* ===== 品牌标识（**只出在分享图里**，用户 2026-09-19：「守卫行注定很空…算是加上我们的标识」）=====
+   两个世界落点不同：**主世界**挂在守卫行末尾（那一行只有 3 个图标，见 overview-detail.js 的
+   GUARDIANS 恒 3 个）；**夜世界**没有守卫分节 → 在页面顶部单独起一行、居中（`.ovs-brand-row`）。
+   主世界的间距换算：一个图标位 = 单元格 36 + 行内 gap 2 = 38；3 个 = 114；行内 gap 已贡献 2 ⇒ margin 112。
+   尺寸（用户 2026-09-19 二次口径：「app图标稍微改大点，app名称图稍微改小点…改成图标观感大于名称图」）：
+     **守卫行那处** App 图标 **44px**、名称图高 **30px**（原来都是 36 —— 名称图等比缩小一号）；
+     **夜世界顶部行**再小一号：图标 **30px**、名称图 **20px**（= 30×30/44，用户「顶部的app图标和名称
+     可缩小一些，app图标大概缩小到30px，文字同比例调整」；覆盖写在 `.ovs-brand-row .ovs-brand`）。
+   宽度核对（**别改成贴着边界**，差 1px 就换行，同 `.ovs-page` 那段教训）：
+     主世界守卫行 3 图标 112 + gap 2 + 间距 112 + 图标 44 + 间隔 8 + 名称图 415/96×30 ≈ 129.7 = **407.7**
+     ≤ 主世界防御列卡内 504（夜世界那处换行上限与它无关——顶部行是整行居中）。
+   四个尺寸都收在变量里：要更大的标识改 `--ovs-brand-icon` 一处（页宽不用动，余量够）。 */
+.ovs-brand {
+    --ovs-brand-icon: 44px;      /* App 图标（正方形） */
+    --ovs-brand-name-h: 30px;    /* 名称图高（等比宽度，恒小于图标 → 观感"图标大于文字"） */
+    --ovs-brand-step: 112px;     /* ≈ 3 个图标位（3×38 − 行内 gap 2） */
+    --ovs-brand-space: 8px;      /* App 图标与名称图之间 */
+    display: flex;
+    align-items: center;
+    margin-left: var(--ovs-brand-step);
+    flex: 0 0 auto;
+}
+.ovs-brand-icon, .ovs-brand-name {
+    display: block;
+    max-width: none;             /* 覆盖 tailwind preflight 的 img{max-width:100%}（同 .ov-grid-icon） */
+    flex-shrink: 0;
+    object-fit: contain;
+}
+.ovs-brand-icon { width: var(--ovs-brand-icon); height: var(--ovs-brand-icon); border-radius: 8px; }
+.ovs-brand-name { height: var(--ovs-brand-name-h); width: auto; margin-left: var(--ovs-brand-space); }
+/* 页面级品牌行（夜世界）：整行铺满、品牌块**居中**（不占行宽上限，只参与页面纵向排布）；
+   尺寸再小一号（顶部区域是"标识"不是"内容"，用户 2026-09-19 要求 30px / 文字同比例） */
+.ovs-brand-row { display: flex; justify-content: center; }
+.ovs-brand-row .ovs-brand { --ovs-brand-icon: 30px; --ovs-brand-name-h: 20px; margin-left: 0; }
+
+/* 分享图键（详情页「等级/时间」那一行的**最左端**；用户 2026-09-19：「按钮位置是 —— 这里 | 等级/时间」
+   → 复核后「按钮贴屏幕最左侧，按钮尽量 1:1，现在按钮太长了」）——由 overview-detail.js 的
+   `shareBtnHtml()` 渲染进 `.ov-top-row`，与同页折扣键同一套选择控件语言。
+   **绝对定位**：左端那块 80px 空位是给「等级/时间」做对齐用的（见 `.ov-top-row::before`），
+   按钮进去吃 flex 布局会把「等级/时间」挤走，所以脱离文档流挂在左端空位里：
+     left 16px = 与 tab 行左内缘对齐（`.ov-tab-bar` 的 padding 也是 16）= 贴屏幕左侧；
+     top 12px = 行内 padding-top，于是与「等级/时间」同顶边；
+     30×30 = 1:1 且与「等级/时间」同高（行高 30）。 */
+.ov-share-btn {
+    position: absolute;
+    left: 16px;
+    top: 12px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--td-sel-bd);
+    border-radius: var(--td-sel-r);
+    background-color: var(--td-sel-bg);
+    background-image: var(--td-sel-sheen);
+    box-shadow: var(--td-sel-shadow);
+    color: var(--td-sel-color);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+/* 按压态用 :active（触屏 :hover 会粘住不消失，见首页 ± 键那次教训）；深浅两档照本页排序键的写法 */
+.ov-share-btn:active { background-color: #f3f4f6; }
+.dark .ov-share-btn:active { background-color: var(--td-line); }
+
+/* 预览壳（临时入口用；**属于 App 界面**，所以走令牌跟随主题，只有里面的 .ovs-page 是固定浅色） */
+.ovs-shell { z-index: 130; }   /* 高于部落战分享弹窗（120） */
+.ovs-shell-panel {
+    width: 100%;
+    max-width: 560px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--td-pop-bg);
+    border: 1px solid var(--td-pop-bd);
+    border-radius: var(--td-pop-r);
+    box-shadow: var(--td-pop-shadow);
+    overflow: hidden;
+}
+.ovs-shell-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--td-line);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--td-sel-color);
+}
+.ovs-shell-title { flex: 1; min-width: 0; }
+.ovs-shell-close {
+    border: none;
+    background: var(--td-inset-bg);
+    color: var(--td-inset-color);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.ovs-shell-body { flex: 1; overflow: auto; padding: 8px; background: var(--td-line); -webkit-overflow-scrolling: touch; }
+.ovs-stage-wrap { position: relative; margin: 0 auto; }
+.ovs-stage { position: absolute; top: 0; left: 0; }
+

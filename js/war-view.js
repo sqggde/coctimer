@@ -50,23 +50,24 @@ var _fopts=[{v:'all',l:'全部'},{v:'noattack',l:'未进攻'},{v:'attackable',l:
 function gfl(v){for(var i=0;i<_fopts.length;i++){if(_fopts[i].v===v)return _fopts[i].l}return'全部'}
 function createFilterBar(){
     var bar=document.createElement('div');bar.className='member-filter-bar';bar.style.cssText='display:flex;align-items:center;justify-content:center;padding:8px 0;position:relative;';
+    // 颜色/圆角/投影一律交给 CSS（.member-filter-bar .filter-btn|.filter-dropdown，见 clan.css）：
+    // 这里内联写死过一套"浅色/深色"的值，会连主题（风格）轴一起绕过去
     var btn=document.createElement('button');
-    var fDark=document.documentElement.classList.contains('dark');
-    btn.style.cssText='display:flex;align-items:center;gap:4px;font-size:13px;padding:4px 12px;background:'+(fDark?'#3d3d5c':'#f3f4f6')+';border:none;border-radius:6px;color:'+(fDark?'#e5e7eb':'#374151')+';cursor:pointer;';
+    btn.className='filter-btn';
     var lbl=document.createElement('span');lbl.className='filter-label';lbl.textContent=gfl(_memberFilter);
     var ico=document.createElement('i');ico.className='fa fa-chevron-down';ico.style.fontSize='10px';
     btn.appendChild(lbl);btn.appendChild(ico);
-    var dd=document.createElement('div');dd.style.cssText='position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:10;min-width:110px;overflow:hidden;';
+    var dd=document.createElement('div');dd.style.cssText='position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:10;min-width:110px;overflow:hidden;';
     dd.className='filter-dropdown hidden';
     for(var i=0;i<_fopts.length;i++){(function(opt){
         var ob=document.createElement('button');ob.textContent=opt.l;ob.setAttribute('data-value',opt.v);
-        ob.style.cssText='display:block;width:100%;padding:8px 16px;border:none;background:transparent;font-size:13px;color:#374151;cursor:pointer;text-align:center;';
-        if(opt.v===_memberFilter){ob.className='active';ob.style.background='#eff6ff';ob.style.color='#3b82f6';ob.style.fontWeight='600'}
+        ob.style.cssText='display:block;width:100%;padding:8px 16px;border:none;font-size:13px;cursor:pointer;text-align:center;';
+        if(opt.v===_memberFilter){ob.className='active'}
         ob.addEventListener('click',function(e){
             e.stopPropagation();smf(opt.v);lbl.textContent=opt.l;dd.classList.add('hidden');
             var bs=dd.querySelectorAll('button');
-            for(var bi=0;bi<bs.length;bi++){bs[bi].className='';bs[bi].style.background='transparent';bs[bi].style.color='#374151';bs[bi].style.fontWeight='400'}
-            ob.className='active';ob.style.background='#eff6ff';ob.style.color='#3b82f6';ob.style.fontWeight='600';
+            for(var bi=0;bi<bs.length;bi++){bs[bi].className=''}
+            ob.className='active';
         });
         dd.appendChild(ob);
     })(_fopts[i])}
