@@ -683,8 +683,14 @@
         var rm = $('bc-lb-remark');
         if (rm) { rm.style.display = l.remark ? '' : 'none'; rm.textContent = l.remark || ''; }
         $('bc-lb-tags').innerHTML = tagsHtml(l.tags);
-        $('bc-lb-open').setAttribute('data-open', l.link);
-        $('bc-lb-copy').setAttribute('data-copy', l.link);
+        // 按键组与卡片同口径（isCn）：国服阵型码没法直接打开 → 只留一个蓝底白字「复制阵型码」
+        var cn = isCn(l), lbOpen = $('bc-lb-open'), lbCopy = $('bc-lb-copy');
+        lbOpen.style.display = cn ? 'none' : '';
+        if (cn) lbOpen.removeAttribute('data-open'); else lbOpen.setAttribute('data-open', l.link);
+        lbCopy.textContent = cn ? '复制阵型码' : '复制链接';
+        lbCopy.classList.toggle('ghost', !cn);
+        lbCopy.classList.toggle('cn-solid', cn);
+        lbCopy.setAttribute('data-copy', l.link);
         $('bc-lightbox').setAttribute('data-id', l.id);
         lbReset();
         $('bc-lightbox').classList.remove('hidden');
@@ -1006,6 +1012,145 @@
         }, { passive: true });
     }
 
+    // ===================== 更多页活动展区（管理后台上传，/api/activity/list 公开接口） =====================
+    // 进行中 = start≤now<end（倒计时到结束）；即将开始 = start>now（倒计时到开始）；已结束服务端已滤掉。
+    // 拉取失败静默：展区整块不出现，不打扰更多页；每 30s 就地刷新倒计时，分组变化才整块重绘
+    // （整块重绘会重置横向滚动位置）。
+    var actList = [];
+    var actTimer = null;
+    function stopActTimer() {
+        if (actTimer) { clearInterval(actTimer); actTimer = null; }
+    }
+    function actCountdownText(ms) {
+        if (ms <= 0) return '即将开始';
+        var m = Math.floor(ms / 60000);
+        var d = Math.floor(m / 1440); m -= d * 1440;
+        var h = Math.floor(m / 60); m -= h * 60;
+        if (d > 0) return d + '天' + h + '小时' + m + '分';
+        if (h > 0) return h + '小时' + m + '分';
+        return Math.max(m, 1) + '分钟';
+    }
+    function actSplit() {
+        var now = Date.now();
+        // 区服过滤（clash_act_srvfilter = {cn:bool, intl:bool}，默认全勾）：勾掉的区服其活动不显示；互通不受勾选影响
+        var f = actSrvFilter();
+        var ongoing = [], upcoming = [];
+        actList.forEach(function (a) {
+            var s = Date.parse(a.startAt), e = Date.parse(a.endAt);
+            if (isNaN(s) || isNaN(e) || e <= now) return;
+            if (a.server === 'cn' && !f.cn) return;
+            if (a.server === 'intl' && !f.intl) return;
+            (s <= now ? ongoing : upcoming).push({ s: s, e: e, a: a });
+        });
+        ongoing.sort(function (x, y) { return x.e - y.e; });     // 先结束的靠前
+        upcoming.sort(function (x, y) { return x.s - y.s; });    // 先开始的靠前
+        return { ongoing: ongoing, upcoming: upcoming };
+    }
+    // 区服过滤状态（默认全勾；存的是"显示"布尔，兼容旧数据/脏数据按显示算）
+    var ACT_SRV_KEY = 'clash_act_srvfilter';
+    function actSrvFilter() {
+        try {
+            var v = JSON.parse(localStorage.getItem(ACT_SRV_KEY));
+            if (v && typeof v === 'object') return { cn: v.cn !== false, intl: v.intl !== false };
+        } catch (e) { /* 坏数据回落默认 */ }
+        return { cn: true, intl: true };
+    }
+    // 折叠状态（clash_act_fold = {ongoing:bool, upcoming:bool}，true=收起）：跨会话记住
+    var ACT_FOLD_KEY = 'clash_act_fold';
+    function actFoldState() {
+        try { var v = JSON.parse(localStorage.getItem(ACT_FOLD_KEY)); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+    }
+    function actGroupHtml(key, title, dotClass, list, field) {
+        // 两组常驻：没有活动时显示「无活动」占位而不是整组消失（用户拍板）
+        var folded = !!actFoldState()[key];
+        var row = list.length
+            ? list.map(function (x) {
+                var img = x.a.image.indexOf('http') === 0 ? x.a.image : apiBase() + x.a.image;
+                // 区服胶囊贴图片区九宫格 8 号位（底中）骑线：国服蓝 / 国际服紫（样式照账号进度页账号卡标签）；互通不贴
+                var srv = x.a.server === 'cn' || x.a.server === 'intl'
+                    ? '<span class="act-srv srv-' + x.a.server + '">' + (x.a.server === 'cn' ? '国服' : '国际服') + '</span>'
+                    : '';
+                return '<div class="act-card">' +
+                    '<div class="act-imgwrap">' +
+                    '<img src="' + esc(img) + '" loading="lazy" alt="">' + srv +
+                    '</div>' +
+                    '<div class="act-name">' + esc(x.a.titlePending && key === 'upcoming' ? x.a.titlePending : x.a.title) + '</div>' +
+                    '<div class="act-time" data-act-t="' + x[field] + '">' + esc(actCountdownText(x[field] - Date.now())) + '</div>' +
+                    '</div>';
+            }).join('')
+            : '<div class="act-empty">无活动</div>';
+        return '<div class="act-group' + (folded ? ' folded' : '') + '">' +
+            '<div class="act-gtitle" data-actfold="' + key + '"><span class="act-dot ' + dotClass + '"></span>' + title + '<i class="fa fa-chevron-down act-caret"></i>' +
+            (key === 'ongoing'
+                ? '<button class="act-srvfilter" data-actsrvbtn title="按区服筛选"><i class="fa fa-filter"></i></button>' +
+                  '<div class="act-srvpop hidden" data-actsrvpop>' +
+                  '<label><input type="checkbox" data-actsrvchk="cn"> 国服</label>' +
+                  '<label><input type="checkbox" data-actsrvchk="intl"> 国际服</label>' +
+                  '</div>'
+                : '') +
+            '</div>' +
+            '<div class="act-row">' + row + '</div></div>';
+    }
+    function renderActs() {
+        var sec = $('act-section');
+        if (!sec) return;
+        var g = actSplit();
+        sec.innerHTML = actGroupHtml('ongoing', '进行中', 'dot-ongoing', g.ongoing, 'e') +
+            actGroupHtml('upcoming', '未开始', 'dot-upcoming', g.upcoming, 's');
+        sec.querySelectorAll('[data-actfold]').forEach(function (t) {
+            t.onclick = function () {
+                var key = t.getAttribute('data-actfold');
+                var fold = actFoldState();
+                fold[key] = !fold[key];
+                try { localStorage.setItem(ACT_FOLD_KEY, JSON.stringify(fold)); } catch (e) { /* 存不了只影响跨会话记忆 */ }
+                t.parentElement.classList.toggle('folded', !!fold[key]);
+            };
+        });
+        // 区服筛选弹层：键开/关、弹层内点击不冒泡（防触发标题的折叠）、勾选变化即存即重渲染
+        var fbtn = sec.querySelector('[data-actsrvbtn]');
+        var pop = sec.querySelector('[data-actsrvpop]');
+        if (fbtn && pop) {
+            fbtn.onclick = function (e) { e.stopPropagation(); pop.classList.toggle('hidden'); };
+            pop.addEventListener('click', function (e) { e.stopPropagation(); });
+            pop.querySelectorAll('[data-actsrvchk]').forEach(function (chk) {
+                var key = chk.getAttribute('data-actsrvchk');
+                chk.checked = actSrvFilter()[key];
+                chk.onchange = function () {
+                    var f = actSrvFilter();
+                    f[key] = chk.checked;
+                    try { localStorage.setItem(ACT_SRV_KEY, JSON.stringify(f)); } catch (e) { /* 存不了只影响跨会话记忆 */ }
+                    renderActs();
+                };
+            });
+        }
+        sec.classList.remove('hidden');
+    }
+    function tickActs() {
+        var sec = $('act-section');
+        if (!sec || sec.classList.contains('hidden') || !actList.length) return;
+        var g = actSplit();
+        var targets = [];
+        g.ongoing.forEach(function (x) { targets.push(String(x.e)); });
+        g.upcoming.forEach(function (x) { targets.push(String(x.s)); });
+        var cur = Array.prototype.map.call(sec.querySelectorAll('.act-time'), function (el) { return el.getAttribute('data-act-t'); });
+        // 有活动开始/结束：不能拿旧缓存重排——周期活动的下一场只有服务端知道，必须重拉
+        if (cur.join(',') !== targets.join(',')) { loadActs(); return; }
+        var times = sec.querySelectorAll('.act-time');
+        for (var i = 0; i < times.length; i++) {
+            times[i].textContent = actCountdownText(parseInt(times[i].getAttribute('data-act-t'), 10) - Date.now());
+        }
+    }
+    function loadActs() {
+        fetchJson(apiBase() + '/api/activity/list').then(function (j) {
+            actList = j.activities || [];
+            renderActs();
+            // 30s tick 只服务「更多」页可见期间：文字继续走 + 场次跨界时重拉（用户正在看，纠正即时可见）；
+            // 离页即停（pauseActs），不做后台自动纠正——数据对不对由"进页拉一次"保证
+            if (actList.length) { if (!actTimer) actTimer = setInterval(tickActs, 30000); }
+            else stopActTimer();
+        }).catch(function () { /* 拉不到就整个展区不出现 */ });
+    }
+
     function bind() {
         $('more-help').onclick = function () { openHelp(); };
         $('help-back').onclick = function () { closeHelp(); };
@@ -1025,6 +1170,11 @@
         document.addEventListener('click', function (e) {
             var f = $('bc-filters');
             if (f && !f.contains(e.target)) closeDrops();
+        });
+        // 活动区服筛选弹层：点外部即收起（弹层内点击已 stopPropagation，不会走到这里）
+        document.addEventListener('click', function () {
+            var pop = document.querySelector('[data-actsrvpop]:not(.hidden)');
+            if (pop) pop.classList.add('hidden');
         });
         $('bc-lb-close').onclick = closeLightbox;
         $('bc-lightbox').addEventListener('click', function (e) { if (e.target === $('bc-lightbox')) closeLightbox(); });
@@ -1164,7 +1314,11 @@
         },
         // 供设置页「反馈&建议」复用（settings.js 在本模块前加载，点击时调用无加载顺序问题）
         compressImage: compressImage,
-        cloudAuth: cloudAuth
+        cloudAuth: cloudAuth,
+        // 每次进「更多」由 core.showPage 调用：重拉活动展区（周期活动场次服务端现算，缓存会过期）；
+        // 离开「更多」时停掉 30s tick（定时器只服务可见期间，不做后台自动纠正）
+        refreshActs: loadActs,
+        pauseActs: stopActTimer
     };
 
     // 云备份登录/退出联动（services.js 登录成功、注册成功、退出登录时派发）
@@ -1176,4 +1330,5 @@
     // 更多页入口在脚本加载时即绑定（defer，DOM 已就绪）——若挂在 bases.init 懒加载里，
     // 首次进「更多」时点击无效
     bind();
+    loadActs();
 })();

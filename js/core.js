@@ -575,6 +575,14 @@
         if (page === 'overview' && CocTool.features.overview) {
             CocTool.features.overview.init();
         }
+        // 每次进「更多」重拉活动展区：周期活动的场次由服务端现算，App 启动时拉的那份缓存会过期
+        // （典型：周期活动本场结束后，旧缓存里没有下一场，进行中/即将开始两头都不显示）。
+        // 离开更多页时停掉 30s tick（用户拍板：不做后台自动纠正，可见期间的倒计时走字由定时器服务）
+        if (page === 'more' && CocTool.features.bases && CocTool.features.bases.refreshActs) {
+            CocTool.features.bases.refreshActs();
+        } else if (page !== 'more' && CocTool.features.bases && CocTool.features.bases.pauseActs) {
+            CocTool.features.bases.pauseActs();
+        }
     }
 
     function initNavigation() {

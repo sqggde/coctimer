@@ -39,6 +39,94 @@
 .more-app.soon .more-icon { filter: grayscale(1); opacity: .55; }
 .more-app.soon .more-label { color: #9ca3af; }
 
+/* ---- 更多页：活动展区（管理后台上传，/api/activity/list；无活动时 bases.js 整块隐藏） ---- */
+/* 新组件直接消费令牌（同「数据查询」页口径：新建组件没有旧观感要还，不写极简覆盖段） */
+#act-section { margin-top: 16px; }
+/* 活动区与功能入口区的分区线：挂在活动区 ::after 上——无活动整块隐藏（hidden 类）时线跟着消失；
+   上方 16px 呼吸（与区间节奏同刻度），下方吃 .more-grid 自带的 8px padding-top */
+#act-section::after {
+    content: ''; display: block; height: 1px;
+    background: var(--td-line); margin-top: 16px;
+}
+/* 组标题 = 折叠开关：状态点（进行中绿/即将开始蓝）+ 标题 + 箭头（收起时逆时针转 90°）。
+   邻近性：标题距自己的行 6px（margin 2 + 行 padding 4），距上一组内容 ≥14px——
+   标题永远跟自己统领的内容更近（DESIGN §4.9 判据），之前的均等留白被用户点名不合理 */
+#act-section .act-group + .act-group { margin-top: 14px; }
+.act-gtitle {
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 2px;
+    -webkit-tap-highlight-color: transparent;
+}
+.dark .act-gtitle { color: #d1d5db; }
+.act-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+.act-dot.dot-ongoing { background: #10b981; }
+.act-dot.dot-upcoming { background: #3b82f6; }
+.act-caret { font-size: 12px; color: #9ca3af; transition: transform .15s ease; }
+.dark .act-caret { color: #7c8098; }
+/* 区服筛选：行尾漏斗键（同部落页顶栏的 fa fa-filter）+ 勾选小弹层；勾掉的区服其活动不显示（互通不受影响） */
+.act-gtitle { position: relative; }
+.act-srvfilter {
+    margin-left: auto; border: none; background: none; cursor: pointer;
+    color: #6b7280; padding: 4px 6px; border-radius: 8px; line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+}
+.act-srvfilter .fa { font-size: 14px; }
+.dark .act-srvfilter { color: #a0aec0; }
+.act-srvfilter:active { background: var(--td-line); }
+.act-srvpop {
+    position: absolute; right: 0; top: 100%; margin-top: 4px; z-index: 5;
+    background: var(--td-pop-bg); border: 1px solid var(--td-line); border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18); padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.act-srvpop.hidden { display: none; }
+.act-srvpop label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #374151; white-space: nowrap; cursor: pointer; }
+.dark .act-srvpop label { color: #d1d5db; }
+.act-srvpop input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: #3b82f6; cursor: pointer; }
+/* 空组占位（两组常驻，无活动时显示「无活动」而不是整块消失） */
+.act-empty { font-size: 12.5px; color: #6b7280; padding: 6px 0 2px; }
+.dark .act-empty { color: #a0aec0; }
+.act-group.folded .act-caret { transform: rotate(-90deg); }
+.act-group.folded .act-row { display: none; }
+/* 横向滚动行按「铺到屏幕边」处理（DESIGN §五 规则 7）：负边距抵消 #more-page 的 20px 留白再顶回来；
+   滚动条一律隐藏（网页版滚动条会占高度把卡片撑歪）。上下 padding 给投影留空间 */
+.act-row {
+    display: flex; gap: 8px;
+    overflow-x: auto;
+    margin: 0 -20px; padding: 4px 20px 6px;
+    scrollbar-width: none;
+}
+.act-row::-webkit-scrollbar { display: none; }
+.act-card {
+    flex: 0 0 auto; width: 104px;
+    padding: 8px 6px 5px;
+    border-radius: var(--td-panel-r);
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-left: var(--td-panel-bw) solid var(--td-panel-bd);
+    border-right: var(--td-panel-bw) solid var(--td-panel-bd);
+    box-shadow: var(--td-panel-shadow);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    -webkit-tap-highlight-color: transparent;
+}
+/* 展卡骨架三段全部定高（图片 60×40 / 名称 18px / 时间 13px），所有卡片尺寸恒定——
+   图在固定盒内 object-fit: contain 完整显示（不裁剪，宽图左右留白、高图上下留白） */
+.act-imgwrap { position: relative; width: 60px; height: 40px; flex-shrink: 0; }
+.act-imgwrap img { width: 60px; height: 40px; border-radius: 12px; object-fit: contain; flex-shrink: 0; }
+/* 区服胶囊：贴图片区九宫格 8 号位（底中）且**骑线**——translateY(50%) 让自身一半悬出图片盒下缘（用户拍板）；
+   取值照账号进度页账号卡标签（白字实底，intl 紫 / cn 蓝） */
+.act-srv {
+    position: absolute; left: 50%; bottom: 0; transform: translate(-50%, 50%);
+    font-size: 10px; line-height: 1.4; color: #fff; padding: 0 6px;
+    border-radius: 8px; white-space: nowrap;
+}
+.act-srv.srv-intl { background: #7c3aed; }
+.act-srv.srv-cn { background: #2563eb; }
+.act-name { font-size: 12.5px; font-weight: 600; color: #1f2937; height: 18px; line-height: 18px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: -4px; }   /* 名称与倒计时间距收紧（gap 6 → 实际 2，用户两轮拍板） */
+.dark .act-name { color: #f1f5f9; }
+.act-time { font-size: 11px; font-weight: 700; color: #3b82f6; height: 13px; line-height: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dark .act-time { color: #60a5fa; }
+
 /* ---- 子页面顶栏（使用说明 / 阵型中心 / 数据查询共用；取值与主页面同源：--td-topbar-fs / -pt） ---- */
 #help-page, #bases-page { padding: 0; background: var(--td-page2); }
 #help-page .top-bar, #bases-page .top-bar {
@@ -197,8 +285,15 @@
     #bc-rank-modal .bc-rank-sk span { animation: none; }
     #bc-rank-modal .bc-rank-seg { transition: none; }
 }
-/* 固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局 */
+/* 手机端固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局，不随屏宽变。
+   宽屏（网页版电脑端）按断点加分列：卡片宽始终落在手机同档（~190~260px），不再出现"两列巨卡"拉满屏（用户 2026-09-22 反馈）。 */
 #bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 720px) { #bases-page .bc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { #bases-page .bc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { #bases-page .bc-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+/* ≥1600 交给 auto-fill：卡片宽恒定在 240~250（手机端是 190），超宽屏自动加列，
+   不必再往上堆断点（2560 → 10 列、3840 → 15 列），也不会回到"卡片被拉宽"的老问题 */
+@media (min-width: 1600px) { #bases-page .bc-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } }
 #bases-page .bc-card {
     background-color: var(--td-panel-bg);
     background-image: var(--td-panel-sheen);
@@ -430,6 +525,8 @@
 #bc-lightbox .bc-lb-acts { display: flex; gap: 10px; padding: 10px 14px 14px; }
 #bc-lightbox .bc-lb-acts .bc-btn { flex: 1; border: none; border-radius: var(--td-act-r); padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; background-color: #7c3aed; background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #fff; }
 #bc-lightbox .bc-lb-acts .bc-btn.ghost { background-color: #2a2f45; box-shadow: none; background-image: none; color: #d1d5db; }
+/* 国服大图（无「一键打开」）：单按键蓝底白字，色值同卡片 .bc-card.srv-cn 的主按键 */
+#bc-lightbox .bc-lb-acts .bc-btn.cn-solid { background-color: #2563eb; }
 #bc-lightbox .bc-lb-close { color: #9ca3af; }
 /* 大图弹窗避让底部导航（同上传弹窗参考：遮罩 padding-bottom 64px，88vh 面板随内容区整体上移，底部不再被盖） */
 #bc-lightbox { padding-bottom: 64px; }
