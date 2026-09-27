@@ -10,6 +10,8 @@
     var CACHE_PREFIX = 'clash_war_stats_';
     var _fromVal = '', _toVal = '', _calField = '', _calYear = 0, _calMonth = 0;
     var _cacheHint = '', _lastNote = '';
+    // 进攻/防御表头点击排序状态（null = 默认序；每次重新统计重置）。_lastStats 供点击后重渲染当前 pane
+    var _atkSort = null, _defSort = null, _lastStats = null;
 
     function pad2(n) { return String(n).padStart(2, '0'); }
     function todayStr(offsetDays) {
@@ -271,7 +273,7 @@ function buildMatches(s) {
             + '<span class="ws-lg"><i class="ws-lg-box na"></i>未进攻</span>'
             + '<span class="ws-lg"><i class="ws-lg-box none"></i>未参战</span>'
             + '</div>';
-        h += '<div style="overflow-x:auto"><div class="ws-matrix" style="grid-template-columns:' + cols + ';width:' + totalW + 'px;">';
+        h += '<div class="ws-scroll"><div class="ws-matrix" style="grid-template-columns:' + cols + ';width:' + totalW + 'px;">';
         h += '<div class="ws-mhead">#</div><div class="ws-mhead left">成员</div>';
         for (var ri = 0; ri < n; ri++) h += '<div class="ws-mhead">' + esc(s.warRows[ri].date) + '</div>';
         for (var mi2 = 0; mi2 < s.members.length; mi2++) {
@@ -305,11 +307,17 @@ function buildMatches(s) {
     }
     function buildAttack(s) {
         var h = '<div class="ws-section"><div class="ws-section-title"><i class="fa fa-users"></i> 成员表现排行' + shareBtnHtml() + '</div>';
-        h += '<div style="overflow-x:auto"><table class="ws-table"><thead><tr>';
-        h += '<th>#</th><th>成员</th><th>TH</th><th>参战</th><th>进攻</th><th>总星</th><th>贡献星</th><th>三星</th><th>三星率</th><th>0星率</th><th>均破坏</th><th>均攻位</th>';
+        h += '<div class="ws-scroll"><table class="ws-table"><thead><tr>';
+        h += '<th>#</th>' + sortHead('name', '成员', _atkSort) + sortHead('th', 'TH', _atkSort) + sortHead('wars', '参战', _atkSort) + sortHead('attacks', '进攻', _atkSort) + sortHead('totalStars', '总星', _atkSort) + sortHead('newStars', '贡献星', _atkSort) + sortHead('three', '三星', _atkSort) + sortHead('threeRate', '三星率', _atkSort) + sortHead('zeroRate', '0星率', _atkSort) + sortHead('avgDest', '均破坏', _atkSort) + sortHead('avgOppPos', '均攻位', _atkSort);
         h += '</tr></thead><tbody>';
-        for (var i2 = 0; i2 < s.members.length; i2++) {
-            var m = s.members[i2];
+        var atkArr = sortRows(s.members, _atkSort, function (m) {
+            if (_atkSort && _atkSort.k === 'name') return m.name || '';
+            if (!_atkSort) return 0;
+            if (_atkSort.k === 'three') return m.attackStars ? m.attackStars[3] : 0;
+            return m[_atkSort.k] || 0;
+        });
+        for (var i2 = 0; i2 < atkArr.length; i2++) {
+            var m = atkArr[i2];
             h += '<tr>';
             h += '<td>' + (i2 + 1) + '</td>';
             h += '<td class="ws-name">' + esc(m.name) + '</td>';
@@ -331,10 +339,19 @@ function buildMatches(s) {
     }
     function buildDefense(s) {
         var h = '<div class="ws-section"><div class="ws-section-title"><i class="fa fa-shield"></i> 防守表现' + shareBtnHtml() + '</div>';
-        h += '<div style="overflow-x:auto"><table class="ws-table"><thead><tr>';
-        h += '<th>#</th><th>成员</th><th>参战</th><th>被攻次数</th><th>被拿星</th><th>被三星率</th><th>防守效率</th>';
+        h += '<div class="ws-scroll"><table class="ws-table"><thead><tr>';
+        h += '<th>#</th>' + sortHead('name', '成员', _defSort) + sortHead('wars', '参战', _defSort) + sortHead('defended', '被攻次数', _defSort) + sortHead('defBestSum', '被拿星', _defSort) + sortHead('defRate', '被三星率', _defSort) + sortHead('eff', '防守效率', _defSort);
         h += '</tr></thead><tbody>';
-        var defSorted = s.members.slice().sort(function (a, b) { return b.defended - a.defended; });
+        var defSorted;
+        if (_defSort) {
+            defSorted = sortRows(s.members.filter(function (m3) { return m3.defended > 0; }), _defSort, function (m3) {
+                if (_defSort.k === 'name') return m3.name || '';
+                if (_defSort.k === 'eff') return m3.defended > 0 ? Math.round((1 - m3.defBestSum / (m3.defended * 3)) * 100) : 100;
+                return m3[_defSort.k] || 0;
+            });
+        } else {
+            defSorted = s.members.slice().sort(function (a, b) { return b.defended - a.defended; });
+        }
         var defCount = 0;
         for (var i3 = 0; i3 < defSorted.length; i3++) {
             var m3 = defSorted[i3];
@@ -357,6 +374,7 @@ function buildMatches(s) {
         return h;
     }
     function renderResults(s) {
+        _lastStats = s; _atkSort = null; _defSort = null;   // 新统计重置排序状态
         var h = ''
             + '<div class="ws-tab-bar" id="ws-tab-bar">'
             + '<button class="ws-tab-btn active" data-ws-tab="overview">概览</button>'
@@ -438,6 +456,43 @@ $('ws-result').innerHTML = h;
     // 原来这里是内联 `<svg>` 常量，属 AGENTS.md「禁止内联 SVG」的存量违规，2026-09-19 随分享图功能一并清偿
     function shareBtnHtml() {
         return '<button class="ws-share-btn" title="分享表格"><i class="fa fa-share-image"></i></button>';
+    }
+    // ====== 进攻/防御表头点击排序（升降序切换） ======
+    // 表头 = <th data-ws-sk>；当前列显示方向箭头（chevron-down=降序，旋转180=升序），其余列淡色 sort 图标提示可点
+    function sortHead(k, label, sort) {
+        var ico = (sort && sort.k === k)
+            ? '<i class="fa fa-chevron-down ws-sort-caret' + (sort.d === 1 ? ' ws-asc' : '') + '"></i>'
+            : '<i class="fa fa-sort ws-sort-hint"></i>';
+        return '<th data-ws-sk="' + k + '">' + label + ico + '</th>';
+    }
+    function sortRows(arr, sort, val) {
+        if (!sort) return arr;
+        return arr.slice().sort(function (a, b) {
+            var va = val(a), vb = val(b);
+            if (typeof va === 'string') return sort.d * String(va).localeCompare(String(vb));
+            return sort.d * (va - vb);
+        });
+    }
+    function bindSortClick() {
+        if (!EL.body) return;
+        EL.body.addEventListener('click', function (e) {
+            var th = e.target.closest ? e.target.closest('th[data-ws-sk]') : null;
+            if (!th || !_lastStats) return;   // 缓存恢复时 _lastStats 为空 → 点表头无效，点「开始统计」后恢复
+            var pane = th.closest('.ws-tab-pane');
+            if (!pane) return;
+            var isAtk = pane.getAttribute('data-ws-pane') === 'attack';
+            var k = th.getAttribute('data-ws-sk');
+            var cur = isAtk ? _atkSort : _defSort;
+            var dir = (cur && cur.k === k) ? -cur.d : (k === 'name' ? 1 : -1);   // 数字先降序（榜单习惯），名字先升序
+            if (isAtk) _atkSort = { k: k, d: dir }; else _defSort = { k: k, d: dir };
+            // 重渲染会把 .ws-scroll 的滚动位置归零——先记后还，保证"滑到最右点表头"后该列仍在可视范围
+            var wrap = pane.querySelector('.ws-scroll');
+            var sl = wrap ? wrap.scrollLeft : 0, st = wrap ? wrap.scrollTop : 0;
+            pane.innerHTML = isAtk ? buildAttack(_lastStats) : buildDefense(_lastStats);
+            wrap = pane.querySelector('.ws-scroll');
+            if (wrap) { wrap.scrollLeft = sl; wrap.scrollTop = st; }
+            bindShareButtons();   // pane 重建后分享按钮监听随旧 DOM 一起没了，补绑
+        });
     }
     function bindShareButtons() {
         document.querySelectorAll('.ws-share-btn').forEach(function (btn) {
@@ -827,6 +882,7 @@ var c = loadCache();
         EL.body = document.getElementById('war-stats-body');
         if (!EL.view || !EL.body) return;
         EL.body.innerHTML = '<div id="ws-body-inner"></div>';
+        bindSortClick();   // 委托在 EL.body 上（本层只重建内部 DOM，body 本身不换），一次绑定全程有效
         var back = document.getElementById('war-stats-back-btn');
         if (back) back.addEventListener('click', close);
         var refresh = document.getElementById('war-stats-refresh-btn');
@@ -836,7 +892,8 @@ var c = loadCache();
     // imageShare：**共用**的图片分享弹窗（保存到相册 / 分享 / 取消）——部落战统计的表格图与账号详情页的
     // 「分享图」（overview-share.js）都走这里，不再各写一套弹窗与派发（AGENTS.md「不重复实现」）。
     // 这个弹窗生在本模块（它最早为战况统计做的），所以放在 features.warStats 下导出。
-    C.features.warStats = { open: open, close: close, init: init, imageShare: imageShare };
+    // shareSection = 开放给 warlog 联赛历史三表复用的分享入口（离屏克隆 + 手绘 canvas，与滚动/主题解耦）
+    C.features.warStats = { open: open, close: close, init: init, imageShare: imageShare, shareSection: openSharePreview };
 })(window);
 
 
