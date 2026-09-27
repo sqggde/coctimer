@@ -781,10 +781,10 @@ let initialized = false;
                 try {
                     const data = JSON.parse(text.trim());
                     if (data && data.timestamp) {
-                        // 已导入过的 JSON 直接忽略（tag+timestamp 与已有账号一致时不导入、不跳转，
-                        // 避免剪贴板残留令每次启动自动跳到该账号）
+                        // 剪贴板 JSON 不比当前账号新（tag 相同且 timestamp ≤ 已有账号）则忽略：
+                        // 不导入、不跳转——避免剪贴板残留令每次启动自动跳转，也避免旧档回滚数据
                         const tag = data.tag;
-                        if (!(tag && accounts[tag] && accounts[tag].timestamp === data.timestamp)) {
+                        if (!(tag && accounts[tag] && data.timestamp <= accounts[tag].timestamp)) {
                             importAccountData(data);
                         }
                     }
