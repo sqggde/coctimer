@@ -146,10 +146,41 @@
         return results;
     }
 
+    // ====== 添加到升级列表 ======
+    // 把搜索结果里的一个"未升级实例"改写为"升级中"（写 timer）。
+    // timer 换算口径与游戏导出一致：timer = 导出时刻(timestamp)起的剩余秒 →
+    // 要让新条目「从现在起 seconds 秒完成」，写 timer = now秒 - timestamp + seconds。
+    // 条目规则：cnt:1 → 同条目删 cnt 挂 timer；cnt>1 → cnt-1 并追加独立 {data,lvl,timer}；
+    // 无 cnt（兵/法术/英雄/战宠/攻城车等单实例）→ 直接挂 timer。
+    // 只挑未升级实例（timer>0 / gear_up===0 的条目跳过，与 searchUpgrades 同口径），找不到返回 false。
+    function applyAddToUpgrades(data, item) {
+        if (!data || !item || !Array.isArray(data[item.accountCat])) return false;
+        const secs = item.seconds || 0;
+        const timer = data.timestamp ? Math.floor(Date.now() / 1000) - data.timestamp + secs : secs;
+        const entry = data[item.accountCat].find(a =>
+            a && Number(a.data) === Number(item.id) && Number(a.lvl) === Number(item.lvl) &&
+            !(a.timer > 0) && a.gear_up !== 0);
+        if (!entry) return false;
+        if (entry.cnt !== undefined && entry.cnt !== null) {
+            const cnt = Number(entry.cnt) || 0;
+            if (cnt > 1) {
+                entry.cnt = cnt - 1;
+                data[item.accountCat].push({ data: entry.data, lvl: entry.lvl, timer: timer });
+            } else {
+                delete entry.cnt;
+                entry.timer = timer;
+            }
+        } else {
+            entry.timer = timer;
+        }
+        return true;
+    }
+
     const uiState = { tab: 'home', hour: 12, filter: 'all', resource: 'all', discount: 0, futureHours: null, mode: 'allDesc' };
     const ALL_BUTTON_LABELS = { search: '所有可升级项', allAsc: '所有可升级项↓', allDesc: '所有可升级项↑' };
     const DISCOUNT_OPTIONS = [0, 5, 10, 15, 20];
     const MAX_ROWS = 500;
+    let lastShown = [];   // 当前渲染的结果行（data-ds-add 按下标回查）
     // 弹窗所有选择持久化（tab/hour/filter/resource/futureHours/mode 全局偏好；discount 仍按账号走 clash_upgrade_discount）
     const DS_STATE_KEY = 'clash_ds_state';
 
@@ -397,6 +428,11 @@
                 modal.classList.add('hidden');
                 return;
             }
+            const addBtn = e.target.closest('[data-ds-add]');
+            if (addBtn) {
+                handleAddClick(modal, parseInt(addBtn.getAttribute('data-ds-add'), 10));
+                return;
+            }
             const panel = modal.querySelector('[data-ds-hour-panel]');
             if (panel && !panel.classList.contains('hidden') &&
                 !e.target.closest('[data-ds-hour-panel]') && !e.target.closest('[data-ds-hour-toggle]')) {
@@ -541,7 +577,7 @@
         renderResults(modal);
     }
 
-    function rowHtml(item) {
+    function rowHtml(item, idx, simOn) {
         const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
         const name = names[item.id] || ('未知(' + item.id + ')');
         let iconHtml = '<i class="fa fa-cube text-primary" style="font-size:16px;"></i>';
@@ -556,7 +592,9 @@
         const countHtml = item.count > 1
             ? '<span class="text-xs text-gray-500 flex-shrink-0" style="background:#e5e7eb;border-radius:999px;padding:0 6px;">×' + item.count + '</span>'
             : '';
-        // 两行排版：第一行 名称 | ×数量 | 时间；第二行 等级1→2（图标跨两行垂直居中）
+        // 两行排版：第一行 名称 | ×数量 | 时间；第二行 等级1→2 | 添加到升级列表（图标跨两行垂直居中）
+        const addHtml = simOn ? '' :
+            '<span class="text-xs text-green-600 flex-shrink-0" style="cursor:pointer;-webkit-tap-highlight-color:transparent;" data-ds-add="' + idx + '">＋ 添加到升级列表</span>';
         return '<div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50 mb-0.5">' +
             '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0 ds-icon-jump" data-ds-id="' + item.id + '" data-ds-lvl="' + item.lvl + '" style="cursor:pointer;" title="查看图鉴">' + iconHtml + '</div>' +
             '<div class="flex-1 min-w-0">' +
@@ -566,7 +604,10 @@
             '<span class="text-sm font-medium text-primary flex-shrink-0" style="min-width:70px;text-align:right;">' +
             formatDuration(item.seconds) + '</span>' +
             '</div>' +
-            '<div class="text-xs text-gray-500">等级 ' + item.lvl + '→' + item.nextLvl + '</div>' +
+            '<div class="flex items-center justify-between">' +
+            '<span class="text-xs text-gray-500">等级 ' + item.lvl + '→' + item.nextLvl + '</span>' +
+            addHtml +
+            '</div>' +
             '</div>' +
             '</div>';
     }
@@ -588,8 +629,31 @@
             return;
         }
         const shown = list.slice(0, MAX_ROWS);
-        container.innerHTML = shown.map(rowHtml).join('') +
+        lastShown = shown;
+        const simOn = !!(CocTool.features.progress && CocTool.features.progress.simActive && CocTool.features.progress.simActive());
+        container.innerHTML = shown.map((it, i) => rowHtml(it, i, simOn)).join('') +
             (list.length > MAX_ROWS ? '<p class="text-xs text-gray-400 text-center py-2">仅显示前 ' + MAX_ROWS + ' 条（共 ' + list.length + ' 条）</p>' : '');
+    }
+
+    function handleAddClick(modal, idx) {
+        const item = lastShown[idx];
+        if (!item) return;
+        if (CocTool.features.progress && CocTool.features.progress.simActive && CocTool.features.progress.simActive()) return;   // 推演中禁用（保护副本语义）
+        const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
+        const name = names[item.id] || ('未知(' + item.id + ')');
+        CocTool.ui.showConfirm({
+            title: '添加到升级列表',
+            text: '确认将「' + name + '」等级 ' + item.lvl + '→' + item.nextLvl + '（' + formatDuration(item.seconds) + '）标记为升级中？完成时刻 = 现在 + ' + formatDuration(item.seconds),
+            confirmText: '添加',
+            onConfirm: function () {
+                const data = currentAccountData();
+                if (!applyAddToUpgrades(data, item)) return;
+                CocTool.storage.saveAccounts();
+                if (CocTool.features.progress && CocTool.features.progress.refresh) CocTool.features.progress.refresh();
+                if (CocTool.features.services && CocTool.features.services.pushSchedule) CocTool.features.services.pushSchedule();
+                renderResults(modal);
+            }
+        });
     }
 
     function openSearchModal() {
@@ -648,6 +712,7 @@
         openSearchModal: openSearchModal,
         buildIdIndex: buildIdIndex,
         searchUpgrades: searchUpgrades,
+        applyAddToUpgrades: applyAddToUpgrades,
         getIndexForAccount: getIndexForAccount,
         normalizeResource: normalizeResource,
         matchesResource: matchesResource,
