@@ -594,7 +594,7 @@
             : '';
         // 两行排版：第一行 名称 | ×数量 | 时间；第二行 等级1→2 | 添加到升级列表（图标跨两行垂直居中）
         const addHtml = simOn ? '' :
-            '<span class="text-xs text-green-600 flex-shrink-0" style="cursor:pointer;-webkit-tap-highlight-color:transparent;" data-ds-add="' + idx + '">＋ 添加到升级列表</span>';
+            '<span class="text-xs text-green-600 flex-shrink-0" style="cursor:pointer;-webkit-tap-highlight-color:transparent;" data-ds-add="' + idx + '">+升级</span>';
         return '<div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50 mb-0.5">' +
             '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0 ds-icon-jump" data-ds-id="' + item.id + '" data-ds-lvl="' + item.lvl + '" style="cursor:pointer;" title="查看图鉴">' + iconHtml + '</div>' +
             '<div class="flex-1 min-w-0">' +
@@ -643,7 +643,7 @@
         const name = names[item.id] || ('未知(' + item.id + ')');
         CocTool.ui.showConfirm({
             title: '添加到升级列表',
-            text: '确认将「' + name + '」等级 ' + item.lvl + '→' + item.nextLvl + '（' + formatDuration(item.seconds) + '）标记为升级中？完成时刻 = 现在 + ' + formatDuration(item.seconds),
+            text: '确认将「' + name + '」等级 ' + item.lvl + '→' + item.nextLvl + '（' + formatDuration(item.seconds) + '）添加到升级列表中？',
             confirmText: '添加',
             onConfirm: function () {
                 const data = currentAccountData();
