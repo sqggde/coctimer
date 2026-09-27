@@ -278,7 +278,8 @@
                     '</div>',
                     '<div class="bg-gray-50 rounded-lg p-3">',
                         '<p class="text-xs text-gray-500 mb-1 font-medium">更新内容</p>',
-                        '<div class="text-xs text-gray-600 whitespace-pre-line">', escapeHtml(data.changelog || '暂无更新内容'), '</div>',
+                        // 限高滚动：文案过长时不把底部按键挤出屏幕
+                        '<div class="text-xs text-gray-600 whitespace-pre-line" style="max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">', escapeHtml(data.changelog || '暂无更新内容'), '</div>',
                     '</div>'
                 ].join('');
                 if (data.baiduUrl || data.quarkUrl || data.directDownloadUrl) {
