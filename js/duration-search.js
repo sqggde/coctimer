@@ -556,13 +556,18 @@
         const countHtml = item.count > 1
             ? '<span class="text-xs text-gray-500 flex-shrink-0" style="background:#e5e7eb;border-radius:999px;padding:0 6px;">×' + item.count + '</span>'
             : '';
+        // 两行排版：第一行 名称 | ×数量 | 时间；第二行 等级1→2（图标跨两行垂直居中）
         return '<div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50 mb-0.5">' +
             '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0 ds-icon-jump" data-ds-id="' + item.id + '" data-ds-lvl="' + item.lvl + '" style="cursor:pointer;" title="查看图鉴">' + iconHtml + '</div>' +
+            '<div class="flex-1 min-w-0">' +
+            '<div class="flex items-center gap-2">' +
             '<span class="text-sm text-gray-800 flex-1 truncate">' + name + '</span>' +
             countHtml +
-            '<span class="text-xs text-gray-500 flex-shrink-0">等级 ' + item.lvl + '→' + item.nextLvl + '</span>' +
             '<span class="text-sm font-medium text-primary flex-shrink-0" style="min-width:70px;text-align:right;">' +
             formatDuration(item.seconds) + '</span>' +
+            '</div>' +
+            '<div class="text-xs text-gray-500">等级 ' + item.lvl + '→' + item.nextLvl + '</div>' +
+            '</div>' +
             '</div>';
     }
 
