@@ -598,6 +598,8 @@
 
     // Android 后台切前台（MainActivity.onResume 经 evaluateJavascript 调用）：
     // 停留在账号进度列表页（且未打开详情）时整页刷新——倒计时/时间排序/已完成项全部重算
+    // 另补一次云备份 / WebDAV 自动恢复比对（此前只在启动时比对，后台期间其它设备更新了备份、
+    // 切回前台不会被发现）。内部自带开关/登录/云端较新守卫，可安全重复调用
     CocTool.onAppResume = function () {
         try {
             if (!CocTool.features || !CocTool.features.overview) return;
@@ -606,6 +608,13 @@
             if (overviewPage && !overviewPage.classList.contains('hidden') &&
                 (!detailPage || detailPage.style.display === 'none')) {
                 CocTool.features.overview.init();
+            }
+        } catch (e) {}
+        try {
+            var svc = CocTool.features && CocTool.features.services;
+            if (svc) {
+                if (svc.maybeAutoRestore) svc.maybeAutoRestore();
+                if (svc.maybeWebdavAutoRestore) svc.maybeWebdavAutoRestore();
             }
         } catch (e) {}
     };

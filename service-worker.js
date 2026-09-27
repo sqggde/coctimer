@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20260927-tm0xo2';
+const CACHE = 'coc-tool-web-20260927-tm0yka';
 const CORE_FILES = [
     "./",
     "./index.html",
