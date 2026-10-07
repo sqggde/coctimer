@@ -139,8 +139,8 @@
         const dir = order === 'desc' ? -1 : 1;
         results.sort((a, b) => {
             if (a.seconds !== b.seconds) return (a.seconds - b.seconds) * dir;
-            const na = names[a.id] || a.id;
-            const nb = names[b.id] || b.id;
+            const na = names[CocTool.names.canonicalId(a.id)] || a.id;
+            const nb = names[CocTool.names.canonicalId(b.id)] || b.id;
             return (na.localeCompare(nb, 'zh') || a.id.localeCompare(b.id)) * dir;
         });
         return results;
@@ -579,7 +579,7 @@
 
     function rowHtml(item, idx, simOn) {
         const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
-        const name = names[item.id] || ('未知(' + item.id + ')');
+        const name = names[CocTool.names.canonicalId(item.id)] || ('未知(' + item.id + ')');
         let iconHtml = '<i class="fa fa-cube text-primary" style="font-size:16px;"></i>';
         try {
             if (CocTool.calc && CocTool.calc.getItemIconUrl) {
@@ -640,7 +640,7 @@
         if (!item) return;
         if (CocTool.features.progress && CocTool.features.progress.simActive && CocTool.features.progress.simActive()) return;   // 推演中禁用（保护副本语义）
         const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
-        const name = names[item.id] || ('未知(' + item.id + ')');
+        const name = names[CocTool.names.canonicalId(item.id)] || ('未知(' + item.id + ')');
         CocTool.ui.showConfirm({
             title: '添加到升级列表',
             text: '确认将「' + name + '」等级 ' + item.lvl + '→' + item.nextLvl + '（' + formatDuration(item.seconds) + '）添加到升级列表中？',

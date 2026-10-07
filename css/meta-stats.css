@@ -1,0 +1,175 @@
+/* =============================================
+   流派统计页（F-20261006-2）——全屏整屏页，形态对齐预览 v4
+   规范：DESIGN.md §4.10（新建页面照"页面底/子页顶栏/卡片面板/选择控件"四行取材，两套主题共用令牌，
+   不写极简段）+ §五 规则 9（取值消费令牌）。本页作用域只放"语义文字色"两个（--ms-*），
+   其余全部走 tokens.css：面板 --td-panel-* / 选择控件 --td-sel-* / 操作按键 --td-act-*。
+   ============================================= */
+#meta-stats-view { --ms-text: #111827; --ms-sub: #6b7280; --ms-accent: #2563eb; }
+.dark #meta-stats-view { --ms-text: #f1f5f9; --ms-sub: #a0aec0; --ms-accent: #60a5fa; }
+#meta-stats-view { color: var(--ms-text); }
+
+/* ---- 选择控件（tab 与排序键，照抄 .ws-tab-btn 模板；高 34px 保触控目标） ---- */
+.ms-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.ms-tabs .tab,
+.ms-sorts button {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: var(--td-btn-h);
+    padding: 0 12px;
+    cursor: pointer;
+    background-color: var(--td-sel-bg);
+    background-image: var(--td-sel-sheen);
+    border: var(--td-sel-bw) solid var(--td-sel-bd);
+    border-radius: var(--td-sel-r);
+    box-shadow: var(--td-sel-shadow);
+    color: var(--td-sel-color);
+    font-size: 13px;
+    transition: border-color .15s, color .15s;
+}
+/* 实底选中态用 600 档蓝（白字压在 500 档上不达标）——与 .ws-tab-btn.active 同款 */
+.ms-tabs .tab.on,
+.ms-sorts button.on {
+    background-color: #2563eb;
+    background-image: var(--td-sel-on-img);
+    box-shadow: var(--td-sel-on-shadow);
+    border-color: #2563eb;
+    color: #fff;
+    font-weight: 500;
+}
+.ms-sorts { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; color: var(--ms-sub); font-size: 12px; flex-wrap: wrap; }
+
+.ms-loading { text-align: center; color: var(--ms-sub); padding: 40px 0; font-size: 13px; }
+.ms-note { color: var(--ms-sub); font-size: 12px; margin: 4px 0 10px; }
+
+/* ---- 卡片面板（--td-panel-* 令牌族，与 .ws-panel / 首页区卡同一套壳） ---- */
+.ms-card {
+    background-color: var(--td-panel-bg);
+    background-image: var(--td-panel-sheen);
+    border-width: var(--td-panel-bw-tb) var(--td-panel-bw);
+    border-style: solid;
+    border-color: var(--td-panel-bd);
+    border-radius: var(--td-panel-r);
+    box-shadow: var(--td-panel-shadow);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+}
+/* 卡头：编号 = 左侧方块徽章（高度对齐右侧两行文字块），名称/副行在右（2026-10-07 用户给的布局稿）
+   实底 #2563eb + 白字：与页内 tab 选中态同一档蓝（白字压 500 档不达标，故深浅两态都用 600 档实底） */
+.ms-head { display: flex; align-items: center; gap: 10px; }
+.ms-rank {
+    flex: 0 0 auto; width: 38px; height: 38px; border-radius: 11px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background-color: #2563eb; color: #fff;
+    font-size: 13px; font-weight: 800;
+}
+.ms-name { font-size: 14px; font-weight: 700; }
+.ms-sub { color: var(--ms-sub); font-size: 12px; margin-top: 2px; }
+.ms-lft { flex: 1; }
+
+/* ---- 配兵网格 ----
+   英雄块几何按尺寸表推：图标与 JS 的 armyGrid() 表配套（大卡 hero 36 / pet 24 / eq 18；小卡 30 / 19 / 14）。
+   宽 = 宠物左偏移 + 宠物直径 + 2 留白；装备圆压在英雄右缘、宠物圆挂在英雄之外（沿预览稿的摆法）。
+   2026-10-07 用户「图标太大，不适合手机」→ 整体缩约两成（原 46/30/22 → 36/24/18）。 */
+.ms-army { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin: 10px 0 2px; }
+.ms-army .u { position: relative; display: inline-block; }
+.ms-army .u .n { position: absolute; right: -6px; bottom: -4px; background: #facc15; color: #1f2937; font-size: 10px; font-weight: 800; border-radius: 99px; padding: 0 4px; line-height: 13px; box-shadow: 0 0 0 2px var(--td-panel-solid); }
+.ms-army .sep { width: 1px; align-self: stretch; background: var(--td-line); margin: 0 2px; }
+.ms-army .sep.cc { background: var(--ms-accent); width: 2px; }
+.ms-army img.ic { object-fit: contain; display: inline-block; vertical-align: middle; }
+/* 圆容器（英雄本体/宠物/装备）与里面的图都按块级排：行盒会在图下方留基线空间，
+   容器因此比图高、border-radius:50% 把圆拉成椭圆（2026-10-07 缩图标后暴露） */
+.ms-army .u.hero > img.ic,
+.ms-army .u.hero .pet img.ic,
+.ms-army .u.hero .eq img.ic,
+.ms-army .u.hero .pet,
+.ms-army .u.hero .eq { display: block; }
+.ms-badge { display: inline-flex; align-items: center; justify-content: center; background: #e5e7eb; border-radius: 50%; font-size: 10px; font-weight: 700; color: #374151; vertical-align: middle; }
+.dark .ms-badge { background: #374151; color: #e5e7eb; }
+/* 英雄块：宽 = 内容宽（宠物圆右缘正好贴框，不含富余），负 margin 抵消网格 gap 的一部分——
+   用户 2026-10-07「英雄图标之间间距缩小一些」：视觉间距从 13px 收到 5px（网格 gap 仍给兵种/法术用 8px） */
+.ms-army .u.hero { width: 69px; height: 36px; margin-right: -3px; }
+.ms-army .u.hero .pet { position: absolute; left: 45px; top: 5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--td-panel-solid); }
+.ms-army .u.hero .eq { position: absolute; left: 26px; border-radius: 50%; box-shadow: 0 0 0 2px var(--td-panel-solid); }
+.ms-army .u.hero .eq.e1 { top: -2px; }
+.ms-army .u.hero .eq.e2 { top: 19px; }
+.ms-army .u.hero .eq.rare-e { background: radial-gradient(circle, #dfbeff, #af51df); }
+.ms-army .u.hero .eq.rare-c { background: radial-gradient(circle, #b8f9ff, #3999d6); }
+.ms-army.sm { gap: 6px; }
+.ms-army.sm .u.hero { width: 55px; height: 30px; margin-right: -2px; }
+.ms-army.sm .u.hero .pet { left: 36px; top: 4px; }
+.ms-army.sm .u.hero .eq { left: 21px; }
+.ms-army.sm .u.hero .eq.e1 { top: -1px; }
+.ms-army.sm .u.hero .eq.e2 { top: 15px; }
+.ms-army.sm .u .n { font-size: 10px; line-height: 11px; padding: 0 3px; }
+
+/* 四格统计（2026-10-07 用户给的稿）：标签在上、数值在下，四列等宽居中——不再是一行长文字折行 */
+.ms-statline {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+    border-top: 1px solid var(--td-line); margin-top: 8px; padding-top: 8px;
+    text-align: center;
+}
+.ms-statline span { display: flex; flex-direction: column; align-items: center; }
+.ms-statline i { font-style: normal; font-size: 11px; color: var(--ms-sub); }
+.ms-statline b { font-size: 13.5px; font-weight: 700; color: var(--ms-text); }
+/* 卡头整块吸顶（名次/名称/配兵/四格统计/动作键）：变体展开后列表很长，整块钉在滚动区顶部——
+   「收起」始终点得到；只吸底下那一行动作键会显得突兀（用户 2026-10-07 的修正）。
+   top: -12px 抵消滚动容器（#meta-stats-body）的上内边距 12px：吸附后本块顶到容器顶边，否则那 12px 缝里
+   会露出正滚过去的变体内容（改 body 的内边距时这里要跟着改）。不透明底走 --td-panel-solid（与卡片面板同色），
+   下边线不画（同首页吸顶栏口径）；滚出本卡范围自然松开 */
+/* 底色与卡片**同构**（不能只用 --td-panel-solid：那是按首页底色校准的不透明等价色，本页底色略深 → 恒偏亮 3 级）：
+   页面底 --td-page2 打底（保证不透明、挡住滚过去的变体）+ 面板自己的透明底色 + 面板光泽，三层与卡片一致。
+   光泽的跨度还要按卡片高度铺（见 js 的 syncHeadSheen），否则块内渐变到下半段会慢慢偏暗 */
+.ms-chead {
+    position: sticky; top: -12px; z-index: 2;
+    background-color: var(--td-page2);
+    background-image: linear-gradient(var(--td-panel-bg), var(--td-panel-bg)), var(--td-panel-sheen);
+}
+/* 底行：配兵链接/一键打开（作用于这张卡的代表变体）+ 查看更多变体，同排省竖直空间 */
+.ms-cardfoot { display: flex; align-items: center; gap: 8px; padding: 6px 0 2px; flex-wrap: wrap; }
+.ms-cardfoot .ms-vacts { margin-top: 0; }
+.ms-chev { margin-left: auto; color: var(--ms-accent); font-size: 12.5px; cursor: pointer; user-select: none; white-space: nowrap; display: inline-flex; align-items: center; min-height: var(--td-btn-h); padding-left: 12px; }
+
+/* ---- 变体区 ---- */
+.ms-variants { display: none; margin-top: 10px; border-top: 1px dashed var(--td-line); padding-top: 8px; }
+.ms-vblock { border: 1px solid var(--td-line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; background: var(--td-inset-bg); }
+/* 变体头：序号与统计文字同一行（序号不再独占一行）——统计文字在自己那一列里换行，
+   第二行因此对齐在文字左缘（悬垂缩进），而不是被序号挤到下一整行 */
+.ms-vhead { display: flex; gap: 8px; align-items: baseline; font-size: 12px; color: var(--ms-sub); margin-bottom: 4px; }
+.ms-vhead .ms-vnum { flex: 0 0 auto; }
+.ms-vhead > span + span { flex: 1 1 auto; min-width: 0; }
+.ms-vnum { font-weight: 800; color: var(--ms-accent); }
+.ms-vhead b { color: var(--ms-text); }
+.ms-vacts { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+/* 操作按键（--td-act-* 胶囊族：顶光 + 底部暗边 + 外投影，白字压 600 档蓝） */
+.ms-act {
+    min-height: var(--td-btn-h);
+    padding: 0 16px;
+    border: 0;
+    border-radius: var(--td-act-r);
+    background-color: #2563eb;
+    background-image: var(--td-act-sheen);
+    box-shadow: var(--td-act-shadow);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.ms-act:hover { filter: var(--td-btn-hover); }
+/* 一键打开 = **国际服的动作**（配兵码与这份数据都来自国际服）→ 走区服紫：真源与账号页「打开游戏键」
+   同一套（`--td-lg-intl-bg`，圆润3D #7c3aed / 极简 violet-500），不新造颜色。
+   底色只换 background-color、光泽仍吃 --td-act-sheen：与旁边「配兵链接」保持同一胶囊族外观 */
+.ms-act.ms-act-intl { background-color: var(--td-lg-intl-bg); }
+
+/* ---- 单维度表格 ---- */
+.ms-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ms-table th, .ms-table td { padding: 8px; border-bottom: 1px solid var(--td-line); text-align: left; }
+.ms-table th { font-size: 12px; color: var(--ms-sub); font-weight: 600; }
+/* 数值列居中（2026-10-07 用户：使用人数右对齐时与表头不在同一轴线）——表头与数值共用列宽、居中即对齐；
+   tabular-nums 保留，数字宽度一致仍能逐位对读 */
+.ms-table td.num, .ms-table th.num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* 名称列只有图标（2026-10-07 用户口径）——图标按行高垂直居中 */
+.ms-table td .ic { vertical-align: middle; }
+.ms-panel { display: none; }
+.ms-panel.on { display: block; }
+
+.ms-toast { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; padding: 8px 16px; border-radius: 999px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 30; }
+.ms-toast.on { opacity: .92; }

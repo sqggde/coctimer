@@ -4,19 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20260927-tm1209"></script>
+<script src="shim.js?v=coc-tool-web-20261007-tmjpol"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20260927-tm1209"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20260927-tm1209" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261007-tmjpol" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -558,7 +559,23 @@
                     <div class="more-icon">🔍</div>
                     <div class="more-label">数据查询</div>
                 </div>
+                <div class="more-app" id="more-meta">
+                    <div class="more-icon">⚔️</div>
+                    <div class="more-label">流派统计</div>
+                </div>
             </div>
+        </div>
+
+
+        <!-- ===== 流派统计（F-20261006-2） ===== -->
+        <div id="meta-stats-view" style="position:fixed;inset:0;z-index:110;display:none;flex-direction:column;background:var(--td-page2);">
+            <div class="top-bar" style="justify-content:space-between;">
+                <button id="meta-stats-back-btn" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
+                <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-trophy"></i><span>流派统计</span></div>
+                <button id="meta-stats-refresh-btn" class="detail-back" title="刷新数据"><i class="fa fa-refresh"></i></button>
+            </div>
+            <div id="meta-stats-body" style="flex:1;overflow-y:auto;padding:12px 16px 72px;"></div>
+            <div class="ms-toast" id="meta-stats-toast">已复制</div>
         </div>
 
         <!-- ===== 阵型中心页面 ===== -->
@@ -883,6 +900,9 @@
                     <!-- 联赛 tab 条（仅联赛模式显示） -->
                     <div id="league-tabs" class="hidden" style="width:100%;margin-bottom:6px;">
                         <div style="position:relative;margin-bottom:6px;">
+                            <button class="icon-btn league-title-refresh league-title-stats" id="league-stats-btn" title="联赛统计">
+                                <i class="fa fa-bar-chart"></i>
+                            </button>
                             <span id="league-title" class="league-title" style="display:block;text-align:center;">联赛</span>
                             <button class="icon-btn league-title-refresh" id="league-refresh-btn" title="刷新联赛">
                                 <i class="fa fa-refresh"></i>
@@ -1039,6 +1059,7 @@
             </div>
             <div id="war-stats-body" style="flex:1;overflow-y:auto;padding:12px 16px 72px;"></div>
         </div>
+
         </div>
 
         <!-- 国服战况设置弹窗 -->
@@ -1756,28 +1777,31 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/core.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/names.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/calc.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/progress.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/settings.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/services.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/clan.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20260927-tm1209"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20260927-tm1209"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20260927-tm1209"></script>
-<script defer src="js/app.js?v=coc-tool-web-20260927-tm1209"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/core.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/names.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/services.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261007-tmjpol"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261007-tmjpol"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261007-tmjpol"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261007-tmjpol"></script>
 </body>
 </html>

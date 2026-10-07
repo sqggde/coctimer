@@ -45,6 +45,8 @@
         'eye-slash': 'img/svg/progress/eye-slash.svg',
         'eye': 'img/svg/bases/eye.svg',
         'trophy': 'img/svg/bases/trophy.svg',
+        'act-row': 'img/svg/bases/act-row.svg',
+        'act-tile': 'img/svg/bases/act-tile.svg',
         'bomb': 'img/svg/progress/bomb.svg',
         'truck': 'img/svg/progress/truck.svg',
         'home': 'img/svg/progress/home.svg',

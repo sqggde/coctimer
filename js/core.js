@@ -470,6 +470,10 @@
         if (wsView && wsView.style.display !== 'none') {
             wsView.style.display = 'none'; wsView.classList.add('hidden');
         }
+        var msView = document.getElementById('meta-stats-view');
+        if (msView && msView.style.display !== 'none') {
+            msView.style.display = 'none'; msView.classList.add('hidden');
+        }
         var clanDetail = document.getElementById('clan-detail-page');
         if (clanDetail && clanDetail.style.display !== 'none') {
             var clanClosed = false;
@@ -649,6 +653,12 @@
         var wsView = document.getElementById('war-stats-view');
         if (wsView && wsView.style.display !== 'none') {
             wsView.style.display = 'none'; wsView.classList.add('hidden');
+            return 'true';
+        }
+        // 流派统计（meta-stats.js 独立层，仅从更多页进入）：关闭后停在更多页，不往上跳
+        var msView = document.getElementById('meta-stats-view');
+        if (msView && msView.style.display !== 'none') {
+            msView.style.display = 'none'; msView.classList.add('hidden');
             return 'true';
         }
         var detailPage = document.getElementById('clan-detail-page');

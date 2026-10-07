@@ -1620,6 +1620,9 @@
                 if (!result || !result.success || !result.data) return;
                 const backup = result.data;
                 if (!(backup.accounts ? backup : backup.data)) return;
+                // 防御守卫：小程序方言载荷无 exportDate（服务端分家前曾混入 userData，F-20261006-1），
+                // 时间裁决恒静默（Date.parse(undefined)=0），直接跳过不弹窗
+                if (!backup.exportDate) return;
                 var cloudAt = Date.parse(backup.exportDate) || 0;
                 if (cloudAt <= localDataChangedAt()) return;
                 var timeStr = new Date(cloudAt);

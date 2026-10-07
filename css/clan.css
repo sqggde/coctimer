@@ -665,6 +665,9 @@
 .ws-atk-box.s0 { background: #f97316; }
 .ws-atk-box.na { background: #ef4444; }
 .ws-atk-box.none { background: #9ca3af; }
+/* 联赛统计：未开始的场次（用户拍板用黑色方块，明暗主题固定黑） */
+.ws-atk-box.pend { background: #111827; }
+.ws-lg-box.pend { background: #111827; }
 /* 每场详情图例 */
 .ws-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px !important; font-size: 12px; color: var(--ws-sub); }
 .ws-lg { display: inline-flex; align-items: center; gap: 4px; }
@@ -682,6 +685,8 @@
 .detail-toolbar .icon-btn { width: 36px; height: 36px; border-radius: 50%; font-size: 15px; }
 /* 联赛刷新键：与标题同行（标题行右侧），圆形+投影 */
 .league-title-refresh { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; font-size: 14px; }
+/* 联赛统计键：与刷新键同款（复用 .league-title-refresh 的圆形与极简主题变体），镜像到标题行左侧 */
+.league-title-stats { left: 0; right: auto; }
 /* 对战日切换行（第一天~第七天）：上边距 15px、下边距 10px */
 #league-tab-list { margin: 15px 0 10px; }
 /* ===== 日志页 tab（部落战/联赛，复用 ov-tab 样式） ===== */

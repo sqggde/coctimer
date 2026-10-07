@@ -137,10 +137,12 @@ function lgClanSection(cs){
     rows1+='<div class="ws-mcell'+mc+'"><div class="lg-main">'+c.totalStars+'</div><div class="lg-sub">'+c.totalDest+'%</div></div>';
     var rr=c.rounds||[];
     for(var j=0;j<7;j++){var r=rr[j];
+      // 未开始的轮次（联赛统计入口传入）= 黑色方块列，优先于任何存档数据
+      if(LGP.indexOf(j)>=0){rows1+='<div class="ws-atk-cell'+mc+'"><div class="ws-atk-box pend"></div></div>';continue}
       rows1+='<div class="ws-atk-cell'+mc+'">'+(r?'<div class="ws-atk-box '+lgResultCls(r.result)+'"><span class="ws-atk-stars">'+r.stars+'</span><span class="ws-atk-dest">'+r.dest+'%</span></div>':'<div class="ws-atk-box none"></div>')+'</div>'}
   }
   var h='<div class="ws-section"><div class="ws-section-title"><i class="fa fa-trophy"></i>部落总表</div>';
-  h+=lgLegend([['lg-w','胜利'],['lg-l','失败'],['lg-t','平局'],['none','未存档']]);
+  h+=lgLegend(LGP.length?[['lg-w','胜利'],['lg-l','失败'],['lg-t','平局'],['pend','未开始'],['none','未存档']]:[['lg-w','胜利'],['lg-l','失败'],['lg-t','平局'],['none','未存档']]);
   h+=lgMatrix([26,92,60],26+92+60+46*7,heads1,rows1);
   return h+'</div>'}
 
@@ -156,11 +158,11 @@ function lgStatsSection(ms){
     rows2+='<div class="ws-mcell"><div class="lg-main">'+m.totalDest+'%</div></div>';
     rows2+='<div class="ws-mcell"><div class="lg-main">'+(m.played||0)+'/'+(m.rostered||0)+'</div></div>';
     for(var j=0;j<7;j++){var r=rr[j];
-      // 在册未出刀 = 红色 na 块（统计页「未进攻」同款）；未在册 = 灰色 none 块（未上场）
-      rows2+='<div class="ws-atk-cell">'+(r?(r.stars<0?'<div class="ws-atk-box na"></div>':'<div class="ws-atk-box s'+r.stars+'"><span class="ws-atk-stars">'+r.stars+'</span><span class="ws-atk-dest">'+r.dest+'%</span></div>'):'<div class="ws-atk-box none"></div>')+'</div>'}
+      // 未开始 = 黑色方块；在册未出刀 = 红色 na 块（统计页「未进攻」同款）；未在册 = 灰色 none 块（未上场）
+      rows2+='<div class="ws-atk-cell">'+(LGP.indexOf(j)>=0?'<div class="ws-atk-box pend"></div>':(r?(r.stars<0?'<div class="ws-atk-box na"></div>':'<div class="ws-atk-box s'+r.stars+'"><span class="ws-atk-stars">'+r.stars+'</span><span class="ws-atk-dest">'+r.dest+'%</span></div>'):'<div class="ws-atk-box none"></div>'))+'</div>'}
   }
   var h='<div class="ws-section"><div class="ws-section-title"><i class="fa fa-table"></i>本部详情表<button class="ws-share-btn" title="分享表格"><i class="fa fa-share-image"></i></button></div>';
-  h+=lgLegend([['s3','三星'],['s2','两星'],['s1','一星'],['s0','零星'],['na','未出刀'],['none','未上场']]);
+  h+=lgLegend(LGP.length?[['s3','三星'],['s2','两星'],['s1','一星'],['s0','零星'],['na','未出刀'],['pend','未开始'],['none','未上场']]:[['s3','三星'],['s2','两星'],['s1','一星'],['s0','零星'],['na','未出刀'],['none','未上场']]);
   h+=lgMatrix([26,90,52,56,44],26+90+52+56+44+46*7,heads2,rows2);
   return h+'</div>'}
 
@@ -193,7 +195,6 @@ function renderLeagueHistory(ct,d){
     +'<div data-lg-pane="stats">'+lgStatsSection(ms)+'</div>'
     +'<div data-lg-pane="attack" class="hidden">'+lgAttackSection(ms)+'</div>'
     +'<div data-lg-pane="defense" class="hidden">'+lgDefenseSection(ms)+'</div>'}
-
 // 联赛历史层内点击：tab 切换 + 表格分享 + 进攻/防御表头排序（委托在 #history-content 上，一次绑定全程有效）
 function lgPaneClick(e){
   var sb=e.target.closest?e.target.closest('.ws-share-btn'):null;
@@ -218,19 +219,40 @@ function lgPaneClick(e){
     wrap=pane.querySelector('.ws-scroll');if(wrap){wrap.scrollLeft=sl;wrap.scrollTop=st}}
 }
 
-function showLeagueHistory(mk){
-  var t=N;if(!t||!mk)return;
+// 联赛状态（联赛统计入口共用）：LGP = 未开始的轮次索引（矩阵渲染黑色方块）；LGFROM = 入口来源（'league' 时返回键不回日志层）
+var LGP=[],LGFROM='log';
+function showLeagueHistory(mk,opts){
+  opts=opts||{};
+  var t=(opts.tag||'').replace(/^#/,'')||N;if(!t||!mk)return;
+  LGP=Array.isArray(opts.pending)?opts.pending:[];
+  LGFROM=opts.from||'log';
   showLayer('war-history-detail');hideLayer('clan-log-view');
   var ct=document.getElementById('history-content'),tl=document.getElementById('history-title');
   if(!ct)return;
   if(tl)tl.textContent=parseInt(mk.slice(4,6),10)+'月联赛';
   ct.innerHTML='<div class="empty-state"><div style="width:24px;height:24px;border:3px solid #e5e7eb;border-top:3px solid #3b82f6;border-radius:50%;animation:clan-spin 0.8s linear infinite;margin-bottom:8px;"></div><p>加载中...</p></div>';
   var cc=lhc(t,mk);
+  // 联赛统计入口（opts.collect）：不走月度缓存与聚合请求——聚合只含已归档轮次，进行中的轮次
+  // 会缺数据；由调用方本地逐轮收集（本地 war → 当日存档 → 官方补齐），返回 {data, pendingRounds}
+  if(opts.collect){
+    opts.collect(function(res){
+      if(res&&res.data&&res.data.clans&&res.data.clans.length){
+        if(Array.isArray(res.pendingRounds))LGP=res.pendingRounds;   // 收集后动态更新黑块列
+        renderLeagueHistory(ct,res.data);return}
+      ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该月联赛数据暂未存档</p>';if(tl)tl.textContent='未存档';
+    });return}
   if(cc){ct.innerHTML='';renderLeagueHistory(ct,cc);return}
-  fx('/api/coc/league-history/'+encodeURIComponent(t.replace(/^#/,''))+'/'+encodeURIComponent(mk),function(err,data){
-    ct.innerHTML='';
-    if(err||!data||!data.clans){ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该月联赛数据暂未存档</p>';if(tl)tl.textContent='未存档';return}
-    shc(t,mk,data);renderLeagueHistory(ct,data);
+  fx('/api/coc/league-history/'+encodeURIComponent(t)+'/'+encodeURIComponent(mk),function(err,data){
+    if(!err&&data&&data.clans){
+      // 历史月存档不可变 → 长期缓存；当前月（联赛统计入口）随战斗推进变化 → 不缓存，每次现拉
+      if(mk!==function(){var d=new Date();return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)}())shc(t,mk,data);
+      renderLeagueHistory(ct,data);return}
+    // 无聚合存档：联赛统计入口带 fallback → 本地逐轮聚合（保持加载态，可能现拉数场官方数据）
+    if(opts.fallback){opts.fallback(function(d2){
+      if(d2&&d2.clans&&d2.clans.length){renderLeagueHistory(ct,d2);return}
+      ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该月联赛数据暂未存档</p>';if(tl)tl.textContent='未存档';
+    });return}
+    ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该月联赛数据暂未存档</p>';if(tl)tl.textContent='未存档';
   })
 }
 
@@ -251,7 +273,7 @@ function init(){
   var tl2=document.getElementById('log-tab-league');if(tl2)tl2.addEventListener('click',function(){setLogTab('league')});
   var lct=document.getElementById('log-card-container');if(lct)lct.addEventListener('click',function(e){var lm=e.target.closest('[data-league-month]');if(lm){var mk=lm.getAttribute('data-league-month');if(mk)showLeagueHistory(mk);return}var cd=e.target.closest('[data-end-time]');if(cd){var et=cd.getAttribute('data-end-time');if(et)showWarDetail(et)}});
   var hc=document.getElementById('history-content');if(hc)hc.addEventListener('click',lgPaneClick);   // 联赛历史 tab 切换 + 表头排序（委托，重渲染不丢）
-  var hb=document.getElementById('history-back-btn');if(hb)hb.addEventListener('click',function(){hideLayer('war-history-detail');showLog()});
+  var hb=document.getElementById('history-back-btn');if(hb)hb.addEventListener('click',function(){hideLayer('war-history-detail');if(LGFROM!=='league')showLog();LGFROM='log'});
   var hr=document.getElementById('history-refresh-btn');if(hr)hr.addEventListener('click',function(){if(!N)return;var et=document.getElementById('history-content').getAttribute('data-current-et');if(et){L.removeItem(D+N+'_'+et);showWarDetail(et)}})
 }
-C.features.warlog={init:init,show:showLog,hide:hideLog}})(window);
+C.features.warlog={init:init,show:showLog,hide:hideLog,showLeagueHistory:showLeagueHistory}})(window);

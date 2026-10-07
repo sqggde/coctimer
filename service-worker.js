@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20260927-tm1209';
+const CACHE = 'coc-tool-web-20261007-tmjpol';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -22,6 +22,8 @@ const CORE_FILES = [
     "./js/clan.js",
     "./js/core.js",
     "./js/duration-search.js",
+    "./js/home-skin-names.js",
+    "./js/meta-stats.js",
     "./js/names.js",
     "./js/overview-detail.js",
     "./js/overview-share.js",
@@ -32,6 +34,7 @@ const CORE_FILES = [
     "./js/progress.js",
     "./js/services.js",
     "./js/settings.js",
+    "./js/skin-names.js",
     "./js/svg-icons.js",
     "./js/vendor",
     "./js/war-stats.js",

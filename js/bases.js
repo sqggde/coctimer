@@ -1060,9 +1060,19 @@
     function actFoldState() {
         try { var v = JSON.parse(localStorage.getItem(ACT_FOLD_KEY)); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
     }
+    // 展示方式（clash_act_view = 'row' | 'tile'）：单行（横向滚动，默认）/ 全部平铺（换行铺满）。
+    // 与 clash_act_srvfilter / clash_act_fold 同一套"活动区跨会话偏好"；控制两张卡片行的排布（两组同时生效）
+    var ACT_VIEW_KEY = 'clash_act_view';
+    function actViewMode() {
+        try { return localStorage.getItem(ACT_VIEW_KEY) === 'tile' ? 'tile' : 'row'; } catch (e) { return 'row'; }
+    }
+    function setActViewMode(m) {
+        try { localStorage.setItem(ACT_VIEW_KEY, m === 'tile' ? 'tile' : 'row'); } catch (e) { /* 存不进就只当次生效 */ }
+    }
     function actGroupHtml(key, title, dotClass, list, field) {
         // 两组常驻：没有活动时显示「无活动」占位而不是整组消失（用户拍板）
         var folded = !!actFoldState()[key];
+        var viewMode = actViewMode();
         var row = list.length
             ? list.map(function (x) {
                 var img = x.a.image.indexOf('http') === 0 ? x.a.image : apiBase() + x.a.image;
@@ -1082,7 +1092,9 @@
         return '<div class="act-group' + (folded ? ' folded' : '') + '">' +
             '<div class="act-gtitle" data-actfold="' + key + '"><span class="act-dot ' + dotClass + '"></span>' + title + '<i class="fa fa-chevron-down act-caret"></i>' +
             (key === 'ongoing'
-                ? '<button class="act-srvfilter" data-actsrvbtn title="按区服筛选"><i class="fa fa-filter"></i></button>' +
+                // 行尾两键：展示方式（左，图标=当前状态：单行/平铺）+ 区服筛选（右）
+                ? '<button class="act-viewbtn" data-actviewbtn title="' + (viewMode === 'tile' ? '切换为单行' : '切换为平铺') + '"><i class="fa fa-' + (viewMode === 'tile' ? 'act-tile' : 'act-row') + '"></i></button>' +
+                  '<button class="act-srvfilter" data-actsrvbtn title="按区服筛选"><i class="fa fa-filter"></i></button>' +
                   '<div class="act-srvpop hidden" data-actsrvpop>' +
                   '<label><input type="checkbox" data-actsrvchk="cn"> 国服</label>' +
                   '<label><input type="checkbox" data-actsrvchk="intl"> 国际服</label>' +
@@ -1095,6 +1107,8 @@
         var sec = $('act-section');
         if (!sec) return;
         var g = actSplit();
+        // 展示方式生效在整块活动区上（两组同时换排布 + 键上的图标反映当前状态）
+        sec.classList.toggle('act-tile', actViewMode() === 'tile');
         sec.innerHTML = actGroupHtml('ongoing', '进行中', 'dot-ongoing', g.ongoing, 'e') +
             actGroupHtml('upcoming', '未开始', 'dot-upcoming', g.upcoming, 's');
         sec.querySelectorAll('[data-actfold]').forEach(function (t) {
@@ -1106,6 +1120,15 @@
                 t.parentElement.classList.toggle('folded', !!fold[key]);
             };
         });
+        // 展示方式键：单行 ⇄ 全部平铺（存偏好后整体重渲染，图标跟着换）
+        var vbtn = sec.querySelector('[data-actviewbtn]');
+        if (vbtn) {
+            vbtn.onclick = function (e) {
+                e.stopPropagation();   // 别触发标题的折叠
+                setActViewMode(actViewMode() === 'tile' ? 'row' : 'tile');
+                renderActs();
+            };
+        }
         // 区服筛选弹层：键开/关、弹层内点击不冒泡（防触发标题的折叠）、勾选变化即存即重渲染
         var fbtn = sec.querySelector('[data-actsrvbtn]');
         var pop = sec.querySelector('[data-actsrvpop]');

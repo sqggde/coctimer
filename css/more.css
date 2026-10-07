@@ -65,14 +65,19 @@
 .dark .act-caret { color: #7c8098; }
 /* 区服筛选：行尾漏斗键（同部落页顶栏的 fa fa-filter）+ 勾选小弹层；勾掉的区服其活动不显示（互通不受影响） */
 .act-gtitle { position: relative; }
-.act-srvfilter {
-    margin-left: auto; border: none; background: none; cursor: pointer;
-    color: #6b7280; padding: 4px 6px; border-radius: 8px; line-height: 1;
+/* 行尾两键：展示方式（左）+ 区服筛选（右）。margin-left:auto 只给左键——两个都写会平分空档、两键之间裂开；
+   两键都是 34px 触控目标（DESIGN §一「触控目标不低于 34px」） */
+.act-viewbtn, .act-srvfilter {
+    min-width: 34px; min-height: 34px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; background: none; cursor: pointer;
+    color: #6b7280; padding: 0; border-radius: 10px; line-height: 1;
     -webkit-tap-highlight-color: transparent;
 }
-.act-srvfilter .fa { font-size: 14px; }
-.dark .act-srvfilter { color: #a0aec0; }
-.act-srvfilter:active { background: var(--td-line); }
+.act-viewbtn { margin-left: auto; }
+.act-viewbtn .fa, .act-srvfilter .fa { font-size: 15px; }
+.dark .act-viewbtn, .dark .act-srvfilter { color: #a0aec0; }
+.act-viewbtn:active, .act-srvfilter:active { background: var(--td-line); }
 .act-srvpop {
     position: absolute; right: 0; top: 100%; margin-top: 4px; z-index: 5;
     background: var(--td-pop-bg); border: 1px solid var(--td-line); border-radius: 12px;
@@ -97,6 +102,14 @@
     scrollbar-width: none;
 }
 .act-row::-webkit-scrollbar { display: none; }
+/* 平铺档（行尾展示方式键切换）：取消横向滚动、卡片换行铺满——负边距/内边距保留（右缘仍对齐屏幕边），
+   overflow 必须显式 visible：横向 auto 会把纵向也算成 auto，网页版滚动条会占高把卡片撑歪。
+   **每行固定 3 张用 grid 三列锁定**（不是 flex-basis 算宽度：flex 子项默认 min-width:auto = 内容最小宽度，
+   卡里出现比 1/3 还宽的"不可断行内容"时会自己长大、把一行挤成 2 张——用户 2026-10-07 报的现象）。
+   卡片要清掉单行档的固定 width/104px，让列宽说了算 */
+#act-section.act-tile .act-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; }
+#act-section.act-tile .act-card { width: auto; min-width: 0; }
+#act-section.act-tile .act-row .act-empty { grid-column: 1 / -1; }   /* 空态占满整行 */
 .act-card {
     flex: 0 0 auto; width: 104px;
     padding: 8px 6px 5px;
@@ -127,26 +140,30 @@
 .act-time { font-size: 11px; font-weight: 700; color: #3b82f6; height: 13px; line-height: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dark .act-time { color: #60a5fa; }
 
-/* ---- 子页面顶栏（使用说明 / 阵型中心 / 数据查询共用；取值与主页面同源：--td-topbar-fs / -pt） ---- */
-#help-page, #bases-page { padding: 0; background: var(--td-page2); }
-#help-page .top-bar, #bases-page .top-bar {
+/* ---- 子页面顶栏（使用说明 / 阵型中心 / 数据查询 / 流派统计共用；取值与主页面同源：--td-topbar-fs / -pt）
+   四个页面共用**一组**声明——新增更多页子页面时把该页 id 加进这几条选择器，别再抄一份（2026-10-07 统一）。 ---- */
+#help-page, #bases-page, #data-query-page, #meta-stats-view { padding: 0; background: var(--td-page2); }
+#help-page .top-bar, #bases-page .top-bar, #data-query-page .top-bar, #meta-stats-view .top-bar {
     flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
     padding: var(--td-topbar-pt) 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
+    /* 行高写死 normal：不让各页自身的历史行高（app.css 只给 #help-page 一条旧的 line-height:normal）漏进顶栏，
+       否则同一套顶栏在不同页会差 1px 高（实测 45 与 46）——顶栏高度只由这条规则决定 */
+    line-height: normal;
 }
-#help-page .top-bar .title, #bases-page .top-bar .title {
+#help-page .top-bar .title, #bases-page .top-bar .title, #data-query-page .top-bar .title, #meta-stats-view .top-bar .title {
     display: flex; align-items: center; gap: 8px;
     font-size: var(--td-topbar-fs); font-weight: 600; color: #1f2937; white-space: nowrap;
 }
-#help-page .top-bar .title i, #bases-page .top-bar .title i { color: #3b82f6; }
-.dark #help-page .top-bar .title, .dark #bases-page .top-bar .title { color: #e5e7eb; }
-.dark #help-page .top-bar .title i, .dark #bases-page .top-bar .title i { color: #60a5fa; }
-#help-page .detail-back, #bases-page .detail-back {
+#help-page .top-bar .title i, #bases-page .top-bar .title i, #data-query-page .top-bar .title i, #meta-stats-view .top-bar .title i { color: #3b82f6; }
+.dark #help-page .top-bar .title, .dark #bases-page .top-bar .title, .dark #data-query-page .top-bar .title, .dark #meta-stats-view .top-bar .title { color: #e5e7eb; }
+.dark #help-page .top-bar .title i, .dark #bases-page .top-bar .title i, .dark #data-query-page .top-bar .title i, .dark #meta-stats-view .top-bar .title i { color: #60a5fa; }
+#help-page .detail-back, #bases-page .detail-back, #data-query-page .detail-back, #meta-stats-view .detail-back {
     display: inline-flex; align-items: center; gap: 6px;
     border: none; background: none; color: #3b82f6; font-size: 14px; font-weight: 700; cursor: pointer;
     padding: 4px 2px; -webkit-tap-highlight-color: transparent;
 }
-#help-page .detail-back i, #bases-page .detail-back i { font-size: 18px; }
-.dark #help-page .detail-back, .dark #bases-page .detail-back { color: #60a5fa; }
+#help-page .detail-back i, #bases-page .detail-back i, #data-query-page .detail-back i, #meta-stats-view .detail-back i { font-size: 18px; }
+.dark #help-page .detail-back, .dark #bases-page .detail-back, .dark #data-query-page .detail-back, .dark #meta-stats-view .detail-back { color: #60a5fa; }
 .help-scroll { flex: 1; overflow-y: auto; padding: 20px 20px 88px; }
 .bases-scroll { flex: 1; overflow-y: auto; padding: 20px 12px 88px; }
 
@@ -552,26 +569,8 @@
 .bc-toast.show { opacity: 1; }
 
 /* ---- 数据查询页（图鉴索引：左侧分类 tab + 右侧图标卡） ----
-   新建页面（2026-09-20），没有"旧版观感"要还，所以两套主题都直接消费 tokens.css 的通用值。 */
-#data-query-page { padding: 0; background: var(--td-page2); }
-#data-query-page .top-bar {
-    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-    padding: var(--td-topbar-pt) 16px; background: var(--td-bar2); border-bottom: var(--td-bar2-bd); position: relative;
-}
-#data-query-page .top-bar .title {
-    display: flex; align-items: center; gap: 8px;
-    font-size: var(--td-topbar-fs); font-weight: 600; color: #1f2937; white-space: nowrap;
-}
-#data-query-page .top-bar .title i { color: #3b82f6; }
-.dark #data-query-page .top-bar .title { color: #e5e7eb; }
-.dark #data-query-page .top-bar .title i { color: #60a5fa; }
-#data-query-page .detail-back {
-    display: inline-flex; align-items: center; gap: 6px;
-    border: none; background: none; color: #3b82f6; font-size: 14px; font-weight: 700; cursor: pointer;
-    padding: 4px 2px; -webkit-tap-highlight-color: transparent;
-}
-#data-query-page .detail-back i { font-size: 18px; }
-.dark #data-query-page .detail-back { color: #60a5fa; }
+   新建页面（2026-09-20），没有"旧版观感"要还，所以两套主题都直接消费 tokens.css 的通用值。
+   顶栏三条早已并入上方「子页面顶栏」共用组（2026-10-07 去重），此处不再重复声明。 */
 /* 区服键（紧跟「数据查询」四个字，是个小胶囊）+ 页内区服色的**唯一取法**
    —— 选中侧 tab 与它共用 --dq-srv-bg/--dq-srv-bd：圆润3D 取账号 tab 的区服令牌（国际服紫 / 国服蓝），
    极简档那两颗令牌是"白底黑框"的账号 tab 语言（直接吃会白底白字），故在这一档给项目现用的区服色常量。 */

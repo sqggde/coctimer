@@ -694,7 +694,7 @@
         return "buildings";
     }
 
-    function getItemName(id) { return ITEM_NAMES[id?.toString()] || `未知(${id})`; }
+    function getItemName(id) { return ITEM_NAMES[CocTool.names.canonicalId(id)] || `未知(${id})`; }
 
     function formatRemainingTime(sec) {
         if (sec <= 0) return "就绪";
@@ -745,28 +745,30 @@
 
     function getItemIconUrl(item) {
         const { data, lvl, category, parentData, parentTargetLevel } = item;
+        // 图标只有一套（国际服基址）：国服基址 ID 先归一再拼路径
+        const iconId = CocTool.names.canonicalId(data);
         if (parentData && parentTargetLevel) {
-            const base = `img/icons/buildings/${parentData}`;
+            const base = `img/icons/buildings/${CocTool.names.canonicalId(parentData)}`;
             return [`${base}_${parentTargetLevel}.webp`, `${base}.webp`, 'img/icons/20260627.webp'];
         }
         const targetLvl = (item.supercharge !== undefined || isMultiStageWeapon(item) || item.gear_up === 0) ? lvl : lvl + 1;
         let base;
         if (category === 'buildings' || category === 'traps' || category === 'guardians') {
-            base = `img/icons/buildings/${data}`;
+            base = `img/icons/buildings/${iconId}`;
             return [`${base}_${targetLvl}.webp`, `${base}.webp`, 'img/icons/20260627.webp'];
         }
         if (category === 'buildings2' || category === 'traps2') {
-            base = `img/icons/buildings2/${data}`;
+            base = `img/icons/buildings2/${iconId}`;
             return [`${base}_${targetLvl}.webp`, `${base}.webp`, 'img/icons/20260627.webp'];
         }
         if (['units', 'spells', 'siege_machines'].includes(category)) {
-            base = `img/icons/lab/${data}`;
+            base = `img/icons/lab/${iconId}`;
         } else if (['heroes', 'heroes2'].includes(category)) {
-            base = `img/icons/heroes/${data}`;
+            base = `img/icons/heroes/${iconId}`;
         } else if (['pets'].includes(category)) {
-            base = `img/icons/pets/${data}`;
+            base = `img/icons/pets/${iconId}`;
         } else if (['units2'].includes(category)) {
-            base = `img/icons/units2/${data}`;
+            base = `img/icons/units2/${iconId}`;
         } else {
             return null;
         }

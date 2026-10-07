@@ -59,6 +59,7 @@
         run('设置模块', () => settings.init());
         run('日志模块', () => { if (CocTool.features.warlog) CocTool.features.warlog.init(); });
         run('对战统计模块', () => { if (CocTool.features.warStats) CocTool.features.warStats.init(); });
+        run('流派统计模块', () => { if (CocTool.features.metaStats) CocTool.features.metaStats.init(); });
         const servicesReady = run('服务模块', () => {
             services.init();
             return true;

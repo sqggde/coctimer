@@ -152,6 +152,11 @@
         { key: 'auraDps', label: '光环伤害', icon: 'att_DamageRadius' },
         { key: 'auraDamagePerHit', label: '光环单次伤害', icon: 'att_Damage' },
         { key: 'cooldownTime', label: '冷却时间', icon: 'shijian', fmt: 'dur' },
+        // 传送吊坠（90000061，2026-10-07 占位数据）的四个新属性（生命恢复复用上面的 healthRecovery）
+        { key: 'teleportRadius', label: '传送半径', icon: 'att_Range', fmt: 'tiles' },
+        { key: 'deployHealPercent', label: '部署治疗量%', icon: 'att_hp+' },
+        { key: 'speedBoostDuration', label: '加速时间', icon: 'shijian', fmt: 'dur' },
+        { key: 'recallCapacity', label: '召回容量', icon: 'att_Target' },
         { key: 'damageOnDefeat', label: '阵亡伤害' },
         { key: 'buildingDamagePercent', label: '对建筑伤害%', icon: 'att_hp-' },
         { key: 'troopDamagePercent', label: '对兵种伤害%', icon: 'att_hp-' },
@@ -1092,7 +1097,7 @@
     function dqIcons(dir, id, maxLv) {
         const d = DQ_ICON_DIR[dir] || (dir.indexOf('builder/') === 0 ? 'buildings2' : 'buildings');
         let rid = String(id).replace(/^SUPER_/, '');
-        if (d === 'equipment') rid = rid.replace(/^106/, '90');   // 国服装备 ID 106xxxxx → 图标 90xxxxx
+        rid = CocTool.names.canonicalId(rid);   // 国服基址 ID（106/124/161/152）→ 图标国际服基址（90/93/107/103）
         const out = [];
         if (maxLv > 0 && (d === 'buildings' || d === 'buildings2')) {
             out.push('img/icons/' + d + '/' + rid + '_' + maxLv + '.webp');
@@ -1102,13 +1107,15 @@
         out.push('img/icons/20260627.webp');
         return out;
     }
-    // 名称：names.js 的 ID→中文表；超级兵种 = 本体名加前缀；表里没有的（如国际服 B.O.T.O's Shack）原样显示 ID
+    // 名称：names.js 的 ID→中文表（查表前先做双服基址归一）；超级兵种 = 本体名加前缀；表里没有的原样显示 ID
     function dqName(id) {
         const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
-        if (names[String(id)]) return names[String(id)];
-        const base = String(id).replace(/^SUPER_/, '');
-        if (base !== String(id) && names[base]) return '超级' + names[base];
-        return String(id);
+        const raw = String(id);
+        const key = CocTool.names.canonicalId(raw);
+        if (names[key]) return names[key];
+        const base = key.replace(/^SUPER_/, '');
+        if (base !== key && names[base]) return '超级' + names[base];
+        return raw;
     }
 
     let dqServer = 'intl';    // 当前区服（进入页面时取当前账号的区服；不落盘，每次进入跟随账号）

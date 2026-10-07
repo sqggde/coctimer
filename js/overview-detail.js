@@ -30,10 +30,12 @@
         '28000001': ['90000016','90000048','90000039','90000015','90000020','90000017','90000003','90000002'],
         '28000002': ['90000019','90000041','90000022','90000034','90000024','90000005','90000004'],
         '28000004': ['90000050','90000040','90000013','90000012','90000009','90000006','90000007'],
-        '28000006': ['90000049','90000035','90000047','90000044','90000043','90000042'],
+        '28000006': ['90000061','90000049','90000035','90000047','90000044','90000043','90000042'],
         '28000007': ['90000060','90000053','90000059','90000056','90000057','90000052']
     };
-    var EPIC_EQ = ['90000051','90000032','90000014','90000010','90000016','90000048','90000039','90000015','90000019','90000041','90000022','90000050','90000040','90000013','90000049','90000035','90000053','90000060'];
+    // 史诗装备（底色紫；普通蓝）——与 js/meta-stats.js 的 EPIC_EQ 及 coc-api-proxy/meta-stats.js 三处同表，
+    // 由契约测试与 game-data-normalized 的 rarity 对拍；90000061 传送吊坠是用户预告的王子新史诗（数据里还没有）
+    var EPIC_EQ = ['90000051','90000032','90000014','90000010','90000016','90000048','90000039','90000015','90000019','90000041','90000022','90000050','90000040','90000013','90000049','90000035','90000053','90000060','90000061'];
 
     // ===== 防御/其他/墙 分组（先按 ID 序，待用户确认后调整） =====
     var DEFENSE_BUILDINGS = ['1000008','1000009','1000011','1000012','1000013','1000015','1000019','1000021','1000027','1000028','1000031','1000032','1000067','1000072','1000077','1000079','1000084','1000085','1000086','1000089','1000097','1000102','103000011','103000012','103000013','152000011','152000012','152000013'];
@@ -262,7 +264,9 @@
     }
 
     function iconPath(dataId, cat) {
-        if (cat === 'hero-equipment') return 'img/icons/equipment/' + (String(dataId).replace(/^106/, '90')) + '.webp';
+        // 图标只有一套（国际服基址）：国服基址 ID（106/124/161/152 开头）先归一
+        dataId = names.canonicalId(dataId);
+        if (cat === 'hero-equipment') return 'img/icons/equipment/' + dataId + '.webp';
         if (cat === 'heroes' || cat === 'heroes2') return 'img/icons/heroes/' + dataId + '.webp';
         if (cat === 'pets') return 'img/icons/pets/' + dataId + '.webp';
         if (cat === 'buildings') return 'img/icons/buildings/' + dataId + '.webp';
@@ -499,7 +503,7 @@
     // 所以「图标外观」只有一处口径——天鹰这类 max=1 建筑在合并行里的样子与它原来在网格里完全一致。
     function appendMax1Icon(container, id, metaObj, uMap, countMap, iconCat) {
         var maxLv = mlv(metaObj, id);
-        var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
+        var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + names.canonicalId(id) + '_';
         var fbSrc = iconPath(id, iconCat);
         var lv = uMap[id] || 0;
         if (id === '1000031' && (uMap['1000001'] || 0) >= 17) {
@@ -526,7 +530,7 @@
             if (icons < 1) { icons = 1; reduced = true; }
         }
         var lit = Math.min(levels.length, icons);
-        var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
+        var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + names.canonicalId(id) + '_';
         var fbSrc = iconPath(id, iconCat);
         var maxLv = mlv(metaObj, id);
         var row = document.createElement('div');
@@ -564,7 +568,7 @@
             // 外观必须一模一样（含天鹰被大本吸收的点亮规则），不给同一栋建筑两套画法
             if (cap === 1) { appendMax1Icon(row, id, metaObj, uMap, countMap, iconCat); continue; }
             var levels = (lvlList[id] || []).slice().sort(function (a, b) { return b - a; });
-            var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
+            var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + names.canonicalId(id) + '_';
             var fbSrc = iconPath(id, iconCat);
             var maxLv = mlv(metaObj, id);
             var icons = cap;
@@ -638,7 +642,7 @@
             var levels = (lvlList[id] || []).slice().sort(function (a, b) { return a - b; });
             var byLv = {};
             for (var i = 0; i < levels.length; i++) byLv[levels[i]] = (byLv[levels[i]] || 0) + 1;
-            var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + id + '_';
+            var base = (iconCat === 'buildings2' ? 'img/icons/buildings2/' : 'img/icons/buildings/') + names.canonicalId(id) + '_';
             Object.keys(byLv).forEach(function (lv) {
                 grid.appendChild(imgEl(base + lv + '.webp', 'ov-grid-icon', Number(lv), mlv(metaObj, id), 1, id, byLv[lv]));
             });
@@ -661,7 +665,7 @@
             var byLv = {};
             for (var i = 0; i < levels.length; i++) byLv[levels[i]] = (byLv[levels[i]] || 0) + 1;
             Object.keys(byLv).forEach(function (lv) {
-                grid.appendChild(imgEl(base + id + '_' + lv + '.webp', 'ov-grid-icon', Number(lv), mlv(metaObj, id), 1, id, byLv[lv], false, iconPath(id, iconCat)));
+                grid.appendChild(imgEl(base + names.canonicalId(id) + '_' + lv + '.webp', 'ov-grid-icon', Number(lv), mlv(metaObj, id), 1, id, byLv[lv], false, iconPath(id, iconCat)));
             });
         }
         parent.appendChild(grid);

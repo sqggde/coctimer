@@ -610,16 +610,17 @@
         selectLeagueRound(i - 1);
     }
 
-    function fetchLeagueWar(warTag) {
+    function fetchLeagueWar(warTag, day) {
         var key = getLeagueWarCacheKey(warTag);
         var cached = getLeagueWarCached(key);
         if (cached && !_leagueForceWar) return Promise.resolve(cached);
         var url = CLAN_API_BASE + '/api/coc/leaguewar/' + encodeURIComponent(warTag);
         // 携带 groupKey/season/day → 代理自动注册完整存档调度（warTag 全局唯一）
+        // day 缺省 = 当前选中轮；联赛统计兜底收集其他轮时显式传入该轮序号
         if (_leagueGroupKey && _leagueGroup) {
             url += '?groupKey=' + encodeURIComponent(_leagueGroupKey) +
                 '&season=' + encodeURIComponent(_leagueGroup.season || '') +
-                '&day=' + (_leagueRound + 1);
+                '&day=' + (day === undefined ? _leagueRound + 1 : day);
         }
         return fetch(url, {
             headers: { 'X-App-Token': APP_TOKEN }
@@ -804,6 +805,143 @@
         var s = totalSec % 60;
         el.prepCountdown.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     }
+
+    // ====== 联赛统计（标题行左上角统计键 → warlog 联赛历史：8部落总表 + 本部三 tab） ======
+    // 复用对战日志那套联赛历史渲染，但取数永远本地逐轮收集（不走月度聚合）：
+    // 月度聚合只含已归档轮次，进行中的轮次（inWar 未归档）会缺数据——本地 _leagueWars 里
+    // 恰好有用户点开卡片时拉取的实时 war。未开始轮次渲染成黑色方块。
+    function openLeagueStats() {
+        if (!shared._currentClan || !_leagueGroup || !_leagueGroup.season) { showToast('联赛数据未加载', 1500); return; }
+        // 官方 season 是完整日期（如 '2026-10-01'），聚合口径只认 6 位 YYYYMM → 截前 7 位再去分隔符
+        var mk = (_leagueGroup.season || '').slice(0, 7).replace(/-/g, '');
+        CocTool.features.warlog.showLeagueHistory(mk, {
+            pending: pendingStatsRounds(),
+            tag: shared._leagueClanTag,
+            from: 'league',
+            collect: collectLeagueHistory,
+        });
+    }
+
+    function pendingStatsRounds() {
+        var pending = [];
+        for (var i = 0; i < 7; i++) {
+            if (!isRoundUnlocked(_leagueGroup, i)) { pending.push(i); continue; }
+            var w = _leagueWars[i] && _leagueWars[i].mine;
+            if (w && w.state === 'preparation') pending.push(i);   // 已匹配但战斗日未开始
+        }
+        return pending;
+    }
+
+    // 本地逐轮收集（口径同服务器 /league-history 路由）：每轮合并
+    //   ① 本地 _leagueWars[i].mine（点开卡片时拉取的实时战况，含 inWar 部分进攻）
+    //   ② 服务器当日存档（不耗官方配额）→ ③ 官方 warTag 补齐缺口（顺带注册归档）
+    // 全程按 warTag 去重（_leagueWars 与 _leagueMine 总是成对写入，去重可靠）。
+    function collectLeagueHistory(done) {
+        if (!_leagueGroup || !shared._leagueClanTag) { done(null); return; }
+        var initialPending = pendingStatsRounds();
+        var jobs = [];
+        for (var i = 0; i < 7; i++) {
+            jobs.push(initialPending.indexOf(i) >= 0 ? Promise.resolve(null) : collectRoundWars(i));
+        }
+        Promise.all(jobs).then(function(list) {
+            var cm = {}, members = {}, any = false, notStarted = [];
+            for (var d = 0; d < list.length; d++) {
+                var wars = list[d];
+                if (!wars || !wars.length) continue;        // 初始 pending 轮 / 该轮无任何数据
+                // 准备日轮：整轮未开始（同轮 4 场状态一致）→ 不聚合，动态并入黑块列
+                var prep = false;
+                for (var k = 0; k < wars.length; k++) {
+                    if (wars[k] && wars[k].state === 'preparation') { prep = true; break; }
+                }
+                if (prep) { notStarted.push(d); continue; }
+                for (var k2 = 0; k2 < wars.length; k2++) {
+                    var wd = wars[k2];
+                    if (!wd || !wd.clan || !wd.opponent) continue;
+                    any = true;
+                    aggregateWar(wd, d, shared._leagueClanTag, cm, members);
+                }
+            }
+            if (!any) { done(null); return; }
+            var clans = Object.keys(cm).map(function(t) { return cm[t]; })
+                .sort(function(a, b) { return (b.totalStars - a.totalStars) || (b.totalDest - a.totalDest); });
+            for (var c2 = 0; c2 < clans.length; c2++) { clans[c2].rank = c2 + 1; clans[c2].totalDest = rd1(clans[c2].totalDest); }
+            var memList = Object.keys(members).map(function(t) { return members[t]; })
+                .sort(function(a, b) { return (a.mapPosition || 99) - (b.mapPosition || 99); });
+            for (var m2 = 0; m2 < memList.length; m2++) memList[m2].totalDest = rd1(memList[m2].totalDest);
+            var pendingRounds = initialPending.slice();
+            for (var n2 = 0; n2 < notStarted.length; n2++) {
+                if (pendingRounds.indexOf(notStarted[n2]) < 0) pendingRounds.push(notStarted[n2]);
+            }
+            pendingRounds.sort(function(a, b) { return a - b; });
+            done({ data: { season: (_leagueGroup.season || '').slice(0, 7), clans: clans, members: memList }, pendingRounds: pendingRounds });
+        }).catch(function() { done(null); });
+    }
+
+    function collectRoundWars(i) {
+        var wars = [], seen = {};
+        // ① 本地：点开该轮卡片时拉取的 war（进行中轮的实时战况）
+        var mine = _leagueWars[i] && _leagueWars[i].mine;
+        if (mine && _leagueMine[i]) { wars.push(mine); seen[_leagueMine[i]] = 1; }
+        // ② 服务器当日存档 → ③ 官方补齐缺口
+        return fetchLeagueWarHistory(i + 1).then(function(res) {
+            ((res && res.wars) || []).forEach(function(w) {
+                if (w && w.warTag && w.data && !seen[w.warTag]) { seen[w.warTag] = 1; wars.push(w.data); }
+            });
+            var tags = (_leagueGroup.rounds[i] && _leagueGroup.rounds[i].warTags) || [];
+            var missing = [];
+            for (var t = 0; t < tags.length; t++) {
+                if (tags[t] && tags[t] !== '#0' && tags[t].indexOf('#') === 0 && !seen[tags[t]]) missing.push(tags[t]);
+            }
+            if (!missing.length) return wars;
+            return Promise.all(missing.map(function(tag) { return fetchLeagueWar(tag, i + 1).catch(function() { return null; }); }))
+                .then(function(list) {
+                    for (var k = 0; k < list.length; k++) if (list[k]) wars.push(list[k]);
+                    return wars;
+                });
+        }).catch(function() { return wars; });
+    }
+
+    function rd1(v) { return Math.round((v || 0) * 10) / 10; }
+
+    function aggregateWar(wd, dayIdx, clanTag, cm, members) {
+        for (var s = 0; s < 2; s++) {
+            var side = s === 0 ? 'clan' : 'opponent';
+            var c = wd[side], o = s === 0 ? wd.opponent : wd.clan;
+            if (!c || !c.tag) continue;
+            var ms = c.stars || 0, md = c.destructionPercentage || 0;
+            var os = (o && o.stars) || 0, od = (o && o.destructionPercentage) || 0;
+            var r = 'tie';
+            if (ms > os) r = 'win'; else if (ms < os) r = 'lose'; else if (md > od) r = 'win'; else if (md < od) r = 'lose';
+            if (!cm[c.tag]) cm[c.tag] = { tag: c.tag, name: c.name || c.tag, badgeUrls: c.badgeUrls || null, totalStars: 0, totalDest: 0, wins: 0, losses: 0, ties: 0, rounds: [null, null, null, null, null, null, null] };
+            var row = cm[c.tag];
+            row.totalStars += ms; row.totalDest += md;
+            if (r === 'win') row.wins++; else if (r === 'lose') row.losses++; else row.ties++;
+            row.rounds[dayIdx] = { oppTag: o ? o.tag : '', oppName: o ? (o.name || '') : '', oppBadge: (o && o.badgeUrls && o.badgeUrls.medium) || '', stars: ms, dest: rd1(md), oppStars: os, oppDest: rd1(od), result: r };
+            // 本部成员逐轮明细（联赛每人每场 1 刀，取星数最高的一刀；在册未出刀 stars:-1 → 前端红色 na 块）
+            if (c.tag === clanTag && Array.isArray(c.members)) {
+                for (var m = 0; m < c.members.length; m++) {
+                    var mm = c.members[m];
+                    if (!mm || !mm.tag) continue;
+                    if (!members[mm.tag]) members[mm.tag] = { tag: mm.tag, name: mm.name || mm.tag, mapPosition: mm.mapPosition != null ? mm.mapPosition : 99, townhallLevel: mm.townhallLevel || 0, rounds: [null, null, null, null, null, null, null], totalStars: 0, totalDest: 0, played: 0, rostered: 0, defended: 0, defBestSum: 0 };
+                    var mr = members[mm.tag];
+                    mr.rostered++;
+                    mr.defended += (mm.opponentAttacks || 0);
+                    if (mm.bestOpponentAttack && mm.bestOpponentAttack.stars) mr.defBestSum += mm.bestOpponentAttack.stars;
+                    var bs = -1, bd = 0, atk = mm.attacks || [];
+                    for (var a = 0; a < atk.length; a++) {
+                        var ast = atk[a].stars || 0, adst = atk[a].destructionPercentage || 0;
+                        if (ast > bs || (ast === bs && adst > bd)) { bs = ast; bd = adst; }
+                    }
+                    if (bs < 0) { mr.rounds[dayIdx] = { stars: -1, dest: 0 }; continue; }
+                    mr.rounds[dayIdx] = { stars: bs, dest: rd1(bd) };
+                    mr.totalStars += bs; mr.totalDest += bd; mr.played++;
+                }
+            }
+        }
+    }
+
+    var leagueStatsBtn = document.getElementById('league-stats-btn');
+    if (leagueStatsBtn) leagueStatsBtn.addEventListener('click', openLeagueStats);
 
     shared.showPreparationView = showPreparationView;
     shared.loadLeagueMine = loadLeagueMine;

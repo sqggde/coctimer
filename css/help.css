@@ -6,7 +6,8 @@
  * ========================================================================== */
 #help-page, #help-page * { margin: 0; padding: 0; box-sizing: border-box; }
         #help-page {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            /* 字体不在此单独声明（2026-10-07 删）：原有这串系统字体栈与 App 全局（Inter）不一致，
+               而顶栏 line-height:normal 的行高是按字体算的 → 同一套顶栏在更多页四格里只有本页高 2px */
             background: var(--td-page2);
             color: #374151;
             padding: 20px;
