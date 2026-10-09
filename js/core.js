@@ -639,9 +639,14 @@
         }
         var hd = document.getElementById('war-history-detail');
         if (hd && hd.style.display !== 'none') {
-            hd.style.display = 'none'; hd.classList.add('hidden');
-            var lv = document.getElementById('clan-log-view');
-            if (lv) { lv.style.display = 'flex'; lv.classList.remove('hidden') }
+            // 历史层（对战详情/联赛历史）的返回去向由 warlog 按入口来源分流——联赛页进球统计后，
+            // 返回手势不该把日志层拉出来（与层内顶部返回键同一个实现，两条返回路径不分叉）
+            var wl = CocTool.features && CocTool.features.warlog;
+            if (wl && wl.historyBack) {
+                wl.historyBack();
+            } else {
+                hd.style.display = 'none'; hd.classList.add('hidden');
+            }
             return 'true';
         }
         var lv2 = document.getElementById('clan-log-view');

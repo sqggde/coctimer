@@ -209,14 +209,16 @@
     }
 
     // 精工形态的模块等级数组（与图鉴 abilities 顺序对应）：从精制台 1000097 的 types 提取
+    // 形态 id 两服基址不一致（国服 152 / 国际服 103）→ 比对照样过 canonicalId 归一
     function craftModuleLevels(craftId) {
         if (!currentDetailTag || !state.accounts[currentDetailTag]) return null;
         var b = state.accounts[currentDetailTag].buildings || [];
+        var want = CocTool.names.canonicalId(String(craftId));
         for (var i = 0; i < b.length; i++) {
             if (b[i] && b[i].data === 1000097 && b[i].types) {
                 for (var t = 0; t < b[i].types.length; t++) {
                     var type = b[i].types[t];
-                    if (type && String(type.data) === craftId) {
+                    if (type && CocTool.names.canonicalId(String(type.data)) === want) {
                         return (type.modules || []).map(function (m) { return m.lvl || 0; });
                     }
                 }

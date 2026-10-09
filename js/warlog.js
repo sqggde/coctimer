@@ -84,22 +84,6 @@ function showWarDetail(et){
   ct.innerHTML='<div class="empty-state"><div style="width:24px;height:24px;border:3px solid #e5e7eb;border-top:3px solid #3b82f6;border-radius:50%;animation:clan-spin 0.8s linear infinite;margin-bottom:8px;"></div><p>加载中...</p></div>';
   if(tl)tl.textContent='对战详情';
   var cc=ldc(t,et);
-  if(cc){if(cc.found&&cc.data){if(tl)tl.textContent='';var VV=CocTool.warView;if(VV.renderDetailTo)VV.renderDetailTo(ct,cc.data);else ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">渲染模块不可用</p>';return}if(!cc.found){ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该场对战数据暂未存档</p>';if(tl)tl.textContent='未存档';return}}
-  fw(t,et,function(err,data){
-    ct.innerHTML='';
-    if(err||!data){sdc(t,et,!1,0);ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该场对战数据暂未存档</p>';if(tl)tl.textContent='未存档';return}
-    sdc(t,et,!0,data);if(tl)tl.textContent='';var VV=CocTool.warView;if(VV.renderDetailTo)VV.renderDetailTo(ct,data)
-  })
-}
-
-function showWarDetail(et){
-  var t=N;if(!t||!et)return;
-  showLayer('war-history-detail');hideLayer('clan-log-view');
-  var ct=document.getElementById('history-content'),tl=document.getElementById('history-title');
-  if(!ct)return;
-  ct.innerHTML='<div class="empty-state"><div style="width:24px;height:24px;border:3px solid #e5e7eb;border-top:3px solid #3b82f6;border-radius:50%;animation:clan-spin 0.8s linear infinite;margin-bottom:8px;"></div><p>加载中...</p></div>';
-  if(tl)tl.textContent='对战详情';
-  var cc=ldc(t,et);
   if(cc){if(cc.found&&cc.data){if(tl)tl.textContent='';renderHistoryDetail(ct,cc.data);return}if(!cc.found){ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:40px;">该场对战数据暂未存档</p>';if(tl)tl.textContent='未存档';return}}
   fw(t,et,function(err,data){
     ct.innerHTML='';
@@ -221,6 +205,9 @@ function lgPaneClick(e){
 
 // 联赛状态（联赛统计入口共用）：LGP = 未开始的轮次索引（矩阵渲染黑色方块）；LGFROM = 入口来源（'league' 时返回键不回日志层）
 var LGP=[],LGFROM='log';
+// 历史层（对战详情 / 联赛历史）的统一返回：去向按入口来源分流——联赛页进的（LGFROM='league'）回联赛页、不拉出日志层；
+// 日志页进的回日志页。层内顶部返回键与手机返回手势（core.js handleBack）都走这一处，两条返回路径不分叉。
+function historyBack(){hideLayer('war-history-detail');if(LGFROM!=='league')showLog();LGFROM='log'}
 function showLeagueHistory(mk,opts){
   opts=opts||{};
   var t=(opts.tag||'').replace(/^#/,'')||N;if(!t||!mk)return;
@@ -273,7 +260,7 @@ function init(){
   var tl2=document.getElementById('log-tab-league');if(tl2)tl2.addEventListener('click',function(){setLogTab('league')});
   var lct=document.getElementById('log-card-container');if(lct)lct.addEventListener('click',function(e){var lm=e.target.closest('[data-league-month]');if(lm){var mk=lm.getAttribute('data-league-month');if(mk)showLeagueHistory(mk);return}var cd=e.target.closest('[data-end-time]');if(cd){var et=cd.getAttribute('data-end-time');if(et)showWarDetail(et)}});
   var hc=document.getElementById('history-content');if(hc)hc.addEventListener('click',lgPaneClick);   // 联赛历史 tab 切换 + 表头排序（委托，重渲染不丢）
-  var hb=document.getElementById('history-back-btn');if(hb)hb.addEventListener('click',function(){hideLayer('war-history-detail');if(LGFROM!=='league')showLog();LGFROM='log'});
+  var hb=document.getElementById('history-back-btn');if(hb)hb.addEventListener('click',historyBack);
   var hr=document.getElementById('history-refresh-btn');if(hr)hr.addEventListener('click',function(){if(!N)return;var et=document.getElementById('history-content').getAttribute('data-current-et');if(et){L.removeItem(D+N+'_'+et);showWarDetail(et)}})
 }
-C.features.warlog={init:init,show:showLog,hide:hideLog,showLeagueHistory:showLeagueHistory}})(window);
+C.features.warlog={init:init,show:showLog,hide:hideLog,showLeagueHistory:showLeagueHistory,historyBack:historyBack}})(window);

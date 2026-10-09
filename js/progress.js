@@ -539,16 +539,36 @@
 
     // 单实例检查
     // ========== 图标点击 → 图鉴详情页（条目 item.data 与图鉴数据同源；点图标不触发整卡的完成删除/长按备忘） ==========
-    // 精工形态（103000011+）：从精制台 1000097 的 types[].modules[] 取该形态模块等级数组（对齐 overview-detail.js craftModuleLevels）
+    // 精工形态（canonical 103000011+）：从精制台 1000097 的 types[].modules[] 取该形态模块等级数组（对齐 overview-detail.js craftModuleLevels）
     function craftModulesFor(craftId, tag) {
         if (!tag || !accounts[tag]) return null;
         const b = accounts[tag].buildings || [];
+        const want = CocTool.names.canonicalId(String(craftId));   // 国服 152 开头 → 103，两服一套比对
         for (let i = 0; i < b.length; i++) {
             if (b[i] && b[i].data === 1000097 && b[i].types) {
                 for (let t = 0; t < b[i].types.length; t++) {
                     const type = b[i].types[t];
-                    if (type && String(type.data) === String(craftId)) {
+                    if (type && CocTool.names.canonicalId(String(type.data)) === want) {
                         return (type.modules || []).map(m => m.lvl || 0);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    // 精工模块 id（canonical 102000024-041）→ 它所属的精工形态 id：模块本身没有独立实体数据，
+    // 图鉴要开它所属的形态（形状数据在形态实体的 abilities 里，模块等级另行传入）
+    function craftParentOf(moduleId, tag) {
+        if (!tag || !accounts[tag]) return null;
+        const b = accounts[tag].buildings || [];
+        const want = CocTool.names.canonicalId(String(moduleId));
+        for (let i = 0; i < b.length; i++) {
+            if (b[i] && b[i].data === 1000097 && b[i].types) {
+                for (let t = 0; t < b[i].types.length; t++) {
+                    const type = b[i].types[t];
+                    const mods = (type && type.modules) || [];
+                    for (let m = 0; m < mods.length; m++) {
+                        if (CocTool.names.canonicalId(String(mods[m].data)) === want) return type.data;
                     }
                 }
             }
@@ -572,8 +592,17 @@
                 CocTool.overviewDetail.openDetail(tag);
             } catch (err) { /* 详情层数据未就绪时仅开图鉴（渐进降级） */ }
         }
-        const modules = String(id).indexOf('10300001') === 0 ? craftModulesFor(id, tag) : null;
-        CocTool.features.pokedex.open(id, lvl, tag, modules);
+        // 精工形态/模块：先归一到国际服基址（国服 152/151 开头）再判前缀——
+        // 形态（canonical 103000008-013）直接开、并取模块等级；模块（canonical 102000024-041）改开它所属的形态
+        const canonId = CocTool.names.canonicalId(String(id));
+        let target = id, modules = null;
+        if (canonId.indexOf('102000') === 0) {
+            target = craftParentOf(id, tag) || id;
+            modules = craftModulesFor(target, tag);
+        } else if (canonId.indexOf('103000') === 0) {
+            modules = craftModulesFor(id, tag);
+        }
+        CocTool.features.pokedex.open(target, lvl, tag, modules);
     }
 
     function onIconTap(e) {

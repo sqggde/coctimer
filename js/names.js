@@ -161,12 +161,12 @@
         // ---- 合并补全结束 ----
         },
         // 双服 ID 归一：国服基址 → 国际服基址（canonical，与 img/icons 一套图标对齐）。
-        // 两服只有四类基址平移（装备 106→90 / 助手 124→93 / 守卫 161→107 / 精工形态 152→103），
+        // 两服只有五类基址平移（装备 106→90 / 助手 124→93 / 守卫 161→107 / 精工形态 152→103 / 精工模块 151→102），
         // 其余类别两服 ID 相同；ID_MAP 预留给 skins/装饰等无法用前缀规则的逐 ID 映射（见 game-data-normalized name-maps）。
         ID_MAP: {},
         canonicalId: function (id) {
             id = String(id);
-            var alt = ({ '106': '90', '124': '93', '161': '107', '152': '103' })[id.slice(0, 3)] || this.ID_MAP[id];
+            var alt = ({ '106': '90', '124': '93', '161': '107', '152': '103', '151': '102' })[id.slice(0, 3)] || this.ID_MAP[id];
             return alt !== undefined ? alt + id.slice(3) : id;
         },
         CATEGORY_NAMES: { "buildings": "建筑", "buildings2": "建筑🌙", "heroes": "英雄", "heroes2": "英雄🌙", "units": "兵种", "units2": "兵种🌙", "spells": "法术", "siege_machines": "攻城机器", "pets": "战宠", "traps": "陷阱", "traps2": "陷阱🌙", "guardians": "守卫", "hero-equipment": "英雄装备" },
