@@ -2,6 +2,7 @@
  * 流派统计（F-20261006-2）—— 更多页入口的全屏整屏页
  * 数据：GET /api/coc/meta/armies（聚合榜 + 每流派最热变体）；GET /api/coc/meta/armies/:key（变体下钻）
  * 形态：对齐预览 v4（卡片外层 = 最热变体完整配兵；命名 = 特征兵种·最热法术·最热装备）
+ * 口径：服务端只统计"最新一批"采集（说明行标出本批采集日期）；每次打开页面都重拉最新数据
  * 图标/名称：全部本地解析（img/icons 目录 + names.js），服务端只出 ID 与统计
  */
 (function () {
@@ -112,7 +113,8 @@
             var d = y[sortKey] - x[sortKey];
             return d !== 0 ? d : y.owners - x.owners;
         });
-        var html = '<div class="ms-note">' + data.meta.owners + ' 位玩家 / ' + data.meta.battles + ' 场进攻·数据来源为国际服传奇杯玩家</div>';
+        var html = '<div class="ms-note">' + (data.meta.batchDate ? data.meta.batchDate.slice(5) + ' 采集 · ' : '')
+            + data.meta.owners + ' 位玩家 / ' + data.meta.battles + ' 场进攻·数据来源为国际服传奇杯玩家</div>';
         list.forEach(function (a, i) {
             var topCode = a.top && a.top.code;
             html += '<div class="ms-card" data-key="' + a.key + '"' + (topCode ? ' data-topcode="' + esc(topCode) + '"' : '') + '>'
@@ -228,18 +230,27 @@
         document.querySelectorAll('#meta-stats-view .ms-panel').forEach(function (p) { p.classList.toggle('on', p.id === 'ms-p-' + name); });
     }
 
+    function render() {
+        var body = $('meta-stats-body');
+        body.innerHTML = buildShell();
+        bindShell();
+        renderCards();
+        renderUnits('ms-tb-troop', data.troops, 'occupancy');
+        renderUnits('ms-tb-equip', data.equips);
+        renderUnits('ms-tb-pet', data.pets);
+    }
+    // force = 显示加载态（刷新按钮）；普通打开"先显示已有内容、拉到最新再替换"（失败保留旧内容不清屏）
     function load(force) {
         var body = $('meta-stats-body');
-        body.innerHTML = '<div class="ms-loading">加载中…</div>';
+        if (force || !data) body.innerHTML = '<div class="ms-loading">加载中…</div>';
         api('/api/coc/meta/armies', function (err, res) {
-            if (err) { body.innerHTML = '<div class="ms-loading">加载失败：' + esc(err.message) + '<br><br>请确认网络后重试</div>'; return; }
+            if (err) {
+                if (data) render();   // 有旧内容：静默保留（刷新失败不白屏）
+                else body.innerHTML = '<div class="ms-loading">加载失败：' + esc(err.message) + '<br><br>请确认网络后重试</div>';
+                return;
+            }
             data = res;
-            body.innerHTML = buildShell();
-            bindShell();
-            renderCards();
-            renderUnits('ms-tb-troop', res.troops, 'occupancy');
-            renderUnits('ms-tb-equip', res.equips);
-            renderUnits('ms-tb-pet', res.pets);
+            render();
         });
     }
     function buildShell() {
@@ -271,7 +282,7 @@
         if (!v) return;
         v.classList.remove('hidden');
         v.style.display = 'flex';
-        if (!data) load();
+        load();   // 每次打开都重拉：上次打开后可能已完成新一轮采集（先显示旧内容、拉到后替换）
     }
     function close() {
         var v = $('meta-stats-view');
@@ -283,7 +294,7 @@
         var back = $('meta-stats-back-btn');
         if (back) back.onclick = close;
         var refresh = $('meta-stats-refresh-btn');
-        if (refresh) refresh.onclick = function () { data = null; load(true); };
+        if (refresh) refresh.onclick = function () { load(true); };
         var entry = $('more-meta');
         if (entry) entry.onclick = function () { open(); };
     }
