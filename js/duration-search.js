@@ -41,7 +41,7 @@
             const section = meta[cat];
             if (!section || !section.levels || !section.times) return;
             Object.keys(section.levels).forEach(id => {
-                index.set(id, { cat: cat, maxLevel: section.levels[id], times: section.times[id], thReq: (section.thReq && section.thReq[id]) || null, resources: (section.resources && section.resources[id]) || null, instances: (section.instances && section.instances[id]) || null });
+                index.set(id, { cat: cat, maxLevel: section.levels[id], times: section.times[id], thReq: (section.thReq && section.thReq[id]) || null, resources: (section.resources && section.resources[id]) || null, instances: (section.instances && section.instances[id]) || null, caps: (section.caps && section.caps[id]) || null });
             });
         });
         return index;
@@ -81,6 +81,17 @@
         return parseInt(thReq.substr(i, 2), 10) || 0;
     }
 
+    // 数量型实体的「大本解锁座数」：caps = [[大本等级, 座数], ...] → 取当前大本可达座数
+    // （与 overview-detail.thCap 同口径；无记录返回 null = 不限制）
+    function capAtTh(caps, thLv) {
+        if (!caps || !caps.length || thLv === null) return null;
+        let best = null;
+        for (let i = 0; i < caps.length; i++) {
+            if (caps[i][0] <= thLv) best = caps[i]; else break;
+        }
+        return best ? best[1] : 0;
+    }
+
     function getIndexForAccount(data) {
         const isCn = CocTool.calc && CocTool.calc.isCnAccount ? CocTool.calc.isCnAccount(data) : false;
         const key = isCn ? 'cn' : 'intl';
@@ -109,28 +120,48 @@
                 const entry = idIndex.get(String(item.data));
                 if (!entry) return;
                 const lvl = item.lvl || 0;
-                if (lvl + 1 > entry.maxLevel) return;
-                if (thLevel !== null && parseThReq(entry.thReq, lvl + 1) > thLevel) return;
+                // 数量型实体（夜世界兵营/预备营）：lvl 是建筑等级（每座恒 1 级），座数看 cnt
+                // （与 buildUserLevelListMap 同口径：cnt 按座数、无 cnt 按 1 座）；「已建满」= 当前大本解锁座数
+                // （caps，取不到退回实例总数）→ 建下一座 = times[owned+1]-times[owned]
+                const isInst = !!entry.instances;
+                const owned = isInst ? (Number(item.cnt) || 1) : 0;
+                if (isInst) {
+                    const allowed = capAtTh(entry.caps, thLevel);
+                    if (owned >= (allowed === null ? entry.instances : allowed)) return;
+                } else if (lvl + 1 > entry.maxLevel) return;
+                if (!isInst && thLevel !== null && parseThReq(entry.thReq, lvl + 1) > thLevel) return;
                 if (allowed && allowed.indexOf(entry.cat) === -1) return;
-                const res = entry.resources ? entry.resources[lvl] : undefined;
+                const res = entry.resources ? entry.resources[isInst ? owned : lvl] : undefined;
                 if (!matchesResource(res, resource)) return;
                 // times[lv] = 升到 lv 级前累计（0 基，前两项恒 0）；当前 lvl → 升到 lvl+1 级耗时 = times[lvl+2]-times[lvl+1]
-                // 数量型实体（instances）times = 实例累计前缀 [0, t1, t1+t2, ...]，lvl 0 基 → 建第 lvl+1 座耗时 = times[lvl+1]-times[lvl]
-                const isInst = !!entry.instances;
-                const t1 = entry.times[isInst ? lvl : lvl + 1];
-                const t2 = entry.times[isInst ? lvl + 1 : lvl + 2];
+                // 数量型实体（instances）times = 实例累计前缀 [0, t1, t1+t2, ...]，建第 owned+1 座 = times[owned+1]-times[owned]
+                const t1 = entry.times[isInst ? owned : lvl + 1];
+                const t2 = entry.times[isInst ? owned + 1 : lvl + 2];
                 if (t1 === undefined || t2 === undefined) return;
                 const seconds = t2 - t1;
                 if (seconds <= 0) return;
+                // 到满级：当前等级 → 满级 的总耗时（同 times 前缀口径：常规 = times[maxLevel+1]-times[lvl+1]；
+                // 数量型实体 = times[实例总数]-times[已建座数]；数据异常取不到时退回本级耗时）
+                const m1 = entry.times[isInst ? owned : lvl + 1];
+                const m2 = entry.times[isInst ? entry.instances : entry.maxLevel + 1];
+                const maxRaw = (m1 !== undefined && m2 !== undefined && m2 > m1) ? m2 - m1 : seconds;
                 // 月卡折扣：所有时间 ×(1-折扣/100)，小时匹配与显示均用扣减后时间
                 const eff = discount ? Math.round(seconds * (1 - discount / 100)) : seconds;
+                const effMax = discount ? Math.round(maxRaw * (1 - discount / 100)) : maxRaw;
                 if (hour !== null && hour !== undefined && Math.floor(eff / 3600) % 24 !== hour) return;
-                const key = String(item.data) + '_' + lvl;
+                const key = String(item.data) + '_' + (isInst ? owned : lvl);
                 const inst = item.cnt || 1;
                 if (grouped[key]) {
                     grouped[key].count += inst;
                 } else {
-                    grouped[key] = { id: String(item.data), cat: entry.cat, accountCat: cat, lvl: lvl, nextLvl: lvl + 1, seconds: eff, count: inst };
+                    grouped[key] = {
+                        id: String(item.data), cat: entry.cat, accountCat: cat,
+                        lvl: isInst ? owned : lvl, nextLvl: isInst ? owned + 1 : lvl + 1,
+                        maxLevel: isInst ? entry.instances : entry.maxLevel,
+                        seconds: eff, maxSeconds: effMax,
+                        count: isInst ? 1 : inst,
+                        instances: isInst || undefined
+                    };
                 }
             });
         });
@@ -157,9 +188,11 @@
         if (!data || !item || !Array.isArray(data[item.accountCat])) return false;
         const secs = item.seconds || 0;
         const timer = data.timestamp ? Math.floor(Date.now() / 1000) - data.timestamp + secs : secs;
-        const entry = data[item.accountCat].find(a =>
-            a && Number(a.data) === Number(item.id) && Number(a.lvl) === Number(item.lvl) &&
-            !(a.timer > 0) && a.gear_up !== 0);
+    const entry = data[item.accountCat].find(a =>
+        a && Number(a.data) === Number(item.id) &&
+        // 数量型实体（item.instances）：条目 lvl 恒为建筑等级（1）、座数在 cnt —— 按 data 匹配即可
+        (item.instances || Number(a.lvl) === Number(item.lvl)) &&
+        !(a.timer > 0) && a.gear_up !== 0);
         if (!entry) return false;
         if (entry.cnt !== undefined && entry.cnt !== null) {
             const cnt = Number(entry.cnt) || 0;
@@ -583,7 +616,8 @@
         let iconHtml = '<i class="fa fa-cube text-primary" style="font-size:16px;"></i>';
         try {
             if (CocTool.calc && CocTool.calc.getItemIconUrl) {
-                const urls = CocTool.calc.getItemIconUrl({ data: item.id, lvl: item.lvl, category: item.accountCat });
+                // 数量型实体每座恒 1 级：getItemIconUrl 内部按 lvl+1 取图 → 传 0 落到 1 级图（<id>_1.webp）
+                const urls = CocTool.calc.getItemIconUrl({ data: item.id, lvl: item.instances ? 0 : item.lvl, category: item.accountCat });
                 if (urls && urls.length) {
                     iconHtml = '<img src="' + urls[0] + '" width="24" height="24" class="object-contain" alt="" data-fallback="' + urls.slice(1).join(',') + '" onerror="this.onerror=null;var f=this.getAttribute(\'data-fallback\');if(f){var c=f.split(\',\');if(c.length){this.src=c.shift();this.setAttribute(\'data-fallback\',c.join(\',\'));}}else{this.style.display=\'none\';}">';
                 }
@@ -592,20 +626,30 @@
         const countHtml = item.count > 1
             ? '<span class="text-xs text-gray-500 flex-shrink-0" style="background:#e5e7eb;border-radius:999px;padding:0 6px;">×' + item.count + '</span>'
             : '';
-        // 两行排版：第一行 名称 | ×数量 | 时间；第二行 等级1→2 | 添加到升级列表（图标跨两行垂直居中）
+        // 三列排版（图标跨两行垂直居中）：左列 名称+×N / 当前等级/满级；右列 下一级：时间 / 到满级：时间 +升级
+        // （右列两行左对齐成列——两个标签同宽，值与标签紧邻；+升级 恒在行尾）
         const addHtml = simOn ? '' :
             '<span class="text-xs text-green-600 flex-shrink-0" style="cursor:pointer;-webkit-tap-highlight-color:transparent;" data-ds-add="' + idx + '">+升级</span>';
+        const maxLvText = item.maxLevel !== undefined ? item.lvl + '/' + item.maxLevel : String(item.nextLvl);
         return '<div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50 mb-0.5">' +
             '<div class="w-6 h-6 flex items-center justify-center flex-shrink-0 ds-icon-jump" data-ds-id="' + item.id + '" data-ds-lvl="' + item.lvl + '" style="cursor:pointer;" title="查看图鉴">' + iconHtml + '</div>' +
             '<div class="flex-1 min-w-0">' +
             '<div class="flex items-center gap-2">' +
-            '<span class="text-sm text-gray-800 flex-1 truncate">' + name + '</span>' +
+            '<span class="text-sm text-gray-800 truncate" style="min-width:0;">' + name + '</span>' +
             countHtml +
-            '<span class="text-sm font-medium text-primary flex-shrink-0" style="min-width:70px;text-align:right;">' +
-            formatDuration(item.seconds) + '</span>' +
             '</div>' +
-            '<div class="flex items-center justify-between">' +
-            '<span class="text-xs text-gray-500">等级 ' + item.lvl + '→' + item.nextLvl + '</span>' +
+            '<div class="text-xs text-gray-500">' + maxLvText + '</div>' +
+            '</div>' +
+            '<div class="flex-shrink-0">' +
+            '<div class="flex items-center" style="white-space:nowrap;">' +
+            '<span class="text-xs text-gray-500">下一级：</span>' +
+            '<span class="text-sm font-medium text-primary">' + formatDuration(item.seconds) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-3">' +
+            '<span style="white-space:nowrap;">' +
+            '<span class="text-xs text-gray-500">到满级：</span>' +
+            '<span class="text-xs font-medium text-gray-600">' + formatDuration(item.maxSeconds) + '</span>' +
+            '</span>' +
             addHtml +
             '</div>' +
             '</div>' +
@@ -641,9 +685,11 @@
         if (CocTool.features.progress && CocTool.features.progress.simActive && CocTool.features.progress.simActive()) return;   // 推演中禁用（保护副本语义）
         const names = (CocTool.names && CocTool.names.ITEM_NAMES) || {};
         const name = names[CocTool.names.canonicalId(item.id)] || ('未知(' + item.id + ')');
+        // 数量型实体按「第 N 座」表述（lvl 是座数、建筑等级恒 1，写「等级 x→y」会误导）
+        const lvlText = item.instances ? ('第 ' + item.nextLvl + ' 座') : ('等级 ' + item.lvl + '→' + item.nextLvl);
         CocTool.ui.showConfirm({
             title: '添加到升级列表',
-            text: '确认将「' + name + '」等级 ' + item.lvl + '→' + item.nextLvl + '（' + formatDuration(item.seconds) + '）添加到升级列表中？',
+            text: '确认将「' + name + '」' + lvlText + '（' + formatDuration(item.seconds) + '）添加到升级列表中？',
             confirmText: '添加',
             onConfirm: function () {
                 const data = currentAccountData();

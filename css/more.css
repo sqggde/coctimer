@@ -571,23 +571,42 @@
 /* ---- 数据查询页（图鉴索引：左侧分类 tab + 右侧图标卡） ----
    新建页面（2026-09-20），没有"旧版观感"要还，所以两套主题都直接消费 tokens.css 的通用值。
    顶栏三条早已并入上方「子页面顶栏」共用组（2026-10-07 去重），此处不再重复声明。 */
-/* 区服键（紧跟「数据查询」四个字，是个小胶囊）+ 页内区服色的**唯一取法**
-   —— 选中侧 tab 与它共用 --dq-srv-bg/--dq-srv-bd：圆润3D 取账号 tab 的区服令牌（国际服紫 / 国服蓝），
-   极简档那两颗令牌是"白底黑框"的账号 tab 语言（直接吃会白底白字），故在这一档给项目现用的区服色常量。 */
+/* 区服切换（分段控件：灰槽 + 选中段白卡片；用户 2026-10-18 指定的样式形态，颜色语言=国际服紫 / 国服蓝）
+   + 页内区服色的**唯一取法**——选中侧 tab 与它共用 --dq-srv-bg/--dq-srv-bd：圆润3D 取账号 tab 的
+   区服令牌（国际服紫 / 国服蓝），极简档那两颗令牌是"白底黑框"的账号 tab 语言（直接吃会白底白字），
+   故在这一档给项目现用的区服色常量。分段控件每段自带区服色（不随当前选中变），四组值在下面几行给全。 */
 #data-query-page { --dq-srv-bg: var(--td-tab-active-bg); --dq-srv-bd: var(--td-tab-active-bd); }
 #data-query-page[data-srv="cn"] { --dq-srv-bg: var(--td-tab-cn-bg); }
 #data-query-page .dq-srv {
-    /* 挂在标题盒子右侧之外（left:100%）：标题本身仍严格居中，胶囊紧贴其右——两者连成一体读成
+    /* 挂在标题盒子右侧之外（left:100%）：标题本身仍严格居中，控件紧贴其右——两者连成一体读成
        「数据查询 国际服」，而不会把标题整体挤偏 */
     position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 6px;
-    display: inline-flex; align-items: center; white-space: nowrap;
-    padding: 2px 9px;
-    border: 1px solid var(--dq-srv-bd); border-radius: 999px;
-    background-color: var(--dq-srv-bg); background-image: var(--td-sel-on-img);
-    color: #fff; font-size: 11px; font-weight: 700; line-height: 1.5;
+    display: inline-flex; align-items: center; gap: 2px; white-space: nowrap;
+    padding: 2px; border: 1px solid #e3e9f2; border-radius: 11px;
+    background-color: #eef2f8;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
-#data-query-page .dq-srv:active { opacity: .7; }
+#data-query-page .dq-srv-opt {
+    /* 每段触控热区上下各外扩 3px（视觉 ~29px → 有效 ~35px，够 §一 的 34 基准；横向不外扩，两段不互相压盖） */
+    position: relative;
+    display: inline-flex; align-items: center;
+    padding: 6px 11px; border: 1px solid transparent; border-radius: 8px;
+    font-size: 11px; font-weight: 700; line-height: 1.4; color: #475569;
+}
+#data-query-page .dq-srv-opt::after { content: ''; position: absolute; inset: -3px 0; }
+#data-query-page .dq-srv-opt:active { opacity: .6; }
+/* 选中段：与侧 tab / 世界 tab 完全同款（区服色实底 + 光泽 + 投影 + 白字——用户 2026-10-18 统一口径） */
+#data-query-page .dq-srv-opt.active {
+    color: var(--td-sel-on-color);
+    background-color: var(--dq-srv-bg);
+    background-image: var(--td-tab-active-img);
+    border-color: var(--dq-srv-bd);
+    box-shadow: var(--td-sel-on-shadow);
+}
+#data-query-page[data-srv="cn"] .dq-srv-opt.active { background-image: var(--td-tab-cn-img); }
+/* 深色：槽比顶栏更深一档（凹陷感） */
+.dark #data-query-page .dq-srv { background-color: #14141f; border-color: #33334d; }
+.dark #data-query-page .dq-srv-opt:not(.active) { color: #a0aec0; }   /* 必须排除选中段：同权重写在后面会压掉白字（DESIGN §五 规则 8） */
 html[data-style="minimal"] #data-query-page { --dq-srv-bg: #7c3aed; --dq-srv-bd: #7c3aed; }
 html[data-style="minimal"] #data-query-page[data-srv="cn"] { --dq-srv-bg: #2563eb; --dq-srv-bd: #2563eb; }
 html.dark[data-style="minimal"] #data-query-page { --dq-srv-bd: #a78bfa; }
@@ -612,13 +631,14 @@ html.dark[data-style="minimal"] #data-query-page[data-srv="cn"] { --dq-srv-bd: #
 }
 #data-query-page .dq-wtab.active {
     color: var(--td-sel-on-color);
-    /* 实底选中态用 600 档蓝（同 .ov-tab）：500 档压白字只有 3.7:1 */
-    background-color: #2563eb;
-    background-image: var(--td-sel-on-img);
-    border-color: transparent;
+    /* 与侧 tab 同款（用户 2026-10-18 统一）：区服色实底（国际服紫 / 国服蓝）+ 光泽 + 投影 + 白字 */
+    background-color: var(--dq-srv-bg);
+    background-image: var(--td-tab-active-img);
+    border-color: var(--dq-srv-bd);
     box-shadow: var(--td-sel-on-shadow);
     font-weight: 600;
 }
+#data-query-page[data-srv="cn"] .dq-wtab.active { background-image: var(--td-tab-cn-img); }
 
 /* 主区：左 tab 列（定宽、独立纵向滚动）+ 右内容列 */
 #data-query-page .dq-main { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 10px 12px 0; }

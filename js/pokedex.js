@@ -1093,16 +1093,20 @@
         if (lv) return lv;
         return dir === 'home/crafted-defense' ? 30 : 0;
     }
-    // 图标候选（按序回退）：满级图 → 无等级图 → 另一目录同名图 → 通用占位
+    // 图标候选（按序回退）：满级图 → 无等级图 → 超级兵种回退本体图 → 另一目录同名图 → 通用占位
     function dqIcons(dir, id, maxLv) {
         const d = DQ_ICON_DIR[dir] || (dir.indexOf('builder/') === 0 ? 'buildings2' : 'buildings');
-        let rid = String(id).replace(/^SUPER_/, '');
-        rid = CocTool.names.canonicalId(rid);   // 国服基址 ID（106/124/161/152）→ 图标国际服基址（90/93/107/103）
+        const sid = String(id);
+        const base = sid.replace(/^SUPER_/, '');
+        // 超级兵种图标按官方超级形态 ID 命名（lab/4000026 = 超级野蛮人，见 names.SUPER_IDS），不是本体 ID
+        const superId = (base !== sid && CocTool.names.SUPER_IDS) ? CocTool.names.SUPER_IDS[base] : null;
+        let rid = CocTool.names.canonicalId(superId || base);   // 国服基址 ID（106/124/161/152）→ 图标国际服基址（90/93/107/103）
         const out = [];
         if (maxLv > 0 && (d === 'buildings' || d === 'buildings2')) {
             out.push('img/icons/' + d + '/' + rid + '_' + maxLv + '.webp');
         }
         out.push('img/icons/' + d + '/' + rid + '.webp');
+        if (superId) out.push('img/icons/' + d + '/' + CocTool.names.canonicalId(base) + '.webp');
         if (d === 'buildings') out.push('img/icons/buildings2/' + rid + '.webp');
         out.push('img/icons/20260627.webp');
         return out;
@@ -1230,8 +1234,10 @@
         page.style.display = 'flex';
         page.classList.remove('hidden');
         page.setAttribute('data-srv', server);
-        const lbl = dqEl('dq-server-label');
-        if (lbl) lbl.textContent = server === 'cn' ? '国服' : '国际服';
+        // 分段控件选中态：哪段是当前区服就亮哪段（国服蓝 / 国际服紫，样式在 more.css）
+        page.querySelectorAll('.dq-srv-opt').forEach(o => {
+            o.classList.toggle('active', o.getAttribute('data-srv') === server);
+        });
         dqMarkWorld();
         dqEl('dq-tabs').innerHTML = '';
         dqEl('dq-list').innerHTML = '<div class="dq-msg">加载中…</div>';
@@ -1273,7 +1279,12 @@
         const back = dqEl('dq-back');
         if (back) back.addEventListener('click', dqClose);
         const srv = dqEl('dq-server');
-        if (srv) srv.addEventListener('click', () => dqShow(dqServer === 'cn' ? 'intl' : 'cn'));
+        if (srv) srv.addEventListener('click', ev => {
+            const opt = ev.target.closest('.dq-srv-opt');
+            if (!opt) return;
+            const next = opt.getAttribute('data-srv');
+            if (next !== dqServer) dqShow(next);
+        });
         const more = dqEl('more-dataquery');
         if (more) more.addEventListener('click', dqOpen);
         // 顶部世界 tab：主世界/夜世界分两页（各自只列自己那 13 / 8 个分类）

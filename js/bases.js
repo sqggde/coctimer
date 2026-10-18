@@ -697,8 +697,10 @@
     }
     function closeLightbox() { $('bc-lightbox').classList.add('hidden'); }
 
-    /* ── 反馈弹窗（链接与图片不符 / 链接失效 / 其他 → 后台处理） ── */
-    var repState = { layout: null, type: 'mismatch' };
+    /* ── 反馈弹窗（链接与图片不符 / 链接失效 / 其他 → 后台处理；不符必传截图、失效必选区服） ── */
+    var repState = { layout: null, type: 'mismatch', image: '', server: '' };
+    var REP_IMG_HINT = '请上传您看到的实际阵型截图'; // 与小程序同文案（契约钉住）
+    var REP_SERVERS = ['国服', '国际服'];
     // 反馈限流（用户拍板）：登录邮箱 5 分钟一次、未登录 10 分钟一次；本地记最后一次提交时刻
     var REPORT_WIN_AUTH = 5 * 60 * 1000, REPORT_WIN_GUEST = 10 * 60 * 1000;
     function reportWaitLeft() {
@@ -710,14 +712,34 @@
         var s = Math.ceil(ms / 1000);
         return s < 60 ? s + ' 秒' : Math.ceil(s / 60) + ' 分钟';
     }
+    function renderRepImage() {
+        var has = !!repState.image;
+        $('bc-rep-imgtext').classList.toggle('hidden', has);
+        $('bc-rep-imgel').classList.toggle('hidden', !has);
+        $('bc-rep-imgdel').classList.toggle('hidden', !has);
+        if (has) $('bc-rep-imgel').src = repState.image;
+        else $('bc-rep-imgtext').textContent = REP_IMG_HINT;
+    }
+    // 条件必填块显隐（随类型切换）：不符→截图；失效→区服；其他→无附加块
+    function renderRepExtras() {
+        $('bc-rep-imgbox').classList.toggle('hidden', repState.type !== 'mismatch');
+        $('bc-rep-srvbox').classList.toggle('hidden', repState.type !== 'broken');
+        $('bc-rep-srvs').innerHTML = REP_SERVERS.map(function (v) {
+            return '<button type="button" class="bc-tagopt' + (repState.server === v ? ' active' : '') + '" data-rs="' + v + '">' + v + '</button>';
+        }).join('');
+        $('bc-rep-srvs').querySelectorAll('[data-rs]').forEach(function (b) {
+            b.onclick = function () { repState.server = b.getAttribute('data-rs'); renderRepExtras(); };
+        });
+    }
     function renderRepTypes() {
         var types = [{ v: 'mismatch', t: '链接与图片不符' }, { v: 'broken', t: '链接失效' }, { v: 'other', t: '其他' }];
         $('bc-rep-types').innerHTML = types.map(function (x) {
             return '<button type="button" class="bc-tagopt' + (repState.type === x.v ? ' active' : '') + '" data-rt="' + x.v + '">' + x.t + '</button>';
         }).join('');
         $('bc-rep-types').querySelectorAll('[data-rt]').forEach(function (b) {
-            b.onclick = function () { repState.type = b.getAttribute('data-rt'); renderRepTypes(); };
+            b.onclick = function () { repState.type = b.getAttribute('data-rt'); renderRepTypes(); renderRepExtras(); };
         });
+        renderRepExtras();
     }
     function openReport(l) {
         var left = reportWaitLeft();
@@ -726,15 +748,20 @@
             toast('反馈太频繁了，请 ' + fmtWait(left) + '后再试' + (cloudAuth() ? '' : '（登录邮箱后为 5 分钟一次）'));
             return;
         }
-        repState.layout = l; repState.type = 'mismatch';
+        repState.layout = l; repState.type = 'mismatch'; repState.image = ''; repState.server = '';
         $('bc-rep-title').textContent = '阵型：' + (l.title || '');
         $('bc-rep-msg').value = '';
+        $('bc-rep-file').value = '';
+        renderRepImage();
         renderRepTypes();
         $('bc-report-modal').classList.remove('hidden');
     }
     function closeReport() { $('bc-report-modal').classList.add('hidden'); }
     function submitReport() {
         var l = repState.layout; if (!l) return;
+        // 条件必填（用户拍板：不符必传截图、失效必选区服；其他不限）
+        if (repState.type === 'mismatch' && !repState.image) { toast(REP_IMG_HINT); return; }
+        if (repState.type === 'broken' && !repState.server) { toast('请选择区服'); return; }
         var msg = $('bc-rep-msg').value.trim();
         var headers = { 'Content-Type': 'application/json' };
         var auth = cloudAuth();
@@ -743,7 +770,13 @@
         btn.disabled = true; btn.textContent = '提交中…';
         fetchJson(apiBase() + '/api/base/report', {
             method: 'POST', headers: headers,
-            body: JSON.stringify({ baseId: l.id, type: repState.type, message: msg, deviceId: deviceId() })
+            // 只带与所选类型相关的字段：切过类型后残留的截图/区服不随「其他」提交（后台按 type 解读）
+            body: JSON.stringify({
+                baseId: l.id, type: repState.type, message: msg,
+                image: repState.type === 'mismatch' ? (repState.image || '') : '',
+                server: repState.type === 'broken' ? (repState.server || '') : '',
+                deviceId: deviceId()
+            })
         }).then(function () {
             localStorage.setItem('bc_last_report', String(Date.now())); // 记入限流窗口（仅提交成功才计）
             closeReport(); toast('反馈已提交，感谢反馈');
@@ -1248,6 +1281,28 @@
         $('bc-rep-cancel').onclick = closeReport;
         $('bc-report-modal').addEventListener('click', function (e) { if (e.target === $('bc-report-modal')) closeReport(); });
         $('bc-rep-submit').onclick = submitReport;
+        // 反馈截图（「链接与图片不符」必传）：选图走阵型上传同一条压缩链路
+        $('bc-rep-imgpick').onclick = function () { $('bc-rep-file').click(); };
+        $('bc-rep-imgdel').onclick = function (e) {
+            e.stopPropagation(); // 删图不触发外层选图
+            repState.image = '';
+            $('bc-rep-file').value = '';
+            renderRepImage();
+        };
+        $('bc-rep-file').addEventListener('change', function () {
+            var f = this.files[0]; if (!f) return;
+            this.value = ''; // 复位：同一张图可再次选择
+            var textEl = $('bc-rep-imgtext');
+            if (!repState.image) textEl.textContent = '处理中…';
+            compressImage(f).then(function (dataUrl) {
+                repState.image = dataUrl;
+                renderRepImage();
+            }).catch(function (e) {
+                repState.image = '';
+                renderRepImage();
+                textEl.textContent = (e.message || '图片处理失败') + '，请重新选择';
+            });
+        });
         $('bc-up-link').addEventListener('input', revalidateLinkHint);
         // 广场瀑布流：分页哨兵进入可视区即加载下一页（.bases-scroll 内滚动，视口为观察根即可）
         if (window.IntersectionObserver) {

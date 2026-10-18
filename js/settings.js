@@ -579,11 +579,13 @@
             showToast('QQ群号 941992024 已复制到剪贴板', 2000);
         });
 
-        // ===== 反馈&建议（三端通用 POST /api/feedback；类型/描述前端强制、图片可选 ≤3 张；5 分钟限流仅成功计时） =====
+        // ===== 反馈&建议（三端通用 POST /api/feedback；类型/描述前端强制、联系邮箱选填、图片可选 ≤3 张；5 分钟限流仅成功计时） =====
         var FB_RATE_KEY = 'bc_last_feedback', FB_WIN = 5 * 60 * 1000, FB_MAX_IMAGES = 3;
+        var FB_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // 与小程序/服务端同一条宽松口径（只挡明显误填）
         var fbKind = '', fbImages = [], fbSubmitting = false;
         var feedbackModal = document.getElementById('feedback-modal');
         var fbContentEl = document.getElementById('fb-content');
+        var fbEmailEl = document.getElementById('fb-email');
         var fbImagesEl = document.getElementById('fb-images');
         var fbFileEl = document.getElementById('fb-file');
         var fbSubmitBtn = document.getElementById('fb-submit');
@@ -632,6 +634,7 @@
         function openFeedback() {
             fbKind = ''; fbImages = []; fbSubmitting = false;
             fbContentEl.value = '';
+            fbEmailEl.value = '';
             document.getElementById('fb-count').textContent = '0/500';
             fbSetKind('');
             fbRenderImages();
@@ -667,10 +670,12 @@
             if (!fbKind) { showToast('请先选择反馈类型（建议或 Bug）', 2000); return; }
             var content = fbContentEl.value.trim();
             if (!content) { showToast('请填写描述', 2000); return; }
+            var contactEmail = fbEmailEl.value.trim();
+            if (contactEmail && !FB_EMAIL_RE.test(contactEmail)) { showToast('邮箱格式不正确，请检查', 2000); return; }
             var last = parseInt(localStorage.getItem(FB_RATE_KEY) || '0', 10) || 0;
             var left = last + FB_WIN - Date.now();
             if (left > 0) { showToast('反馈太频繁了，请 ' + Math.ceil(left / 60000) + ' 分钟后再试', 2000); return; }
-            var body = { kind: fbKind, content: content, images: fbImages, platform: window.AndroidApp ? 'app' : 'web', version: '' };
+            var body = { kind: fbKind, content: content, contactEmail: contactEmail, images: fbImages, platform: window.AndroidApp ? 'app' : 'web', version: '' };
             if (window.AndroidApp && typeof window.AndroidApp.getVersionName === 'function') body.version = window.AndroidApp.getVersionName();
             var headers = { 'Content-Type': 'application/json' };
             var auth = (window.CocTool && CocTool.features && CocTool.features.bases && CocTool.features.bases.cloudAuth) ? CocTool.features.bases.cloudAuth() : null;

@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261011-tmqm7l"></script>
+<script src="shim.js?v=coc-tool-web-20261018-tn3v8a"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261011-tmqm7l" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261018-tn3v8a" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -198,7 +198,7 @@
                 <div class="space-y-3 text-sm text-gray-600 leading-relaxed">
                     <div>
                         <p class="font-medium text-gray-700 mb-1">作者B站主页：</p>
-                        <a href="https://b23.tv/sdgkXaQ" data-external-url="https://b23.tv/sdgkXaQ" class="text-blue-500 hover:underline break-all">https://b23.tv/sdgkXaQ</a>
+                        <a href="https://m.bilibili.com/space/278354619" data-external-url="https://m.bilibili.com/space/278354619" class="text-blue-500 hover:underline break-all">https://m.bilibili.com/space/278354619</a>
                     </div>
                     <div>
                         <p class="font-medium text-gray-700 mb-1">爱发电主页：</p>
@@ -682,6 +682,20 @@
                 <div id="bc-rep-title" class="bc-rep-title"></div>
                 <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">问题类型</label>
                 <div class="bc-tagpick" id="bc-rep-types" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                <!-- 条件必填块（随类型切换显隐）：「链接与图片不符」→ 实际阵型截图必传；「链接失效」→ 所在区服必选 -->
+                <div id="bc-rep-imgbox" class="hidden">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">实际阵型截图（必传）</label>
+                    <div id="bc-rep-imgpick" style="border:2px dashed var(--td-line, #e5e7eb);border-radius:10px;padding:16px;text-align:center;color:#9ca3af;font-size:12px;cursor:pointer;position:relative;">
+                        <span id="bc-rep-imgtext">请上传您看到的实际阵型截图</span>
+                        <img id="bc-rep-imgel" class="hidden" alt="" style="max-width:100%;max-height:190px;border-radius:8px;display:block;margin:0 auto;">
+                        <button id="bc-rep-imgdel" class="hidden" style="position:absolute;top:4px;right:4px;border:none;background:rgba(0,0,0,0.55);color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;line-height:1;padding:0;cursor:pointer;">✕</button>
+                    </div>
+                    <input type="file" id="bc-rep-file" accept="image/*" style="display:none">
+                </div>
+                <div id="bc-rep-srvbox" class="hidden">
+                    <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">所在区服（必选）</label>
+                    <div class="bc-tagpick" id="bc-rep-srvs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+                </div>
                 <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">补充说明（可选）</label>
                 <textarea id="bc-rep-msg" rows="3" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;resize:none;" placeholder="如：链接打开不是这个阵型"></textarea>
                 <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
@@ -1617,7 +1631,7 @@
     <div id="data-query-page" style="display:none;flex-direction:column;position:fixed;inset:0;z-index:10;">
         <div class="top-bar" style="justify-content:space-between;">
             <button id="dq-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
-            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-search"></i><span>数据查询</span><button id="dq-server" class="dq-srv" type="button" title="切换区服"><span id="dq-server-label">国际服</span></button></div>
+            <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);"><i class="fa fa-search"></i><span>数据查询</span><button id="dq-server" class="dq-srv" type="button" title="切换区服"><span class="dq-srv-opt" data-srv="cn">国服</span><span class="dq-srv-opt" data-srv="intl">国际服</span></button></div>
             <div></div>
         </div>
         <div class="dq-worlds" id="dq-worlds">
@@ -1706,7 +1720,7 @@
         </div>
     </div>
 
-    <!-- ===== 反馈&建议弹窗（类型必选/描述必填/图片可选 ≤3 张；逻辑在 settings.js） ===== -->
+    <!-- ===== 反馈&建议弹窗（类型必选/描述必填/联系邮箱选填/图片可选 ≤3 张；逻辑在 settings.js） ===== -->
     <div id="feedback-modal" class="modal-overlay hidden">
         <div class="modal-card w-sm" style="padding:1.25rem">
             <div class="flex items-center justify-between mb-3">
@@ -1721,6 +1735,7 @@
                     <button id="fb-kind-bug" class="flex-1 rounded-lg border-2 bg-transparent cursor-pointer" style="padding:10px 0; font-size:14px; font-weight:600; border-color:#e5e7eb; color:#64748b;">🐛 Bug</button>
                 </div>
                 <textarea id="fb-content" maxlength="500" placeholder="描述问题或建议（必填）" class="w-full rounded-lg border border-gray-200 p-2 text-sm text-gray-800 bg-white" style="min-height:90px; resize:vertical; box-sizing:border-box;"></textarea>
+                <input type="email" id="fb-email" maxlength="80" placeholder="如果你希望收到作者回复，请留下邮箱（选填）" class="w-full rounded-lg border border-gray-200 p-2 text-sm text-gray-800 bg-white" style="box-sizing:border-box; margin:8px 0;">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs text-gray-400">图片可选，最多 3 张（可多次添加）</span>
                     <span id="fb-count" class="text-xs text-gray-400">0/500</span>
@@ -1780,31 +1795,31 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/core.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/names.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/services.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261011-tmqm7l"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261011-tmqm7l"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261011-tmqm7l"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261011-tmqm7l"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/core.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/names.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/services.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261018-tn3v8a"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261018-tn3v8a"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261018-tn3v8a"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261018-tn3v8a"></script>
 </body>
 </html>
