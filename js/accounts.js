@@ -12,7 +12,6 @@
     const accountNotes = state.accountNotes;
     const accountOrder = state.accountOrder;
     const settings = state.settings;
-    const sessionDismissedCategories = state.sessionDismissedCategories;
     const calc = CocTool.calc;
 
     const jsonModal = document.getElementById('json-modal');
@@ -162,7 +161,9 @@ let initialized = false;
         accountOrder.forEach(tag => {
             const data = accounts[tag];
             if (!data) return;
-            const items = extractUpgradingItems(data, now, true);
+            // 顶部标题（待处理/空闲）对"任意程度屏蔽"（any 档）的分类一律不计——
+            // 屏蔽红点/通知即表示不在意工人空闲、该分类优先级不高（同账号进度页/小组件口径）
+            const items = calc.filterDismissedCategories(extractUpgradingItems(data, now, true), tag, 'any');
             let hasDone = false;
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, data);
@@ -172,11 +173,11 @@ let initialized = false;
                 }
             }
             if (hasDone) { accountsWithDone++; pendingTags.push(tag); }
-            // 空闲判定与总览区同口径：任一未屏蔽分类 分子<分母（有空位可下）。被屏蔽类目视为用户不关注，不计空闲
+            // 空闲判定：任一未被任意档屏蔽的分类 分子<分母（有空位可下）
             const counts = calc.getCategoryCounts(items);
             const denominators = calc.getCategoryDenominators(data);
             const hasIdle = ['buildings', 'lab', 'pets', 'buildings2', 'units2'].some(key =>
-                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key));
+                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key, 'any'));
             if (hasIdle) { accountsIdle++; idleTags.push(tag); }
         });
         _titleCycle = pendingTags.concat(idleTags);
@@ -595,8 +596,6 @@ let initialized = false;
         // 再清已发记录，否则 Handler 轮询旧调度会把刚推送过的任务再次补发（导入后重复通知）
         const displayName = accountNotes[tag] || tag;
         accounts[tag] = data;
-        // 清除单次屏蔽（新数据导入后恢复）
-        if (sessionDismissedCategories[tag]) { delete sessionDismissedCategories[tag]; settings.sessionDismissedCategories = sessionDismissedCategories; }
         if (!accountNotes[tag]) delete accountNotes[tag];
         addAccountToOrder(tag);
         // 记录导入日志（timestamp + boosts 便于比对调度计算）

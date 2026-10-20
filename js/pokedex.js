@@ -91,6 +91,7 @@
         { key: 'capacity', label: '容量', group: 'level' },
         { key: 'productionRate', label: '生产效率', group: 'level' },
         { key: 'housingSpace', label: '空间', icon: 'att_kj', group: 'level' },
+        { key: 'movementSpeed', label: '移速', icon: 'att_Speed', group: 'level' },
         { key: 'clonedCapacity', label: '克隆单位', icon: 'att_kl', group: 'level' },
         { key: 'recalledCapacity', label: '可召回部队数量', table: '可召回部队', icon: 'att_kj', group: 'level' },
         { key: 'heroHealPercent', label: '复活后生命值%', table: '复活生命', icon: 'att_herohp+', group: 'level' },

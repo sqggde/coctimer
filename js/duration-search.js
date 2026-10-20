@@ -254,6 +254,17 @@
         return text || '不足1秒';
     }
 
+    // 「到满级」只精确到时（分秒无参考价值）
+    function formatDurationToHour(seconds) {
+        if (seconds <= 0) return '0时';
+        const d = Math.floor(seconds / 86400);
+        const h = Math.floor((seconds % 86400) / 3600);
+        let text = '';
+        if (d > 0) text += d + '天';
+        if (h > 0) text += h + '时';
+        return text || '不足1时';
+    }
+
     function currentAccountData() {
         return CocTool.state && CocTool.state.currentAccount && CocTool.state.accounts
             ? CocTool.state.accounts[CocTool.state.currentAccount] : null;
@@ -648,7 +659,7 @@
             '<div class="flex items-center gap-3">' +
             '<span style="white-space:nowrap;">' +
             '<span class="text-xs text-gray-500">到满级：</span>' +
-            '<span class="text-xs font-medium text-gray-600">' + formatDuration(item.maxSeconds) + '</span>' +
+            '<span class="text-xs font-medium text-gray-600">' + formatDurationToHour(item.maxSeconds) + '</span>' +
             '</span>' +
             addHtml +
             '</div>' +
@@ -762,6 +773,7 @@
         getIndexForAccount: getIndexForAccount,
         normalizeResource: normalizeResource,
         matchesResource: matchesResource,
-        formatDuration: formatDuration
+        formatDuration: formatDuration,
+        formatDurationToHour: formatDurationToHour
     };
 })(window);

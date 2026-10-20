@@ -12,7 +12,6 @@
     const accountNotes = state.accountNotes;
     const accountOrder = state.accountOrder;
     const settings = state.settings;
-    const sessionDismissedCategories = state.sessionDismissedCategories;
     const calc = CocTool.calc;
 
     /* 渲染缓存（clash_cached_view）的版本号：缓存里存的是升级列表的**整段 innerHTML**，
@@ -1313,17 +1312,19 @@
         refs.card.classList.remove('hidden');
         const keys = ['buildings', 'lab', 'pets', 'buildings2', 'units2'];
         keys.forEach(key => {
-            const dismissed = calc.isCategoryDismissed(state.currentAccount, key);
+            // 三档屏蔽：progress = 升级列表与进度显示（-/- 与绿角标），dot = 本区红点；notify 只作用于通知链路
+            const progressDismissed = calc.isCategoryDismissed(state.currentAccount, key, 'progress');
+            const dotDismissed = calc.isCategoryDismissed(state.currentAccount, key, 'dot');
             const el = refs.els[key];
             if (el) {
-                // 屏蔽列分数显示 -/-（图标保留灰色可点击恢复）
-                const text = dismissed ? '-/-' : (counts[key] || 0) + '/' + (denominators[key] || 0);
+                // 升级进度屏蔽列分数显示 -/-（图标保留可点击调整）
+                const text = progressDismissed ? '-/-' : (counts[key] || 0) + '/' + (denominators[key] || 0);
                 if (el.textContent !== text) el.textContent = text;
             }
             const greenBadge = refs.badges[key];
             if (greenBadge) {
                 const completed = (completedCounts && completedCounts[key]) || 0;
-                if (completed > 0 && !dismissed) {
+                if (completed > 0 && !progressDismissed) {
                     if (greenBadge.textContent !== String(completed)) greenBadge.textContent = String(completed);
                     greenBadge.style.display = 'flex';
                 } else {
@@ -1334,53 +1335,96 @@
             if (redBadge) {
                 const c = counts[key] || 0;
                 const d = denominators[key] || 0;
-                const isDismissed = dismissed || (sessionDismissedCategories[state.currentAccount] && sessionDismissedCategories[state.currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount] && settings.dismissedCategories[state.currentAccount][key]);
-                const opacity = (d === 0 || c >= d || isDismissed) ? '0' : '1';
+                const opacity = (d === 0 || c >= d || dotDismissed) ? '0' : '1';
                 if (redBadge.style.opacity !== opacity) redBadge.style.opacity = opacity;
             }
             const iconEl = refs.icons[key];
             if (iconEl) {
                 iconEl.src = calc.getSummaryIconUrl(key);
             }
-            // 类目屏蔽：图标正常显示、分数 -/-（无独立样式，类仅作状态标记），仍可点击（连点3次恢复）
+            // 类目屏蔽：图标正常显示、分数 -/-（无独立样式，类仅作状态标记），仍可点击（点击打开屏蔽选项弹窗）
             const col = refs.columns[key];
             if (col) {
-                col.classList.toggle('summary-dismissed', dismissed);
+                col.classList.toggle('summary-dismissed', progressDismissed);
             }
         });
     }
 
-    // ===== 屏蔽弹窗交互 =====
+    // ===== 屏蔽选项弹窗交互（三档：红点 / 通知 / 升级进度） =====
     let dismissTargetKey = null;
-    let undismissTargetKey = null;
 
-    // 全局函数：点击分类概览图标
+    // 全局函数：点击分类概览图标 → 打开屏蔽选项弹窗（无论是否已屏蔽，回显当前勾选）
     function handleCategoryClick(key) {
-        const isDismissed = (sessionDismissedCategories[state.currentAccount] && sessionDismissedCategories[state.currentAccount][key]) || (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount] && settings.dismissedCategories[state.currentAccount][key]);
-        if (!isDismissed) {
-            dismissTargetKey = key;
-            document.getElementById('dismiss-modal').classList.remove('hidden');
-        } else {
-            // 已屏蔽 → 连点3次取消屏蔽
-            const card = getActiveSlideRoot().querySelector('#category-summary-card');
-            const clickKey = 'dismiss_click_' + key;
-            const now = Date.now();
-            const lastClick = parseInt(card.dataset[clickKey + '_time'] || '0');
-            const count = parseInt(card.dataset[clickKey + '_count'] || '0');
-            if (now - lastClick > 1000) {
-                card.dataset[clickKey + '_count'] = '1';
-            } else {
-                const newCount = count + 1;
-                card.dataset[clickKey + '_count'] = String(newCount);
-                if (newCount >= 3) {
-                    card.dataset[clickKey + '_count'] = '0';
-                    undismissTargetKey = key;
-                    document.getElementById('undismiss-modal').classList.remove('hidden');
-                    return;
-                }
+        if (!state.currentAccount) return;
+        dismissTargetKey = key;
+        openDismissModal();
+    }
+
+    function openDismissModal() {
+        const flags = calc.getDismissFlags(state.currentAccount, dismissTargetKey);
+        const dotCb = document.getElementById('dismiss-opt-dot');
+        const notifyCb = document.getElementById('dismiss-opt-notify');
+        const progressCb = document.getElementById('dismiss-opt-progress');
+        if (dotCb) dotCb.checked = flags.dot;
+        if (notifyCb) notifyCb.checked = flags.notify;
+        if (progressCb) progressCb.checked = flags.progress;
+        syncDismissProgressEnabled();
+        document.getElementById('dismiss-modal').classList.remove('hidden');
+    }
+
+    // 联动：勾「升级进度」需「红点」「通知」都已勾；取消前两项任一 → 「升级进度」自动取消
+    function syncDismissProgressEnabled() {
+        const dotCb = document.getElementById('dismiss-opt-dot');
+        const notifyCb = document.getElementById('dismiss-opt-notify');
+        const progressCb = document.getElementById('dismiss-opt-progress');
+        const row = document.getElementById('dismiss-opt-progress-row');
+        if (!dotCb || !notifyCb || !progressCb) return;
+        const unlocked = dotCb.checked && notifyCb.checked;
+        if (!unlocked) progressCb.checked = false;
+        progressCb.disabled = !unlocked;
+        if (row) row.classList.toggle('dismiss-opt-locked', !unlocked);
+    }
+
+    function closeDismissModal() {
+        document.getElementById('dismiss-modal').classList.add('hidden');
+        dismissTargetKey = null;
+    }
+
+    // 写入某账号该分类的屏蔽档位：三档全关 = 删除该键（取消屏蔽），空账号层一并清理
+    function writeDismissFlags(tag, key, flags) {
+        if (!settings.dismissedCategories) settings.dismissedCategories = {};
+        if (!flags.dot && !flags.notify && !flags.progress) {
+            const tagMap = settings.dismissedCategories[tag];
+            if (tagMap) {
+                delete tagMap[key];
+                if (!Object.keys(tagMap).length) delete settings.dismissedCategories[tag];
             }
-            card.dataset[clickKey + '_time'] = String(now);
+            return;
         }
+        if (!settings.dismissedCategories[tag]) settings.dismissedCategories[tag] = {};
+        settings.dismissedCategories[tag][key] = { dot: flags.dot, notify: flags.notify, progress: flags.progress };
+    }
+
+    function applyDismissModal(applyAll) {
+        const key = dismissTargetKey;
+        if (!key) return;
+        const dotCb = document.getElementById('dismiss-opt-dot');
+        const notifyCb = document.getElementById('dismiss-opt-notify');
+        const progressCb = document.getElementById('dismiss-opt-progress');
+        const flags = {
+            dot: !!(dotCb && dotCb.checked),
+            notify: !!(notifyCb && notifyCb.checked),
+            progress: !!(progressCb && progressCb.checked)
+        };
+        const tags = applyAll ? accountOrder.slice() : (state.currentAccount ? [state.currentAccount] : []);
+        tags.forEach(tag => writeDismissFlags(tag, key, flags));
+        saveSettings();
+        // 桌面小组件数据受屏蔽影响（任意档屏蔽即不显示该分类），settings 变化不走 saveAccounts，需手动同步
+        if (window.AndroidApp && typeof window.AndroidApp.syncWidgetData === 'function' && typeof CocTool.syncWidgetData === 'function') {
+            CocTool.syncWidgetData();
+        }
+        refreshCurrentAccountDisplay();
+        closeDismissModal();
     }
 
     function hydrateCache() {
@@ -1478,61 +1522,13 @@
 
             refreshCurrentAccountDisplay();
         });
-        document.getElementById('dismiss-session-btn')?.addEventListener('click', () => {
-            if (dismissTargetKey && state.currentAccount) {
-                if (!sessionDismissedCategories[state.currentAccount]) sessionDismissedCategories[state.currentAccount] = {};
-                sessionDismissedCategories[state.currentAccount][dismissTargetKey] = true;
-                settings.sessionDismissedCategories = sessionDismissedCategories;
-                saveSettings();
-                refreshCurrentAccountDisplay();
-            }
-            document.getElementById('dismiss-modal').classList.add('hidden');
-            dismissTargetKey = null;
-        });
-        document.getElementById('dismiss-forever-btn')?.addEventListener('click', () => {
-            if (dismissTargetKey && state.currentAccount) {
-                if (!sessionDismissedCategories[state.currentAccount]) sessionDismissedCategories[state.currentAccount] = {};
-                sessionDismissedCategories[state.currentAccount][dismissTargetKey] = true;
-                settings.sessionDismissedCategories = sessionDismissedCategories;
-                if (!settings.dismissedCategories) settings.dismissedCategories = {};
-                if (!settings.dismissedCategories[state.currentAccount]) settings.dismissedCategories[state.currentAccount] = {};
-                settings.dismissedCategories[state.currentAccount][dismissTargetKey] = true;
-                saveSettings();
-                refreshCurrentAccountDisplay();
-            }
-            document.getElementById('dismiss-modal').classList.add('hidden');
-            dismissTargetKey = null;
-        });
-        document.getElementById('dismiss-cancel-btn')?.addEventListener('click', () => {
-            document.getElementById('dismiss-modal').classList.add('hidden');
-            dismissTargetKey = null;
-        });
+        document.getElementById('dismiss-opt-dot')?.addEventListener('change', syncDismissProgressEnabled);
+        document.getElementById('dismiss-opt-notify')?.addEventListener('change', syncDismissProgressEnabled);
+        document.getElementById('dismiss-apply-btn')?.addEventListener('click', () => applyDismissModal(false));
+        document.getElementById('dismiss-apply-all-btn')?.addEventListener('click', () => applyDismissModal(true));
+        document.getElementById('dismiss-cancel-btn')?.addEventListener('click', closeDismissModal);
         document.getElementById('dismiss-modal')?.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('dismiss-modal')) {
-                document.getElementById('dismiss-modal').classList.add('hidden');
-                dismissTargetKey = null;
-            }
-        });
-
-        document.getElementById('undismiss-confirm-btn')?.addEventListener('click', () => {
-            if (undismissTargetKey && state.currentAccount) {
-                if (sessionDismissedCategories[state.currentAccount]) delete sessionDismissedCategories[state.currentAccount][undismissTargetKey];
-                if (settings.dismissedCategories && settings.dismissedCategories[state.currentAccount]) delete settings.dismissedCategories[state.currentAccount][undismissTargetKey];
-                saveSettings();
-                refreshCurrentAccountDisplay();
-            }
-            document.getElementById('undismiss-modal').classList.add('hidden');
-            undismissTargetKey = null;
-        });
-        document.getElementById('undismiss-cancel-btn')?.addEventListener('click', () => {
-            document.getElementById('undismiss-modal').classList.add('hidden');
-            undismissTargetKey = null;
-        });
-        document.getElementById('undismiss-modal')?.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('undismiss-modal')) {
-                document.getElementById('undismiss-modal').classList.add('hidden');
-                undismissTargetKey = null;
-            }
+            if (e.target === document.getElementById('dismiss-modal')) closeDismissModal();
         });
             // 助手阶段图标点击气泡提示（委托，slide 克隆后模板绑定不复制）
             displayArea.addEventListener('click', function(e) {

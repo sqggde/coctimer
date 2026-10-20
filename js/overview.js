@@ -12,12 +12,13 @@
     var sortDropdownBound = false;
 
     // 排序键：该账号所有升级项目（含已完成）中完成时间最早的一个（用户规则：最早完成的升级项目）
-    // 三处提取均按账号类目屏蔽过滤：被屏蔽分类（如星空实验室）不参与倒计时/排序/已完成图标
+    // 三处提取均按账号类目屏蔽过滤（'any' 档：红点/通知/升级进度任一档被勾即排除）——
+    // 用户屏蔽红点/通知即表示不在意工人空闲、该分类优先级不高，账号进度页不必显示它的升级项目
     function getNextCompletionTs(data) {
         try {
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
-            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag);
+            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag, 'any');
             var best = Infinity;
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
@@ -31,7 +32,7 @@
         try {
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
-            var all = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag);
+            var all = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, true), data.tag, 'any');
             var done = [];
             for (var i = 0; i < all.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(all[i], data);
@@ -214,7 +215,7 @@
             var pr = CocTool.features.progress;
             var now = Math.floor(Date.now() / 1000);
             var bestItem = null, bestRemaining = Infinity;
-            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, false), data.tag);
+            var items = CocTool.calc.filterDismissedCategories(pr.extractUpgradingItems(data, now, false), data.tag, 'any');
             for (var i = 0; i < items.length; i++) {
                 var cts = pr.calculateCompletionTimestamp(items[i], data);
                 var rem = cts - now;

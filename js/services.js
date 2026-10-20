@@ -555,8 +555,8 @@
         for (const tag of accountOrder) {
             const data = accounts[tag];
             if (!data) continue;
-            // 按账号类目屏蔽过滤：被屏蔽分类不推送升级完成通知
-            const items = filterDismissedCategories(extractUpgradingItems(data, now, true), tag);
+            // 按账号类目屏蔽过滤："通知"档勾选的分类不推送升级完成通知（源头已按"升级进度"档过滤，此处叠加）
+            const items = filterDismissedCategories(extractUpgradingItems(data, now, true), tag, 'notify');
             const accountName = accountNotes[tag] || tag;
             const helpers = data.helpers || [];
             const boosts = data.boosts || {};

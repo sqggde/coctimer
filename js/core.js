@@ -45,7 +45,6 @@
             builderBoostMode24: {}
         };
         if (includeLoadedFields) {
-            defaults.sessionDismissedCategories = {};
             defaults.builderMonthlyPass = {};
         }
         return defaults;
@@ -57,7 +56,6 @@
         accountOrder: [],
         currentAccount: null,
         settings: createSettingsDefaults(false),
-        sessionDismissedCategories: {},
         latestVersionData: null,
         hasUpdate: false,
         latestServerVersionCode: 0,
@@ -121,14 +119,14 @@
         try {
             const raw = localStorage.getItem(SETTINGS_KEY);
             if (!raw) {
-                replaceObject(state.sessionDismissedCategories, {});
                 return state.settings;
             }
-            replaceObject(state.settings, { ...createSettingsDefaults(true), ...JSON.parse(raw) });
-            replaceObject(state.sessionDismissedCategories, state.settings.sessionDismissedCategories || {});
+            const loaded = { ...createSettingsDefaults(true), ...JSON.parse(raw) };
+            // 单次屏蔽机制已删除（屏蔽改为三档：红点/通知/升级进度，见 calc.getDismissFlags），清理历史遗留字段
+            delete loaded.sessionDismissedCategories;
+            replaceObject(state.settings, loaded);
         } catch (error) {
             replaceObject(state.settings, createSettingsDefaults(true));
-            replaceObject(state.sessionDismissedCategories, {});
             console.error('读取设置失败，保留原始数据并使用默认设置', error);
         }
         return state.settings;
@@ -221,7 +219,9 @@
                 if (!account) continue;
 
                 // 复用权威提取逻辑（含加速/精工台/递归处理）；includeCompleted=true 以区分已完成节点（绿色）
-                var items = calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true);
+                // 小组件对"任意程度屏蔽"（红点/通知/升级进度任一档）都排除该类目的升级项目：
+                // 用户屏蔽红点/通知即表示不在意工人空闲（该分类优先级不高），小组件不必显示
+                var items = calc.filterDismissedCategories(calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true), tag, 'any');
                 var upgrades = [];
                 for (var j = 0; j < items.length; j++) {
                     var item = items[j];

@@ -666,6 +666,50 @@ body.bg-gray-50 {
     overflow-y: auto;
 }
 
+/* ===== 屏蔽选项弹窗的勾选行（三档：红点 / 通知 / 升级进度） ===== */
+.dismiss-opts {
+    margin-bottom: 8px;
+}
+.dismiss-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;   /* 触控目标 ≥34px（DESIGN §一） */
+    font-size: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.dismiss-opt input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex-shrink: 0;
+    accent-color: #3b82f6;   /* 同活动区服筛选勾选（more.css 先例） */
+    cursor: pointer;
+}
+/* 「升级进度」前置未满足：整行灰显（disabled 由 JS 切），提示"需先勾选红点和通知" */
+.dismiss-opt-hint {
+    display: none;
+    font-size: 12px;
+}
+.dismiss-opt-locked {
+    cursor: default;
+    opacity: .55;
+}
+.dismiss-opt-locked .dismiss-opt-hint {
+    display: inline;
+}
+.dismiss-opt-locked input[type="checkbox"] {
+    cursor: default;
+}
+/* 「应用到全部账号」= 操作行"更多"那支深灰蓝（次级操作色，深浅同值） */
+.dismiss-apply-all {
+    background-color: #475569;
+}
+.dismiss-apply-all:hover {
+    background-color: #3b475a;
+}
+
 .boost-time-text { font-size:11px; font-weight:500; color:#374151; font-variant-numeric:tabular-nums; }
 .dark .boost-time-text { color:#fff !important; }
 /* ===== 首页区卡（**只剩 2 张**；2026-09-15 按**方案 03**的 `.card` 口径）=====

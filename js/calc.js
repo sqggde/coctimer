@@ -870,21 +870,31 @@
         return { 5: 'text-success', 4: 'text-danger_red', 3: 'text-warning_orangered', 2: 'text-warning_orange', 1: 'text-warning_yellow', 0: defaultColor }[priority] || defaultColor;
     }
 
-    // ========== 分类目屏蔽（按账号两层记忆：session 单次屏蔽 + settings.dismissedCategories 永久屏蔽） ==========
-    // 仅覆盖总览区 5 个分类键（buildings/lab/pets/buildings2/units2），条目经 getItemCategory 归类后匹配；
-    // 生效范围 = 解析源头（extractUpgradingItems 直接不产出被屏蔽条目）：升级列表/总览区灰态/账号 tab 配色/主标题环/排序弹窗/通知调度 全链路免扰
-    function isCategoryDismissed(tag, categoryKey) {
-        if (!tag || !categoryKey) return false;
-        const sessionMap = state.sessionDismissedCategories && state.sessionDismissedCategories[tag];
-        if (sessionMap && sessionMap[categoryKey]) return true;
+    // ========== 分类目屏蔽（按账号记忆：settings.dismissedCategories = {tag: {key: {dot,notify,progress}}}） ==========
+    // 三档程度：dot=首页总览红点 / notify=升级完成通知 / progress=升级列表及首页进度（解析源头不产出被屏蔽条目
+    // → 升级列表/总览区灰态/账号 tab 配色/主标题环/排序弹窗/道具推演 全链路免扰）
+    // level='any' = 任一档被勾（账号进度页与桌面小组件用：任意程度屏蔽即不显示该分类的升级项目）
+    // 兼容旧数据：值为 true 时视为三档全屏蔽（未升级端读到对象按 truthy 也当全屏蔽，降级安全）
+    function getDismissFlags(tag, categoryKey) {
+        const none = { dot: false, notify: false, progress: false };
+        if (!tag || !categoryKey) return none;
         const permMap = settings.dismissedCategories && settings.dismissedCategories[tag];
-        return !!(permMap && permMap[categoryKey]);
+        const value = permMap && permMap[categoryKey];
+        if (!value) return none;
+        if (value === true) return { dot: true, notify: true, progress: true };
+        return { dot: !!value.dot, notify: !!value.notify, progress: !!value.progress };
     }
 
-    function filterDismissedCategories(items, tag) {
+    function isCategoryDismissed(tag, categoryKey, level) {
+        const flags = getDismissFlags(tag, categoryKey);
+        if (level === 'any') return flags.dot || flags.notify || flags.progress;
+        return !!flags[level || 'progress'];
+    }
+
+    function filterDismissedCategories(items, tag, level) {
         if (!items) return [];
         if (!tag) return items;
-        return items.filter(i => !isCategoryDismissed(tag, getItemCategory(i)));
+        return items.filter(i => !isCategoryDismissed(tag, getItemCategory(i), level));
     }
 
     function getAccountTabColor(data) {
@@ -1118,7 +1128,8 @@
         // state.accounts 是对象，需要遍历其值
         const accounts = Object.values(state.accounts);
         for (const account of accounts) {
-            const items = filterDismissedCategories(extractUpgradingItems(account, now, true), account.tag);
+            // 前台统计属于"通知"通道：按 notify 档排除被屏蔽分类（源头已按 progress 过滤，此处叠加）
+            const items = filterDismissedCategories(extractUpgradingItems(account, now, true), account.tag, 'notify');
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, account);
                 if (completionTs <= now) {
@@ -1169,6 +1180,7 @@
         noteKeyTs,
         reconcileNoteKeys,
         isCategoryDismissed,
+        getDismissFlags,
         filterDismissedCategories,
         getAccountTabColor,
         getRemainingColor,
