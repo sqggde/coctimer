@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261020-tn7anr';
+const CACHE = 'coc-tool-web-20261026-tnimun';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -35,6 +35,7 @@ const CORE_FILES = [
     "./js/services.js",
     "./js/settings.js",
     "./js/skin-names.js",
+    "./js/skins.js",
     "./js/svg-icons.js",
     "./js/vendor",
     "./js/war-stats.js",
