@@ -9,7 +9,7 @@
     const state = CocTool.state;
     const settings = state.settings;
     const accounts = state.accounts;
-    const dataInfoDiv = document.getElementById('data-info');
+    const summaryCard = document.getElementById('category-summary-card');
     let initialized = false;
     const calc = CocTool.calc;
 
@@ -87,7 +87,7 @@
     const supportBtn = document.getElementById('support-btn');
     const supportModal = document.getElementById('support-modal');
     const supportCloseBtn = document.getElementById('support-close-btn');
-    const hideDataInfoToggle = document.getElementById('hide-data-info-toggle');
+    const dataInfoToggleBtn = document.getElementById('data-info-toggle');
     const chestDetectToggle = document.getElementById('chest-detect-toggle');
     const autoImportToggle = document.getElementById('auto-import-toggle');
     const advanceNotifyBtn = document.getElementById('advance-notify-btn');
@@ -99,7 +99,6 @@
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const darkModeAutoBtn = document.getElementById('dark-mode-auto-btn');
     function applySettings() {
-        hideDataInfoToggle.checked = settings.hideDataInfo;
         chestDetectToggle.checked = settings.chestDetect;
         autoImportToggle.checked = settings.autoImport;
         const stEl = document.getElementById('stealth-mode-toggle');
@@ -114,7 +113,7 @@
         darkModeAutoBtn.className = settings.darkModeAuto
             ? 'px-2 py-1 rounded transition-all duration-200 text-xs bg-blue-500 text-white'
             : 'px-2 py-1 rounded transition-all duration-200 text-xs bg-gray-300 text-gray-500';
-        dataInfoDiv.classList.toggle('hidden', settings.hideDataInfo);
+        summaryCard.classList.toggle('info-collapsed', settings.dataInfoExpanded === false);
         sleepTimeBtn.className = settings.nightMode
             ? 'px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-blue-200 text-blue-700 cursor-pointer hover:bg-blue-300'
             : 'px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-gray-300 text-gray-500 cursor-not-allowed';
@@ -365,6 +364,7 @@
 
         // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
         const UPDATE_LOG = [
+            ['1.5.5', '26.10.26', ['首页：账号信息卡并入总览卡，右上角箭头控制显隐', '新增皮肤收集，点图标可看大图，多张可切换', 'ui优化：详情页英雄行顺序调整', '部落战/联赛/对战日志：官方API无响应时提示维护中', '阵型中心：图片缓存不再长期占用存储']],
             ['1.5.4', '26.10.18', ['屏蔽功能优化：新增红点/通知/升级进度三档；支持应用到全部账号', '时间搜索：卡片显示下一级/到满级时间', '数据查询：区服切换优化；超级兵种图标更正', '图鉴数据修正', '小组件刷新点击区域扩大']],
             ['1.5.3', '26.10.9', ['图鉴：修复精工形态名称与打开', '联赛统计：返回手势回到联赛页', '流派统计：保留底部导航栏']],
             ['1.5.2', '26.10.7', ['流派统计：更多页新增传奇杯配兵榜', '活动展区：新增单行 / 平铺切换', '图鉴：新增传送吊坠（90000061）', '联赛统计：详情页新增统计入口', '图鉴数据修正', '其他多处优化']],
@@ -800,8 +800,8 @@
             });
         });
 
-        hideDataInfoToggle.addEventListener('change', () => {
-            settings.hideDataInfo = hideDataInfoToggle.checked;
+        dataInfoToggleBtn.addEventListener('click', () => {
+            settings.dataInfoExpanded = !settings.dataInfoExpanded;
             saveSettings();
             applySettings();
         });

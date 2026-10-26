@@ -790,6 +790,221 @@
         }
         .ov-sub-label:first-child { padding-top: 0; }
 
+        /* ===== 皮肤收集 tab（js/skins.js 渲染，复用 .ov-cat 面板与 .ov-icon-wrap 瓷贴） =====
+           子 tab 行（全部/蛮王/女王/…）：选择控件同 .ov-tab 的令牌配方，横向滚动、隐藏滚动条；
+           行内边距 16px 与主 tab 条对齐（本页是全屏层、无外层容器留白，不需要负边距出血） */
+        /* 面板撑满滚动视口（min-height 100% = scroll 的 content box 高，即 clientHeight − 80 底 padding）：
+           短内容 tab（机器/直升机只有几张卡）时 .sk-body 也被 flex 拉到 tab 以下整片空白，
+           左右滑手势（绑在 .sk-body）才能全区域生效——否则空白区触摸不冒泡到它，滑不动的错觉 */
+        #ov-detail-skins {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+        #ov-detail-skins .sk-body { flex: 1; }
+        .sk-subtabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 6px 16px 8px;
+            flex-shrink: 0;
+        }
+        .sk-subtabs::-webkit-scrollbar { display: none; }
+        .sk-subtab {
+            flex: 0 0 auto;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--td-sel-color);
+            background-color: var(--td-sel-bg);
+            background-image: var(--td-sel-sheen);
+            border: var(--td-sel-bw) solid var(--td-sel-bd);
+            border-radius: var(--td-sel-r);
+            box-shadow: var(--td-sel-shadow);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .sk-subtab.active {
+            color: var(--td-sel-on-color);
+            background-color: #2563eb;
+            background-image: var(--td-sel-on-img);
+            box-shadow: var(--td-sel-on-shadow);
+            font-weight: 600;
+        }
+        /* 英雄子 tab 的图标形态（原皮形象；原皮不入册，形象转世成 tab） */
+        .sk-subtab-ic { padding: 3px; line-height: 0; }
+        .sk-subtab-ic img {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            display: block;
+            border-radius: 5px;
+        }
+        /* 勋章形皮肤卡（游戏内展示样式收敛版）：一行随视口换行、紫框 + 深底 + 下方名字行、
+           未拥有整框灰化。紫底金框与主题轴无关（用户指定配色），名字行随明暗令牌。 */
+        /* 勋章墙（2026-10-25 定稿）：**固定 46px 绝对尺寸**（图标 40px，用户拍板：可比图鉴 32px 大一些；
+           紫框紫底配色用户指定——边框 #DC5DE7 带光泽、内底 #7516B2——此前用 calc 相对尺寸，
+           宽视口（桌面浏览器）上卡片会膨胀到 200px+，这正是连改三轮都嫌大的根因）；
+           一行几个由视口自然换行决定（412px 手机 = 7 个）；
+           名字行（用户 2026-10-25 加回）：图标下小字居中，长名两行截断不撑破轨道 */
+        /* Grid + space-between：列数随宽度自动填满（auto-fill 46px 轨道）、两端恒齐边——
+           固定卡片尺寸下不同手机宽度不能整除（412→7/行余12px、390→6/行余42px≈一卡宽，观感尴尬），
+           余白由 justify-content 均摊进列距；auto-fill 保留空轨道 → 末行天然左对齐（flex space-between 会拉开末行，grid 不会） */
+        .sk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 46px);
+            column-gap: 5px;
+            row-gap: 8px;
+            justify-content: space-between;
+        }
+        .sk-frame {
+            position: relative;
+            padding: 3px;
+            border-radius: 8px;
+            /* 边框层：#DC5DE7 实底 + 左上→右下 135° 斜向光泽（宽而淡的高光面，同 §4.6 立体语言） */
+            background-color: #DC5DE7;
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, .42) 0%, rgba(255, 255, 255, .07) 42%, rgba(0, 0, 0, .13) 100%);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .28);
+        }
+        .sk-icon {
+            width: 40px;
+            aspect-ratio: 1 / 1;
+            display: block;
+            border-radius: 5px;
+            /* 内底：#7516B2 基色，上深下浅的轻微明暗 */
+            background: linear-gradient(180deg, #6a1399 0%, #7516B2 55%, #8329c7 100%);
+            object-fit: cover;
+        }
+        /* 未拥有（2026-10-25 用户拍板，由黄金令牌款推广到全部）：图标灰化、框保持彩色——
+           框色（紫/金）本身就是"这系列/这皮肤"的辨识信号，整框灰化会连信号一起灰掉 */
+        .sk-locked .sk-icon { filter: grayscale(1) opacity(.55); }
+        /* 系列分组标签加强（用户 2026-10-25：比通用 .ov-sub-label 更显眼）——仅皮肤页、不动主/夜世界：
+           13px/700/正文色（通用版 12px/500/#9ca3af），dark 下亮灰；计数随标签但略小一号 */
+        .sk-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+        }
+        .sk-label .sk-cnt { font-size: 11px; }
+        /* 品质框配色**按服区分**（用户 2026-10-25 提供游戏内真值）：默认 = 国际服——
+           黄金令牌亮金（边框 #FFD255(255,210,85)、内底 #D57D0D(213,125,13)，三段明暗照紫款推导，
+           名单见生成器 GOLD_PASS_ZH）；cn 侧（容器 .sk-cn）游戏内黄金令牌是米金：
+           底 #F7E1BC(247,225,188) + 框 #BFB790(191,183,144)（红框三系列例外：两服都用亮金，见 .sk-red 段）。
+           cn 默认框为蓝（见 .sk-cn .sk-frame）、橙十系列紫色方案（见 .sk-orange）。三段明暗照各服基色推导 */
+        /* cn 默认框（用户 2026-10-25 指定）：底 #3293CB(50,147,203) + 框 #46A0D4(70,160,212) 的蓝色——
+           国服侧普通皮肤用蓝，与紫（橙品质款专用）区分；三段明暗照紫款结构推导。
+           必须写在品质款（.sk-gold/.sk-red/.sk-orange）之前：同为 (0,2,0) 特异性、后写者赢 */
+        .sk-cn .sk-frame { background-color: #46A0D4; }
+        .sk-cn .sk-icon {
+            background: linear-gradient(180deg, #28709F 0%, #3293CB 55%, #4AA8DE 100%);
+        }
+        .sk-gold .sk-frame { background-color: #FFD255; }
+        .sk-gold .sk-icon {
+            background: linear-gradient(180deg, #B8690A 0%, #D57D0D 55%, #E9951F 100%);
+        }
+        /* cn 侧仅黄金令牌切米金；红框三系列两服都用国际服亮金框（用户 2026-10-25 纠正：
+           它们在游戏内的品质表现 = 亮金，不是国服米金） */
+        .sk-cn .sk-gold .sk-frame { background-color: #BFB790; }
+        .sk-cn .sk-gold .sk-icon {
+            background: linear-gradient(180deg, #E8D5A8 0%, #F7E1BC 55%, #FBF0D6 100%);
+        }
+        /* 红框品质款（用户 2026-10-25）：火烧赤壁/紫禁龙腾/皮影闹新春三系列整批（生成器 RED_FRAME_SERIES）；
+           **配色 = 国际服亮金框**（用户同日纠正：这三系列在游戏内的品质表现就是亮金框，此前推导的
+           正红与"cn 侧米金"两版都作废）——与 .sk-gold 的 intl 配色同值，但品质语义独立（类与名单不合并） */
+        .sk-red .sk-frame { background-color: #FFD255; }
+        .sk-red .sk-icon {
+            background: linear-gradient(180deg, #B8690A 0%, #D57D0D 55%, #E9951F 100%);
+        }
+        /* 橙框品质款（用户 2026-10-25）：青云仙域〔青云域改名〕/夏日2026/上河图/墨绘山海/大闹天宫/
+           星海方舟/足球盛典/星际漫游/梦回大唐/天宫探秘十系列整批（生成器 ORANGE_FRAME_SERIES）；
+           **同日拍板改用紫色方案**（#DC5DE7/#7516B2 与默认紫同款）——原名沿用（orangeFrame/.sk-orange
+           只是品质标识，色值随拍板走）；intl 侧无此类皮肤、cn 侧默认框已改蓝 → 紫块在蓝海中即品质辨识 */
+        .sk-orange .sk-frame { background-color: #DC5DE7; }
+        .sk-orange .sk-icon {
+            background: linear-gradient(180deg, #6a1399 0%, #7516B2 55%, #8329c7 100%);
+        }
+        .sk-name {
+            margin-top: 3px;
+            font-size: 10px;
+            line-height: 1.3;
+            text-align: center;
+            color: inherit;
+            /* anywhere 而非 break-all：中文照常逐字断，英文优先在连字符处断（Clash-A-Rama 不被硬切） */
+            word-break: normal;
+            overflow-wrap: anywhere;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+        /* 未拥有：框灰化只作用 .sk-frame，名字行文字另降一档（选择态令牌 = 三级文字） */
+        .sk-locked .sk-name { color: var(--td-sel-color); }
+        .sk-cnt { margin-left: 4px; color: #9ca3af; font-variant-numeric: tabular-nums; }
+        /* ===== 高清展示图预览（点瓷贴，skins.js openPreview）=====
+           黑底沉浸查看器（图片查看器惯例，与主题轴无关）；复用 .modal-overlay 壳 → 返回键可关 */
+        .modal-overlay.sk-preview { background: rgba(0, 0, 0, 0.9); z-index: 60; }
+        .sk-preview-box {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 94vw;
+        }
+        .sk-preview-img {
+            max-width: 94vw;
+            max-height: 76vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .sk-preview-empty { color: #d1d5db; font-size: 15px; padding: 48px 36px; }
+        /* 加载中：spinner 居中 + min-height 占位（防止图片到达时布局跳变）；黑底白圈 */
+        .sk-preview-loading {
+            min-height: 42vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 94vw;
+        }
+        .sk-preview-loading.hidden { display: none; }
+        .sk-preview-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(255, 255, 255, 0.18);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: skspin 0.8s linear infinite;
+        }
+        @keyframes skspin { to { transform: rotate(360deg); } }
+        .sk-preview-name { color: #fff; font-size: 14px; }
+        .sk-preview-bar { display: flex; align-items: center; gap: 14px; min-height: 34px; }
+        .sk-preview-num { color: #d1d5db; font-size: 13px; font-variant-numeric: tabular-nums; }
+        .sk-preview-nav {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .sk-preview-nav.hidden { display: none; }
+        .sk-preview-close {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         /* ===== Dark mode ===== */
         .dark #overview-detail-page { background: var(--td-page2) !important; color: #e5e7eb; }
         .dark #overview-page .detail-back { color: #60a5fa; }
@@ -815,6 +1030,9 @@
         .dark .ov-cat-pct { color: #9ca3af; }
         .dark .ov-hero-row { border-bottom-color: var(--td-line); }
         .dark .ov-sub-label { color: #6b7280; }
+        .dark .sk-subtab.active { color: var(--td-sel-on-color); }
+        .dark .sk-label { color: #e5e7eb; }
+        .dark .sk-cnt { color: #7c8098; }
         .dark #overview-page { color: #e5e7eb; }
         .dark #overview-page .top-bar .title { color: #e5e7eb; }
         .dark #overview-page .top-bar .title i { color: #60a5fa; }

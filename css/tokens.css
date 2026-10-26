@@ -46,7 +46,7 @@
        （2026-09-18「状态栏与主题同色后顶部读成空」那次收的），用户 2026-09-20 反馈「过于逼仄」→ 统一抬到 8px。 */
     --td-topbar-fs: 17px;                     /* 顶栏标题字号 */
     --td-topbar-pt: 8px;                      /* 页面最顶端那条的上内边距 */
-    --td-card-bg: #ffffff;                    /* 区卡 / 信息卡 / 总览卡底 */
+    --td-card-bg: #ffffff;                    /* 区卡 / 总览卡底 */
     --td-row-bg: #ffffff;                     /* 升级行卡底 */
     --td-tab-bg: #ffffff;                     /* 账号 tab 未选中底 */
     --td-shell-bg: transparent;               /* 升级列表外壳（极简下是"白卡包整块列表"） */
@@ -61,7 +61,6 @@
     --td-card-sheen: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
     --td-card-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.30), inset 0 -1px 2px rgba(148, 163, 184, 0.22), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
     --td-row-shadow: inset 0 1px 2px rgba(148, 163, 184, 0.30), inset 0 -1px 2px rgba(148, 163, 184, 0.22), 0 1px 4px -1px rgba(0, 0, 0, 0.22);
-    --td-info-margin: 0 0 4px;                /* #data-info 外边距 */
     --td-sum-margin: 0 0 4px;                 /* #category-summary-card 外边距 */
 
     /* —— 面板（子页面里的卡片：账号卡/部落卡/分类卡/统计卡/图鉴区块/阵型卡…）
@@ -274,8 +273,7 @@ html[data-style="minimal"] {
     --td-card-bw: 0px;
     --td-card-sheen: none;
     --td-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --td-row-shadow: none;                    /* 旧版行卡没有投影（只有 data-info/总览卡有 shadow-md） */
-    --td-info-margin: 0;
+    --td-row-shadow: none;                    /* 旧版行卡没有投影（只有总览卡有 shadow-md） */
     --td-sum-margin: 6px 0 4px;
 
     /* 面板：旧版 = 白底 + 12px + 很轻的投影，**不画描边**（shadow 造边） */

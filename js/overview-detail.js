@@ -11,7 +11,8 @@
     var showTimeMode = false;
     var currentProgress = null;
 
-    var HOME_HEROES = ['28000000','28000001','28000002','28000004','28000006','28000007'];
+    // 英雄顺序 = 用户 2026-10-25 拍板的全站口径：蛮王 女王 王子 永王 闰土 公爵（皮肤页子 tab/系列内部同此序）
+    var HOME_HEROES = ['28000000','28000001','28000006','28000002','28000004','28000007'];
     var PETS = ['73000000','73000002','73000001','73000003','73000009','73000008','73000007','73000004','73000010','73000011','73000016','73000017'];
     // 兵种/法术：二维数组 = 详情页两行布局（每行一个网格），顺序按用户规定（游戏内兵营/实验室顺序）
     var LAB_TROOPS = [
@@ -28,9 +29,11 @@
     var EQ_MAP = {
         '28000000': ['90000051','90000032','90000014','90000010','90000011','90000008','90000001','90000000'],
         '28000001': ['90000016','90000048','90000039','90000015','90000020','90000017','90000003','90000002'],
+        // 王子(28000006)/公爵(28000007) 的清单曾长期互换（与 meta eqHeroMap 对拍纠正，2026-10-25）；
+        // 键序 = 用户拍板的英雄序：蛮王 女王 王子 永王 闰土 公爵
+        '28000006': ['90000061','90000049','90000035','90000047','90000044','90000043','90000042'],
         '28000002': ['90000019','90000041','90000022','90000034','90000024','90000005','90000004'],
         '28000004': ['90000050','90000040','90000013','90000012','90000009','90000006','90000007'],
-        '28000006': ['90000061','90000049','90000035','90000047','90000044','90000043','90000042'],
         '28000007': ['90000060','90000053','90000059','90000056','90000057','90000052']
     };
     // 史诗装备（底色紫；普通蓝）——与 js/meta-stats.js 的 EPIC_EQ 及 coc-api-proxy/meta-stats.js 三处同表，
@@ -146,11 +149,14 @@
         el.detailNight = document.getElementById('ov-detail-night');
         el.tabHome = document.getElementById('ov-tab-home');
         el.tabNight = document.getElementById('ov-tab-night');
+        el.tabSkins = document.getElementById('ov-tab-skins');
         el.tabIndicator = document.getElementById('ov-tab-indicator');
+        el.detailSkins = document.getElementById('ov-detail-skins');
 
         if (el.detailBack) el.detailBack.addEventListener('click', goBack);
         if (el.tabHome) el.tabHome.addEventListener('click', function () { switchTab('home'); });
         if (el.tabNight) el.tabNight.addEventListener('click', function () { switchTab('night'); });
+        if (el.tabSkins) el.tabSkins.addEventListener('click', function () { switchTab('skins'); });
         // 分享图键不在这里绑定：它是渲染进 `.ov-top-row` 的（`shareBtnHtml()`，onclick 硬引用），
         // 两个世界各一份、每次重渲染都会被重建 —— 挂监听会随 innerHTML 一起丢掉，必须走 onclick
 
@@ -187,24 +193,8 @@
                     CocTool.features.pokedex.open(id, level, currentDetailTag, craftModuleLevels(id));
                 }
             });
-            var startX = 0, startY = 0, swipeFromEq = false;
-            el.detailScroll.addEventListener('touchstart', function (e) {
-                if (e.touches.length === 1) {
-                    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-                    // 起手落在英雄装备行里 → 这一笔是"横滑看装备"（.ov-eq-wrap 可横向滚动），不切世界
-                    swipeFromEq = !!(e.target && e.target.closest && e.target.closest('.ov-eq-wrap'));
-                }
-            }, { passive: true });
-            el.detailScroll.addEventListener('touchend', function (e) {
-                if (e.changedTouches.length === 1 && !swipeFromEq) {
-                    var dx = e.changedTouches[0].clientX - startX;
-                    var dy = e.changedTouches[0].clientY - startY;
-                    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                        if (dx < 0 && currentTab === 'home') switchTab('night');
-                        else if (dx > 0 && currentTab === 'night') switchTab('home');
-                    }
-                }
-            }, { passive: true });
+            // 左右滑切主/夜世界已撤销（用户 2026-10-25）：左右滑下放到皮肤页切子 tab（js/skins.js），
+            // 装备行横滑与切 tab 的冲突随之消失（原 swipeFromEq 手势守卫一并移除）
         }
     }
 
@@ -241,10 +231,21 @@
         if (el.detailTitle) el.detailTitle.textContent = accName;
         if (el.detailPage) el.detailPage.style.display = 'flex';
         currentTab = 'home';
+        skinsRendered = false;
         updateTabUI();
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
         if (el.detailScroll) el.detailScroll.scrollTop = 0;
+    }
+
+    // 皮肤 tab 懒渲染标记：362 张远程图标，只在首次切入时渲染（openDetail 置脏）
+    var skinsRendered = false;
+    function renderSkinsOnce() {
+        if (skinsRendered || !el.detailSkins || !currentDetailTag) return;
+        var data = state.accounts[currentDetailTag];
+        if (!data || !CocTool.skins) return;
+        CocTool.skins.render(el.detailSkins, data);
+        skinsRendered = true;
     }
 
     function switchTab(tab) {
@@ -254,15 +255,22 @@
     }
 
     function updateTabUI() {
-        if (el.tabHome) el.tabHome.classList.toggle('active', currentTab === 'home');
-        if (el.tabNight) el.tabNight.classList.toggle('active', currentTab === 'night');
-        if (el.detailHome) el.detailHome.style.display = currentTab === 'home' ? '' : 'none';
-        if (el.detailNight) el.detailNight.style.display = currentTab === 'night' ? '' : 'none';
-        if (el.tabIndicator && el.tabHome && el.tabNight) {
-            var activeTab = currentTab === 'home' ? el.tabHome : el.tabNight;
+        var tabs = { home: el.tabHome, night: el.tabNight, skins: el.tabSkins };
+        var panels = { home: el.detailHome, night: el.detailNight, skins: el.detailSkins };
+        var activeTab = null;
+        for (var key in tabs) {
+            if (!tabs[key]) continue;
+            tabs[key].classList.toggle('active', currentTab === key);
+            if (currentTab === key) activeTab = tabs[key];
+        }
+        for (var pk in panels) {
+            if (panels[pk]) panels[pk].style.display = currentTab === pk ? '' : 'none';
+        }
+        if (el.tabIndicator && activeTab) {
             el.tabIndicator.style.width = activeTab.offsetWidth + 'px';
             el.tabIndicator.style.transform = 'translateX(' + activeTab.offsetLeft + 'px)';
         }
+        if (currentTab === 'skins') renderSkinsOnce();
     }
 
     function iconPath(dataId, cat) {

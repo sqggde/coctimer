@@ -634,7 +634,7 @@
         return completionTimestamp;
     }
 
-    function extractUpgradingItems(data, nowTimestamp, includeCompleted = false) {
+    function extractUpgradingItems(data, nowTimestamp, includeCompleted = false, dismissLevel = 'progress') {
         const upgrading = [];
         // 通知去重键（uniqueId）加账号前缀：跨账号同建筑同级别互不干扰（requestCode/notifyId/sentMessages 隔离）
         const tagPrefix = data.tag ? data.tag + '_' : '';
@@ -677,8 +677,10 @@
             }
         });
         // 源头阻断：被屏蔽分类（按账号两层记忆）的条目不进入解析结果，
-        // 下游（升级列表/总览区/tab 配色/主标题环/排序弹窗/通知调度）全链路自然免扰
-        return data.tag ? filterDismissedCategories(upgrading, data.tag) : upgrading;
+        // 下游（升级列表/总览区/主标题环/排序弹窗/通知调度）全链路自然免扰。
+        // dismissLevel：默认 progress（列表/通知链路沿用）；账号切换 tab 传 'any'——
+        // 被任意档屏蔽的类目不参与 tab 配色/睡眠高亮（用户 2026-10-20）
+        return data.tag ? filterDismissedCategories(upgrading, data.tag, dismissLevel) : upgrading;
     }
 
     function getItemCategory(item) {
@@ -899,7 +901,7 @@
 
     function getAccountTabColor(data) {
         const now = Math.floor(Date.now() / 1000);
-        const allItems = extractUpgradingItems(data, now, true);
+        const allItems = extractUpgradingItems(data, now, true, 'any');
         let highestPriority = 0;
         for (const item of allItems) {
             const completionTs = calculateCompletionTimestamp(item, data);
@@ -1056,7 +1058,7 @@
     function hasSleepHighlight(data) {
         if (!settings.nightMode || !data) return false;
         const now = Math.floor(Date.now() / 1000);
-        const items = extractUpgradingItems(data, now, true);
+        const items = extractUpgradingItems(data, now, true, 'any');
         for (const item of items) {
             const completionTs = calculateCompletionTimestamp(item, data);
             if (isInSleepRange(completionTs)) return true;

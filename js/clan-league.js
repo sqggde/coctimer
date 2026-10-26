@@ -302,6 +302,17 @@
         })
             .then(function(r) {
                 if (r.status === 404) throw { leagueNotFound: true };
+                if (r.status === 503) {
+                    return r.json().then(function(body) {
+                        // 官方 API 5 秒无响应：代理 503 + upstreamTimeout
+                        if (body && body.reason === 'upstreamTimeout') {
+                            var e = new Error(body.error || '官方 API 维护中，请稍后再试');
+                            e.maintenance = true;
+                            throw e;
+                        }
+                        throw new Error('HTTP 503');
+                    });
+                }
                 if (r.status === 403) {
                     return r.json().then(function(body) {
                         // 对战日志未公开：官方 403 + accessDenied（与部落战一致）
@@ -350,6 +361,18 @@
                         if (p) p.textContent = '此部落对战日志未公开';
                         el.detailEmpty.classList.remove('hidden');
                     }
+                    return;
+                }
+                if (err && err.maintenance) {
+                    // 官方 API 维护中：空态文案 + toast 都用服务端提示
+                    hideAllDetailViews();
+                    if (el.detailEmpty) {
+                        var p = el.detailEmpty.querySelector('p');
+                        if (p) p.textContent = err.message;
+                        el.detailEmpty.classList.remove('hidden');
+                    }
+                    if (el.leagueTabs) el.leagueTabs.classList.remove('hidden');
+                    showToast(err.message, 2500);
                     return;
                 }
                 showToast('获取联赛信息失败', 2000);

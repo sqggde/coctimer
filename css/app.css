@@ -790,14 +790,20 @@ body.bg-gray-50 {
 .dark .upgrade-card.sleep-highlight, .dark .section-card.sleep-highlight {
     background-color: #000000 !important;
 }
-/* **两张区卡的内边距 = 各自"改风格之前"的原值**（用户 2026-09-15：「或许三个卡片，你都应用回风格改前的
-   内边距，上下左右」）——就是它们原来挂的 Tailwind 间距类。ID 权重高于类，所以基础规则里不写 padding。
-   （**别写 `:last-child{margin-bottom:0}`**：账号信息卡外面还套了一层裸 `<div>`，它自己是那个盒子的
-   last-child，一写就等于"两张卡贴一起"——实测间距变成 0。） */
-#data-info { padding: 2px 4px; margin: var(--td-info-margin); }              /* 原 class="… px-1 py-0.5" */
-/* 顶部留白 4→8px（用户 2026-09-17：「总览卡片内顶部留白加大一点」——卡内第一行是 5 个分类图标，
-   原来贴着 11px 圆角与顶线画，显得挤）；左右与底部保持原值 */
+/* **首页区卡合并后只剩一张**（2026-10-24：账号信息两行并入总览卡顶部，原 #data-info 独立卡删除），
+   卡 padding 沿用总览卡原值 8px 8px 4px；「两张区卡各自保留改风格前内边距」的旧口径随合并失效。
+   （**别写 `:last-child{margin-bottom:0}`** 的教训仍适用：区卡不写 last-child 兜底。） */
 #category-summary-card { padding: 8px 8px 4px; margin: var(--td-sum-margin); }  /* 原 class="… px-2 py-1 mt-1.5 mb-1" */
+/* 账号信息两行满宽（2026-10-25 用户 P 图定稿：箭头改顶部中央把手、月卡锚到图标行左上，
+   都不在账号信息的避让范围里了，左右 padding 撤销）；与下方分类图标行间距 4px
+   （首页密度口径"区卡之间 4px"的卡内版，四主题一致故不进令牌层） */
+#data-info { margin: 0 0 4px; }
+/* 右上角折叠箭头（取代设置弹窗「隐藏账号信息」开关，2026-10-24）：
+   展开 = chevron-down 朝下；折叠 = rotate(180°) 朝上（更多页活动区 act-caret 同款 0.15s 过渡）。
+   文字色吃 HTML 上的 text-gray-400（深色由上面全局 .dark .text-gray-400 覆盖，四主题无需额外取值） */
+#data-info-toggle i { transition: transform .15s ease; }
+#category-summary-card.info-collapsed #data-info { display: none; }
+#category-summary-card.info-collapsed #data-info-toggle i { transform: rotate(180deg); }
 /* 深色只换底与描边（现在由 `--td-card-bg` / `--td-card-bd` 两段令牌给值），**投影留着**
    （与账号 tab 一致——黑投影在深底上看不见，但不必为它写一条覆盖规则） */
 

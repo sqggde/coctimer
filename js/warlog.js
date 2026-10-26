@@ -6,7 +6,7 @@ function ldc(t,et){try{var r=L.getItem(D+t+'_'+et);return r?JSON.parse(r):0}catc
 function sdc(t,et,f,d){try{L.setItem(D+t+'_'+et,JSON.stringify({found:f,data:d||0}))}catch(e){}}
 function lhc(t,m){try{var r=L.getItem(H+t+'_'+m);return r?JSON.parse(r):0}catch(e){return null}}
 function shc(t,m,d){try{L.setItem(H+t+'_'+m,JSON.stringify(d))}catch(e){}}
-function fx(p,cb){var x=new XMLHttpRequest();x.open('GET',B+p,true);x.setRequestHeader('X-App-Token',T);x.onload=function(){if(x.status===200){try{cb(null,JSON.parse(x.responseText))}catch(e){cb(e)}}else{var e=new Error('HTTP '+x.status);try{var b=JSON.parse(x.responseText);if(b&&b.reason==='accessDenied')e.accessDenied=true}catch(e2){}cb(e)}};x.onerror=function(){cb(new Error('Network error'))};x.send()}
+function fx(p,cb){var x=new XMLHttpRequest();x.open('GET',B+p,true);x.setRequestHeader('X-App-Token',T);x.onload=function(){if(x.status===200){try{cb(null,JSON.parse(x.responseText))}catch(e){cb(e)}}else{var e=new Error('HTTP '+x.status);try{var b=JSON.parse(x.responseText);if(b&&b.reason==='accessDenied')e.accessDenied=true;if(b&&b.reason==='upstreamTimeout'){e.maintenance=true;e.message=b.error||'官方 API 维护中，请稍后再试'}}catch(e2){}cb(e)}};x.onerror=function(){cb(new Error('Network error'))};x.send()}
 function fl(t,li,cb){var p='/api/coc/warlog/'+encodeURIComponent(t.replace(/^#/,''));if(li)p+='?limit='+li;fx(p,cb)}
 function fw(t,et,cb){fx('/api/coc/war-history/'+encodeURIComponent(t.replace(/^#/,''))+'/'+encodeURIComponent(et),cb)}
 function fd(et){if(!et)return'';return et.slice(0,4)+'/'+parseInt(et.slice(4,6),10)+'/'+parseInt(et.slice(6,8),10)}
@@ -63,7 +63,7 @@ try{var wr=L.getItem('clash_war_'+t);if(wr){var wd=JSON.parse(wr);if(wd&&wd.data
 if(!nc&&nw-(cc.lastChecked||0)>43200000)nc=true;
 if(nc&&nw-(cc.lastChecked||0)>3600000){fl(t,50,function(err,data){if(err){sc(t,cc.entries,cc.lastEndTime,nw);return}var ne=(data&&data.items)?data.items:[];var ets={};for(var i=0;i<cc.entries.length;i++)ets[cc.entries[i].endTime]=true;var mg=cc.entries.slice();for(var i=0;i<ne.length;i++){if(!ets[ne[i].endTime])mg.push(ne[i])}mg.sort(function(a,b){return a.endTime<b.endTime?1:-1});var lt=mg.length>0?mg[0].endTime:cc.lastEndTime;sc(t,mg,lt,nw);if(mg.length!==cc.entries.length){renderLog(mg)}})}return}
 if(tl)tl.textContent='加载中...';if(ct)ct.innerHTML='<div class="empty-state"><div style="width:24px;height:24px;border:3px solid #e5e7eb;border-top:3px solid #3b82f6;border-radius:50%;animation:clan-spin 0.8s linear infinite;margin-bottom:8px;"></div><p>加载中...</p></div>';
-  fl(t,0,function(err,data){if(err){if(tl)tl.textContent=err.accessDenied?'此部落对战日志未公开':'加载失败';if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+(err.accessDenied?'此部落对战日志未公开':'加载失败，请重试')+'</p>';return}var en=(data&&data.items)?data.items:[];en.sort(function(a,b){return a.endTime<b.endTime?1:-1});var lt=en.length>0?en[0].endTime:'';sc(t,en,lt,nw);renderLog(en)})}
+  fl(t,0,function(err,data){if(err){if(err.maintenance){if(tl)tl.textContent=err.message;if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+err.message+'</p>';return}if(tl)tl.textContent=err.accessDenied?'此部落对战日志未公开':'加载失败';if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+(err.accessDenied?'此部落对战日志未公开':'加载失败，请重试')+'</p>';return}var en=(data&&data.items)?data.items:[];en.sort(function(a,b){return a.endTime<b.endTime?1:-1});var lt=en.length>0?en[0].endTime:'';sc(t,en,lt,nw);renderLog(en)})}
 
 function hideLog(){hideLayer('clan-log-view')}
 
@@ -72,7 +72,7 @@ function rl(){if(!N)return;var t=N,ct=document.getElementById('log-card-containe
 // 全量刷新（长按刷新键触发）：不带 limit 参数，官方返回全部记录并替换缓存
 function rlFull(){if(!N)return;var t=N,ct=document.getElementById('log-card-container'),tl=document.getElementById('log-title'),nw=Date.now();
 if(tl)tl.textContent='加载中...';if(ct)ct.innerHTML='<div class="empty-state"><div style="width:24px;height:24px;border:3px solid #e5e7eb;border-top:3px solid #3b82f6;border-radius:50%;animation:clan-spin 0.8s linear infinite;margin-bottom:8px;"></div><p>加载中...</p></div>';
-fl(t,0,function(err,data){if(err){if(tl)tl.textContent=err.accessDenied?'此部落对战日志未公开':'刷新失败';if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+(err.accessDenied?'此部落对战日志未公开':'刷新失败，请重试')+'</p>';return}var en=(data&&data.items)?data.items:[];en.sort(function(a,b){return a.endTime<b.endTime?1:-1});var lt=en.length>0?en[0].endTime:'';sc(t,en,lt,nw);renderLog(en)})}
+fl(t,0,function(err,data){if(err){if(err.maintenance){if(tl)tl.textContent=err.message;if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+err.message+'</p>';return}if(tl)tl.textContent=err.accessDenied?'此部落对战日志未公开':'刷新失败';if(ct)ct.innerHTML='<p style="text-align:center;color:#9ca3af;padding:20px;">'+(err.accessDenied?'此部落对战日志未公开':'刷新失败，请重试')+'</p>';return}var en=(data&&data.items)?data.items:[];en.sort(function(a,b){return a.endTime<b.endTime?1:-1});var lt=en.length>0?en[0].endTime:'';sc(t,en,lt,nw);renderLog(en)})}
 
 // ====== 历史对战详情渲染 ======
 function renderHistoryDetail(ct,d){var VV=CocTool.warView;if(VV.renderDetailTo)VV.renderDetailTo(ct,d)}

@@ -1318,6 +1318,6 @@
     })();
 
     CocTool.features = CocTool.features || {};
-    CocTool.features.pokedex = Object.freeze({ open, close, goBack });
+    CocTool.features.pokedex = Object.freeze({ open, close, goBack, DATA_BASE: SERVER_DATA_BASE });
     CocTool.features.dataQuery = Object.freeze({ open: dqOpen, close: dqClose, goBack: dqGoBack });
 })(window);

@@ -988,6 +988,22 @@
         document.body.style.removeProperty('--sim-pin-top');
     }
 
+    // 吸顶后合并卡会多出账号信息两行（比原总览卡高）——进推演时临时折叠、退出恢复；
+    // 只动类不写 settings（用户的折叠偏好不被推演改写）。用户推演中手动点箭头以设置为准。
+    function collapseDataInfoForSim() {
+        const card = document.getElementById('category-summary-card');
+        if (!card) return;
+        sim.infoWasExpanded = !card.classList.contains('info-collapsed');
+        if (sim.infoWasExpanded) card.classList.add('info-collapsed');
+    }
+
+    function restoreDataInfoAfterSim() {
+        if (!sim.infoWasExpanded) return;
+        sim.infoWasExpanded = false;
+        const card = document.getElementById('category-summary-card');
+        if (card) card.classList.remove('info-collapsed');
+    }
+
     function enterSim() {
         if (sim.active) { exitSim(false); return; }   // 推演中再点入口键 = 退出
         if (!state.currentAccount || !accounts[state.currentAccount]) return;
@@ -1000,6 +1016,7 @@
         CocTool.features.services.pauseTicker();
         renderSimFrame();
         pinSummaryCard();
+        collapseDataInfoForSim();
     }
 
     function applySim() {
@@ -1022,6 +1039,7 @@
         sim.hiddenEls = [];
         sim.active = false;
         unpinSummaryCard();
+        restoreDataInfoAfterSim();
         if (apply && sim.copy) {
             sim.copy.timestamp = Math.floor(Date.now() / 1000);   // 推演的未来变成现在
             accounts[sim.tag] = sim.copy;

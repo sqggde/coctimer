@@ -1439,6 +1439,12 @@
                         e.accessDenied = true;
                         throw e;
                     }
+                    // 官方 API 5 秒无响应：代理 503 + upstreamTimeout（大陆直连 Supercell 的间歇性阻断）
+                    if (r.status === 503 && body && body.reason === 'upstreamTimeout') {
+                        var m = new Error(body.error || '官方 API 维护中，请稍后再试');
+                        m.maintenance = true;
+                        throw m;
+                    }
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     return body;
                 });
@@ -1460,6 +1466,16 @@
                         if (p) p.textContent = '此部落对战日志未公开';
                         el.detailEmpty.classList.remove('hidden');
                     }
+                    return;
+                }
+                if (err && err.maintenance) {
+                    // 官方 API 维护中：空态文案 + toast 都用服务端提示
+                    if (el.detailEmpty) {
+                        var pm = el.detailEmpty.querySelector('p');
+                        if (pm) pm.textContent = err.message;
+                        el.detailEmpty.classList.remove('hidden');
+                    }
+                    showToast(err.message, 2500);
                     return;
                 }
                 if (el.detailEmpty) {

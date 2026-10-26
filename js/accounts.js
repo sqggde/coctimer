@@ -203,7 +203,6 @@ let initialized = false;
         const root = getActiveSlide();
         const tagSpan = root.querySelector('#account-tag');
         const expSpan = root.querySelector('#export-time');
-        const infoDiv = root.querySelector('#data-info');
         if (data.tag) {
             const note = accountNotes[data.tag] || data.tag;
             if (tagSpan) tagSpan.textContent = `${note} (${data.tag})`;
@@ -215,7 +214,6 @@ let initialized = false;
             if (titleEl) titleEl.textContent = '正在升级的项目';
         }
         if (expSpan) expSpan.textContent = formatExportTime(data.timestamp);
-        if (infoDiv) infoDiv.classList.toggle('hidden', settings.hideDataInfo);
         const chestEl = root.querySelector('#chest-notification');
         if (chestEl) {
             const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);

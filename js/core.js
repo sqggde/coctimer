@@ -7,7 +7,7 @@
     const STORAGE_KEY = 'clash_upgrade_assistant_v3_fixed';
     const SETTINGS_KEY = 'clash_upgrade_settings';
     const DEFAULT_SETTINGS = Object.freeze({
-        hideDataInfo: false,
+        dataInfoExpanded: true,
         chestDetect: true,
         autoImport: false,
         advanceNotify: false,
@@ -124,6 +124,9 @@
             const loaded = { ...createSettingsDefaults(true), ...JSON.parse(raw) };
             // 单次屏蔽机制已删除（屏蔽改为三档：红点/通知/升级进度，见 calc.getDismissFlags），清理历史遗留字段
             delete loaded.sessionDismissedCategories;
+            // 「隐藏账号信息」开关已删（被总览卡右上角折叠箭头取代）：老设置开过的迁移为默认折叠，随后清理废字段
+            if (loaded.hideDataInfo === true) loaded.dataInfoExpanded = false;
+            delete loaded.hideDataInfo;
             replaceObject(state.settings, loaded);
         } catch (error) {
             replaceObject(state.settings, createSettingsDefaults(true));

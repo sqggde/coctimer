@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261020-tn7anr"></script>
+<script src="shim.js?v=coc-tool-web-20261026-tnimun"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261020-tn7anr" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261026-tnimun"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261026-tnimun" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -134,13 +134,6 @@
                                 <button id="cloud-restore-btn" class="flex-1 px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all duration-200 text-sm flex items-center justify-center" style="font-size: 13px;"><i class="fa fa-cloud-download mr-2"></i>云端恢复</button>
                             </div>
                         </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">隐藏账号信息</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="hide-data-info-toggle" class="sr-only peer">
-                            <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
-                        </label>
-                    </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-700">宝箱识别</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -394,8 +387,11 @@
 
         <div id="home-shell" class="space-y-2 pb-2 clip-x">
             <div id="main-display-area">
-            <div>
-                <div id="data-info" class="section-card">
+
+            <!-- 分类概览卡片（账号信息两行并入卡顶，图标行右上角箭头折叠/展开，与左上角月卡图标对称） -->
+            <div id="category-summary-card" class="section-card hidden relative">
+                <!-- 账号信息（#data-info 原独立卡并入，id 保留供 JS 引用；折叠显隐由卡的 info-collapsed 类驱动） -->
+                <div id="data-info">
                     <div class="flex justify-between items-center" style="font-size: 13px;">
                         <span class="text-gray-600">账号标签:</span>
                         <span id="account-tag" class="font-medium text-gray-800">未导入</span>
@@ -405,12 +401,6 @@
                         <span><span class="text-gray-500">当前时间:</span><span id="current-time" class="font-medium text-gray-700">--</span></span>
                     </div>
                 </div>
-            </div>
-
-            <!-- 分类概览卡片 -->
-            <div id="category-summary-card" class="section-card hidden relative">
-                <!-- 建筑工人月卡图标（左上角，仅国服有工人助手时显示） -->
-                <img id="builder-monthly-pass-icon" src="img/icons/moreb.webp" class="absolute top-1 left-1 w-4 h-4 object-contain cursor-pointer hidden" style="filter: grayscale(100%) brightness(0.6);" title="建筑工人月卡" alt="月卡">
                 <!-- 活动加速挡位选择器（仅活动期间显示） -->
                 <div id="event-boost-selector" class="flex items-center justify-center gap-0.5 mb-1 pb-1 border-b border-gray-100 hidden" style="font-size: 12px;">
                     <span class="text-gray-500 mr-0.5 whitespace-nowrap">夏日狂欢</span>
@@ -420,7 +410,10 @@
                     <button class="event-boost-btn px-2 py-0.5 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors" data-mult="2">×2</button>
                     <span id="event-boost-days" class="text-gray-400 ml-1" style="font-size: 10px;"></span>
                 </div>
-                <div class="flex items-center justify-around">
+                <!-- 分类图标行：relative 是两个角标的定位锚——月卡图标左上、折叠箭头右上（镜像对称），均 absolute 脱离 flex 流 -->
+                <div class="summary-icons-row flex items-center justify-around relative">
+                    <img id="builder-monthly-pass-icon" src="img/icons/moreb.webp" class="absolute top-0 left-0 w-4 h-4 object-contain cursor-pointer hidden" style="filter: grayscale(100%) brightness(0.6);" title="建筑工人月卡" alt="月卡">
+                    <button id="data-info-toggle" class="absolute top-0 right-0 h-5 flex items-center justify-center text-gray-400" title="收起/展开账号信息"><i class="fa fa-chevron-down" style="font-size: 18px;"></i></button>
                     <div class="flex flex-col items-center" data-category="buildings">
                         <div class="relative inline-flex">
                             <img id="summary-icon-buildings" src="img/icons/20260627.webp" class="w-7 h-7 object-contain mb-0.5 rounded-md" alt="" onerror="this.style.display='none'">
@@ -747,6 +740,7 @@
                 <div class="ov-tab-bar" id="ov-tab-bar">
                     <button class="ov-tab active" id="ov-tab-home">主世界</button>
                     <button class="ov-tab" id="ov-tab-night">夜世界</button>
+                    <button class="ov-tab" id="ov-tab-skins">皮肤</button>
                     <div class="ov-tab-indicator" id="ov-tab-indicator"></div>
                 </div>
                 <!-- 分享图键不在这里：它渲染进「等级/时间」那一行（overview-detail.js 的 shareBtnHtml；
@@ -754,6 +748,8 @@
                 <div class="ov-detail-scroll" id="ov-detail-scroll">
                     <div id="ov-detail-home"></div>
                     <div id="ov-detail-night" style="display:none;"></div>
+                    <!-- 皮肤收集：js/skins.js 懒渲染（首次切入 tab 时才建 DOM + 拉远程图标） -->
+                    <div id="ov-detail-skins" style="display:none;"></div>
                 </div>
             </div>
         </div>
@@ -1794,31 +1790,32 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/core.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/names.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/services.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261020-tn7anr"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261020-tn7anr"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261020-tn7anr"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261020-tn7anr"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/core.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/names.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/services.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261026-tnimun"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261026-tnimun"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/skins.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261026-tnimun"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261026-tnimun"></script>
 </body>
 </html>
