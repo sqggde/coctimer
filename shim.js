@@ -110,6 +110,24 @@
         }, true);
     }
 
+    // 5. ICP 备案号页脚（备案合规，仅网页版）：底部导航栏加高 14px（56→70，body pb-20=80px
+    //    避让仍有 10px 富余），备案号以小字常驻导航栏底部，点击跳工信部备案系统；
+    //    文字色继承导航栏并降透明度，明暗两主题自动适配。
+    function setupIcpFooter() {
+        var nav = document.getElementById('bottom-nav');
+        if (!nav || document.getElementById('icp-footer')) return;
+        nav.style.height = '70px';
+        nav.style.paddingBottom = '16px';
+        var a = document.createElement('a');
+        a.id = 'icp-footer';
+        a.href = 'https://beian.miit.gov.cn/';
+        a.target = '_blank';
+        a.rel = 'noreferrer';
+        a.textContent = '粤ICP备2026076969号-2';
+        a.style.cssText = 'position:absolute;left:0;right:0;bottom:3px;height:12px;line-height:12px;text-align:center;font-size:10px;color:inherit;opacity:.55;text-decoration:none;';
+        nav.appendChild(a);
+    }
+
     function onReady() {
         // 设置页：检查更新/选择应用图标/后台隐身/WebDAV备份/通知设置/查看运行日志
         hideEl('check-update-btn');
@@ -140,6 +158,7 @@
 
         setupDownloadLinks();
         setupForceReload();
+        setupIcpFooter();
         registerSW();
     }
 
