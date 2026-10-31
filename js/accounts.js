@@ -619,7 +619,7 @@ let initialized = false;
         if (oldData && progressModule && progressModule.reconcileNotes) {
             try { progressModule.reconcileNotes(tag, oldData, data); } catch (e) {}
         }
-        detectAccountServer(tag, data);
+        detectAccountServer(tag, data, oldData);
         if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
@@ -635,8 +635,15 @@ let initialized = false;
         return 'ok';
     }
 
-    function detectAccountServer(tag, data) {
+    function detectAccountServer(tag, data, oldData) {
         if (data._server) return;
+        // 同 tag 再导入：沿用已有区服，不再询问——低本新 JSON 无 _server 且 ID 特征不足，
+        // 不沿用会每次导入都弹选择（2026-10-31 用户反馈；与服务器导入接口「旧 tag 回落旧 _server」同口径）
+        if (oldData && oldData._server) {
+            data._server = oldData._server;
+            try { saveToLocalStorage(); } catch (e) {}
+            return;
+        }
         // 检测完成后刷新卡片（导入流程的 refreshCard 在检测前已执行，异步检测后必须重渲染，否则界面停留在默认区服）
         var refreshAfter = function () {
             updateLaunchGameBtn();
