@@ -73,6 +73,12 @@
         if (nameEl) nameEl.textContent = themeName(settings.uiStyle);
         renderStyleOptions();
     }
+    // 游戏字体（主题弹窗开关）：html.game-font 类 → CSS 侧换 Clash 字体栈（中文逐字符回退系统字体）
+    function applyGameFont() {
+        document.documentElement.classList.toggle('game-font', settings.gameFont === true);
+        const toggle = document.getElementById('game-font-toggle');
+        if (toggle) toggle.checked = settings.gameFont === true;
+    }
     function setStyle(key) {
         if (settings.uiStyle === key) return;
         settings.uiStyle = key;
@@ -114,6 +120,7 @@
             ? 'px-2 py-1 rounded transition-all duration-200 text-xs bg-blue-500 text-white'
             : 'px-2 py-1 rounded transition-all duration-200 text-xs bg-gray-300 text-gray-500';
         summaryCard.classList.toggle('info-collapsed', settings.dataInfoExpanded === false);
+        applyGameFont();
         sleepTimeBtn.className = settings.nightMode
             ? 'px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-blue-200 text-blue-700 cursor-pointer hover:bg-blue-300'
             : 'px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-gray-300 text-gray-500 cursor-not-allowed';
@@ -131,47 +138,19 @@
     function showAboutModal() { aboutModal.classList.remove('hidden'); }
     function hideAboutModal() { aboutModal.classList.add('hidden'); }
     function initSleepPicker() {
+        // 滚轮工具抽至 core.CocTool.ui（星标校准框共用同一套 .picker-* 结构与逻辑）
         const hours = Array.from({length: 24}, (_, i) => String(i).padStart(2, '0'));
         const minutes = Array.from({length: 60}, (_, i) => String(i).padStart(2, '0'));
         document.querySelectorAll('.picker-column').forEach(col => {
             const field = col.dataset.field;
-            const values = field.includes('hour') ? hours : minutes;
-            const scroll = col.querySelector('.picker-scroll');
-            scroll.innerHTML = values.map(v => `<div class="picker-item" data-value="${v}">${v}</div>`).join('');
-            col.addEventListener('scroll', () => updatePickerActive(col));
+            CocTool.ui.initScrollPicker(col, field.includes('hour') ? hours : minutes);
         });
-    }
-
-    function updatePickerActive(column) {
-        const items = column.querySelectorAll('.picker-item');
-        const colRect = column.getBoundingClientRect();
-        const centerY = colRect.top + colRect.height / 2;
-        let closest = items[0], minDist = Infinity;
-        items.forEach(item => {
-            const rect = item.getBoundingClientRect();
-            const itemCenter = rect.top + rect.height / 2;
-            const dist = Math.abs(itemCenter - centerY);
-            if (dist < minDist) { minDist = dist; closest = item; }
-        });
-        items.forEach(item => item.classList.remove('active'));
-        closest.classList.add('active');
-    }
-
-    function scrollPickerTo(column, value) {
-        const items = column.querySelectorAll('.picker-item');
-        let targetIndex = 0;
-        items.forEach((item, i) => { if (item.dataset.value === value) targetIndex = i; });
-        column.scrollTop = targetIndex * 36;
-        // 直接按值标记选中
-        items.forEach(item => item.classList.remove('active'));
-        items[targetIndex].classList.add('active');
     }
 
     function getSleepPickerValues() {
         const getVal = (field) => {
             const col = document.querySelector(`.picker-column[data-field="${field}"]`);
-            const active = col.querySelector('.picker-item.active');
-            return active ? active.dataset.value : '00';
+            return CocTool.ui.getPickerValue(col) || '00';
         };
         return {
             startHour: getVal('start-hour'),
@@ -364,6 +343,16 @@
 
         // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
         const UPDATE_LOG = [
+            ['1.5.6', '26.11.2', [
+                '新增建筑排队：长按升级卡可设排队/取消/立即完成/删除，按工人空出依次开工',
+                '首页助手行新增主/夜世界胜利之星（计数/通知双开关、24h 囤 2，可校准）',
+                '主题新增「启用游戏字体」开关（Clash，默认开启）',
+                '数据查询图鉴新增升级时间 / 矿石折扣（默认 0%）',
+                '账号进度：修复 17 本以上防御进度虚高（天鹰折算多计）',
+                '时长搜索：新增「满防 / 当前大本」切换',
+                '折扣：新增自定义百分比，图鉴名称旁挂折扣组件，装备图鉴支持矿石折扣',
+                '其他：长按禁选、日志滚底、对战行镜像、网页版链接改 www、自动恢复默认开启'
+            ]],
             ['1.5.5', '26.10.26', ['首页：账号信息卡并入总览卡，右上角箭头控制显隐', '新增皮肤收集，点图标可看大图，多张可切换', 'ui优化：详情页英雄行顺序调整', '部落战/联赛/对战日志：官方API无响应时提示维护中', '阵型中心：图片缓存不再长期占用存储']],
             ['1.5.4', '26.10.18', ['屏蔽功能优化：新增红点/通知/升级进度三档；支持应用到全部账号', '时间搜索：卡片显示下一级/到满级时间', '数据查询：区服切换优化；超级兵种图标更正', '图鉴数据修正', '小组件刷新点击区域扩大']],
             ['1.5.3', '26.10.9', ['图鉴：修复精工形态名称与打开', '联赛统计：返回手势回到联赛页', '流派统计：保留底部导航栏']],
@@ -545,7 +534,7 @@
         if (uiStyleModal) uiStyleModal.addEventListener('click', (e) => { if (e.target === uiStyleModal) uiStyleModal.classList.add('hidden'); });
 
         // ===== 网页版链接 =====
-        const WEB_APP_URL = 'https://sqggde.github.io/coctimer/';
+        const WEB_APP_URL = 'https://www.coctool.top/';
         document.getElementById('copy-web-link-btn').addEventListener('click', () => {
             if (typeof AndroidApp !== 'undefined' && AndroidApp.copyToClipboard) {
                 window.AndroidApp.copyToClipboard(WEB_APP_URL);
@@ -765,10 +754,10 @@
                 requestAnimationFrame(() => {
                     const [sh, sm] = settings.sleepStart.split(':');
                     const [eh, em] = settings.sleepEnd.split(':');
-                    scrollPickerTo(document.querySelector('.picker-column[data-field="start-hour"]'), sh);
-                    scrollPickerTo(document.querySelector('.picker-column[data-field="start-minute"]'), sm);
-                    scrollPickerTo(document.querySelector('.picker-column[data-field="end-hour"]'), eh);
-                    scrollPickerTo(document.querySelector('.picker-column[data-field="end-minute"]'), em);
+                    CocTool.ui.scrollPickerTo(document.querySelector('.picker-column[data-field="start-hour"]'), sh);
+                    CocTool.ui.scrollPickerTo(document.querySelector('.picker-column[data-field="start-minute"]'), sm);
+                    CocTool.ui.scrollPickerTo(document.querySelector('.picker-column[data-field="end-hour"]'), eh);
+                    CocTool.ui.scrollPickerTo(document.querySelector('.picker-column[data-field="end-minute"]'), em);
                 });
             } else {
                 settings.nightMode = false;
@@ -806,12 +795,23 @@
             applySettings();
         });
 
+        // 游戏字体开关（主题弹窗）：切换即时生效（html.game-font 类）
+        const gameFontToggle = document.getElementById('game-font-toggle');
+        gameFontToggle?.addEventListener('change', () => {
+            settings.gameFont = gameFontToggle.checked;
+            saveSettings();
+            applyGameFont();
+        });
+
         document.getElementById('notify-log-btn').addEventListener('click', () => {
             const modal = document.getElementById('log-modal');
             const entries = document.getElementById('log-entries');
             modal.classList.remove('hidden');
             var services = CocTool.features.services;
-            if (!services || !services.getGroupedNotificationLogs) return;
+            if (!services || !services.getGroupedNotificationLogs) {
+                entries.scrollTop = entries.scrollHeight;   // 无日志服务时也落到最底（沿用上次内容）
+                return;
+            }
             var groups = services.getGroupedNotificationLogs();
             entries.innerHTML = '';
             for (var i = 0; i < groups.length; i++) {
@@ -869,6 +869,8 @@
                     entries.appendChild(div);
                 }
             }
+            // 日志按时间正序、最新在底部：打开即滚到最底（用户 2026-11-02：每次都要手动滑很久才看到最新）
+            entries.scrollTop = entries.scrollHeight;
         });
         document.getElementById('log-close-btn').addEventListener('click', () => {
             document.getElementById('log-modal').classList.add('hidden');

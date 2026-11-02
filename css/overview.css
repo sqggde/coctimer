@@ -419,6 +419,22 @@
             height: 16px;
             object-fit: contain;
         }
+        /* 装备图鉴矿石折扣按钮：三种矿石品字折叠（蓝矿左下/紫矿右下/黄矿上，10px 交叠） */
+        .ore-tri {
+            position: relative;
+            width: 16px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        .ore-tri img {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            object-fit: contain;
+        }
+        .ore-tri img:nth-child(1) { left: 0; bottom: 0; }
+        .ore-tri img:nth-child(2) { right: 0; bottom: 0; }
+        .ore-tri img:nth-child(3) { left: 3px; top: 0; }
         .ov-disc-val {
             font-size: 12px;
             font-weight: 600;
@@ -447,6 +463,41 @@
         }
         .ov-disc-opt:hover { background: #f3f4f6; }
         .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
+        /* 折扣「自定义…」输入行（菜单内 1-99，✓/回车确认） */
+        .ov-disc-custom {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+            border-top: 1px solid var(--td-pop-bd);
+        }
+        .ov-disc-input {
+            flex: 1;
+            min-width: 0;
+            height: 24px;
+            padding: 0 6px;
+            border: 1px solid var(--td-sel-bd);
+            border-radius: 6px;
+            background: var(--td-pop-bg);
+            color: #374151;
+            font-size: 12px;
+        }
+        .ov-disc-ok {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 6px;
+            background: #3b82f6;
+            color: #ffffff;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
         /* 把「等级/时间」顶到与下方进度条同左缘（48 + 80 + 16 = 144）。
            分享键是**绝对定位**在左端空位里的（见 `.ov-share-btn`），不吃 flex 布局，
            所以这条空位规则必须留着——删了「等级/时间」会左移到 48。 */
@@ -703,7 +754,34 @@
             font-variant-numeric: tabular-nums;
             pointer-events: none;
             text-align: center;
-            text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000;
+        }
+        /* 粗体阴影字（下层 span）：font-weight 900 的真粗字形垫底——text-shadow 的阴影永远是文字复制品
+          （同粗细），9px 细笔画阴影必然单薄；真元素层叠可控（白字在 DOM 序之后自然覆盖其上）。
+          偏移 1px 右下；gameFont 态描边已含厚度，粗影 span 隐藏避免叠影 */
+        .ov-lv-shadow {
+            position: absolute;
+            left: 0.5px;
+            top: 0.5px;
+            width: 100%;
+            color: #000;
+            font-weight: 900;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .ov-lv-text {
+            position: relative;
+            z-index: 2;
+        }
+        html.game-font .ov-lv-shadow {
+            display: none;
+        }
+        /* 游戏字体的配套样式（八方向零模糊 text-shadow = 外侧 1px 黑边，全环境渲染一致）：
+           Clash 粗笔画撑得住描边、字形显大用 8px；系统字体细笔画会被描边吞成线条感（不应用）且显小用 9px */
+        html.game-font .ov-level-badge {
+            font-size: 8px;
+            text-shadow:
+                1px 0 0 #1a1206, -1px 0 0 #1a1206, 0 1px 0 #1a1206, 0 -1px 0 #1a1206,
+                1px 1px 0 #1a1206, -1px 1px 0 #1a1206, 1px -1px 0 #1a1206, -1px -1px 0 #1a1206;
         }
         .ov-eq-wrap {
             display: flex;
@@ -1044,6 +1122,7 @@
         .dark .ov-disc-opt { color: #e5e7eb; }
         .dark .ov-disc-opt:hover { background: var(--td-line); }
         .dark .ov-disc-opt.active { background: #3b82f6; color: #ffffff; }
+        .dark .ov-disc-input { color: #e5e7eb; }
         .dark .ov-pg-cell .k { color: #6b7280; }
         .dark .ov-pg-cell .v { color: #e5e7eb; }
         .dark .ov-pg-row { border-bottom-color: var(--td-surface); }

@@ -251,14 +251,25 @@
     let accountModules = null;   // 精工形态的模块等级数组（[lvl,...]，与 abilities 顺序对应，各 tab 定位用）
     let forceReload = false;    // 刷新按钮：强制绕过浏览器缓存重新拉取
     let discountFactor = 1;     // 当前账号升级时间折扣因子（1 − 折扣%/100）；仅时间与花费生效，矿石/宝石不打折
+    let oreFactor = 1;          // 装备矿石折扣因子（clash_ore_discount，独立于时间折扣；只作用于三种矿石花费）
+    let dqDiscount = 0;         // 数据查询页的月卡折扣（%）：内存级、与账号折扣互不影响——每次从更多页进数据查询重置 0%
+    let dqOreDiscount = 0;      // 数据查询页的矿石折扣（%）：同上，装备图鉴的矿石组件用
 
-    // 账号升级时间折扣（0|5|10|15|20 百分数，与进度页共用 clash_upgrade_discount 键）
+    // 账号升级时间折扣（0-99 百分数，档位 + 自定义，与进度页共用 clash_upgrade_discount 键）
     function loadDiscountFactor(tag) {
         try {
             const m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
             const v = parseInt(m[tag], 10);
-            discountFactor = (v === 5 || v === 10 || v === 15 || v === 20) ? 1 - v / 100 : 1;
+            discountFactor = (v >= 0 && v <= 99) ? 1 - v / 100 : 1;
         } catch (e) { discountFactor = 1; }
+    }
+    // 装备矿石折扣（clash_ore_discount，独立键；装备升级即时完成只耗矿石，与时间折扣互不相干）
+    function loadOreFactor(tag) {
+        try {
+            const m = JSON.parse(localStorage.getItem('clash_ore_discount') || '{}');
+            const v = parseInt(m[tag], 10);
+            oreFactor = (v >= 0 && v <= 99) ? 1 - v / 100 : 1;
+        } catch (e) { oreFactor = 1; }
     }
     // 时间对象 × 折扣因子 → 同结构对象（秒级取整）
     function scaleTime(t) {
@@ -347,6 +358,12 @@
             if (k !== 'stats' && k !== 'level') out[k] = lv[k];
         });
         out.cost = (lv.cost !== undefined) ? { v: lv.cost, res: lv.costResource } : undefined;
+        // 装备矿石花费 ×(1-矿石折扣%)（ORE_KEYS 字段只在装备实体出现，普通实体天然不受影响）
+        if (oreFactor < 1) {
+            ORE_KEYS.forEach(k => {
+                if (typeof out[k] === 'number' && out[k] > 0) out[k] = Math.round(out[k] * oreFactor);
+            });
+        }
         // 产物已统一时间字段为 time（buildTime/researchTime/upgradeTime → time），保留旧字段兜底
         out.time = (lv.time !== undefined) ? lv.time
             : (lv.buildTime !== undefined) ? lv.buildTime
@@ -468,14 +485,14 @@
             }
             return fmtCost(sum);
         }
-        // 装备矿石花费（蓝/紫/黄矿，与升级花费同口径 Xw 缩写）
+        // 装备矿石花费（蓝/紫/黄矿，与升级花费同口径 Xw 缩写；×(1-矿石折扣%)）
         if (ORE_KEYS.indexOf(kind) !== -1) {
             let sum = 0;
             for (let i = from; i < to && i < levels.length; i++) {
                 const v = levels[i][kind];
                 if (typeof v === 'number') sum += v;
             }
-            return fmtCost(sum);
+            return fmtCost(oreFactor < 1 ? Math.round(sum * oreFactor) : sum);
         }
         return null;
     }
@@ -690,6 +707,20 @@
         accountLevel = curLevel || 1;
         accountModules = modules || null;
         els.title().textContent = entity.name;
+        // 名称右侧的折扣组件（数据查询页与账号无关，不显示）：装备实体 = 矿石折扣形态
+        // （品字三矿石 + 10/50/自定义，作用于矿石花费），其余 = 升级时间折扣形态
+        const discEl = document.getElementById('pokedex-disc');
+        if (discEl) {
+            const isOre = entity.levels && entity.levels[0] && ORE_KEYS.some(k => k in entity.levels[0]);
+            if (!CocTool.durationSearch || !CocTool.durationSearch.discountBtnHtml) {
+                discEl.innerHTML = '';
+                discEl.style.display = 'none';
+            } else {
+                // 数据查询态与账号态同构（组件复用）：仅折扣的存取语境不同（setDiscount/setOreDiscount 内分支）
+                discEl.style.display = 'inline-flex';
+                discEl.innerHTML = CocTool.durationSearch.discountBtnHtml(isOre ? 'ore' : undefined);
+            }
+        }
         renderBasic(entity);
         renderAvailability(entity);
         renderAbilitySwitch(entity);
@@ -852,8 +883,24 @@
     function open(id, curLevel, tag, modules, serverArg) {
         currentTag = tag || state.currentAccount;
         forcedServer = serverArg || null;
-        if (forcedServer) discountFactor = 1;   // 数据查询页与账号无关：不套账号的升级时间/花费折扣
-        else loadDiscountFactor(currentTag);
+        if (forcedServer) {
+            // 数据查询页与账号无关：时间/矿石折扣都用数据查询自己的会话值（dqOpen 时重置 0%），
+            // 组件的当前值同步给 duration-search（按钮/菜单/自定义输入行的显示来源）
+            discountFactor = 1 - dqDiscount / 100;
+            oreFactor = 1 - dqOreDiscount / 100;
+            try {
+                CocTool.durationSearch.setCurrentDqDiscount(dqDiscount);
+                CocTool.durationSearch.setCurrentDqOreDiscount(dqOreDiscount);
+            } catch (e) { try { console.warn('数据查询折扣语境同步失败', e); } catch (e2) {} }
+        } else {
+            loadDiscountFactor(currentTag);
+            loadOreFactor(currentTag);
+            // 折扣组件（duration-search）的账号语境跟随图鉴当前账号
+            try {
+                CocTool.durationSearch.setCurrentDiscount(currentTag);
+                CocTool.durationSearch.setCurrentOreDiscount(currentTag);
+            } catch (e) { try { console.warn('图鉴折扣语境同步失败', e); } catch (e2) {} }
+        }
         const server = forcedServer || currentServer(currentTag);
         // 先显示弹层（加载态）：数据拉取期间也盖住下面的页面——首页/时间搜索的小路直达因此"零停留"，
         // 返回时弹层之下本就是原大路（账号进度列表 + 账号详情页），无需任何补站机制。
@@ -1264,6 +1311,8 @@
 
     function dqOpen() {
         dqWorld = 'home';   // 每次从更多页进来都从主世界看起
+        dqDiscount = 0;     // 月卡/矿石折扣每次进入默认 0%（会话级，与账号折扣互不影响）
+        dqOreDiscount = 0;
         dqShow(currentServer(state.currentAccount));
     }
     function dqClose() {
@@ -1318,6 +1367,28 @@
     })();
 
     CocTool.features = CocTool.features || {};
-    CocTool.features.pokedex = Object.freeze({ open, close, goBack, DATA_BASE: SERVER_DATA_BASE });
+    // 折扣变更后重渲染当前实体（时间/花费重打折）；数据查询页/未打开时短路。
+    // 由 overview-detail.setDiscount 调用（图鉴页开着时详情页被盖住，改折扣只能发生在图鉴组件上）
+    function refreshDiscount() {
+        if (forcedServer || !currentEntity) return;
+        loadDiscountFactor(currentTag);
+        loadOreFactor(currentTag);
+        render(currentEntity, accountLevel, accountModules);
+    }
+    // ===== 数据查询语境（duration-search.setDiscount/setOreDiscount 的分支回调）：折扣写会话值并重渲染 =====
+    function isDataQuery() { return forcedServer != null; }
+    function applyDqDiscount(pct) {
+        dqDiscount = pct;
+        discountFactor = 1 - pct / 100;
+        try { CocTool.durationSearch.setCurrentDqDiscount(pct); } catch (e) {}
+        if (currentEntity) render(currentEntity, accountLevel, accountModules);
+    }
+    function applyDqOreDiscount(pct) {
+        dqOreDiscount = pct;
+        oreFactor = 1 - pct / 100;
+        try { CocTool.durationSearch.setCurrentDqOreDiscount(pct); } catch (e) {}
+        if (currentEntity) render(currentEntity, accountLevel, accountModules);
+    }
+    CocTool.features.pokedex = Object.freeze({ open, close, goBack, refreshDiscount, DATA_BASE: SERVER_DATA_BASE, isDataQuery, applyDqDiscount, applyDqOreDiscount });
     CocTool.features.dataQuery = Object.freeze({ open: dqOpen, close: dqClose, goBack: dqGoBack });
 })(window);

@@ -40,7 +40,7 @@
     // ====== 工具 ======
     function $(id) { return document.getElementById(id); }
     function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
-    function fp(v) { return (Math.round((v || 0) * 10) / 10) + '%'; }
+    function fp(v) { return C.calc.formatPercent(v); }
     function api(p, cb) {
         var x = new XMLHttpRequest();
         x.open('GET', B + p, true);
@@ -224,9 +224,9 @@
         members.forEach(function (m) {
             m.avgDest = m.attacks > 0 ? m.destSum / m.attacks : 0;
             m.avgOppPos = m.oppPosCnt > 0 ? m.oppPosSum / m.oppPosCnt : 0;
-            m.defRate = m.defended > 0 ? Math.round(m.defBestSum / m.defended / 3 * 100) : 0;
-            m.threeRate = m.attacks > 0 ? Math.round(m.attackStars[3] / m.attacks * 100) : 0;
-            m.zeroRate = m.attacks > 0 ? Math.round(m.attackStars[0] / m.attacks * 100) : 0;
+            m.defRate = m.defended > 0 ? m.defBestSum / m.defended / 3 * 100 : 0;
+            m.threeRate = m.attacks > 0 ? m.attackStars[3] / m.attacks * 100 : 0;
+            m.zeroRate = m.attacks > 0 ? m.attackStars[0] / m.attacks * 100 : 0;
             m.avgStarsPerAtk = m.attacks > 0 ? m.totalStars / m.attacks : 0;
         });
         members.sort(function (a, b) { return b.newStars - a.newStars; });
@@ -240,7 +240,7 @@
         h += '<div class="ws-stat-card green"><div class="ws-stat-val">' + s.wins + '</div><div class="ws-stat-label">胜利</div></div>';
         h += '<div class="ws-stat-card red"><div class="ws-stat-val">' + s.losses + '</div><div class="ws-stat-label">失败</div></div>';
         h += '<div class="ws-stat-card yellow"><div class="ws-stat-val">' + s.ties + '</div><div class="ws-stat-label">平局</div></div>';
-        h += '<div class="ws-stat-card"><div class="ws-stat-val">' + (s.wars > 0 ? Math.round(s.wins / s.wars * 100) : 0) + '%</div><div class="ws-stat-label">胜率</div></div>';
+        h += '<div class="ws-stat-card"><div class="ws-stat-val">' + fp(s.wars > 0 ? s.wins / s.wars * 100 : 0) + '</div><div class="ws-stat-label">胜率</div></div>';
         h += '<div class="ws-stat-card purple"><div class="ws-stat-val">' + s.totalStars + '</div><div class="ws-stat-label">总星数</div></div>';
         h += '<div class="ws-stat-card"><div class="ws-stat-val">' + s.totalAttacks + '</div><div class="ws-stat-label">总进攻</div></div>';
         h += '<div class="ws-stat-card"><div class="ws-stat-val">' + fp(s.avgDest) + '</div><div class="ws-stat-label">平均破坏率</div></div>';
@@ -250,10 +250,10 @@
         var starColors = ['r', 'y', 'g', 'b']; var starNames = ['0星', '1星', '2星', '3星'];
         for (var i = 0; i <= 3; i++) {
             var cnt = s.starDist[i] || 0;
-            var pct = s.totalAttacks > 0 ? Math.round(cnt / s.totalAttacks * 100) : 0;
+            var pct = s.totalAttacks > 0 ? cnt / s.totalAttacks * 100 : 0;
             h += '<div class="ws-bar-row"><div class="ws-bar-label">' + starNames[i] + '</div>';
-            h += '<div class="ws-bar-track"><div class="ws-bar-fill ' + starColors[i] + '" style="width:' + Math.max(cnt / maxStar * 100, 2) + '%">' + pct + '%</div></div>';
-            h += '<div class="ws-bar-count">' + cnt + ' 次（' + pct + '%）</div></div>';
+            h += '<div class="ws-bar-track"><div class="ws-bar-fill ' + starColors[i] + '" style="width:' + Math.max(cnt / maxStar * 100, 2) + '%">' + fp(pct) + '</div></div>';
+            h += '<div class="ws-bar-count">' + cnt + ' 次（' + fp(pct) + '）</div></div>';
         }
         h += '</div>';
         return h;
@@ -293,7 +293,7 @@ function buildMatches(s) {
                             // 未进攻：纯红纯色块（无文字）
                             parts.push('<div class="ws-atk-box na"></div>');
                         } else {
-                            parts.push('<div class="ws-atk-box s' + atk.stars + '"><span class="ws-atk-stars">' + atk.stars + '</span><span class="ws-atk-dest">' + (atk.dest || 0) + '%</span></div>');
+                            parts.push('<div class="ws-atk-box s' + atk.stars + '"><span class="ws-atk-stars">' + atk.stars + '</span><span class="ws-atk-dest">' + fp(atk.dest || 0) + '</span></div>');
                         }
                     }
                     cell = parts.join('');
@@ -327,8 +327,8 @@ function buildMatches(s) {
             h += '<td class="num" style="color:var(--ws-accent)">' + m.totalStars + '</td>';
             h += '<td class="num" style="color:var(--ws-purple)">' + m.newStars + '</td>';
             h += '<td class="num" style="color:var(--ws-green)">' + m.attackStars[3] + '</td>';
-            h += '<td class="num">' + m.threeRate + '%</td>';
-            h += '<td class="num">' + m.zeroRate + '%</td>';
+            h += '<td class="num">' + fp(m.threeRate) + '</td>';
+            h += '<td class="num">' + fp(m.zeroRate) + '</td>';
             h += '<td class="num">' + fp(m.avgDest) + '</td>';
             h += '<td class="num">' + (m.avgOppPos > 0 ? m.avgOppPos.toFixed(1) : '-') + '</td>';
             h += '</tr>';
@@ -357,15 +357,15 @@ function buildMatches(s) {
             var m3 = defSorted[i3];
             if (m3.defended === 0) continue;
             defCount++;
-            var efficiency = m3.defended > 0 ? Math.round((1 - m3.defBestSum / (m3.defended * 3)) * 100) : 100;
+            var efficiency = m3.defended > 0 ? (1 - m3.defBestSum / (m3.defended * 3)) * 100 : 100;
             h += '<tr>';
             h += '<td>' + (defCount) + '</td>';
             h += '<td class="ws-name">' + esc(m3.name) + '</td>';
             h += '<td>' + m3.wars + '/' + s.wars + '</td>';
             h += '<td>' + m3.defended + '</td>';
             h += '<td class="num" style="color:var(--ws-red)">' + m3.defBestSum + '</td>';
-            h += '<td class="num" style="color:var(--ws-red)">' + m3.defRate + '%</td>';
-            h += '<td class="num" style="color:var(--ws-green)">' + efficiency + '%</td>';
+            h += '<td class="num" style="color:var(--ws-red)">' + fp(m3.defRate) + '</td>';
+            h += '<td class="num" style="color:var(--ws-green)">' + fp(efficiency) + '</td>';
             h += '</tr>';
         }
         if (defCount === 0) h += '<tr><td colspan="7" style="text-align:center;color:var(--ws-sub)">无防守数据（全部成员未被攻击）</td></tr>';

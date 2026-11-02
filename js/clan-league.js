@@ -924,7 +924,8 @@
         }).catch(function() { return wars; });
     }
 
-    function rd1(v) { return Math.round((v || 0) * 10) / 10; }
+    // 摧毁率保留 2 位小数（函数名沿用历史命名 rd1；显示端统一走 calc.formatPercent）
+    function rd1(v) { return Math.round((v || 0) * 100) / 100; }
 
     function aggregateWar(wd, dayIdx, clanTag, cm, members) {
         for (var s = 0; s < 2; s++) {

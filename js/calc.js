@@ -452,7 +452,7 @@
     }
 
     // boostA/boostB：{duration, mult} | null，均为自 timestamp 起的前缀加速窗口
-    function calculateStaged(timer, helperLevel, helperDuration, helperCooldown, boostA, boostB, recurrent, eventMult = 1, scheduledAt = 0) {
+    function calculateStaged(timer, helperLevel, helperDuration, helperCooldown, boostA, boostB, recurrent, eventMult = 1, scheduledAt = 0, startDelay = 0) {
         const em = eventMult || 1;
         const phases = mergeBoostPhases(boostA, boostB).map(p => ({ ...p }));
         let remaining = timer;
@@ -460,6 +460,20 @@
         const segs = [];
         const pushSeg = (dur, rate) => { if (dur > 0) segs.push({ dur, rate }); };
         let phaseIdx = 0;
+        // 排队项：开工前还要等 startDelay 秒——先按时间轴消耗这段时间里流逝的加速窗口（不做工），
+        // 助手冷却/工作窗/预约窗也同步前移；startDelay=0（普通项）时整段逻辑不生效，与旧行为完全一致。
+        if (startDelay > 0) {
+            let skip = startDelay;
+            while (skip > 0 && phaseIdx < phases.length) {
+                const t = Math.min(skip, phases[phaseIdx].duration);
+                phases[phaseIdx].duration -= t;
+                skip -= t;
+                if (phases[phaseIdx].duration <= 0) phaseIdx++;
+            }
+            if (helperCooldown > 0) helperCooldown = Math.max(0, helperCooldown - startDelay);
+            if (helperDuration > 0) helperDuration = Math.max(0, helperDuration - startDelay);
+            if (scheduledAt > 0) scheduledAt = Math.max(0, scheduledAt - startDelay);
+        }
         // 从当前加速位置起取 want 秒加速段（速率 = 段倍率 + extra），返回加速段未覆盖的剩余时长
         const takePhases = (want, extra) => {
             let left = want;
@@ -566,10 +580,143 @@
         return [null, null];
     }
 
-    function calculateCompletionTimestamp(item, data) {
+    // 排队标记读写（localStorage clash_upgrade_queue，结构同 clash_upgrade_notes：{tag:{键:{pos,dur}}}）。
+    // 放 calc 层是刻意的：extract 是所有消费方（列表/通知/小组件/总进度）的单一取数口，
+    // 在这里注入模拟结果即可让全链路自动生效；交互 UI（设排队/取消）在 progress.js，经此读写。
+    function loadQueueMap(tag) {
+        if (!tag) return {};
+        try {
+            const all = JSON.parse(localStorage.getItem('clash_upgrade_queue')) || {};
+            const m = all[tag];
+            return (m && typeof m === 'object') ? m : {};
+        } catch (e) { return {}; }
+    }
+    function saveQueueMap(tag, map) {
+        try {
+            const all = JSON.parse(localStorage.getItem('clash_upgrade_queue')) || {};
+            all[tag] = map || {};
+            localStorage.setItem('clash_upgrade_queue', JSON.stringify(all));
+        } catch (e) {}
+    }
+    // 排队基础时长：+升级 条目带本地名义值 local_nominal（游戏导出没有这个字段），有则用名义值，
+    // 否则用原始 timer（游戏直接导入的条目永远走这条，保证与游戏内显示一致）。
+    function getQueueBaseDuration(item) {
+        const nominal = Math.round(Number(item && item.local_nominal) || 0);
+        return nominal > 0 ? nominal : Math.max(1, Math.round(Number(item && item.timer) || 0));
+    }
+    // 清单条排队标记（取消排队/完成删除/固化共用；unique 含 tag 前缀）
+    function clearQueueMark(tag, unique) {
+        if (!tag || !unique) return;
+        const qm = loadQueueMap(tag);
+        const k = unique.slice(tag.length + 1);
+        if (qm[k]) { delete qm[k]; saveQueueMap(tag, qm); }
+    }
+
+    // ===== 排队模拟（纯函数）：工人队列的事件流模型 =====
+    // 每个非排队升级项的完成时刻 = 一次"工人空出"事件；排队项按 pos 依次消费最早的空出事件开工，
+    // 自己的完成时刻又产生新的空出事件（供后续排队项）。精工/充能/改装等形态同样占工人，事件流零排除。
+    // poolItems：该池全部提取条目（含已完成未删除）；queueMap：{uniqueId键:{pos,dur}}（键不含 tag 前缀）
+    // 返回 { [uniqueId]: {start, finish} }（仅排队项；start=开工时刻，finish=完成时刻）
+    function simulateQueue(poolItems, queueMap, data, tagPrefix) {
+        const events = [];
+        const queued = [];
+        poolItems.forEach(it => {
+            const key = tagPrefix && it.uniqueId && it.uniqueId.indexOf(tagPrefix) === 0
+                ? it.uniqueId.slice(tagPrefix.length) : it.uniqueId;
+            const q = key ? queueMap[key] : null;
+            if (q) queued.push({ id: it.uniqueId, pos: Number(q.pos) || 0, dur: Math.max(0, Number(q.dur) || 0), item: it });
+            else events.push(calculateCompletionTimestamp(it, data));
+        });
+        events.sort((a, b) => a - b);
+        queued.sort((a, b) => a.pos - b.pos);
+        const now = Math.floor(Date.now() / 1000);
+        const baseTs = Number(data.timestamp) || now;
+        const result = {};
+        queued.forEach(q => {
+            // 无空出事件（池内开工项被删空）= 工人全闲，立即开工
+            const start = events.length ? events.shift() : now;
+            // 排队项的实际耗时：按「开工前等待」把加速/助手窗口前移后再折算（药水在排队期间生效的场景）。
+            // 取不到有效值时退回标记里的原始 timer（q.dur）。
+            let dur = q.dur;
+            try {
+                const probe = Object.assign({}, q.item, { timer: q.dur });
+                const eff = stagedDuration(probe, data, Math.max(0, start - baseTs));
+                if (!isNaN(eff) && eff >= 0) dur = eff;
+            } catch (e) {}
+            const finish = start + dur;
+            // 插入并保持升序（数量小，线性插入足够）
+            let i = 0;
+            while (i < events.length && events[i] < finish) i++;
+            events.splice(i, 0, finish);
+            result[q.id] = { start: start, finish: finish };
+        });
+        return result;
+    }
+
+    // 标记键解析：cat_data_lvl_idx（cat 名可能含下划线，如 siege_machines，从尾部截 3 段数字）
+    function parseQueueKey(key) {
+        const m = key.match(/^(.+)_(\d+)_(\d+)_(\d+)$/);
+        return m ? { cat: m[1], id: Number(m[2]), lvl: Number(m[3]), idx: Number(m[4]) } : null;
+    }
+
+    // 导入后重放排队条目（accounts.js 调用）：游戏导出不含手动录入的排队 timer——
+    // 找同实例未开工条目重放「+升级」写入（分裂/挂载），标记保留（跨导入存活）；
+    // 游戏里已开工（真实 timer）→ 清标记由真实数据接管；实例消失（已升完）→ 清标记。
+    function reconcileQueue(tag, newData) {
+        if (!tag || !newData) return;
+        const qmap = loadQueueMap(tag);
+        if (!Object.keys(qmap).length) return;
+        const nowSec = Math.floor(Date.now() / 1000);
+        Object.keys(qmap).forEach(key => {
+            const p = parseQueueKey(key);
+            if (!p) { delete qmap[key]; return; }
+            const arr = newData[p.cat];
+            if (!arr || !Array.isArray(arr)) { delete qmap[key]; return; }
+            if (arr.some(a => Number(a.data) === p.id && Number(a.lvl) === p.lvl && a.timer > 0)) { delete qmap[key]; return; }   // 已开工
+            const entry = arr.find(a => Number(a.data) === p.id && Number(a.lvl) === p.lvl && !(a.timer > 0) && a.gear_up !== 0);
+            if (!entry) { delete qmap[key]; return; }   // 实例不存在（已升完/建筑消失）
+            const timer = Math.max(1, Math.floor(nowSec - (newData.timestamp || 0) + (Number(qmap[key].dur) || 0)));
+            // 重放 applyAddToUpgrades 的写入口径（timer 仅作提取门票，完成时刻由队列模拟覆盖）
+            if (entry.cnt !== undefined && entry.cnt !== null) {
+                const cnt = Number(entry.cnt) || 0;
+                if (cnt > 1) { entry.cnt = cnt - 1; arr.push({ data: entry.data, lvl: entry.lvl, timer: timer }); }
+                else { delete entry.cnt; entry.timer = timer; }
+            } else {
+                entry.timer = timer;
+            }
+        });
+        saveQueueMap(tag, qmap);
+    }
+
+    // 固化已触发的排队项（开工后时刻落定）：timer = 完成时刻 − 导出时刻、清标记，此后药水/助手
+    // 折算按普通项接管。删除已完成卡前调用（触发者被删会让模拟挂靠漂移）。不落盘账号数据（调用方管）。
+    function solidifyQueues(tag, data) {
+        if (!tag || !data || !data.tag) return;
+        const qmap = loadQueueMap(tag);
+        if (!Object.keys(qmap).length) return;
+        const nowSec = Math.floor(Date.now() / 1000);
+        let changed = false;
+        extractUpgradingItems(data, nowSec, true).forEach(item => {
+            if (item.queueStart == null || item.queueStart > nowSec) return;   // 未触发
+            const key = item.uniqueId.slice(data.tag.length + 1);
+            if (!qmap[key]) return;
+            const p = parseQueueKey(key);
+            const arr = p ? data[p.cat] : null;
+            const target = (arr && Array.isArray(arr)) ? arr[p.idx] : null;
+            if (target && Number(target.data) === Number(item.data) && target.timer > 0) {
+                target.timer = Math.max(1, item.queueFinish - data.timestamp);
+                delete qmap[key];
+                changed = true;
+            }
+        });
+        if (changed) saveQueueMap(tag, qmap);
+    }
+
+    // 从 item 开工时刻起算的耗时（秒）。startDelay = 开工前还要等待的秒数（排队项用）：
+    // calculateStaged 先按 startDelay 消耗这段时间里流逝的加速/助手窗口，再把剩余 timer 按剩余窗口折算；
+    // 普通项 startDelay=0 时与旧实现完全等价。
+    function stagedDuration(item, data, startDelay) {
         const { timer, category } = item;
-        const { timestamp } = data;
-        let completionTimestamp = timestamp + timer;
 
         const eligibleForEvent = ["buildings", "heroes", "traps", "guardians", "units", "siege_machines", "spells", "pets"];
         // 超级充能建筑始终走正常计算，不享受活动加速
@@ -578,9 +725,7 @@
 
         if (item.helper_recurrent === true) {
             const supportedCategories = ["buildings", "heroes", "traps", "guardians", "units", "siege_machines", "spells"];
-            if (!supportedCategories.includes(category)) {
-                return timestamp + timer;
-            }
+            if (!supportedCategories.includes(category)) return timer;
 
             const helpers = data.helpers || [];
 
@@ -596,10 +741,7 @@
             const helperCooldown = helper ? (helper.helper_cooldown || 0) : 0;
 
             const [boostA, boostB] = getBoostWindows(data, category);
-            const additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, true, eventMult);
-            completionTimestamp = timestamp + additional;
-            if (isNaN(completionTimestamp) || completionTimestamp < timestamp) return timestamp + timer;
-            return completionTimestamp;
+            return calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, true, eventMult, 0, startDelay);
         }
 
         const helpers = data.helpers || [];
@@ -627,15 +769,23 @@
         const [boostA, boostB] = getBoostWindows(data, category);
         // 夜世界（钟楼）无活动倍率；无道具无助手时 calculateStaged 退化为 ceil(timer / em)
         const isNightWorld = ["buildings2", "traps2", "heroes2", "units2"].includes(category);
-        const additional = calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, false, isNightWorld ? 1 : eventMult, scheduledAt);
+        return calculateStaged(timer, helperLevel, itemHelperTimer, helperCooldown, boostA, boostB, false, isNightWorld ? 1 : eventMult, scheduledAt, startDelay);
+    }
 
-        completionTimestamp = timestamp + additional;
-        if (isNaN(completionTimestamp) || completionTimestamp < timestamp) return timestamp + timer;
-        return completionTimestamp;
+    function calculateCompletionTimestamp(item, data) {
+        // 排队项：完成时刻由队列模拟给出（开工时刻 + 时长），不走 timer 折算
+        if (item.queueFinish != null) return item.queueFinish;
+        const { timestamp } = data;
+        const duration = stagedDuration(item, data, 0);
+        if (isNaN(duration) || duration < 0) return timestamp + item.timer;
+        return timestamp + duration;
     }
 
     function extractUpgradingItems(data, nowTimestamp, includeCompleted = false, dismissLevel = 'progress') {
-        const upgrading = [];
+        // 三段结构：①收集全量条目（不算完成时刻）→ ②排队队列模拟（写 queueStart/queueFinish 派生字段）
+        // → ③算完成时刻 + 完成过滤。模拟必须基于含已完成的全量事件流（与 includeCompleted 参数无关），
+        // 否则已完成未删除的触发者缺席会让排队项挂靠漂移。
+        const collected = [];
         // 通知去重键（uniqueId）加账号前缀：跨账号同建筑同级别互不干扰（requestCode/notifyId/sentMessages 隔离）
         const tagPrefix = data.tag ? data.tag + '_' : '';
         const categories = ["buildings","buildings2","heroes","heroes2","units","units2","spells","siege_machines","pets","traps","traps2","guardians"];
@@ -657,9 +807,7 @@
                                             if (m === module) return sum + (module.lvl || 0) + 1;
                                             return sum + (m.lvl || 0);
                                         }, 0);
-                                        const refinedItem = { ...module, category: cat, isRefiningTable: true, uniqueId, helper_timer: helperTimer, originalTimer: module.timer, lvl: module.lvl || 0, parentData: type.data, parentTargetLevel };
-                                        const completion = calculateCompletionTimestamp(refinedItem, data);
-                                        if (includeCompleted || completion > nowTimestamp) upgrading.push(refinedItem);
+                                        collected.push({ ...module, category: cat, isRefiningTable: true, uniqueId, helper_timer: helperTimer, originalTimer: module.timer, lvl: module.lvl || 0, parentData: type.data, parentTargetLevel });
                                     }
                                 });
                             }
@@ -669,12 +817,34 @@
                         const uniqueId = tagPrefix + (item.helper_recurrent === true
                             ? `${cat}_${item.data}_${item.timer}_${item.lvl}`
                             : `${cat}_${item.data}_${item.lvl}_${idx}`);
-                        const newItem = { ...item, category: cat, uniqueId, originalTimer: item.timer };
-                        const completion = calculateCompletionTimestamp(newItem, data);
-                        if (includeCompleted || completion > nowTimestamp) upgrading.push(newItem);
+                        collected.push({ ...item, category: cat, uniqueId, originalTimer: item.timer });
                     }
                 });
             }
+        });
+        // ② 排队模拟：有标记才跑（零标记零开销）；按展示池分组各自模拟
+        if (data.tag) {
+            const queueMap = loadQueueMap(data.tag);
+            if (queueMap && Object.keys(queueMap).length) {
+                const pools = {};
+                collected.forEach(it => {
+                    const g = getItemCategory(it);
+                    (pools[g] = pools[g] || []).push(it);
+                });
+                Object.keys(pools).forEach(g => {
+                    const r = simulateQueue(pools[g], queueMap, data, tagPrefix);
+                    pools[g].forEach(it => {
+                        const qr = r[it.uniqueId];
+                        if (qr) { it.queueStart = qr.start; it.queueFinish = qr.finish; }
+                    });
+                });
+            }
+        }
+        // ③ 完成时刻 + 完成过滤
+        const upgrading = [];
+        collected.forEach(it => {
+            const completion = calculateCompletionTimestamp(it, data);
+            if (includeCompleted || completion > nowTimestamp) upgrading.push(it);
         });
         // 源头阻断：被屏蔽分类（按账号两层记忆）的条目不进入解析结果，
         // 下游（升级列表/总览区/主标题环/排序弹窗/通知调度）全链路自然免扰。
@@ -710,6 +880,15 @@
         if (m > 0 || result) result += `${m}分`;
         result += `${s}秒`;
         return result;
+    }
+
+    // 百分比统一显示（用户 2026-11-02 全站口径）：非 100% 固定 2 位小数、100% 不带小数；null/NaN → '-'。
+    function formatPercent(value) {
+        if (value === null || value === undefined) return '-';
+        const n = Number(value);
+        if (!isFinite(n)) return '-';
+        const rounded = Math.round(n * 100) / 100;
+        return (rounded === 100 ? '100' : rounded.toFixed(2)) + '%';
     }
 
     function formatDateTime(ts) { const d = new Date(ts*1000); return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`; }
@@ -950,6 +1129,19 @@
         return counts;
     }
 
+    // 分类占用计数（首页摘要卡口径，2026-11-01 用户拍板）：排队中（未开工）的项不占工人。
+    // 主标题空闲判定与排队池满校验仍用 getCategoryCounts——排队项预定了下一个空位，剔除会误报"有空闲"。
+    function getActiveCategoryCounts(items, now) {
+        const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
+        const nowSec = now || Math.floor(Date.now() / 1000);
+        items.forEach(it => {
+            if (it.queueStart != null && it.queueStart > nowSec) return;   // 排队中不占
+            const g = getItemCategory(it);
+            if (counts[g] !== undefined) counts[g]++;
+        });
+        return counts;
+    }
+
     function getCategoryCompletedCounts(items, data) {
         const counts = { buildings:0, lab:0, pets:0, buildings2:0, units2:0 };
         const now = Math.floor(Date.now() / 1000);
@@ -1166,9 +1358,17 @@
         calculateStaged,
         calculateCompletionTimestamp,
         extractUpgradingItems,
+        simulateQueue,
+        loadQueueMap,
+        saveQueueMap,
+        getQueueBaseDuration,
+        clearQueueMark,
+        reconcileQueue,
+        solidifyQueues,
         getItemCategory,
         getItemName,
         formatRemainingTime,
+        formatPercent,
         formatDateTime,
         formatDoneTime,
         formatExportTime,
@@ -1189,6 +1389,7 @@
         formatCompactTime,
         getCategoryDenominators,
         getCategoryCounts,
+        getActiveCategoryCounts,
         getCategoryCompletedCounts,
         getSummaryIconUrl,
         isMultiStageWeapon,

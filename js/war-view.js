@@ -1,6 +1,8 @@
 // ========== 对战视图共享渲染模块 ==========
 (function(g){'use strict';var C=g.CocTool;if(!C)return;
 function byId(id){return document.getElementById(id)}
+// 百分比统一口径（calc.formatPercent）：非 100% 固定 2 位小数、100% 不带小数
+function fmtPct(v){return C.calc.formatPercent(v)}
 var DE={detailLoading:byId('detail-loading'),detailNotWar:byId('detail-notwar-view'),detailPrep:byId('detail-prep-view'),detailEmpty:byId('detail-empty-state'),detailContent:byId('detail-content'),
 prepHomeBadge:byId('prep-home-badge'),prepHomeName:byId('prep-home-name'),prepAwayBadge:byId('prep-away-badge'),prepAwayName:byId('prep-away-name'),prepCountdown:byId('prep-countdown'),
 prepHomeMembers:byId('prep-home-members'),prepAwayMembers:byId('prep-away-members'),
@@ -12,7 +14,7 @@ var _memberFilter='all',_lr={};
 
 function parseCocTime(str){if(!str)return Date.now();return new Date(str.slice(0,4)+'-'+str.slice(4,6)+'-'+str.slice(6,8)+'T'+str.slice(9,11)+':'+str.slice(11,13)+':'+str.slice(13,15)+'.'+str.slice(16,19)+'Z').getTime()}
 function hideAllDetailViews(){if(DE.detailLoading)DE.detailLoading.classList.add('hidden');if(DE.detailNotWar)DE.detailNotWar.classList.add('hidden');if(DE.detailPrep)DE.detailPrep.classList.add('hidden');if(DE.detailEmpty)DE.detailEmpty.classList.add('hidden');if(DE.detailContent)DE.detailContent.classList.add('hidden')}
-function setStat(te,be,v,mx,ih,sf,sm){if(!te)return;sf=sf||'';if(sm===undefined)sm=true;var p=mx>0?Math.min(100,(v/mx)*100):0;te.textContent=sm?sf!==''?Number(v).toFixed(2)+sf+'/'+mx+sf:v+sf+'/'+mx+sf:Number(v).toFixed(2)+sf;if(be)be.style.width=Math.max(p,0.1)+'%'}
+function setStat(te,be,v,mx,ih,sf,sm){if(!te)return;sf=sf||'';if(sm===undefined)sm=true;var p=mx>0?Math.min(100,(v/mx)*100):0;te.textContent=sf==='%'?fmtPct(v):(sm?(sf!==''?Number(v).toFixed(2)+sf+'/'+mx+sf:v+sf+'/'+mx+sf):Number(v).toFixed(2)+sf);if(be)be.style.width=Math.max(p,0.1)+'%'}
 function renderWarStats(data){var ts=data.teamSize||1,apm=data.attacksPerMember||2,cl=data.clan||{},op=data.opponent||{};setStat(DE.shs,DE.bhs,cl.stars||0,ts*3,true);setStat(DE.sas,DE.bas,op.stars||0,ts*3,false);setStat(DE.shd,DE.bhd,(cl.destructionPercentage||0),100,true,'%',false);setStat(DE.sad,DE.bad,(op.destructionPercentage||0),100,false,'%',false);setStat(DE.sha,DE.bha,cl.attacks||0,ts*apm,true);setStat(DE.saa,DE.baa,op.attacks||0,ts*apm,false)}
 function buildDefenderStarMap(members){var o={};for(var i=0;i<members.length;i++){var atks=members[i].attacks||[];for(var j=0;j<atks.length;j++){var a=atks[j],d=a.defenderTag;if(!d)continue;if(!o[d])o[d]=[];o[d].push({order:a.order||0,stars:a.stars||0,takenMask:0})}}for(var d in o){o[d].sort(function(a,b){return a.order-b.order});var m=0;for(var i=0;i<o[d].length;i++){var e=o[d][i];e.takenMask=m;for(var s=0;s<e.stars;s++)m|=(1<<s)}}return o}
 function getTrackedTags(){try{var raw=localStorage.getItem('clash_upgrade_assistant_v3_fixed');if(!raw)return{};var d=JSON.parse(raw);var tags={},accts=d.accounts||{};for(var t in accts)if(accts[t].tag)tags[accts[t].tag]=true;return tags}catch(e){return{}}}
@@ -33,16 +35,16 @@ var ps=document.createElement('span');ps.textContent=reverse?'.'+dPos:dPos+'.';p
 var stars=atk.stars||0,defTag=atk.defenderTag,order=atk.order||0,tm=0,dd=defStarMap&&defStarMap[defTag];
 if(dd){for(var mi=0;mi<dd.length;mi++){if(dd[mi].order===order){tm=dd[mi].takenMask;break}}}
 var si=[];for(var s=0;s<3;s++){var st=document.createElement('img');st.src='img/icons/star.webp';st.style.cssText='width:13px;height:13px;flex-shrink:0;';if(s<stars){if(tm&(1<<s)){if(isDarkNow){st.style.filter='brightness(0) saturate(100%) invert(74%) sepia(20%) saturate(653%) hue-rotate(186deg) brightness(96%) contrast(92%)';st.style.opacity='0.7'}else{st.style.filter='brightness(0)';st.style.opacity='0.25'}}}else{if(isDarkNow){st.style.filter='brightness(0) saturate(100%) invert(34%) sepia(62%) saturate(548%) hue-rotate(203deg) brightness(96%) contrast(95%)';st.style.opacity='0.85'}else{st.style.filter='brightness(0)';st.style.opacity='0.45'}}si.push(st)}
-var pv=atk.destructionPercentage||0;var pct=document.createElement('span');pct.textContent=(Math.round(pv*100)/100)+'%';var pc=pv>=100?'#10b981':(isDarkNow?'#e5e7eb':'#374151');pct.style.cssText='font-size:12px;color:'+pc+';flex-shrink:0;';
-if(reverse){ar.appendChild(pct);ar.appendChild(ps);for(var s=2;s>=0;s--)ar.appendChild(si[s])}else{ar.appendChild(ps);for(var s=0;s<3;s++)ar.appendChild(si[s]);ar.appendChild(pct)}}else{var st2=document.createElement('span');st2.textContent='未进攻';st2.style.cssText='font-size:12px;color:#9ca3af;line-height:13px;display:inline-block;';if(reverse)st2.style.textAlign='right';ar.appendChild(st2)}sc.appendChild(ar)}
+var pv=atk.destructionPercentage||0;var pct=document.createElement('span');pct.textContent=fmtPct(pv);var pc=pv>=100?'#10b981':(isDarkNow?'#e5e7eb':'#374151');pct.style.cssText='font-size:12px;color:'+pc+';flex-shrink:0;';
+if(reverse){ar.appendChild(pct);for(var s=2;s>=0;s--)ar.appendChild(si[s]);ar.appendChild(ps)}else{ar.appendChild(ps);for(var s=0;s<3;s++)ar.appendChild(si[s]);ar.appendChild(pct)}}else{var st2=document.createElement('span');st2.textContent='未进攻';st2.style.cssText='font-size:12px;color:#9ca3af;line-height:13px;display:inline-block;';if(reverse)st2.style.textAlign='right';ar.appendChild(st2)}sc.appendChild(ar)}
 if(reverse){r2.appendChild(sc);r2.appendChild(icon)}else{r2.appendChild(icon);r2.appendChild(sc)}
 w.appendChild(r1);
 var ba=m.bestOpponentAttack;var br=document.createElement('div');br.style.cssText='display:flex;align-items:center;gap:4px;font-size:12px;padding:1px 0;min-height:15px;';if(reverse)br.style.justifyContent='flex-end';
 if(ba&&ba.stars>0){var bp='?';if(oppMems){for(var oi=0;oi<oppMems.length;oi++){if(oppMems[oi].tag===ba.attackerTag){bp=oppMems[oi].mapPosition;break}}}
 var bps=document.createElement('span');bps.textContent=reverse?'.'+bp:bp+'.';bps.style.cssText='font-size:12px;color:'+(reverse?'#3b82f6':'#6366f1')+';flex-shrink:0;';
 var bsi=[];for(var s=0;s<3;s++){var bst=document.createElement('img');bst.src='img/icons/star3.webp';bst.style.cssText='width:13px;height:13px;flex-shrink:0;';if(s>=ba.stars){if(isDarkNow){bst.style.filter='brightness(0) saturate(100%) invert(34%) sepia(62%) saturate(548%) hue-rotate(203deg) brightness(96%) contrast(95%)';bst.style.opacity='0.85'}else{bst.style.filter='brightness(0)';bst.style.opacity='0.45'}}bsi.push(bst)}
-var bpv=ba.destructionPercentage||0;var bpct=document.createElement('span');bpct.textContent=(Math.round(bpv*100)/100)+'%';bpct.style.cssText='font-size:12px;color:#6b7280;flex-shrink:0;';
-if(reverse){br.appendChild(bpct);br.appendChild(bps);for(var s=2;s>=0;s--)br.appendChild(bsi[s])}else{for(var s=0;s<3;s++)br.appendChild(bsi[s]);br.appendChild(bps);br.appendChild(bpct)}}else{var bt=document.createElement('span');bt.textContent=reverse?'可进攻':'未被进攻';bt.style.cssText='font-size:12px;color:'+(reverse?'#f59e0b':'#9ca3af')+';font-style:italic;line-height:13px;display:inline-block;';br.appendChild(bt)}
+var bpv=ba.destructionPercentage||0;var bpct=document.createElement('span');bpct.textContent=fmtPct(bpv);bpct.style.cssText='font-size:12px;color:#6b7280;flex-shrink:0;';
+if(reverse){br.appendChild(bpct);for(var s=2;s>=0;s--)br.appendChild(bsi[s]);br.appendChild(bps)}else{for(var s=0;s<3;s++)br.appendChild(bsi[s]);br.appendChild(bps);br.appendChild(bpct)}}else{var bt=document.createElement('span');bt.textContent=reverse?'可进攻':'未被进攻';bt.style.cssText='font-size:12px;color:'+(reverse?'#f59e0b':'#9ca3af')+';font-style:italic;line-height:13px;display:inline-block;';br.appendChild(bt)}
 w.appendChild(br);w.appendChild(r2);ct.appendChild(w)}}
 
 function smf(v){_memberFilter=v;if(_lr.h)_renderMemberList(_lr.h.ct,_lr.h.m,_lr.h.r,_lr.h.a,_lr.h.o,_lr.h.dm);if(_lr.a)_renderMemberList(_lr.a.ct,_lr.a.m,_lr.a.r,_lr.a.a,_lr.a.o,_lr.a.dm)}
@@ -98,7 +100,7 @@ function renderDetailTo(ct,data){
   br.appendChild(hDiv);br.appendChild(stDiv);br.appendChild(aDiv);wrap.appendChild(br);
   // Stats (三行：星数 | 摧毁率 | 出刀数)
   var sm=(data.teamSize||1)*3,am=(data.teamSize||1)*(data.attacksPerMember||2);
-  var gw=function(p){return(Math.round((p||0)*100)/100)+'%'};
+  var gw=function(p){return fmtPct(p)};
   function mkStatRow(hv,hp,av,ap,icon,color){
     var r=document.createElement('div');r.style.cssText='display:flex;align-items:center;gap:4px;margin-top:4px;width:100%;max-width:400px;';
     var hc=document.createElement('span');hc.textContent=hv;hc.style.cssText='font-size:13px;color:'+cVal+';width:52px;text-align:right;flex-shrink:0;';

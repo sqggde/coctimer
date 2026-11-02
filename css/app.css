@@ -552,10 +552,8 @@ body.bg-gray-50 {
    `.dark .bg-gray-50 { #252540 }`，于是深色下顶部出现一块比页面更深、且左右各内缩 16px 的矩形
    （被误读成"左右有看不见的禁区"）。删掉后顶栏与 body 走同一条 `bg-gray-50` 规则，页面底色再改也会同步。
    注：原同款覆盖 `.dark #tab-container > .account-tab[data-sort="true"]` 一并删除——data-sort 属性全仓已无 JS 写入。 */
-.dark #chest-notification {
-    background-color: var(--td-backdrop) !important;
-    border-top-color: var(--td-line) !important;
-}
+/* 宝箱已刷新徽章：深色下也保持 bg-green-500 的绿色（原 `.dark #chest-notification` 把它改成
+   --td-backdrop，深色下看着像没上色；用户 2026-11-02 报障）。不再单独覆盖背景，跟浅色同一套。 */
 /* 底部导航的深色覆盖**已并入令牌**（`--td-nav-*`），原先这两条删除 */
 .dark #settings-page .text-gray-800 {
     color: #e5e7eb !important;
@@ -570,6 +568,73 @@ body.bg-gray-50 {
 /* 深色底同样并入令牌（`--td-nav-bg` / `--td-nav-bd`），原先 `.dark .bottom-nav` 那条删除 */
 .dark .ho-timer-left, .dark .ho-timer-right {
     color: #e2e8f0 !important;
+}
+/* ===== 游戏字体（Clash，主题弹窗开关 settings.gameFont → html.game-font） =====
+   只有拉丁/数字/符号：中文不在覆盖内，逐字符回退到系统字体（用户手机是什么中文就是什么）。
+   Bold 挂 500-900 区间：App 的 semibold/bold 统一走粗体文件。display:swap 加载中先用回退字不阻塞渲染 */
+@font-face {
+    font-family: 'Clash';
+    src: url('../fonts/Clash-Regular.otf') format('opentype');
+    font-weight: 400 600;
+    font-display: swap;
+}
+/* Bold 面暂不挂载（2026-11-01 用户拍板：Clash 常规本身够粗，全站只用常规；真有粗体刚需再解封）——
+   Bold.otf 文件保留在 fonts/，解封即下面这段 */
+/* @font-face {
+    font-family: 'Clash';
+    src: url('../fonts/Clash-Bold.otf') format('opentype');
+    font-weight: 700 900;
+    font-display: swap;
+} */
+/* * 继承强覆盖：clan/overview/pokedex.css 里的显式系统字体栈也统一（svg 图标不受 font-family 影响）；
+   font-synthesis:none 禁合成粗体——700+ 请求匹配到 Regular face 时保持原字形，不出浏览器描边假粗。
+   !important 必须保留：四个子页面容器是 ID 选择器显式栈（#overview-page/#clan-page/#pokedex-detail-page 等，
+   特异性 1-0-0 压过通配 0-1-1），不加 important 会整页逃逸（账号进度/图鉴/部落战曾漏）。
+   body 的栈同样 important：body 自己也匹配 *，不升级会被 * 的 inherit 压成默认字体（全站逃逸，曾踩） */
+html.game-font body {
+    font-family: 'Clash', 'Inter', system-ui, -apple-system, sans-serif !important;
+    /* Clash 字形显大：整页微缩抵消（数字/拉丁缩 ~4% 归一视觉尺寸，中文系统字同步微缩基本无感）。
+       zoom 为 Chromium/WebView 特性，网页版 Safari 不支持时无害降级（只是不缩） */
+    zoom: 0.95;
+}
+/* 图标反向补偿（用户：图标恢复接近原大小，1.05 不追求精确——组合后 0.95×1.05≈99.75%）。
+   只选 img/svg：i 内装着 svg，若连 i 一起补偿会双倍放大 */
+html.game-font img,
+html.game-font svg {
+    zoom: 1.05;
+}
+html.game-font * {
+    font-family: inherit !important;
+    font-synthesis: none;
+}
+/* 星标行倒计时文字（queue.js renderStars 用类不用内联色）：浅灰/深白两主题适配，对齐 .ho-timer 覆盖口径；
+   已满（计 2 囤满可领）绿色强调，两主题同值 */
+.star-timer {
+    color: #374151;
+}
+.dark .star-timer {
+    color: #e2e8f0;
+}
+.star-timer.star-full,
+.dark .star-timer.star-full {
+    color: #10b981;
+}
+/* 星计数徽章：仿助手等级徽章（≥1 显示）；主世界蓝、夜世界黄（与钟楼同系，夜世界元素） */
+.star-badge {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 0 5px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+#helper-star-wrap .star-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+#helper-star3-wrap .star-badge {
+    background: #fef3c7;
+    color: #d97706;
 }
 /* 深色行卡（2026-09-16 按用户口径改）：「升级卡片左右两侧的颜色条要跟浅色模式一致，按时间显示不同颜色；
    升级卡片颜色改成跟卡片 1 2 一致」——
@@ -833,6 +898,26 @@ body.bg-gray-50 {
        会在深色下被它盖成 `#252540`（实测过一次回归）。带上 `.dark` 才同权重、靠"写在后面"取胜。 */
 }
 
+/* 长按卡片 = 打开动作模态（排队/备注/立即完成…），不允许系统文字选择/图片长按菜单：
+   手机浏览器长按文字很容易进入选择态，与长按手势打架（用户 2026-11-02）。
+   只禁卡片内——账号标签、日志、备注弹窗等其它位置仍可正常复制。 */
+.upgrade-card, .upgrade-card * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+.upgrade-card img {
+    -webkit-user-drag: none;
+}
+
+/* 长按动作模态（排队/备注/删除/立即完成）同样不允许文字选择：长按手势的延续，
+   避免在弹窗标题/按钮上继续触发选字；只这个模态，其它弹窗的输入框/日志/可复制文本不受影响。 */
+.item-actions-modal, .item-actions-modal * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 /* ===== 升级卡片倒计时（排版照**方案 05**；**配色 2026-09-16 已按用户要求改回原色**）=====
    排版（保留）：数字 15px / 600 + `letter-spacing: .01em` + `line-height: 1.25`；单位小一号（10.5px）、
    常规字重、两侧各留 1px；「就绪」小一号（12px）；完成时刻行 11px + `tabular-nums`。
@@ -990,10 +1075,12 @@ html.dark .peer:checked ~ .peer-checked\:bg-primary {
     -webkit-appearance: none;
     margin: 0;
 }
-/* 标题行退出/应用：小面积强调色（DESIGN.md §2.2 #2563eb 两主题同值） */
+/* 推演退出/应用：小面积强调色（DESIGN.md §2.2 #2563eb 两主题同值）——
+   独立条形态（升级列表容器顶部；原锚定标题行 h2，该行已删 2026-11-01） */
 .sim-actions {
-    margin: 0 auto;   /* 推演中标题行只剩它：水平居中 */
-    display: inline-flex;
+    margin: 2px 0 4px;
+    display: flex;
+    justify-content: center;
     align-items: center;
     gap: 6px;
 }

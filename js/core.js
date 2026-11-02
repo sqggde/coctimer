@@ -9,6 +9,7 @@
     const DEFAULT_SETTINGS = Object.freeze({
         dataInfoExpanded: true,
         chestDetect: true,
+        gameFont: true,
         autoImport: false,
         advanceNotify: false,
         advanceNotifyTime: 300,
@@ -448,7 +449,40 @@
         }
     }
 
-    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm });
+    // ===== 滚轮选择器（老虎机式，供睡眠时间设置/星标校准等复用；样式类 .picker-* 在 app.css） =====
+    function initScrollPicker(column, values) {
+        const scroll = column.querySelector('.picker-scroll');
+        scroll.innerHTML = values.map(v => `<div class="picker-item" data-value="${v}">${v}</div>`).join('');
+        column.addEventListener('scroll', () => updatePickerActive(column));
+        updatePickerActive(column);
+    }
+    function updatePickerActive(column) {
+        const items = column.querySelectorAll('.picker-item');
+        const colRect = column.getBoundingClientRect();
+        const centerY = colRect.top + colRect.height / 2;
+        let closest = items[0], minDist = Infinity;
+        items.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            const itemCenter = rect.top + rect.height / 2;
+            const dist = Math.abs(itemCenter - centerY);
+            if (dist < minDist) { minDist = dist; closest = item; }
+        });
+        items.forEach(item => item.classList.remove('active'));
+        closest.classList.add('active');
+    }
+    function scrollPickerTo(column, value) {
+        const items = column.querySelectorAll('.picker-item');
+        let targetIndex = 0;
+        items.forEach((item, i) => { if (item.dataset.value === value) targetIndex = i; });
+        column.scrollTop = targetIndex * 36;
+        items.forEach(item => item.classList.remove('active'));
+        items[targetIndex].classList.add('active');
+    }
+    function getPickerValue(column) {
+        const active = column.querySelector('.picker-item.active');
+        return active ? active.dataset.value : null;
+    }
+    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue });
 
     let navigationBound = false;
 

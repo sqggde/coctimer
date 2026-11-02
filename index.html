@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261031-tnrn3q"></script>
+<script src="shim.js?v=coc-tool-web-20261102-tnvkun"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261031-tnrn3q" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -450,14 +450,30 @@
                         <span class="relative inline-flex items-center justify-center text-xs font-medium text-gray-700"><span id="summary-badge-red-units2" class="absolute -left-3.5 text-red-500 text-sm" style="opacity:0">●</span><span id="summary-units2">0/0</span></span>
                     </div>
                 </div>
-                <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 10px;margin-top:4px"></div>
+                <div id="helper-overview" style="display:flex;align-items:center;font-size:12px;padding:0 26px 0 10px;margin-top:4px;position:relative"></div>
+                <!-- 助手总览折叠区（renderHelperOverview 行尾按钮控制显隐，按账号记忆、默认折叠 clash_helper_extra_expanded）：
+                     星标行 = 主世界/夜世界胜利之星（queue.js：各自独立 24h 刷新计时，计 2 显示已满）+ 宝箱通知（贴最右，出现时顶开折叠）。
+                     计数徽章仿助手等级徽章（≥1 显示），倒计时省秒，整组（图标/徽章/时间）可点触发状态机 -->
+                <div id="helper-extra-row" style="display:flex;align-items:center;gap:8px;font-size:12px;padding:0 10px;margin-top:3px">
+                    <span id="helper-star-wrap" data-star-key="home" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer" title="主世界胜利之星">
+                        <img src="img/icons/star.webp" width="18" height="18" style="border-radius:4px" alt="">
+                        <span id="helper-star-count" class="star-badge" style="display:none"></span>
+                        <span id="helper-star-time" style="font-weight:500;white-space:nowrap;min-width:44px"></span>
+                    </span>
+                    <span id="helper-star3-wrap" data-star-key="builder" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer" title="夜世界胜利之星">
+                        <img src="img/icons/star3.webp" width="18" height="18" style="border-radius:4px" alt="">
+                        <span id="helper-star3-count" class="star-badge" style="display:none"></span>
+                        <span id="helper-star3-time" style="font-weight:500;white-space:nowrap;min-width:44px"></span>
+                    </span>
+                    <span id="chest-notification" class="hidden bg-green-500 text-white rounded-lg px-2 py-0.5" style="font-size:12px;margin-left:auto">宝箱已刷新</span>
+                </div>
                 </div>
 
             <div class="mt-1">
                 <!-- 升级列表外壳：圆润3D 下无样式（裸标题 + 每实体一张卡）；极简主题靠 `--td-shell-*` 还原成
-                     旧版的"白卡包住整块列表（bg-white rounded-lg shadow-md p-0.5）"——见 tokens.css -->
+                     旧版的"白卡包住整块列表（bg-white rounded-lg shadow-md p-0.5）"——见 tokens.css。
+                     升级标题行已删（2026-11-01）：账号名与总数在摘要卡/分组徽章冗余，宝箱通知移助手行下星标行 -->
                 <div class="list-shell">
-                    <h2 class="font-semibold text-gray-800 mb-1 flex items-center" style="font-size: 14px;"><i class="fa fa-clock-o mr-2 text-primary"></i><span id="upgrade-title-text" style="font-size: 14px;">正在升级的项目</span><span id="upgrades-count-badge" class="ml-2 px-2 py-1 bg-primary text-white text-xs rounded-full hidden" style="font-size: 10px;">0</span><span id="chest-notification" class="hidden ml-auto bg-green-500 text-white text-sm rounded-lg px-2 py-0.5">宝箱已刷新</span></h2>
                     <div id="loading-indicator" class="flex items-center justify-center py-12"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div><span class="ml-3 text-gray-600">正在加载...</span></div>
                     <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-4"></div>
                     <div id="empty-state" class="text-center py-12 hidden"><i class="fa fa-database text-gray-300 text-5xl mb-4"></i><p class="text-gray-500">点击「导入数据」添加账号，数据将自动保存</p></div>
@@ -1544,6 +1560,15 @@
                 </button>
             </div>
             <div id="ui-style-list"></div>
+            <!-- 游戏字体开关（settings.gameFont → html.game-font）：Clash 字体只覆盖拉丁/数字/符号，中文逐字符回退系统字体 -->
+            <div class="flex items-center justify-between mt-3">
+                <span class="text-sm text-gray-700 dark:text-gray-300">启用游戏字体</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="game-font-toggle" class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                </label>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">仅替换字母与数字，中文保持系统字体</p>
             <p class="text-xs text-gray-400 mt-3">明暗（浅色 / 深色）在首页「设置 → 夜间模式」里切换——两套主题各自都有浅色与深色。</p>
         </div>
     </div>
@@ -1647,6 +1672,7 @@
             <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
                 <i class="fa fa-book"></i>
                 <span id="pokedex-title"></span>
+                <span id="pokedex-disc" style="display:inline-flex;"></span>
                 </div>
             <div style="display:flex;align-items:center;">
                 <button id="pokedex-refresh" class="detail-back" title="刷新数据"><i class="fa fa-refresh"></i></button>
@@ -1790,32 +1816,33 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/core.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/names.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/services.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261031-tnrn3q"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261031-tnrn3q"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/skins.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261031-tnrn3q"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261031-tnrn3q"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/core.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/names.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/queue.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/services.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261102-tnvkun"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/skins.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261102-tnvkun"></script>
 </body>
 </html>

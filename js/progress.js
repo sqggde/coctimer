@@ -18,7 +18,7 @@
        模板结构一变，冷启动就会把旧 class 的 DOM 原样塞回来（组标题/行卡的间距、类名全按旧的来，
        表现为"改了没生效"，DESIGN.md §4.9 记过这次踩坑）。
        **改升级列表的模板（行卡 / 组标题 / 组包装）时把这个数 +1**，老缓存自动失效、重新渲染。 */
-    const VIEW_CACHE_V = 5;
+    const VIEW_CACHE_V = 6;
 
     // 渲染目标：当前账号 slide（Swiper 每账号一页，模板元素仅作克隆源）；无 slide 时回退 document
     function getActiveSlideRoot() {
@@ -293,9 +293,16 @@
 
             let clockHtml = '<span style="display:inline-flex;align-items:center;gap:2px"><span style="display:inline-flex;position:relative"><img src="img/icons/CT.webp" width="' + iconSize + '" height="' + iconSize + '" style="vertical-align:middle;display:inline-block;border-radius:4px"></span><span style="background:#fef3c7;color:#d97706;border-radius:999px;padding:0 5px;font-size:11px;font-weight:600;line-height:1.4">' + clockLvl + '</span></span><span class="ho-timer-right" style="font-weight:500;white-space:nowrap"></span>';
 
-            container.innerHTML = '<span style="display:flex;align-items:center;gap:4px">' + leftHtml.join('') + '</span><span style="margin-left:auto;display:flex;align-items:center;gap:2px">' + clockHtml + '</span>';
+            // 行尾折叠按钮：收起/展开下方星标行（#helper-extra-row）；点击走 init 的 displayArea 委托。
+            // absolute 贴行右缘 + 18px——与总览卡折叠箭头（#data-info-toggle，row 右缘同线）成一条竖线、大小一致
+            const toggleBtn = '<button id="helper-overview-toggle" class="flex items-center justify-center text-gray-400" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;cursor:pointer" title="收起/展开"><i class="fa fa-chevron-down" style="font-size:18px;"></i></button>';
+
+            container.innerHTML = '<span style="display:flex;align-items:center;gap:4px">' + leftHtml.join('') + '</span><span style="margin-left:auto;display:flex;align-items:center;gap:2px">' + clockHtml + toggleBtn + '</span>';
             container.setAttribute('data-helper-key', structKey);
         }
+        applyHelperExtra();
+        const vq = CocTool.features.queue;
+        if (vq && vq.renderStars) vq.renderStars();   // 星标行倒计时（queue.js：主/夜胜利之星，每秒推进+刷新）
 
         // 仅更新倒数文字
         const leftTimer = container.querySelector('.ho-timer-left');
@@ -346,6 +353,42 @@
         });
     }
 
+    // 星标行（#helper-extra-row）显隐：按账号记忆、**默认折叠**（clash_helper_extra_expanded={tag:true}；无记录=折叠）。
+    // 账号信息区折叠（settings.dataInfoExpanded）保持全局——用户 2026-11-02 拍板只改星标行（有的玩家只关心个别账号）。
+    // 宝箱出现时强制展开（顶开折叠），消失后回到该账号的记忆态（默认折叠即重新收起）——每秒 tick 追平。
+    // 箭头语义（2026-11-01 用户拍板）：箭头指「下一步动作的方向」——收起时朝下（向下展开）、展开时朝上（向上折叠）
+    const STAR_ROW_EXPANDED_KEY = 'clash_helper_extra_expanded';
+    function loadStarRowExpanded() {
+        try {
+            const v = JSON.parse(localStorage.getItem(STAR_ROW_EXPANDED_KEY));
+            return v && typeof v === 'object' ? v : {};
+        } catch (e) { return {}; }
+    }
+    function isStarRowExpanded() {
+        const tag = state.currentAccount;
+        return !!(tag && loadStarRowExpanded()[tag]);
+    }
+    // 星标行的实际可见态 = 宝箱强制展开 || 本账号展开记忆（toggle 也按这个判「下一步该展开还是收起」，
+    // 否则宝箱顶开时点折叠会被记成展开，宝箱消失后反而留着）
+    function isHelperExtraOpen() {
+        const chest = document.getElementById('chest-notification');
+        return (!!chest && !chest.classList.contains('hidden')) || isStarRowExpanded();
+    }
+    function setStarRowExpanded(expanded) {
+        const tag = state.currentAccount;
+        if (!tag) return;
+        const map = loadStarRowExpanded();
+        if (expanded) map[tag] = true; else delete map[tag];   // 展开记显式 true；折叠即回默认态（删键）
+        try { localStorage.setItem(STAR_ROW_EXPANDED_KEY, JSON.stringify(map)); } catch (e) {}
+    }
+    function applyHelperExtra() {
+        const open = isHelperExtraOpen();
+        const row = document.getElementById('helper-extra-row');
+        if (row) row.style.display = open ? 'flex' : 'none';
+        const arrow = document.querySelector('#helper-overview-toggle i');
+        if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+    }
+
     // ========== 升级卡片备忘（长按编辑，本地存储 clash_upgrade_notes） ==========
     const NOTES_KEY = 'clash_upgrade_notes';
     function loadNotes() {
@@ -392,7 +435,7 @@
             timer = setTimeout(() => {
                 timer = null;
                 card.__noteLongPress = true;
-                openNoteModal(card);
+                CocTool.features.queue.openItemActionsModal(card);   // 长按动作选择（queue.js）：排队/备注
             }, 500);
         }
         function move(e) {
@@ -463,6 +506,59 @@
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
+    // ========== 升级排队（工人队列模拟） ==========
+    // 交互（长按动作模态/设排队/取消）在 queue.js；标记读写/导入重放/固化在 calc.js
+    //（clash_upgrade_queue，结构同 clash_upgrade_notes）。此处只管卡片渲染与触发检测：
+    // 排队中的升级倒计时静止，按队列位置依次消费"工人空出"事件才开工，完成时刻由 extract 注入全链路生效。
+
+    // 终结一条升级（长按动作模态「立即完成/删除项目」与完成确认共用）：
+    // addLevel=true 立即完成（等级+1）/false 删除项目（等级不变）；都清 timer + 备忘/排队标记清理 + 落盘。
+    // 返回是否命中条目。精工台嵌套模块（data=1000097 的 types[].modules[]）平铺找不到时递归定位，条目/模块保留。
+    function finalizeCard(card, addLevel) {
+        const tag = state.currentAccount;
+        const d = accounts[tag];
+        if (!d) return false;
+        const cat = card.getAttribute('data-cat');
+        const id = card.getAttribute('data-item-id');
+        const timer = card.getAttribute('data-item-timer');
+        const lvl = card.getAttribute('data-item-lvl');
+        const arr = d[cat];
+        if (!arr || !Array.isArray(arr)) return false;
+        const hit = entry => {
+            if (addLevel) entry.lvl = Number(entry.lvl) + 1;   // 完成确认：条目保留（等级信息供详情页/总进度），timer 清（升级结束）
+            delete entry.timer;
+        };
+        let removed = false;
+        const idx = arr.findIndex(a => Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl));
+        if (idx !== -1) { hit(arr[idx]); removed = true; }
+        else {
+            for (let i = 0; i < arr.length && !removed; i++) {
+                const it = arr[i];
+                if (Number(it.data) !== 1000097 || !it.types || !Array.isArray(it.types)) continue;
+                for (let ti = 0; ti < it.types.length && !removed; ti++) {
+                    const ms = it.types[ti].modules;
+                    if (!ms || !Array.isArray(ms)) continue;
+                    for (let mi = 0; mi < ms.length; mi++) {
+                        const m = ms[mi];
+                        if (Number(m.data) === Number(id) && Number(m.timer) === Number(timer) && Number(m.lvl) === Number(lvl)) {
+                            hit(m); removed = true; break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!removed) return false;
+        saveToLocalStorage();
+        // 实例结束：清该卡备忘与排队标记
+        const noteKey = card.getAttribute('data-note-key');
+        if (noteKey) {
+            const notes = loadNotes();
+            if (notes[tag]) { delete notes[tag][noteKey]; saveNotes(notes); }
+        }
+        calc.clearQueueMark(tag, card.getAttribute('data-unique'));
+        return true;
+    }
+
     // 完成卡片删除统一绑定（渲染路径与缓存恢复补绑定共用同一实现；确认用程序模态弹窗，非原生 confirm）
     // 幂等标记用 JS property 而非 data-* 属性：data-* 会被缓存 innerHTML 序列化带走，恢复后误判为已绑定（曾导致缓存路径删除失效）
     function bindCardDelete(card) {
@@ -473,10 +569,6 @@
             if (this.__noteLongPress) return;
             if (sim.active) return;   // 推演中禁用已完成项删除（保护副本语义）
             const self = this;
-            const cat = this.getAttribute('data-cat');
-            const id = this.getAttribute('data-item-id');
-            const timer = this.getAttribute('data-item-timer');
-            const lvl = this.getAttribute('data-item-lvl');
             const nameEl = this.querySelector('.card-name');
             const name = nameEl ? nameEl.textContent : '';
             CocTool.ui.showConfirm({
@@ -486,51 +578,8 @@
                 onConfirm: function () {
                     const d = accounts[state.currentAccount];
                     if (!d) return;
-                    const arr = d[cat];
-                    let removed = false;
-                    if (arr && Array.isArray(arr)) {
-                        const idx = arr.findIndex(function (a) {
-                            return Number(a.data) === Number(id) && Number(a.timer) === Number(timer) && Number(a.lvl) === Number(lvl);
-                        });
-                        if (idx !== -1) {
-                            // 完成确认：不清除条目（实体等级信息供详情页/总进度使用），只清除 timer（升级结束）+ 等级 +1（升级完成的目的就是 +1 级）
-                            arr[idx].lvl = Number(arr[idx].lvl) + 1;
-                            delete arr[idx].timer;
-                            removed = true;
-                        } else {
-                            // 精工台嵌套模块（data=1000097 的 types[].modules[]，如精工形态 103000011-13）：
-                            // 平铺匹配找不到，需递归定位；同样只清 timer + 等级 +1，条目/module 保留
-                            for (let i = 0; i < arr.length; i++) {
-                                const it = arr[i];
-                                if (Number(it.data) !== 1000097 || !it.types || !Array.isArray(it.types)) continue;
-                                const ts = it.types;
-                                for (let ti = 0; ti < ts.length; ti++) {
-                                    const ms = ts[ti].modules;
-                                    if (!ms || !Array.isArray(ms)) continue;
-                                    for (let mi = 0; mi < ms.length; mi++) {
-                                        if (Number(ms[mi].data) === Number(id) && Number(ms[mi].timer) === Number(timer) && Number(ms[mi].lvl) === Number(lvl)) {
-                                            ms[mi].lvl = Number(ms[mi].lvl) + 1;
-                                            delete ms[mi].timer;
-                                            removed = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (removed) {
-                            saveToLocalStorage();
-                            // 删除卡片的同时清理该实例备忘（实例结束）
-                            const noteKey = self.getAttribute('data-note-key');
-                            if (noteKey) {
-                                const notes = loadNotes();
-                                if (notes[state.currentAccount]) {
-                                    delete notes[state.currentAccount][noteKey];
-                                    saveNotes(notes);
-                                }
-                            }
-                            refreshCurrentAccountDisplay();
-                        }
-                    }
+                    calc.solidifyQueues(state.currentAccount, d);   // 先固化已触发的排队项（触发者被删会让模拟挂靠漂移）
+                    if (finalizeCard(self, true)) refreshCurrentAccountDisplay();
                 }
             });
         });
@@ -635,30 +684,44 @@
         if (items.length === 0) {
             showEmptyState('当前账号没有正在升级的项目');
             upgradesContainer.classList.add('hidden');
-            upgradesCountBadge.classList.add('hidden');
+            if (upgradesCountBadge) upgradesCountBadge.classList.add('hidden');   // 升级标题行已删（2026-11-01），badge 引用留 null 守卫
             return;
         }
-        upgradesCountBadge.textContent = items.length;
-        upgradesCountBadge.classList.remove('hidden');
+        if (upgradesCountBadge) {
+            upgradesCountBadge.textContent = items.length;
+            upgradesCountBadge.classList.remove('hidden');
+        }
         const grouped = { buildings:[], lab:[], pets:[], buildings2:[], units2:[] };
         items.forEach(it => { const g = calc.getItemCategory(it); grouped[g].push(it); });
         for (let g in grouped) {
             grouped[g].sort((a,b)=> calc.calculateCompletionTimestamp(a,data) - calc.calculateCompletionTimestamp(b,data));
+            const nowTs = nowSec || Date.now()/1000;
+            // 排队角标序号：组内未触发排队项按开工时刻升序 1..K（触发后不再编号）
+            const queueOrder = {};
+            grouped[g].filter(it => it.queueStart != null && it.queueStart > nowTs)
+                .sort((a,b) => a.queueStart - b.queueStart)
+                .forEach((it, i) => { queueOrder[it.uniqueId] = i + 1; });
             grouped[g].forEach(item => {
                 counts[g]++;
                 const completionTs = calc.calculateCompletionTimestamp(item, data);
-                const remainingSec = Math.max(0, completionTs - (nowSec || Date.now()/1000));
-                const doneTimeFmt = calc.formatDoneTime(completionTs);
+                // 排队中（未开工）：倒计时区显示总时长（静止，tick 跳过），副行显示预计完成时刻
+                const queuePending = item.queueStart != null && item.queueStart > nowTs;
+                const remainingSec = queuePending ? Math.max(1, item.queueFinish - item.queueStart) : Math.max(0, completionTs - nowTs);
+                const doneTimeFmt = queuePending ? ('预计 ' + calc.formatDoneTime(item.queueFinish)) : calc.formatDoneTime(completionTs);
                 const name = calc.getItemName(item.data);
                 const originCat = CocTool.names.CATEGORY_NAMES[item.category] || item.category;
                 const icon = CocTool.names.CATEGORY_ICONS[item.category] || "fa-question";
-                const remCls = calc.getRemainingClasses(remainingSec);
+                const remCls = queuePending ? { text: 'text-gray-500', border: 'border-gray-300' } : calc.getRemainingClasses(remainingSec);
                 const textColor = remCls.text, borderClr = remCls.border;
                 const card = document.createElement('div');
                 card.style.minHeight = '46px';
                 card.className = `upgrade-card bg-gray-50 rounded-lg p-1 border-l-4 border-r-4 ${borderClr} flex items-center justify-between ${calc.isInSleepRange(completionTs) ? ' sleep-highlight' : ''}`;
                 card.setAttribute('data-unique', item.uniqueId);
                 card.setAttribute('data-completion', completionTs);
+                if (queuePending) {
+                    card.setAttribute('data-queued', '1');
+                    card.setAttribute('data-queue-start', item.queueStart);
+                }
                 card.setAttribute('data-cat', item.category);
                 card.setAttribute('data-item-id', item.data);
                 card.setAttribute('data-item-timer', item.timer);
@@ -703,6 +766,9 @@
                 const note = getNoteForItem(state.currentAccount, item, data, noteMap);
                 // 有备忘时：说明行被备忘覆盖，等级信息挪到名称后（lvShort，改装无等级则不显示）
                 let h3Inner = calc.escapeHtml(name);
+                if (queuePending) {
+                    h3Inner += '<span class="ml-1 inline-block rounded-full bg-yellow-100 text-yellow-800 font-semibold align-middle" style="font-size:10px;line-height:16px;padding:0 5px;vertical-align:2px;">排队' + (queueOrder[item.uniqueId] || '') + '</span>';
+                }
                 if (note) {
                     const lvShort = isGear ? '' : (isSC ? sc + '→' + (sc + 1) : isWp ? wp + '→' + (wp + 1) : item.lvl + '→' + (item.lvl + 1));
                     if (lvShort) h3Inner += '<span class="card-lv"> ' + lvShort + '</span>';
@@ -751,7 +817,14 @@
     }
     function updateCardTimers() {
         const now = Date.now() / 1000;
+        let queueRefresh = false;
         document.querySelectorAll('.upgrade-card').forEach(card => {
+            // 排队中（未开工）卡：总时长静止不做秒级更新；到点开工（queueStart ≤ now）→ 整页重渲染转正常倒计时
+            if (card.getAttribute('data-queued') === '1') {
+                const qs = parseFloat(card.getAttribute('data-queue-start'));
+                if (!isNaN(qs) && now >= qs) queueRefresh = true;
+                return;
+            }
             const completionTs = parseFloat(card.getAttribute('data-completion'));
             if (isNaN(completionTs)) return;
             const remainingSec = Math.max(0, completionTs - now);
@@ -781,6 +854,7 @@
             // 补绑图标跳图鉴（缓存恢复路径由此生效）
             bindIconPokedex(card);
         });
+        if (queueRefresh) refreshCurrentAccountDisplay();
     }
 
     // ========== 轻量定时刷新（每秒调用，不重建 DOM）==========
@@ -927,16 +1001,14 @@
             wrap.querySelectorAll('.sim-btn').forEach(btn => btn.addEventListener('click', () => setSimCount(btn.dataset.key, (sim.counts[btn.dataset.key] || 0) + Number(btn.dataset.delta))));
             wrap.querySelectorAll('.sim-input').forEach(inp => inp.addEventListener('change', () => setSimCount(inp.dataset.key, inp.value)));
         });
-        // 标题行：原内容（图标/标题/数量/宝箱）隐藏，只留居中的退出/应用
-        const anchor = root.querySelector('#chest-notification') || root.querySelector('#upgrade-title-text');
-        const head = anchor ? anchor.closest('h2') : null;
-        if (head && !head.querySelector('#sim-actions')) {
-            const actions = document.createElement('span');
+        // 推演操作栏：升级列表容器顶部插入独立条（原锚定标题行 h2，该行已删 2026-11-01；exitSim 按 id 移除）
+        const listWrap = root.querySelector('#upgrades-container');
+        if (listWrap && !listWrap.parentNode.querySelector('#sim-actions')) {
+            const actions = document.createElement('div');
             actions.id = 'sim-actions';
             actions.className = 'sim-actions';
             actions.innerHTML = '<button type="button" id="sim-exit-btn">退出</button><button type="button" id="sim-apply-btn">应用</button>';
-            head.appendChild(actions);
-            head.querySelectorAll(':scope > *:not(#sim-actions)').forEach(el => hideSimEl(el));
+            listWrap.parentNode.insertBefore(actions, listWrap);
             actions.querySelector('#sim-exit-btn').addEventListener('click', () => exitSim(false));
             actions.querySelector('#sim-apply-btn').addEventListener('click', applySim);
         }
@@ -1451,7 +1523,6 @@
         const elEmpty = els.emptyState;
         const elUpgrades = els.upgradesContainer;
         const elBadge = els.upgradesCountBadge;
-        const elTitle = getActiveSlideRoot().querySelector('#upgrade-title-text');
         const elDataInfo = getActiveSlideRoot().querySelector('#data-info');
         const elActions = document.getElementById('account-actions');
         try {
@@ -1467,7 +1538,6 @@
                     elBadge.classList.remove('hidden');
                     elBadge.textContent = (cached.html.match(/data-unique=/g) || []).length;
                 }
-                if (elTitle && cached.tag) elTitle.textContent = cached.tag + '的升级项目';
                 if (elDataInfo) elDataInfo.classList.remove('hidden');
                 if (elActions) elActions.classList.remove('hidden');
                 return true;
@@ -1577,6 +1647,19 @@
                 if (!e.target.closest('#builder-monthly-pass-icon')) return;
                 document.getElementById('builder-monthly-pass-modal').classList.remove('hidden');
             });
+            // 助手总览行折叠按钮：收起/展开下方星标行（委托绑定——renderHelperOverview 结构重建后仍有效；按账号记忆、默认折叠）
+            displayArea.addEventListener('click', function(e) {
+                if (!e.target.closest('#helper-overview-toggle')) return;
+                setStarRowExpanded(!isHelperExtraOpen());   // 按实际可见态翻（宝箱顶开时点=收起，宝箱消失后保持收起）
+                applyHelperExtra();
+            });
+            // 星标点击（图标/徽章/时间整组热区）：主/夜胜利之星状态机（queue.js：满 2 领一颗重启、计 1 领一颗表不动、计 0 弹校准框）
+            displayArea.addEventListener('click', function(e) {
+                const starWrap = e.target.closest('#helper-star-wrap, #helper-star3-wrap');
+                if (!starWrap) return;
+                const vq = CocTool.features.queue;
+                if (vq && vq.starClick) vq.starClick(starWrap.getAttribute('data-star-key'));
+            });
             // 月卡弹窗：是
             document.getElementById('builder-monthly-pass-yes-btn')?.addEventListener('click', () => {
                 if (!state.currentAccount) return;
@@ -1588,7 +1671,7 @@
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
                     const items = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
-                    const counts = calc.getCategoryCounts(items);
+                    const counts = calc.getActiveCategoryCounts(items);   // 摘要卡口径：排队中不占工人
                     const denominators = calc.getCategoryDenominators(data);
                     const completed = calc.getCategoryCompletedCounts(items, data);
                     updateCategorySummary(counts, denominators, completed);
@@ -1606,7 +1689,7 @@
                 if (state.currentAccount && accounts[state.currentAccount]) {
                     const data = accounts[state.currentAccount];
                     const items = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
-                    const counts = calc.getCategoryCounts(items);
+                    const counts = calc.getActiveCategoryCounts(items);   // 摘要卡口径：排队中不占工人
                     const denominators = calc.getCategoryDenominators(data);
                     const completed = calc.getCategoryCompletedCounts(items, data);
                     updateCategorySummary(counts, denominators, completed);
@@ -1625,7 +1708,7 @@
         // 按当前账号类目屏蔽过滤：被屏蔽分类从升级列表消失（分组 count=0 自动隐藏），总览列由 updateCategorySummary 切灰态
         const upgradingItems = calc.filterDismissedCategories(calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true), data.tag);
         displayUpgradingItems(upgradingItems, data);
-        const counts = calc.getCategoryCounts(upgradingItems);
+        const counts = calc.getActiveCategoryCounts(upgradingItems);   // 摘要卡口径：排队中不占工人
         const denominators = calc.getCategoryDenominators(data);
         const completed = calc.getCategoryCompletedCounts(upgradingItems, data);
         updateCategorySummary(counts, denominators, completed);
@@ -1662,6 +1745,8 @@
         hasRecurrentItem: calc.hasRecurrentItem,
         resetIconCache,
         getNoteForItem,
-        reconcileNotes
+        reconcileNotes,
+        openNoteModal,
+        finalizeCard
     });
 })(window);

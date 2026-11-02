@@ -568,15 +568,17 @@
                     const completionTs = calculateCompletionTimestamp(item, data);
                     const name = getItemName(item.data);
                     if (completionTs > now) {
+                        // 排队项（未开工）通知带前缀：完成时刻是队列模拟值，开工后（固化/转正）走正常通知
+                        const qPrefix = (item.queueStart != null && item.queueStart > now) ? '排队·' : '';
                         var msg;
                         if (item.supercharge !== undefined) {
-                            msg = accountName + '\n' + name + ' 充能·等级' + (item.supercharge + 1) + '完成';
+                            msg = accountName + '\n' + qPrefix + name + ' 充能·等级' + (item.supercharge + 1) + '完成';
                         } else if (calc.isMultiStageWeapon(item)) {
-                            msg = accountName + '\n' + name + ' 武器·等级' + (item.weapon + 1) + '完成';
+                            msg = accountName + '\n' + qPrefix + name + ' 武器·等级' + (item.weapon + 1) + '完成';
                         } else if (item.gear_up === 0) {
-                            msg = accountName + '\n' + name + ' 改装完成';
+                            msg = accountName + '\n' + qPrefix + name + ' 改装完成';
                         } else {
-                            msg = accountName + '\n' + name + ' 已升级为 ' + (item.lvl + 1) + '级';
+                            msg = accountName + '\n' + qPrefix + name + ' 已升级为 ' + (item.lvl + 1) + '级';
                         }
                         // 第三行追加备忘（仅当该项目有备忘）
                         const note = CocTool.features.progress && CocTool.features.progress.getNoteForItem
@@ -612,6 +614,11 @@
                     }
                     // cooldownEnd <= now（快照过期，实际已就绪）→ 不通知
                 }
+            }
+
+            // 胜利之星重置通知（主/夜各自独立；是否启用看每颗星的 st.enabled，数据层 queue.js）
+            if (CocTool.features.queue && CocTool.features.queue.starScheduleEntries) {
+                CocTool.features.queue.starScheduleEntries(tag, accountName, now).forEach(en => schedule.push(en));
             }
         }
         // 部落战提醒
@@ -1528,7 +1535,8 @@
         // === 云端自动恢复（App + 网页版）：启动时比对云端与本地时间，云端较新则询问后自动触发云端恢复 ===
         // 开关独立存储（不进备份快照，同自动备份做法）；无版本闸门（只读不上传，对服务器无压力）
         function cloudAutoRestoreEnabled() {
-            try { return localStorage.getItem(AUTO_RESTORE_PREF_KEY) === '1'; } catch (e) { return false; }
+            // 无偏好记录时默认开启（2026-11-01 放宽）；明确存过 '0' 的老用户保持关闭
+            try { var v = localStorage.getItem(AUTO_RESTORE_PREF_KEY); return v === null ? true : v === '1'; } catch (e) { return true; }
         }
 
         function updateAutoRestoreUi() {

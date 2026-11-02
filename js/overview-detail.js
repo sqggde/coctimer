@@ -10,6 +10,8 @@
     var currentTab = 'home';
     var showTimeMode = false;
     var currentProgress = null;
+    // 百分比统一口径（calc.formatPercent）：非 100% 固定 2 位小数、100% 不带小数
+    var fmtPct = function (v) { return CocTool.calc.formatPercent(v); };
 
     // 英雄顺序 = 用户 2026-10-25 拍板的全站口径：蛮王 女王 王子 永王 闰土 公爵（皮肤页子 tab/系列内部同此序）
     var HOME_HEROES = ['28000000','28000001','28000006','28000002','28000004','28000007'];
@@ -310,7 +312,9 @@
             if (level) {
                 var badge = document.createElement('span');
                 badge.className = 'ov-level-badge';
-                badge.textContent = level;
+                // 双层文字：下层粗体黑字垫底（阴影 z=1）、上层白字（z=2）——text-shadow 的阴影永远是文字复制品（同粗细），
+                // 9px 细笔画阴影单薄；absolute 阴影天然盖过普通文本，白字必须显式升层才能压住阴影
+                badge.innerHTML = '<span class="ov-lv-shadow">' + level + '</span><span class="ov-lv-text">' + level + '</span>';
                 wrap.appendChild(badge);
             }
             if (count !== undefined && count > 1) {
@@ -331,7 +335,7 @@
             '<img src="' + iconSrc + '" class="ov-bar-icon" onerror="this.style.display=\'none\'">' +
             '<span class="ov-bar-cat">' + label + '</span>' +
             '<div class="ov-bar-track"><div class="ov-bar-fill' + fullCls + '" style="width:' + pct + '%"></div></div>' +
-            '<span class="ov-bar-pct">' + pct.toFixed(2) + '%</span>' +
+            '<span class="ov-bar-pct">' + fmtPct(pct) + '</span>' +
         '</div>';
     }
 
@@ -471,7 +475,7 @@
             html += '<div class="ov-pg-row">' +
                 '<span class="ov-pg-name">' + escapeHtml(r.name) + '</span>' +
                 '<div class="ov-pg-track"><div class="ov-pg-fill" style="width:' + pct + '%"></div></div>' +
-                '<span class="ov-pg-pct">' + pct.toFixed(1) + '%</span>' +
+                '<span class="ov-pg-pct">' + fmtPct(pct) + '</span>' +
                 '<span class="ov-pg-remain">' + (r.totalTm ? formatRemainTime(r.totalTm, r.curTm) : '') + '</span>' +
             '</div>';
         }
@@ -690,8 +694,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/Village_Guard.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">防御</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p ? p.level.toFixed(2) : '-') + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p && p.time !== null ? p.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p ? fmtPct(p.level) : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p && p.time !== null ? fmtPct(p.time) : '-') + '</span>' +
                 remainEl(p, workers) +
             '</div>';
         var body = document.createElement('div');
@@ -919,22 +923,7 @@
         } catch (e) {}
     }
 
-    // ===== 升级时间折扣（每账号记忆：0|5|10|15|20 百分数）=====
-    var upgradeDiscount = 0;   // 当前详情账号折扣（0-20，百分数）；时间显示统一 ×(1-折扣/100)
-    function getUpgradeDiscount(tag) {
-        try {
-            var m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
-            var v = parseInt(m[tag], 10);
-            return (v === 5 || v === 10 || v === 15 || v === 20) ? v : 0;
-        } catch (e) { return 0; }
-    }
-    function saveUpgradeDiscount(tag, pct) {
-        try {
-            var m = JSON.parse(localStorage.getItem('clash_upgrade_discount') || '{}');
-            m[tag] = (pct === 5 || pct === 10 || pct === 15 || pct === 20) ? pct : 0;
-            localStorage.setItem('clash_upgrade_discount', JSON.stringify(m));
-        } catch (e) {}
-    }
+    // ===== 升级时间折扣（读写/组件在 duration-search.js；这里只经 getCurrentDiscount 消费）=====
 
     // thReq 紧凑字符串（2 位/级，"00" = 该级无大本限制）→ 数组（0 = 无限制），就地缓存
     function thReqArr(meta, id) {
@@ -1028,12 +1017,10 @@
                     if (bcum && bcum.length && bMax > 0) tmAdd += bcum[bMax + 1 < bcum.length ? bMax + 1 : bcum.length - 1] * bn;
                 }
             }
-            // 天鹰火炮在 16 本→17 本升级时被大本吸收：17+ 本无天鹰需求（分母剔除，大本/满防两模式口径一致，
-            // 否则大本模式分母 0 白得 7 级、满防模式分母保留，18 本两模式进度不一致），已升级价值视为满级
+            // 天鹰 17+ 本被大本吸收：满防分母保留、分子按满级；大本模式座数已 0（cap=0）、分子也不计。
+            // 旧写法「扣分母+给满分子」净抬 7 级（合成态防御分子溢出会盖住其他实体的缺口），两模式口径一致
             if (thLv >= 17 && id === '1000031') {
-                totalLv -= cap * maxLv;
-                totalTm -= cap * per;
-                lvls = [maxLv];
+                lvls = isTh ? [] : [maxLv];
                 lvAdd = 0;
                 tmAdd = 0;
             }
@@ -1147,7 +1134,7 @@
     // workerCount > 1 时除以工人数（英雄/防御/其他依赖工人，多工人并行消化总工时）
     // 账号升级时间折扣：总时间/已完成/剩余统一 ×(1-折扣%)（分子分母同乘，百分比不变）
     function formatRemainTime(totalTm, curTm, workerCount) {
-        var factor = 1 - upgradeDiscount / 100;
+        var factor = 1 - CocTool.durationSearch.getCurrentDiscount() / 100;
         var sec = Math.max(0, Math.round((totalTm - curTm) * factor));
         if (workerCount > 1) sec = Math.round(sec / workerCount);
         var days = Math.floor(sec / 86400);
@@ -1182,7 +1169,7 @@
                     // 满防模式进度 100%：进度条金色（等级/时间切换同步）
                     fill.classList.toggle('ov-bar-full', pct >= 100 && progressMode === 'full');
                 }
-                if (pctEl) pctEl.textContent = pct.toFixed(2) + '%';
+                if (pctEl) pctEl.textContent = fmtPct(pct);
             }
         }
     }
@@ -1192,7 +1179,7 @@
         var home = el.detailHome;
         var th = CocTool.overviewList.findThLevel(data);
         progressMode = getProgressMode(currentDetailTag);
-        upgradeDiscount = getUpgradeDiscount(currentDetailTag);
+        CocTool.durationSearch.setCurrentDiscount(currentDetailTag);
         showTimeMode = false;   // 重建后按钮复位为「等级」active，状态同步
         currentThLv = th;
         var thIcon = th ? 'img/icons/buildings/1000001_' + th + '.webp' : 'img/icons/20260627.webp';
@@ -1213,7 +1200,7 @@
         };
         var showTime = false;
         var modeBtn = '<button class="ov-mode-btn' + (mode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (mode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
-        var discHtml = discountBtnHtml();
+        var discHtml = CocTool.durationSearch.discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
                 shareBtnHtml() +
@@ -1257,9 +1244,9 @@
                 '<div class="ov-cat-title-wrap">' +
                     '<span class="ov-cat-title">英雄</span>' +
                 '</div>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.heroes.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.heroes.time !== null ? p.heroes.time.toFixed(2) + '%' : '-') + '</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Em_icon.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.equip.level.toFixed(2) + '%</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(p.heroes.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.heroes.time !== null ? fmtPct(p.heroes.time) : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Em_icon.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(p.equip.level) + '</span>' +
                 remainEl(p.heroes, workers) +
                 '<img src="img/icons/tip.webp" class="ov-bar-tip" onclick="CocTool.features.overview.showEpicTip()">' +
             '</div>';
@@ -1293,8 +1280,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/pet_icom.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">战宠</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.pets.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.pets.time !== null ? p.pets.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(p.pets.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.pets.time !== null ? fmtPct(p.pets.time) : '-') + '</span>' +
                 remainEl(p.pets) +
             '</div>';
         var petBody = document.createElement('div');
@@ -1313,8 +1300,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/lab_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">科技</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + p.lab.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.lab.time !== null ? p.lab.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(p.lab.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.lab.time !== null ? fmtPct(p.lab.time) : '-') + '</span>' +
                 remainEl(p.lab) +
             '</div>';
         var labBody = document.createElement('div');
@@ -1356,8 +1343,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/other_bulid.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">其他</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other ? p.other.level.toFixed(2) : '-') + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other && p.other.time !== null ? p.other.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other ? fmtPct(p.other.level) : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (p.other && p.other.time !== null ? fmtPct(p.other.time) : '-') + '</span>' +
                 remainEl(p.other, workers) +
             '</div>';
         var otherBody = document.createElement('div');
@@ -1393,7 +1380,7 @@
         var lvlList = buildUserLevelListMap(data);
         if (currentProgress) {
             progressMode = getProgressMode(currentDetailTag);
-            upgradeDiscount = getUpgradeDiscount(currentDetailTag);
+            CocTool.durationSearch.setCurrentDiscount(currentDetailTag);
             showTimeMode = false;   // 重建后按钮复位为「等级」active，状态同步
             currentThLv = bhLvl;
             var mode = progressMode;
@@ -1411,7 +1398,7 @@
         try { nightWorkers = (CocTool.calc.getCategoryDenominators(data).buildings2) || 0; } catch (e) {}
         var bhIcon = bhLvl ? 'img/icons/buildings2/1000034_' + bhLvl + '.webp' : 'img/icons/20260627.webp';
         var modeBtn = '<button class="ov-mode-btn' + (progressMode === 'th' ? ' th' : '') + '" onclick="CocTool.features.overview.toggleProgressMode()" title="' + (progressMode === 'th' ? '当前大本进度（点击切换满防）' : '满防进度（点击切换当前大本）') + '"><i class="fa fa-refresh"></i></button>';
-        var discHtml = discountBtnHtml();
+        var discHtml = CocTool.durationSearch.discountBtnHtml();
         var html =
             '<div class="ov-top-row">' +
                 shareBtnHtml() +
@@ -1449,8 +1436,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/hero_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">英雄</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBHero.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBHero.time !== null ? pBHero.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(pBHero.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBHero.time !== null ? fmtPct(pBHero.time) : '-') + '</span>' +
                 remainEl(pBHero, nightWorkers) +
             '</div>';
         var heroBody = document.createElement('div');
@@ -1468,8 +1455,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/lab_icon.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">兵种</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBTroop.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBTroop.time !== null ? pBTroop.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(pBTroop.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBTroop.time !== null ? fmtPct(pBTroop.time) : '-') + '</span>' +
                 remainEl(pBTroop) +
             '</div>';
         var troopBody = document.createElement('div');
@@ -1490,8 +1477,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/Village_Guard.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">防御</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBDefense.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBDefense.time !== null ? pBDefense.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(pBDefense.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBDefense.time !== null ? fmtPct(pBDefense.time) : '-') + '</span>' +
                 remainEl(pBDefense, nightWorkers) +
             '</div>';
         var defBody = document.createElement('div');
@@ -1535,8 +1522,8 @@
             '<div class="ov-cat-header">' +
                 '<img src="img/icons/other_bulid.webp" class="ov-cat-icon" onerror="this.style.display=\'none\'">' +
                 '<span class="ov-cat-title">其他</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + pBOther.level.toFixed(2) + '%</span>' +
-                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBOther.time !== null ? pBOther.time.toFixed(2) + '%' : '-') + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/Level.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + fmtPct(pBOther.level) + '</span>' +
+                '<span class="ov-cat-pct"><img src="img/icons/shijian.webp" class="ov-mini-icon" onerror="this.style.display=\'none\'">' + (pBOther.time !== null ? fmtPct(pBOther.time) : '-') + '</span>' +
                 remainEl(pBOther, nightWorkers) +
             '</div>';
         var otherBody = document.createElement('div');
@@ -1600,48 +1587,13 @@
         return '<button class="ov-share-btn" type="button" title="分享图" onclick="CocTool.features.share.open()"><i class="fa fa-share-image"></i></button>';
     }
 
-    // ===== 升级时间折扣按钮（底框：左侧图标 + 右侧折扣数）=====
-    var DISCOUNT_OPTIONS = [0, 5, 10, 15, 20];
-    function discountBtnHtml() {
-        var pct = upgradeDiscount;
-        return '<div class="ov-disc-wrap">' +
-            '<button class="ov-disc-btn" onclick="CocTool.features.overview.toggleDiscountMenu()" title="升级时间折扣">' +
-                '<img src="img/icons/icon_goldmodel.webp" class="ov-disc-icon" onerror="this.style.display=\'none\'">' +
-                '<span class="ov-disc-val">' + pct + '%</span>' +
-            '</button>' +
-            '<div class="ov-disc-menu" style="display:none;">' +
-                DISCOUNT_OPTIONS.map(function (p) {
-                    return '<div class="ov-disc-opt' + (p === pct ? ' active' : '') + '" data-pct="' + p + '" onclick="CocTool.features.overview.setDiscount(event, ' + p + ')">' + p + '%</div>';
-                }).join('') +
-            '</div>' +
-        '</div>';
-    }
-    function toggleDiscountMenu() {
-        var wrap = event.target ? event.target.closest('.ov-disc-wrap') : null;
-        if (!wrap) wrap = document.querySelector('.ov-disc-wrap');
-        var menu = wrap ? wrap.querySelector('.ov-disc-menu') : null;
-        if (!menu) return;
-        var showing = menu.style.display !== 'none';
-        document.querySelectorAll('.ov-disc-menu').forEach(function (m) { m.style.display = 'none'; });
-        menu.style.display = showing ? 'none' : '';
-        if (!showing) document.addEventListener('click', dismissDiscountMenu);
-    }
-    function dismissDiscountMenu(e) {
-        if (e.target && e.target.closest && e.target.closest('.ov-disc-wrap')) return;
-        document.querySelectorAll('.ov-disc-menu').forEach(function (m) { m.style.display = 'none'; });
-        document.removeEventListener('click', dismissDiscountMenu);
-    }
-    function setDiscount(e, pct) {
-        if (e && e.stopPropagation) e.stopPropagation();
-        var tag = currentDetailTag;
+    // 折扣变更后重渲染两个世界的详情页（setDiscount 在 duration-search.js 里，经此回调刷详情页）
+    function renderAfterDiscount(tag) {
         var data = tag ? state.accounts[tag] : null;
         if (!data) return;
-        upgradeDiscount = pct;
-        saveUpgradeDiscount(tag, pct);
         var accName = (state.accountNotes && state.accountNotes[tag]) || data.tag || tag;
         renderHomeDetail(data, accName);
         renderNightDetail(data, accName);
-        try { CocTool.ui.showToast('已设置升级时间折扣 ' + pct + '%'); } catch (e2) {}
     }
 
     CocTool.overviewDetail = Object.freeze({ initDetail: initDetail, openDetail: openDetail, goBack: goBack, showEpicTip: showEpicTip, closeEpicTip: closeEpicTip, toggleProgressMode: toggleProgressMode });
@@ -1651,8 +1603,13 @@
         showEpicTip: showEpicTip,
         closeEpicTip: closeEpicTip,
         toggleProgressMode: toggleProgressMode,
-        toggleDiscountMenu: toggleDiscountMenu,
-        setDiscount: setDiscount,
+        // 折扣组件已迁 duration-search.js（含矿石形态）；这里保留转发——已渲染 DOM 里的旧 onclick
+        // 仍指向 features.overview.*，重渲染后才换新引用，删掉转发会让存量菜单点击报 undefined
+        toggleDiscountMenu: function (e) { CocTool.durationSearch.toggleDiscountMenu(e); },
+        setDiscount: function (e, pct) { CocTool.durationSearch.setDiscount(e, pct); },
+        customDiscount: function (e) { CocTool.durationSearch.customDiscount(e); },
+        setCustomDiscount: function (e) { CocTool.durationSearch.setCustomDiscount(e); },
+        renderAfterDiscount: renderAfterDiscount,
         rebuildCard: CocTool.overviewList.rebuildCard,
         refreshCard: CocTool.overviewList.refreshCard
     });

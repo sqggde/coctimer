@@ -206,15 +206,12 @@ let initialized = false;
         if (data.tag) {
             const note = accountNotes[data.tag] || data.tag;
             if (tagSpan) tagSpan.textContent = `${note} (${data.tag})`;
-            const titleEl = root.querySelector('#upgrade-title-text');
-            if (titleEl) titleEl.textContent = `${note}的升级项目`;
         } else {
             if (tagSpan) tagSpan.textContent = "未知账号";
-            const titleEl = root.querySelector('#upgrade-title-text');
-            if (titleEl) titleEl.textContent = '正在升级的项目';
         }
         if (expSpan) expSpan.textContent = formatExportTime(data.timestamp);
-        const chestEl = root.querySelector('#chest-notification');
+        // 宝箱通知在星标行（#helper-extra-row，index.html 静态单例、slide 模板外）——全局查找而非 slide 内
+        const chestEl = document.getElementById('chest-notification');
         if (chestEl) {
             const hasChest = settings.chestDetect && data.obstacles && Array.isArray(data.obstacles) && data.obstacles.some(o => o.data === 8000030 && o.cnt > 0);
             chestEl.classList.toggle('hidden', !hasChest);
@@ -595,6 +592,11 @@ let initialized = false;
         const displayName = accountNotes[tag] || tag;
         accounts[tag] = data;
         if (!accountNotes[tag]) delete accountNotes[tag];
+        // 排队条目重放必须在渲染/落盘之前：游戏导出不含手动录入的排队 timer，
+        // 按标记在新数据中重建（开工转正/实例消失则清标记），否则首屏渲染排队卡缺失
+        if (calc && calc.reconcileQueue) {
+            try { calc.reconcileQueue(tag, data); } catch (e) {}
+        }
         addAccountToOrder(tag);
         // 记录导入日志（timestamp + boosts 便于比对调度计算）
         var svc = services();

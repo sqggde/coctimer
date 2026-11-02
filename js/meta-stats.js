@@ -8,6 +8,7 @@
 (function () {
     'use strict';
     var C = window.CocTool;
+    var fmtPct = function (v) { return C.calc.formatPercent(v); };
     if (!C) return;
 
     function $(id) { return document.getElementById(id); }
@@ -126,10 +127,10 @@
                 + '<div class="ms-sub">' + a.owners + ' 位玩家在使用 · 对战 ' + a.battles + ' 场</div></div></div>'
                 + armyGrid(a.top && a.top.rep, a.top && a.top.troops, false)
                 + '<div class="ms-statline">'
-                + '<span><i>平均摧毁</i><b>' + a.avgDest.toFixed(1) + '%</b></span>'
+                + '<span><i>平均摧毁</i><b>' + fmtPct(a.avgDest) + '</b></span>'
                 + '<span><i>平均星数</i><b>' + a.avgStars.toFixed(2) + '★</b></span>'
-                + '<span><i>三星率</i><b>' + a.threeRate.toFixed(1) + '%</b></span>'
-                + '<span><i>使用率</i><b>' + a.adopt.toFixed(1) + '%</b></span></div>'
+                + '<span><i>三星率</i><b>' + fmtPct(a.threeRate) + '</b></span>'
+                + '<span><i>使用率</i><b>' + fmtPct(a.adopt) + '</b></span></div>'
                 // 外层卡 = 使用率最高的变体 → 按钮就作用于它；右边挂「查看更多变体」（同一行，省竖直空间）
                 + '<div class="ms-cardfoot">' + (topCode ? actsHtml() : '')
                 + '<span class="ms-chev">查看更多变体 ▾</span></div>'
@@ -203,7 +204,7 @@
             var rank = res.variants.indexOf(v) + 1;
             html += '<div class="ms-vblock" data-code="' + esc(v.code || '') + '">'
                 + '<div class="ms-vhead"><span class="ms-vnum">' + rank + '</span>'
-                + '<span>' + v.owners + ' 人 / ' + v.battles + ' 场 / 均星 <b>' + v.avgStars.toFixed(2) + '</b> / 均摧毁 <b>' + v.avgDest.toFixed(1) + '%</b> / 三星率 <b>' + v.threeRate.toFixed(1) + '%</b></span></div>'
+                + '<span>' + v.owners + ' 人 / ' + v.battles + ' 场 / 均星 <b>' + v.avgStars.toFixed(2) + '</b> / 均摧毁 <b>' + fmtPct(v.avgDest) + '</b> / 三星率 <b>' + fmtPct(v.threeRate) + '</b></span></div>'
                 + armyGrid(v.rep, v.troops, true)
                 + actsHtml()
                 + '</div>';
@@ -221,7 +222,7 @@
             var v = metric ? u[metric] : u.adopt;
             // 名称列只出图标（用户 2026-10-07：三张单维度表图标足够；名称仍挂在图标的 title 上可悬停查看）
             return '<tr><td>' + (i + 1) + '</td><td>' + icon(u.id, 28) + '</td>'
-                + '<td class="num">' + u.owners + '</td><td class="num">' + (v == null ? 0 : v).toFixed(1) + '%</td>'
+                + '<td class="num">' + u.owners + '</td><td class="num">' + fmtPct(v == null ? 0 : v) + '</td>'
                 + '<td class="num">' + u.battles + '</td><td class="num">' + u.avgStars.toFixed(2) + '</td></tr>';
         }).join('');
     }

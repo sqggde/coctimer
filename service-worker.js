@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261031-tnrn3q';
+const CACHE = 'coc-tool-web-20261102-tnvkun';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -32,6 +32,7 @@ const CORE_FILES = [
     "./js/progress-meta-cn.js",
     "./js/progress-meta-intl.js",
     "./js/progress.js",
+    "./js/queue.js",
     "./js/services.js",
     "./js/settings.js",
     "./js/skin-names.js",
