@@ -54,6 +54,9 @@
         return SHOW_BASE + assetId + '_' + n + '.webp';
     }
     var pv = null; // { server, id, name, n, maxN, indexed, els:{overlay,img,name,bar,prev,next,empty} }
+    // 预览大图缩放/平移状态（复用阵型中心 lightbox 的手势口径：双击 1x/2x、双指捏合、滚轮、按钮；
+    // 缩放 >1 时单指/鼠标拖动平移；未缩放时横向滑动 = 翻页）
+    var zs = { zoom: 1, zoomAtStart: 1, tx: 0, ty: 0, pinch: null, drag: null, sx: 0, sy: 0, moved: false, lastTap: 0, lastTouchAt: 0 };
     // 展示图索引（{intl素材ID:张数}，skin_show_index.json ~3KB）：皮肤页打开时预取并缓存——
     // 点瓷贴零等待判定有图/未收录/张数；索引未加载完成时回退懒探测（onerror/逐张预探）
     var showIndex = null;
@@ -72,19 +75,28 @@
         overlay.innerHTML =
             '<div class="sk-preview-box">' +
                 '<button class="sk-preview-close" type="button" aria-label="关闭">×</button>' +
-                '<div class="sk-preview-loading"><div class="sk-preview-spinner"></div></div>' +
-                '<img class="sk-preview-img" alt="">' +
-                '<div class="sk-preview-empty hidden">暂未收录该皮肤</div>' +
+                '<div class="sk-preview-stage">' +
+                    '<div class="sk-preview-loading"><div class="sk-preview-spinner"></div></div>' +
+                    '<img class="sk-preview-img" alt="">' +
+                    '<div class="sk-preview-empty hidden">暂未收录该皮肤</div>' +
+                '</div>' +
                 '<div class="sk-preview-name"></div>' +
                 '<div class="sk-preview-bar">' +
                     '<button class="sk-preview-nav sk-preview-prev hidden" type="button" aria-label="上一张">‹</button>' +
                     '<span class="sk-preview-num"></span>' +
                     '<button class="sk-preview-nav sk-preview-next hidden" type="button" aria-label="下一张">›</button>' +
                 '</div>' +
+                '<div class="sk-preview-zoom">' +
+                    '<button class="sk-preview-zbtn" type="button" data-zbtn="out" aria-label="缩小">－</button>' +
+                    '<span class="sk-preview-zpct">100%</span>' +
+                    '<button class="sk-preview-zbtn" type="button" data-zbtn="in" aria-label="放大">＋</button>' +
+                    '<button class="sk-preview-zreset" type="button" data-zbtn="reset">重置</button>' +
+                '</div>' +
             '</div>';
         document.body.appendChild(overlay);
         var els = {
             overlay: overlay,
+            stage: overlay.querySelector('.sk-preview-stage'),
             img: overlay.querySelector('.sk-preview-img'),
             loading: overlay.querySelector('.sk-preview-loading'),
             empty: overlay.querySelector('.sk-preview-empty'),
@@ -92,20 +104,109 @@
             num: overlay.querySelector('.sk-preview-num'),
             prev: overlay.querySelector('.sk-preview-prev'),
             next: overlay.querySelector('.sk-preview-next'),
-            close: overlay.querySelector('.sk-preview-close')
+            close: overlay.querySelector('.sk-preview-close'),
+            zpct: overlay.querySelector('.sk-preview-zpct')
         };
         els.close.addEventListener('click', closePreview);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closePreview(); });
         els.prev.addEventListener('click', function () { if (pv && pv.n > 1) showN(pv.n - 1); });
         els.next.addEventListener('click', function () { if (pv && pv.n < pv.maxN) showN(pv.n + 1); });
+        // 缩放：按钮 / 双击 / 滚轮 / 双指捏合；缩放后拖动平移；未缩放时左右滑翻页
+        overlay.querySelectorAll('[data-zbtn]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var k = this.getAttribute('data-zbtn');
+                if (k === 'in') zBy(1.5);
+                else if (k === 'out') zBy(1 / 1.5);
+                else zReset();
+            });
+        });
+        var stage = els.stage;
+        stage.addEventListener('dblclick', function () {
+            if (Date.now() - zs.lastTouchAt < 600) return;   // 触摸端已由 touchend 双击判定处理，避免二次翻转
+            zBy(zs.zoom === 1 ? 2 : 1 / zs.zoom);
+        });
+        stage.addEventListener('wheel', function (e) { e.preventDefault(); zBy(e.deltaY < 0 ? 1.25 : 0.8); }, { passive: false });
+        stage.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 2) {
+                var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY;
+                zs.pinch = { d: Math.sqrt(dx * dx + dy * dy), z: zs.zoom };
+                e.preventDefault();
+            } else if (e.touches.length === 1) {
+                zs.sx = e.touches[0].clientX;
+                zs.sy = e.touches[0].clientY;
+                zs.moved = false;
+                zs.zoomAtStart = zs.zoom;
+                if (zs.zoom > 1) zs.drag = { x: zs.sx - zs.tx, y: zs.sy - zs.ty };
+            }
+        }, { passive: false });
+        stage.addEventListener('touchmove', function (e) {
+            if (zs.pinch && e.touches.length === 2) {
+                var dx = e.touches[0].clientX - e.touches[1].clientX, dy = e.touches[0].clientY - e.touches[1].clientY;
+                var d = Math.sqrt(dx * dx + dy * dy);
+                zs.zoom = Math.min(4, Math.max(1, zs.pinch.z * d / zs.pinch.d));
+                zs.tx = 0; zs.ty = 0;
+                zApply(); e.preventDefault();
+            } else if (zs.drag && e.touches.length === 1) {
+                zs.tx = e.touches[0].clientX - zs.drag.x;
+                zs.ty = e.touches[0].clientY - zs.drag.y;
+                zs.moved = true;
+                zApply(); e.preventDefault();
+            } else if (e.touches.length === 1) {
+                var mx = e.touches[0].clientX - zs.sx, my = e.touches[0].clientY - zs.sy;
+                if (Math.abs(mx) > 10 || Math.abs(my) > 10) zs.moved = true;
+            }
+        }, { passive: false });
+        stage.addEventListener('touchend', function (e) {
+            var t = e.changedTouches && e.changedTouches[0];
+            var wasPinch = !!zs.pinch;
+            zs.pinch = null; zs.drag = null;
+            zs.lastTouchAt = Date.now();
+            if (!t || wasPinch || !pv) return;
+            var dx = t.clientX - zs.sx, dy = t.clientY - zs.sy;
+            // 未缩放：横向滑动翻页（与 prev/next 按钮同一出口）
+            if (zs.zoomAtStart === 1 && zs.zoom === 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx < 0 && pv.n < pv.maxN) showN(pv.n + 1);
+                else if (dx > 0 && pv.n > 1) showN(pv.n - 1);
+                return;
+            }
+            // 双击缩放（iOS WebView 不一定派发 dblclick，这里补一套触摸判定）
+            if (!zs.moved && zs.zoomAtStart === zs.zoom) {
+                var now = Date.now();
+                if (now - zs.lastTap < 300) { zBy(zs.zoom === 1 ? 2 : 1 / zs.zoom); zs.lastTap = 0; }
+                else zs.lastTap = now;
+            }
+        });
+        stage.addEventListener('mousedown', function (e) {
+            if (zs.zoom > 1) { zs.drag = { x: e.clientX - zs.tx, y: e.clientY - zs.ty }; e.preventDefault(); }
+        });
+        window.addEventListener('mousemove', function (e) {
+            if (zs.drag) { zs.tx = e.clientX - zs.drag.x; zs.ty = e.clientY - zs.drag.y; zApply(); }
+        });
+        window.addEventListener('mouseup', function () { zs.drag = null; });
         pv = pv || {};
         pv.els = els;
         return els;
+    }
+    function zApply() {
+        if (!pv || !pv.els) return;
+        pv.els.img.style.transform = 'translate(' + zs.tx + 'px,' + zs.ty + 'px) scale(' + zs.zoom + ')';
+        pv.els.zpct.textContent = Math.round(zs.zoom * 100) + '%';
+    }
+    function zReset() {
+        zs.zoom = 1; zs.zoomAtStart = 1; zs.tx = 0; zs.ty = 0;
+        zs.pinch = null; zs.drag = null; zs.moved = false; zs.lastTap = 0;
+        zApply();
+    }
+    function zBy(f) {
+        zs.zoom = Math.min(4, Math.max(1, zs.zoom * f));
+        zs.tx = 0; zs.ty = 0;
+        zApply();
     }
     function closePreview() {
         if (!pv || !pv.els) return;
         pv.els.overlay.classList.add('hidden');
         pv.els.img.src = '';
+        zReset();
     }
     function updateBar() {
         var e = pv.els;
@@ -123,6 +224,7 @@
     }
     function showN(n) {
         pv.n = n;
+        zReset();   // 翻页后回到 1x 适配视图
         var e = pv.els;
         e.empty.classList.add('hidden');
         e.img.style.display = 'none';

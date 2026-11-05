@@ -1021,7 +1021,13 @@
         .sk-cnt { margin-left: 4px; color: #9ca3af; font-variant-numeric: tabular-nums; }
         /* ===== 高清展示图预览（点瓷贴，skins.js openPreview）=====
            黑底沉浸查看器（图片查看器惯例，与主题轴无关）；复用 .modal-overlay 壳 → 返回键可关 */
-        .modal-overlay.sk-preview { background: rgba(0, 0, 0, 0.9); z-index: 60; }
+        /* 黑底沉浸查看器；底部留出安全距离：缩放条原先贴到屏幕最底，手机上会被系统导航栏压住 */
+        .modal-overlay.sk-preview {
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 60;
+            padding-bottom: calc(28px + env(safe-area-inset-bottom));
+            box-sizing: border-box;
+        }
         .sk-preview-box {
             position: relative;
             display: flex;
@@ -1030,20 +1036,42 @@
             gap: 10px;
             max-width: 94vw;
         }
-        .sk-preview-img {
-            max-width: 94vw;
-            max-height: 76vh;
-            object-fit: contain;
-            border-radius: 10px;
-        }
-        .sk-preview-empty { color: #d1d5db; font-size: 15px; padding: 48px 36px; }
-        /* 加载中：spinner 居中 + min-height 占位（防止图片到达时布局跳变）；黑底白圈 */
-        .sk-preview-loading {
-            min-height: 42vh;
+        /* 缩放/平移舞台（复用阵型中心 lightbox 的 .bc-lb-imgwrap 口径）：
+           overflow:hidden 让放大后的图在舞台内平移；touch-action:none 接管双指手势。
+           **固定占位**：图片未加载/未收录时也保持 94vw×76vh，名称/翻页/缩放条位置不随图片到达而跳动
+           （用户 2026-11-06：未加载时控件挤在一起、加载后散开，页面显得松散随意）。 */
+        .sk-preview-stage {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 94vw;
+            height: 76vh;
+            max-width: 94vw;
+            max-height: 76vh;
+            flex: 0 0 auto;
+            overflow: hidden;
+            border-radius: 10px;
+            touch-action: none;
+        }
+        .sk-preview-img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            transform-origin: center center;
+            will-change: transform;
+        }
+        .sk-preview-empty { color: #d1d5db; font-size: 15px; padding: 48px 36px; }
+        /* 加载中：spinner 在固定舞台内居中；黑底白圈 */
+        .sk-preview-loading {
+            min-height: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
         .sk-preview-loading.hidden { display: none; }
         .sk-preview-spinner {
@@ -1069,18 +1097,33 @@
             cursor: pointer;
         }
         .sk-preview-nav.hidden { display: none; }
+        /* 缩放控制条（与阵型中心 lightbox 同款：－ % ＋ 重置） */
+        .sk-preview-zoom { display: flex; align-items: center; gap: 12px; }
+        .sk-preview-zbtn {
+            width: 32px; height: 32px; border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff; font-size: 16px; font-weight: 700; line-height: 1;
+            cursor: pointer;
+        }
+        .sk-preview-zpct { width: 48px; text-align: center; color: #d1d5db; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .sk-preview-zreset { border: none; background: none; color: #c4b5fd; font-size: 12px; font-weight: 700; padding: 6px 2px; cursor: pointer; }
         .sk-preview-close {
             position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 34px;
-            height: 34px;
+            top: -8px;
+            right: -8px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: none;
             background: rgba(255, 255, 255, 0.18);
             color: #fff;
-            font-size: 16px;
+            font-size: 20px;
+            line-height: 1;
             cursor: pointer;
+            /* 必须压过舞台：舞台是后出现的定位元素，同层会盖住按钮左下半边并抢走点击
+               （用户 2026-11-06「关闭太难点了，触发面积没有看起来大」） */
+            z-index: 5;
         }
 
         /* ===== Dark mode ===== */

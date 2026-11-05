@@ -161,9 +161,8 @@ let initialized = false;
         accountOrder.forEach(tag => {
             const data = accounts[tag];
             if (!data) return;
-            // 顶部标题（待处理/空闲）对"任意程度屏蔽"（any 档）的分类一律不计——
-            // 屏蔽红点/通知即表示不在意工人空闲、该分类优先级不高（同账号进度页/小组件口径）
-            const items = calc.filterDismissedCategories(extractUpgradingItems(data, now, true), tag, 'any');
+            // 顶部标题（待处理/空闲）按「名称颜色」档过滤——只屏蔽红点/通知/进度的分类仍计入标题
+            const items = calc.filterDismissedCategories(extractUpgradingItems(data, now, true), tag, 'color');
             let hasDone = false;
             for (const item of items) {
                 const completionTs = calculateCompletionTimestamp(item, data);
@@ -173,11 +172,11 @@ let initialized = false;
                 }
             }
             if (hasDone) { accountsWithDone++; pendingTags.push(tag); }
-            // 空闲判定：任一未被任意档屏蔽的分类 分子<分母（有空位可下）
+            // 空闲判定：任一未被「名称颜色」屏蔽的分类 分子<分母（有空位可下）
             const counts = calc.getCategoryCounts(items);
             const denominators = calc.getCategoryDenominators(data);
             const hasIdle = ['buildings', 'lab', 'pets', 'buildings2', 'units2'].some(key =>
-                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key, 'any'));
+                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key, 'color'));
             if (hasIdle) { accountsIdle++; idleTags.push(tag); }
         });
         _titleCycle = pendingTags.concat(idleTags);
@@ -490,6 +489,19 @@ let initialized = false;
         delete accounts[accountTag];
         delete accountNotes[accountTag];
         removeAccountFromOrder(accountTag);
+        // 清理该账号的偏好分片（避免下一次手动整包备份把残留带回云端）
+        var prefFields = ['dismissedCategories', 'builderBoostMode24', 'builderConsumableMode24', 'labConsumableMode24', 'builderMonthlyPass', 'eventBoostOverride', 'noteDisplayMode'];
+        var prefsChanged = false;
+        prefFields.forEach(function (field) {
+            var map = settings[field];
+            if (map && typeof map === 'object' && Object.prototype.hasOwnProperty.call(map, accountTag)) {
+                delete map[accountTag];
+                prefsChanged = true;
+            }
+        });
+        if (prefsChanged) {
+            try { CocTool.storage.saveSettings(); } catch (e) {}
+        }
         rebuildAllTabs();
         const remaining = Object.keys(accounts);
         if (remaining.length) switchAccount(remaining[0]);
@@ -510,6 +522,11 @@ let initialized = false;
         }
         updateMainTitle();
         saveToLocalStorage();
+        // 删号 = 单账号删除同步（不整包；不属于自动备份）
+        var svc = CocTool.features.services;
+        if (svc && svc.deleteCloudAccount) {
+            try { svc.deleteCloudAccount(accountTag); } catch (e) {}
+        }
     }
 
     function setAccountNote(accountTag) {
@@ -593,9 +610,10 @@ let initialized = false;
         accounts[tag] = data;
         if (!accountNotes[tag]) delete accountNotes[tag];
         // 排队条目重放必须在渲染/落盘之前：游戏导出不含手动录入的排队 timer，
-        // 按标记在新数据中重建（开工转正/实例消失则清标记），否则首屏渲染排队卡缺失
+        // 先比签名（升级集合/等级直方图变化 → 该池排队作废），再按 data+lvl 重放
+        var queueCleared = [];
         if (calc && calc.reconcileQueue) {
-            try { calc.reconcileQueue(tag, data); } catch (e) {}
+            try { queueCleared = calc.reconcileQueue(tag, data) || []; } catch (e) {}
         }
         addAccountToOrder(tag);
         // 记录导入日志（timestamp + boosts 便于比对调度计算）
@@ -626,13 +644,17 @@ let initialized = false;
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
         showToast(`${displayName}的信息已更新`, 1500);
+        // 排队因「升级目标发生变化」被清空时补一条提示（延后，避免与导入成功 toast 抢）
+        if (queueCleared.length) {
+            setTimeout(function () { showToast('升级目标已变化，排队已清空', 3000); }, 1600);
+        }
         // 云端自动恢复用：记录本地最后数据变更时刻（墙钟），云端 exportDate 较新时才询问恢复
         try { localStorage.setItem('coc_last_local_data_change', String(Date.now())); } catch (e) {}
         // 云端自动备份（App 独有）：在导入提示之后异步执行——成功弹「云端备份已更新」、旧版被压弹
         // 「自动备份已失效」，必须放在导入 toast 之后，否则失效提示会被导入 toast 立刻顶掉（同步分支无 await）
         var cloudSvc = CocTool.features.services;
         if (cloudSvc && cloudSvc.autoCloudBackup) {
-            cloudSvc.autoCloudBackup().catch(() => {});
+            cloudSvc.autoCloudBackup(tag).catch(() => {});
         }
         return 'ok';
     }
@@ -696,6 +718,11 @@ let initialized = false;
             overlay.remove();
             updateLaunchGameBtn();
             refreshAfter();
+            // 回传云端补齐（未登录/失败静默：下次手动整包备份会带上）
+            var svc = CocTool.features.services;
+            if (svc && svc.pushAccountServer) {
+                try { svc.pushAccountServer(tag, s); } catch (e) {}
+            }
             // 区服影响首页/总览/进度渲染，选择后重刷当前账号
             if (state.currentAccount === tag && CocTool.features.progress && CocTool.features.progress.refresh) {
                 try { CocTool.features.progress.refresh(); } catch (e) {}

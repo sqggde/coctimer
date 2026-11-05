@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261102-tnvkun';
+const CACHE = 'coc-tool-web-20261105-to1itd';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -20,6 +20,7 @@ const CORE_FILES = [
     "./js/calc.js",
     "./js/clan-league.js",
     "./js/clan.js",
+    "./js/cloud-sync.js",
     "./js/core.js",
     "./js/duration-search.js",
     "./js/home-skin-names.js",

@@ -281,13 +281,21 @@
         #clan-page .modal-actions .btn-cancel,
         #china-war-modal .modal-actions .btn-cancel,
         #china-member-modal .modal-actions .btn-cancel {
-            background-color: var(--td-sel-bg);
+            background-color: transparent;
+            background-image: none;
+            box-shadow: none;
             color: #6b7280;
+        }
+        .dark #clan-page .modal-actions .btn-cancel,
+        .dark #china-war-modal .modal-actions .btn-cancel,
+        .dark #china-member-modal .modal-actions .btn-cancel {
+            color: #a0aec0;
         }
         #clan-page .modal-actions .btn-cancel:hover,
         #china-war-modal .modal-actions .btn-cancel:hover,
         #china-member-modal .modal-actions .btn-cancel:hover {
-            background-color: #e5e7eb;
+            background-color: transparent;
+            opacity: 0.8;
         }
         #clan-page .modal-actions .btn-confirm,
         #china-war-modal .modal-actions .btn-confirm,
@@ -377,7 +385,8 @@
             color: #9ca3af;
         }
         .dark #clan-page .modal-actions .btn-cancel:hover {
-            background-color: var(--td-line-2);
+            background-color: transparent;
+            opacity: 0.8;
         }
         .dark #clan-page .modal-actions .btn-confirm {
             background-color: #2563eb;
@@ -549,8 +558,8 @@
 .ws-cal-foot { display: flex; gap: 8px; margin-top: 12px; }
 .ws-cal-today { flex: 1; height: 38px; border: none; border-radius: var(--td-act-r); background-color: #3b82f6; background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
 .dark .ws-cal-today { background-color: #60a5fa; }
-.ws-cal-cancel { flex: 1; height: 38px; border: none; border-radius: var(--td-act-r); background-color: var(--td-sel-bg); background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #374151; font-size: 14px; cursor: pointer; }
-.dark .ws-cal-cancel { color: #e2e8f0; }
+.ws-cal-cancel { flex: 1; height: 38px; border: none; border-radius: var(--td-act-r); background-color: transparent; background-image: none; box-shadow: none; color: #6b7280; font-size: 14px; cursor: pointer; }
+.dark .ws-cal-cancel { color: #a0aec0; }
 .ws-query-btn { width: 100%; margin-top: 12px !important; height: 42px; border: none; border-radius: var(--td-act-r); background-color: var(--ws-accent); background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
 .ws-query-btn:active { opacity: 0.85; }
 /* 提示折叠：开始统计下方居中倒三角，点击展开（提示完全隐藏时可整个收起） */
@@ -616,8 +625,8 @@
 .ws-share-action { flex: 1; height: 38px; border: none; border-radius: var(--td-act-r); background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); font-size: 13px; font-weight: 600; cursor: pointer; }
 .ws-share-action.save { background-color: #3b82f6; color: #fff; }
 .ws-share-action.send { background-color: #10b981; color: #fff; }
-.ws-share-action.cancel { background-color: var(--td-sel-bg); color: #374151; }
-.dark .ws-share-action.cancel { color: #e2e8f0; }
+.ws-share-action.cancel { background-color: transparent; background-image: none; box-shadow: none; color: #6b7280; }
+.dark .ws-share-action.cancel { color: #a0aec0; }
 .dark #ws-share-modal .modal-card > div:first-child { color: #e5e7eb; }
 .ws-bar-row { display: flex; align-items: center; margin-bottom: 8px !important; font-size: 13px; }
 .ws-bar-label { width: 40px; font-weight: 600; color: var(--ws-sub); }
@@ -752,7 +761,7 @@ html[data-style="minimal"] #china-member-modal > .modal-box, html[data-style="mi
 html[data-style="minimal"] #clan-page .modal-box input[type="text"], html[data-style="minimal"] #clan-page .modal-box input:not([type]) { background-color: transparent; color: inherit; border-color: #d1d5db; border-radius: 10px; }
 html[data-style="minimal"] #clan-page .modal-actions button, html[data-style="minimal"] #china-war-modal .modal-actions button,
 html[data-style="minimal"] #china-member-modal .modal-actions button { border-radius: 10px; background-image: none; box-shadow: none; }
-html[data-style="minimal"] #clan-page .modal-actions .btn-cancel { background-color: #f3f4f6; }
+html[data-style="minimal"] #clan-page .modal-actions .btn-cancel { background-color: transparent; }
 html[data-style="minimal"] .member-filter-bar .filter-btn { background-color: #f3f4f6; background-image: none; border-color: transparent; border-radius: 6px; box-shadow: none; color: #374151; }
 html[data-style="minimal"] .league-tab { background-color: #e5e7eb; background-image: none; border-color: transparent; border-radius: 8px; box-shadow: none; color: #374151; }
 html[data-style="minimal"] .league-tab.active { background-color: #3b82f6; background-image: none; box-shadow: none; color: #fff; }
@@ -769,17 +778,17 @@ html[data-style="minimal"] .ws-tab-btn.active { background-color: var(--td-panel
 html[data-style="minimal"] .ws-cal-nav { background-color: #f3f4f6; background-image: none; border-color: transparent; border-radius: 8px; color: #6b7280; }
 html[data-style="minimal"] .ws-cal-day { border-radius: 8px; }
 html[data-style="minimal"] .ws-cal-today { border-radius: 10px; background-image: none; box-shadow: none; }
-html[data-style="minimal"] .ws-cal-cancel { border-radius: 10px; background-color: #f3f4f6; background-image: none; box-shadow: none; color: #374151; }
+html[data-style="minimal"] .ws-cal-cancel { border-radius: 10px; background-color: transparent; background-image: none; box-shadow: none; color: #6b7280; }
 html[data-style="minimal"] .ws-query-btn { border-radius: 10px; background-image: none; box-shadow: none; }
 html[data-style="minimal"] .ws-share-action { border-radius: 10px; background-image: none; box-shadow: none; }
-html[data-style="minimal"] .ws-share-action.cancel { background-color: #f3f4f6; }
+html[data-style="minimal"] .ws-share-action.cancel { background-color: transparent; }
 html[data-style="minimal"] #clan-log-view .ov-tab { padding: 10px 0; }
 html[data-style="minimal"] #clan-log-view .log-tab-bar { padding: 0; }   /* 极简：tab 条是"白底页签条"，不另加留白 */
 /* 极简 · 深色：旧版深色值 */
 html.dark[data-style="minimal"] #clan-page .top-bar .icon-btn { background-color: var(--td-line); color: #9ca3af; }
 html.dark[data-style="minimal"] #clan-page .top-bar .icon-btn:hover { background-color: var(--td-line-2); color: #e5e7eb; }
 html.dark[data-style="minimal"] #clan-page .modal-box input[type="text"], html.dark[data-style="minimal"] #clan-page .modal-box input:not([type]) { background-color: var(--td-line) !important; border-color: var(--td-line-2) !important; color: #e5e7eb !important; }
-html.dark[data-style="minimal"] #clan-page .modal-actions .btn-cancel { background-color: var(--td-line); }
+html.dark[data-style="minimal"] #clan-page .modal-actions .btn-cancel { background-color: transparent; }
 html.dark[data-style="minimal"] #china-modal input, html.dark[data-style="minimal"] #china-war-modal input[type="number"] { background-color: var(--td-line) !important; border-color: var(--td-line-2) !important; color: #e5e7eb !important; }
 html.dark[data-style="minimal"] #clan-log-view .war-log-card { background-color: var(--td-surface) !important; box-shadow: 0 1px 4px rgba(0,0,0,0.25) !important; }
 html.dark[data-style="minimal"] .member-filter-bar .filter-btn { background-color: var(--td-line); color: #e5e7eb; }
@@ -788,5 +797,21 @@ html.dark[data-style="minimal"] .league-tab.active { background-color: #2563eb; 
 html.dark[data-style="minimal"] .mode-tab.inactive,
 html.dark[data-style="minimal"] .mode-tab-war.inactive, html.dark[data-style="minimal"] .mode-tab-league.inactive { background-color: var(--td-line); color: #9ca3af; }
 html.dark[data-style="minimal"] .ws-cal-nav { background-color: var(--td-line); color: #9ca3af; }
-html.dark[data-style="minimal"] .ws-cal-cancel { background-color: var(--td-line); color: #e2e8f0; }
-html.dark[data-style="minimal"] .ws-share-action.cancel { background-color: var(--td-line); }
+html.dark[data-style="minimal"] .ws-cal-cancel { background-color: transparent; color: #a0aec0; }
+html.dark[data-style="minimal"] .ws-share-action.cancel { background-color: transparent; }
+
+/* 部落卡片长按拖拽排序（长按 500ms 进入；国际服/国服分组内排序，跨组不可拖） */
+#clan-page .clan-card.clan-sort-ghost { opacity: 0.35; }
+#clan-page .clan-card.clan-sort-chosen { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18); }
+
+/* 长按卡片 = 进入拖拽：禁用系统文字选择/图片长按菜单（与 .upgrade-card 同口径）。
+   只禁卡片内——复制标签按钮仍可点，其它页面的文本仍可正常选择。 */
+#clan-page .clan-card,
+#clan-page .clan-card * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#clan-page .clan-card img {
+  -webkit-user-drag: none;
+}

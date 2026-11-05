@@ -23,7 +23,20 @@
     var maybeWebdavAutoRestoreRef = null; // init() 内赋值（WebDAV 自动恢复检测在 init 作用域，供外部手动触发/测试）
     var refreshCloudAutoBackupUiRef = null;
     var openCloudLoginRef = null;         // init() 内赋值（打开云端登录弹窗，供阵型中心「去登录」调用）
+    var deleteCloudAccountRef = null;     // init() 内赋值（删号后单账号删除同步）
+    var pushAccountServerRef = null;      // init() 内赋值（选服后回传云端补齐 _server）
     const calc = CocTool.calc;
+
+    /** 部落卡片统一列表（clan.js 提供；未加载时兜底读新键/旧键，仅国际服旧数据） */
+    function readClanCards() {
+        if (CocTool.clan && typeof CocTool.clan.getClanCards === 'function') return CocTool.clan.getClanCards();
+        try {
+            const list = JSON.parse(localStorage.getItem('clash_clan_cards') || localStorage.getItem('clash_clan_list') || '[]');
+            return Array.isArray(list) ? list : [];
+        } catch (e) { return []; }
+    }
+    function intlClanCards() { return readClanCards().filter(c => c && c.type !== 'china'); }
+    function chinaClanCards() { return readClanCards().filter(c => c && c.type === 'china'); }
 
     function progress() { return CocTool.features.progress; }
     function settingsModule() { return CocTool.features.settings; }
@@ -413,9 +426,7 @@
             return new Date(str.slice(0,4)+'-'+str.slice(4,6)+'-'+str.slice(6,8)+'T'+str.slice(9,11)+':'+str.slice(11,13)+':'+str.slice(13,15)+'.'+str.slice(16,19)+'Z').getTime();
         }
         try {
-            const raw = localStorage.getItem('clash_clan_list');
-            if (!raw) return;
-            const list = JSON.parse(raw);
+            const list = intlClanCards();
             for (const clan of list) {
                 const tag = clan.tag;
                 const name = clan.name || tag;
@@ -445,9 +456,7 @@
     function pushChinaWarNotifications(now, schedule) {
         const HOUR_MS = 3600000;
         try {
-            const raw = localStorage.getItem('clash_china_clan_list');
-            if (!raw) return;
-            const list = JSON.parse(raw);
+            const list = chinaClanCards();
             for (const clan of list) {
                 const name = clan.name || clan.id;
                 const warRaw = localStorage.getItem('china_war_state_' + clan.id);
@@ -487,9 +496,7 @@
     function pushLeagueNotifications(now, schedule) {
         const HOUR_MS = 3600000;
         try {
-            const raw = localStorage.getItem('clash_clan_list');
-            if (!raw) return;
-            const list = JSON.parse(raw);
+            const list = intlClanCards();
             for (const clan of list) {
                 const tag = clan.tag;
                 const name = clan.name || tag;
@@ -1163,6 +1170,8 @@
                     updateLoginUI();
                     loginModal.classList.add('hidden');
                     showToast('登录成功', 1500);
+                    // 新库为空时用本地旧结构补初始化（升级用户登录后不能看到“云端空”）
+                    try { CocTool.cloudSync.ensureCloudInitialized().catch(function () {}); } catch (e) {}
                     // 阵型中心：登录态变化，我的上传会触发本机旧阵型认领并刷新
                     window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
                 } else {
@@ -1221,6 +1230,8 @@
                     updateLoginUI();
                     registerModal.classList.add('hidden');
                     showToast('注册成功', 1500);
+                    // 新库为空时用本地旧结构补初始化
+                    try { CocTool.cloudSync.ensureCloudInitialized().catch(function () {}); } catch (e) {}
                     window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
                 } else {
                     registerError.textContent = result.error || '注册失败';
@@ -1240,41 +1251,36 @@
             loginModal.classList.remove('hidden');
         });
 
-        // 云端备份
+        // 云端备份（v2）：整包上传（账号 + 备注 + 偏好 + 完整设置 + 部落）
         document.getElementById('cloud-backup-btn').addEventListener('click', async () => {
             if (!authData || !authData.email) {
                 showToast('请先登录账号', 2000);
                 return;
             }
-            const token = localStorage.getItem(TOKEN_KEY);
-            if (!token) {
-                showToast('登录已失效，请重新登录', 2000);
-                return;
-            }
-
             const btn = document.getElementById('cloud-backup-btn');
             const origHtml = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>备份中...';
 
             try {
-                const result = await postCloudBackup(token, buildBackupPayload());
+                const cloud = CocTool.cloudSync;
+                const result = await cloud.postBackup(cloud.buildBackupData(), cloud.syncedRevision());
                 if (result.success) {
-                    markCloudSyncedNow();
+                    cloud.markRevision(result.revision);
                     showToast('云端备份已更新', 2000);
+                } else if (result.conflict) {
+                    showToast('云端已有更新，请先恢复再备份', 3000);
+                } else if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
+                    localStorage.removeItem(TOKEN_KEY);
+                    localStorage.removeItem(AUTH_KEY);
+                    authData = null;
+                    updateLoginUI();
+                    showToast('登录已失效，请重新登录', 2000);
                 } else {
-                    if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
-                        localStorage.removeItem(TOKEN_KEY);
-                        localStorage.removeItem(AUTH_KEY);
-                        authData = null;
-                        updateLoginUI();
-                        showToast('登录已失效，请重新登录', 2000);
-                        return;
-                    }
                     showToast('备份失败：' + (result.error || '未知错误'), 3000);
                 }
             } catch (err) {
-                showToast('恢复失败（网络错误）：' + err.message, 3000);
+                showToast('备份失败（网络错误）：' + err.message, 3000);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
@@ -1293,7 +1299,6 @@
         // 更新到最新版后开关自动恢复开态（用户设置仍为 1），无需重新开启
         const AUTO_BACKUP_PREF_KEY = 'coc_cloud_auto_backup_enabled';
         const AUTO_RESTORE_PREF_KEY = 'coc_cloud_auto_restore_enabled';
-        const LOCAL_CHANGE_KEY = 'coc_last_local_data_change';
         // WebDAV 独立键：自动恢复开关（默认关，不进备份快照）与上传/恢复一致性标记（与云端标记分开互不干扰）
         const WEBDAV_SYNC_KEY = 'coc_webdav_last_sync';
         const AUTO_RESTORE_WEBDAV_KEY = 'coc_webdav_auto_restore_enabled';
@@ -1311,6 +1316,8 @@
         }
 
         function isLocalOutdated() {
+            // 网页版没有 APK 版本概念（刷新即最新），版本闸门只对真机生效
+            if (!isRealAndroidApp()) return false;
             var latest = state.latestServerVersionCode || 0;
             if (!latest) return false;
             var local = 0;
@@ -1320,20 +1327,22 @@
 
         function isAutoBackupActive() {
             if (!userWantsAutoBackup()) return false;
+            if (!isRealAndroidApp()) return true;   // 网页版：无版本闸门
             var latest = state.latestServerVersionCode || 0;
             if (!latest) return false;
             return !isLocalOutdated();
         }
-        // 网页版不支持：shim 桩伪造超大 versionCode，须以真机专有桥方法识别
+        // 真机专有桥方法识别（shim 桩会伪造 getVersionCode，不能拿它判端）
         function isRealAndroidApp() {
             return Boolean(window.AndroidApp && window.AndroidApp.isSystemDarkMode);
         }
 
-        // 开关行展示状态：unsupported 隐藏整行 / nologin 登录后生效 / off 用户设置关 / checking 版本检测中 / outdated 需更新 / '' 正常开
+        // 开关行展示状态：nologin 登录后生效 / off 用户设置关 / checking 版本检测中 / outdated 需更新 / '' 正常开
+        // （网页版无版本检测，登录后直接走 ''）
         function cloudAutoBackupUiState() {
-            if (!isRealAndroidApp()) return 'unsupported';
             if (!userWantsAutoBackup()) return 'off';
             if (!localStorage.getItem(TOKEN_KEY)) return 'nologin';
+            if (!isRealAndroidApp()) return '';
             var latest = state.latestServerVersionCode || 0;
             if (!latest) return 'checking';
             var local = 0;
@@ -1346,10 +1355,6 @@
             var group = document.getElementById('cloud-auto-backup-group');
             if (!group) return;
             var uiState = cloudAutoBackupUiState();
-            if (uiState === 'unsupported') {
-                group.style.display = 'none';
-                return;
-            }
             group.style.display = '';
             var toggle = document.getElementById('cloud-auto-backup-toggle');
             var label = document.getElementById('cloud-auto-backup-label');
@@ -1375,9 +1380,8 @@
             }
         }
 
-        async function autoCloudBackup() {
+        async function autoCloudBackup(tag) {
             try {
-                if (!isRealAndroidApp()) return;
                 const token = localStorage.getItem(TOKEN_KEY);
                 if (!token || !authData || !authData.email) return;
                 if (!isAutoBackupActive()) {
@@ -1389,11 +1393,17 @@
                     }
                     return;
                 }
-                const result = await postCloudBackup(token, buildBackupPayload());
+                const cloud = CocTool.cloudSync;
+                const unit = tag ? cloud.buildAccountUnit(tag) : null;
+                if (!unit) return;
+                const result = await cloud.postAccountUnit(unit, cloud.syncedRevision());
                 if (result && result.success) {
-                    markCloudSyncedNow();
-                    notificationMonitor.log('云端', '自动备份成功（导入后）', { noMerge: true });
+                    cloud.markRevision(result.revision);
+                    notificationMonitor.log('云端', '自动备份成功（账号单元）', { noMerge: true });
                     showToast('云端备份已更新', 2000);
+                } else if (result && result.conflict) {
+                    notificationMonitor.log('云端', '自动备份冲突：云端已有更新', { noMerge: true });
+                    showToast('云端已有更新，请稍后恢复', 3000);
                 } else {
                     notificationMonitor.log('云端', '自动备份失败：' + ((result && result.error) || '未知错误'), { noMerge: true });
                     showToast('云端备份失败：' + ((result && result.error) || '未知错误'), 3000);
@@ -1401,6 +1411,34 @@
             } catch (err) {
                 notificationMonitor.log('云端', '自动备份失败（网络错误）：' + err.message, { noMerge: true });
                 showToast('云端备份失败（网络错误）', 3000);
+            }
+        }
+
+        /** 删号后的单账号删除同步（不属于自动备份，也不整包） */
+        async function deleteCloudAccount(tag) {
+            try {
+                const cloud = CocTool.cloudSync;
+                const result = await cloud.removeAccountCloud(tag, cloud.syncedRevision());
+                if (result && result.success) {
+                    cloud.markRevision(result.revision);
+                } else if (result && result.conflict) {
+                    notificationMonitor.log('云端', '删号同步冲突：云端已有更新', { noMerge: true });
+                }
+                return result;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        /** 选服后回传云端补齐 _server */
+        async function pushAccountServer(tag, server) {
+            try {
+                const cloud = CocTool.cloudSync;
+                const result = await cloud.pushServer(tag, server, cloud.syncedRevision());
+                if (result && result.success) cloud.markRevision(result.revision);
+                return result;
+            } catch (err) {
+                return null;
             }
         }
 
@@ -1416,7 +1454,7 @@
                 // 开启：先弹确认（默认关闭，按需开启；取消/点遮罩关闭弹窗后开关由 updateCloudAutoBackupUi 回弹到用户设定）
                 CocTool.ui.showConfirm({
                     title: '开启云端自动备份',
-                    text: '此功能仅限最新版本使用，开启前请确认已更新至最新版本。<br>每次导入游戏数据都会自动上传云端备份，会增加服务器压力，请按需开启。<br>若没有多设备同步需求，不建议开启。',
+                    text: '此功能仅限最新版本使用，开启前请确认已更新至最新版本。<br>开启后，每次导入游戏数据只会自动上传该账号（含该账号备注与账号偏好）；备注、设置等改动不会自动上传，需要到「云端备份」手动整包备份。<br>删除账号会自动从云端删除该账号。若没有多设备同步需求，不建议开启。',
                     confirmText: '确认开启',
                     cancelText: '取消',
                     onConfirm: () => {
@@ -1437,8 +1475,9 @@
             });
         }
         updateAutoRestoreUi();
-        // 启动 2s 后做一次自动恢复检测（待页面渲染与登录态就绪；只读比对，云端不新则完全静默）
-        setTimeout(() => { maybeAutoRestore(); }, 2000);
+        // 启动后 300ms 做一次自动恢复检测（登录态是同步读 localStorage，页面此时已可用；
+        // 原 2000ms 是保守等待，实测没有依赖——用户 2026-11-05 报「自动恢复响应慢」）
+        setTimeout(() => { maybeAutoRestore(); }, 300);
         maybeAutoRestoreRef = maybeAutoRestore;
 
         // === WebDAV 自动恢复（仿云端自动恢复；与云端自动恢复互斥，WebDAV 优先） ===
@@ -1502,23 +1541,54 @@
         }
         updateCloudAutoBackupUi();
         autoCloudBackupRef = autoCloudBackup;
+        deleteCloudAccountRef = deleteCloudAccount;
+        pushAccountServerRef = pushAccountServer;
         refreshCloudAutoBackupUiRef = updateCloudAutoBackupUi;
 
-        // 云端恢复
-        // 恢复核心：写本地 + 补部落 + 刷新（云端恢复按钮与自动恢复共用）；返回是否执行了恢复
-        async function performCloudRestore(backup) {
-            const dataToRestore = backup.accounts ? backup : backup.data;
-            if (!dataToRestore || !dataToRestore.accounts) {
+        // 恢复核心（v2）：账号/备注/偏好/order/current/clans 写本地；
+        // globalSettings 只在手动恢复时应用（自动校核不覆盖本机设置）
+        async function performCloudRestore(data, revision, applyGlobalSettings) {
+            if (!data || !data.accounts) {
                 showToast('备份数据格式无效', 3000);
                 return false;
             }
-            localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(dataToRestore));
-            if (backup.settings || dataToRestore.settings) {
-                localStorage.setItem('clash_upgrade_settings', JSON.stringify(backup.settings || dataToRestore.settings));
+            // 空账号包不覆盖本地（防新库空文档/误恢复把本机账号清空）
+            if (!Object.keys(data.accounts).length) {
+                showToast('云端备份为空，未覆盖本地', 3000);
+                return false;
             }
-            // 本地最后数据变更标记 = 云端备份时间：防止自动恢复后又被判「云端较新」造成回环
-            try { localStorage.setItem(LOCAL_CHANGE_KEY, String(Date.parse(backup.exportDate) || Date.now())); } catch (e) {}
-            var clanTags = dataToRestore.clans || [];
+            const localAccounts = {
+                accounts: data.accounts,
+                accountNotes: data.accountNotes || {},
+                accountOrder: data.accountOrder || Object.keys(data.accounts),
+                currentAccount: data.currentAccount || null,
+                version: 5
+            };
+            localStorage.setItem('clash_upgrade_assistant_v3_fixed', JSON.stringify(localAccounts));
+
+            // 偏好分片写回 settings 的 5 个按账号字段（其余设置不动）
+            const prefFields = CocTool.cloudSync.PREF_FIELDS;
+            const nextSettings = Object.assign({}, settings);
+            Object.keys(data.accountPrefs || {}).forEach(function (tag) {
+                const pref = data.accountPrefs[tag] || {};
+                prefFields.forEach(function (field) {
+                    if (!Object.prototype.hasOwnProperty.call(pref, field)) return;
+                    if (!nextSettings[field] || typeof nextSettings[field] !== 'object') {
+                        nextSettings[field] = {};
+                    } else {
+                        nextSettings[field] = Object.assign({}, nextSettings[field]);
+                    }
+                    nextSettings[field][tag] = pref[field];
+                });
+            });
+            localStorage.setItem('clash_upgrade_settings', JSON.stringify(nextSettings));
+            // 手动恢复：整包设置覆盖（用户主动选择）
+            if (applyGlobalSettings && data.globalSettings && typeof data.globalSettings === 'object') {
+                localStorage.setItem('clash_upgrade_settings', JSON.stringify(data.globalSettings));
+            }
+            CocTool.cloudSync.markRevision(revision);
+
+            var clanTags = data.clans || [];
             var addedClans = 0;
             if (clanTags.length > 0 && CocTool.features.clan && CocTool.features.clan.restoreClansFromTags) {
                 try {
@@ -1559,99 +1629,78 @@
             }
         }
 
-        function localDataChangedAt() {
-            return parseInt(localStorage.getItem(LOCAL_CHANGE_KEY), 10) || 0;
-        }
-
-        // 备份成功（自动/手动）→ 本地与云端内容已一致，标记同步为备份时刻：
-        // 否则云端 exportDate 恒比导入标记晚，双开时每次重启都会误报「云端较新」
-        function markCloudSyncedNow() {
-            try { localStorage.setItem(LOCAL_CHANGE_KEY, String(Date.now())); } catch (e) {}
-        }
-
-        // 统一备份载荷组装（云端备份模块内手动/自动共用，一处修改全局生效；WebDAV 独立不依赖此函数）
-        function buildBackupPayload() {
-            return {
-                version: 1,
-                exportDate: new Date().toISOString(),
-                accounts,
-                accountNotes,
-                accountOrder,
-                currentAccount: state.currentAccount,
-                settings: { ...settings },
-                clans: getIntlClanTags()   // 国际服部落标签（仅标签，恢复时按需拉取详情）
-            };
-        }
-
-        // 统一备份上传核心（云端手动/自动共用同一接口与头；网页版无桥接时版本头为 0/空，服务器不校验）
-        async function postCloudBackup(token, payload) {
-            var vCode = 0, vName = '';
-            try { vCode = window.AndroidApp.getVersionCode(); vName = window.AndroidApp.getVersionName(); } catch (e) {}
-            const headers = {
-                'Content-Type': 'application/json',
-                'X-Auth-Token': token,
-                'X-App-Version-Code': String(vCode)
-            };
-            // HTTP 头只允许 Latin-1：网页版 shim 的 getVersionName 返回中文「Web 版」，直接放进请求头
-            // 会在 fetch 发送前抛 "String contains non ISO-8859-1 code point"——手动/自动备份全部静默失败，
-            // 而恢复只发 ASCII 的 X-Auth-Token 因此正常（表现=能恢复不能上传）。中文版本名省略该头
-            // （服务器不校验版本号），App 的 ASCII 版本号 1.4.x 照常携带。
-            if (vName && /^[\x00-\xFF]+$/.test(vName)) {
-                headers['X-App-Version'] = vName;
-            }
-            const res = await fetch(`${CLOUD_API}/backup`, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(payload)
-            });
-            return res.json();
-        }
-
         // 两个自动恢复互斥（用户拍板）：WebDAV 恢复优先——它读用户自己的网盘，不给自有服务器增压；
         // WebDAV 自动恢复开启时，云端自动恢复「开关看着开着但不执行」
         function webdavAutoRestoreOn() {
             try { return localStorage.getItem(AUTO_RESTORE_WEBDAV_KEY) === '1'; } catch (e) { return false; }
         }
 
-        // 启动触发：登录 + 开关开 → 拉云端比对 exportDate 与本地最后变更标记，云端较新则询问后恢复
+        // 启动触发：登录 + 开关开 → 拉云端 revision，云端有更新才询问后恢复。
+        // 新库还没有文档时，用本机数据自动初始化（不弹窗）。
         async function maybeAutoRestore() {
             try {
+                // 必读迁移提示未确认前不跑自动恢复（避免两个弹窗叠在一起；确认后会主动调一次）
+                try { if (localStorage.getItem('coc_v2_notice_acked') !== '1') return; } catch (e) { return; }
                 if (!cloudAutoRestoreEnabled()) return;
                 if (webdavAutoRestoreOn()) return; // WebDAV 自动恢复优先，云端让位（不发请求）
                 const token = localStorage.getItem(TOKEN_KEY);
                 if (!token || !authData || !authData.email) return;
-                const res = await fetch(`${CLOUD_API}/backup`, {
-                    method: 'GET',
-                    headers: { 'X-Auth-Token': token }
-                });
-                const result = await res.json();
-                if (!result || !result.success || !result.data) return;
-                const backup = result.data;
-                if (!(backup.accounts ? backup : backup.data)) return;
-                // 防御守卫：小程序方言载荷无 exportDate（服务端分家前曾混入 userData，F-20261006-1），
-                // 时间裁决恒静默（Date.parse(undefined)=0），直接跳过不弹窗
-                if (!backup.exportDate) return;
-                var cloudAt = Date.parse(backup.exportDate) || 0;
-                if (cloudAt <= localDataChangedAt()) return;
-                var timeStr = new Date(cloudAt);
-                var pad = function (n) { return String(n).padStart(2, '0'); };
-                timeStr = (timeStr.getMonth() + 1) + '-' + pad(timeStr.getDate()) + ' ' + pad(timeStr.getHours()) + ':' + pad(timeStr.getMinutes());
+                const cloud = CocTool.cloudSync;
+
+                const status = await cloud.getVersion();
+                if (!status || !status.success) return;
+                if (!status.exists) {
+                    // 新库为空：用内存 state；state 空则读本地旧结构转换后初始化
+                    const data = Object.keys(accounts).length ? cloud.buildBackupData() : cloud.convertLegacyLocal();
+                    if (!Object.keys(data.accounts || {}).length) return;
+                    const init = await cloud.postBackup(data, 0);
+                    if (init && init.success) cloud.markRevision(init.revision);
+                    return;
+                }
+                const cloudRevision = Number(status.revision) || 0;
+                if (cloudRevision <= cloud.syncedRevision()) return;
+
+                // 提速（2026-11-05）：version 命中即弹窗（时间来自轻量接口），整包在后台并行下载；
+                // 用户确认时再 await（通常数据已到）——不再等整包下载完才弹窗
+                const backupPromise = cloud.getBackup();
+                backupPromise.catch(() => {});   // 预取失败在确认路径统一提示
+
+                const applyBackup = async (dontAsk) => {
+                    if (dontAsk) rememberSilentRestore(SILENT_RESTORE_CLOUD_KEY);
+                    let res = null;
+                    try { res = await backupPromise; } catch (e) { res = null; }
+                    if (!res || !res.success || !res.data) {
+                        showToast('云端备份获取失败，请稍后重试', 2500);
+                        return;
+                    }
+                    if (!res.data.accounts || !Object.keys(res.data.accounts).length) {
+                        showToast('云端备份为空，未恢复', 2500);
+                        return;
+                    }
+                    performCloudRestore(res.data, res.revision, false).catch(() => {});
+                };
+
                 // 勾过「不再提醒，直接更新」：跳过询问直接恢复
                 if (silentRestoreOn(SILENT_RESTORE_CLOUD_KEY)) {
-                    performCloudRestore(backup).catch(() => {});
+                    applyBackup(false);
                     return;
+                }
+                // 提示只给「最后更新时刻」（MM-DD HH:mm）；版本号留在同步逻辑里，不给用户看
+                const updatedMs = status.updatedAt ? Date.parse(status.updatedAt) : 0;
+                let updatedText = '';
+                if (updatedMs) {
+                    const d = new Date(updatedMs);
+                    const pad = n => String(n).padStart(2, '0');
+                    updatedText = '（' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '）';
                 }
                 CocTool.ui.showConfirm({
                     title: '自动恢复',
-                    text: '检测到云端备份较新（' + timeStr + '），是否恢复到本地？',
+                    text: '检测到云端备份已更新' + updatedText + '，是否恢复到本地？',
                     checkbox: { text: '不再提醒，直接更新', checked: false },
                     confirmText: '恢复',
                     cancelText: '取消',
                     noOutsideClose: true, // 特例：自动恢复弹窗必须点按钮关闭，不允许点外部区域关闭
-                    onConfirm: (dontAsk) => {
-                        if (dontAsk) rememberSilentRestore(SILENT_RESTORE_CLOUD_KEY);
-                        performCloudRestore(backup).catch(() => {});
-                    },
+                    onConfirm: (dontAsk) => { applyBackup(dontAsk); },
                     onCancel: () => {}
                 });
             } catch (err) {
@@ -1675,34 +1724,23 @@
         });
 
         async function doCloudRestore() {
-            const token = localStorage.getItem(TOKEN_KEY);
-            if (!token) {
-                showToast('登录已失效，请重新登录', 2000);
-                return;
-            }
-
             const btn = document.getElementById('cloud-restore-btn');
             const origHtml = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>恢复中...';
 
             try {
-                const res = await fetch(`${CLOUD_API}/backup`, {
-                    method: 'GET',
-                    headers: { 'X-Auth-Token': token },
-                });
-                const result = await res.json();
+                const cloud = CocTool.cloudSync;
+                const result = await cloud.getBackup();
                 if (result.success && result.data) {
-                    await performCloudRestore(result.data);
+                    await performCloudRestore(result.data, result.revision, true);
+                } else if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
+                    localStorage.removeItem(TOKEN_KEY);
+                    localStorage.removeItem(AUTH_KEY);
+                    authData = null;
+                    updateLoginUI();
+                    showToast('登录已失效，请重新登录', 2000);
                 } else {
-                    if (result.error && (result.error.includes('登录已失效') || result.error.includes('未登录'))) {
-                        localStorage.removeItem(TOKEN_KEY);
-                        localStorage.removeItem(AUTH_KEY);
-                        authData = null;
-                        updateLoginUI();
-                        showToast('登录已失效，请重新登录', 2000);
-                        return;
-                    }
                     showToast('恢复失败：' + (result.error || '未找到备份数据'), 3000);
                 }
             } catch (err) {
@@ -1713,18 +1751,17 @@
             }
         }
 
-        // 读取国际服部落标签（clash_clan_list，仅 tag 数组）
+        // 读取国际服部落标签（统一卡片列表里的 tag 数组，国服卡片不带 tag）
         function getIntlClanTags() {
-            try {
-                var list = JSON.parse(localStorage.getItem('clash_clan_list') || '[]');
-                var tags = [];
-                for (var i = 0; i < list.length; i++) {
-                    if (list[i] && list[i].tag) tags.push(list[i].tag);
-                }
-                return tags;
-            } catch (e) {
-                return [];
+            if (CocTool.clan && typeof CocTool.clan.getIntlClanTags === 'function') {
+                return CocTool.clan.getIntlClanTags();
             }
+            var list = intlClanCards();
+            var tags = [];
+            for (var i = 0; i < list.length; i++) {
+                if (list[i] && list[i].tag) tags.push(list[i].tag);
+            }
+            return tags;
         }
         advancePickerCloseBtn.addEventListener('click', () => advancePickerModal.classList.add('hidden'));
         advancePickerModal.addEventListener('click', (e) => {
@@ -1753,7 +1790,9 @@
         pushSchedule,
         autoWebdavUpload,
         maybeWebdavAutoRestore: function () { return maybeWebdavAutoRestoreRef ? maybeWebdavAutoRestoreRef() : Promise.resolve(); },
-        autoCloudBackup: function () { return autoCloudBackupRef ? autoCloudBackupRef() : Promise.resolve(); },
+        autoCloudBackup: function (tag) { return autoCloudBackupRef ? autoCloudBackupRef(tag) : Promise.resolve(); },
+        deleteCloudAccount: function (tag) { return deleteCloudAccountRef ? deleteCloudAccountRef(tag) : Promise.resolve(null); },
+        pushAccountServer: function (tag, server) { return pushAccountServerRef ? pushAccountServerRef(tag, server) : Promise.resolve(null); },
         maybeAutoRestore: function () { return maybeAutoRestoreRef ? maybeAutoRestoreRef() : Promise.resolve(); },
         refreshCloudAutoBackupUi: function () { if (refreshCloudAutoBackupUiRef) refreshCloudAutoBackupUiRef(); },
         openCloudLogin: function () { if (openCloudLoginRef) openCloudLoginRef(); },

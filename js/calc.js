@@ -553,25 +553,29 @@
 
     // ========== 核心：计算完成时间 ==========
     // 按类别取当前生效的加速窗口（药水与辅食可同时生效，各自独立计时）
+    // 辅食有普通 / 24× 两种形态（工人大餐 2×→24×、研究浓汤 4×→24×），按账号独立开关。
     function getBoostWindows(data, category) {
         const boosts = data.boosts || {};
         if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
             const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+            const consumable24 = settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
             return [
                 boosts.builder_boost ? { duration: boosts.builder_boost, mult: is24 ? 24 : 10 } : null,
-                boosts.builder_consumable ? { duration: boosts.builder_consumable, mult: 2 } : null
+                boosts.builder_consumable ? { duration: boosts.builder_consumable, mult: consumable24 ? 24 : 2 } : null
             ];
         }
         if (["units", "siege_machines", "spells"].includes(category)) {
+            const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
             return [
                 boosts.lab_boost ? { duration: boosts.lab_boost, mult: 24 } : null,
-                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: 4 } : null
+                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: labConsumable24 ? 24 : 4 } : null
             ];
         }
         if (category === "pets") {
+            const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
             return [
                 boosts.pet_boost ? { duration: boosts.pet_boost, mult: 24 } : null,
-                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: 4 } : null
+                boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: labConsumable24 ? 24 : 4 } : null
             ];
         }
         if (["buildings2", "traps2", "heroes2", "units2"].includes(category)) {
@@ -659,22 +663,87 @@
         return m ? { cat: m[1], id: Number(m[2]), lvl: Number(m[3]), idx: Number(m[4]) } : null;
     }
 
-    // 导入后重放排队条目（accounts.js 调用）：游戏导出不含手动录入的排队 timer——
-    // 找同实例未开工条目重放「+升级」写入（分裂/挂载），标记保留（跨导入存活）；
-    // 游戏里已开工（真实 timer）→ 清标记由真实数据接管；实例消失（已升完）→ 清标记。
+    // ===== 排队签名（B2，2026-11-05 用户拍板）=====
+    // 口径：只统计「当前升级集合里出现的 data」在该分类池内的**等级直方图**（该 data 的所有条目，含未升级的）。
+    // 导入时若签名变化 → 游戏状态除时间外发生了结构变化（升级对象换了 / 某座升完了）→ 该池排队作废；
+    // 签名相同 → 排队是有效模拟，保留并按 data+lvl 重定位数组下标。
+    // 首次无签名（老数据）只记录不清，避免升级后第一次导入误删排队。
+    const QUEUE_SIG_KEY = 'clash_upgrade_queue_sig';
+    const QUEUE_POOLS = ['buildings', 'lab', 'pets', 'buildings2', 'units2'];
+    const QUEUE_CATS = ["buildings", "buildings2", "heroes", "heroes2", "units", "units2", "spells", "siege_machines", "pets", "traps", "traps2", "guardians"];
+
+    function loadQueueSigs() {
+        try { return JSON.parse(localStorage.getItem(QUEUE_SIG_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function saveQueueSigs(all) {
+        try { localStorage.setItem(QUEUE_SIG_KEY, JSON.stringify(all)); } catch (e) {}
+    }
+
+    function queueSignature(data, pool) {
+        const active = {};   // 升级中出现的 data
+        const hist = {};     // data -> lvl -> count（该 data 的全部条目）
+        const scan = fn => QUEUE_CATS.forEach(cat => {
+            const arr = data[cat];
+            if (!Array.isArray(arr)) return;
+            arr.forEach(it => {
+                if (getItemCategory({ category: cat, gear_up: it.gear_up }) !== pool) return;
+                if (it.data === 1000097 && Array.isArray(it.types)) {
+                    it.types.forEach(t => (t.modules || []).forEach(m => fn(m)));
+                } else fn(it);
+            });
+        });
+        scan(it => { if (it.timer > 0) active[it.data] = 1; });
+        if (!Object.keys(active).length) return '';
+        scan(it => {
+            if (active[it.data] === undefined) return;
+            const lvl = Number(it.lvl) || 0;
+            hist[it.data] = hist[it.data] || {};
+            hist[it.data][lvl] = (hist[it.data][lvl] || 0) + 1;
+        });
+        return Object.keys(hist).sort().map(d =>
+            d + ':' + Object.keys(hist[d]).sort((a, b) => a - b).map(l => l + '=' + hist[d][l]).join(',')
+        ).join(';');
+    }
+
+    // 导入后重放排队条目（accounts.js 调用）：
+    // ① 比签名：变化池 → 清该池所有标记（返回 cleared 供 UI 提示）；首次无签名只记录；
+    // ② 剩余标记：按 data+lvl 重定位数组下标（顺序可能变），重放「+升级」写入（分裂/挂载），标记保留；
+    //    实例真的找不到（漏检兜底）→ 丢弃该条。
     function reconcileQueue(tag, newData) {
-        if (!tag || !newData) return;
+        if (!tag || !newData) return [];
         const qmap = loadQueueMap(tag);
-        if (!Object.keys(qmap).length) return;
+        const allSigs = loadQueueSigs();
+        const oldSigs = allSigs[tag] || {};
+        const newSigs = {};
+        const cleared = [];
+        QUEUE_POOLS.forEach(pool => {
+            newSigs[pool] = queueSignature(newData, pool);
+            if (oldSigs[pool] !== undefined && oldSigs[pool] !== newSigs[pool]) cleared.push(pool);
+        });
+        allSigs[tag] = newSigs;
+        saveQueueSigs(allSigs);
+        if (cleared.length) {
+            Object.keys(qmap).forEach(key => {
+                const p = parseQueueKey(key);
+                if (!p) { delete qmap[key]; return; }
+                if (cleared.includes(getItemCategory({ category: p.cat }))) delete qmap[key];
+            });
+        }
+        if (!Object.keys(qmap).length) { saveQueueMap(tag, qmap); return cleared; }
+
         const nowSec = Math.floor(Date.now() / 1000);
+        const remapped = {};
         Object.keys(qmap).forEach(key => {
             const p = parseQueueKey(key);
-            if (!p) { delete qmap[key]; return; }
+            if (!p) return;
             const arr = newData[p.cat];
-            if (!arr || !Array.isArray(arr)) { delete qmap[key]; return; }
-            if (arr.some(a => Number(a.data) === p.id && Number(a.lvl) === p.lvl && a.timer > 0)) { delete qmap[key]; return; }   // 已开工
-            const entry = arr.find(a => Number(a.data) === p.id && Number(a.lvl) === p.lvl && !(a.timer > 0) && a.gear_up !== 0);
-            if (!entry) { delete qmap[key]; return; }   // 实例不存在（已升完/建筑消失）
+            if (!Array.isArray(arr)) return;
+            let idx = -1;
+            const cur = arr[p.idx];
+            if (cur && Number(cur.data) === p.id && Number(cur.lvl) === p.lvl && !(cur.timer > 0) && cur.gear_up !== 0) idx = p.idx;
+            if (idx === -1) idx = arr.findIndex(a => Number(a.data) === p.id && Number(a.lvl) === p.lvl && !(a.timer > 0) && a.gear_up !== 0);
+            if (idx === -1) return;
+            const entry = arr[idx];
             const timer = Math.max(1, Math.floor(nowSec - (newData.timestamp || 0) + (Number(qmap[key].dur) || 0)));
             // 重放 applyAddToUpgrades 的写入口径（timer 仅作提取门票，完成时刻由队列模拟覆盖）
             if (entry.cnt !== undefined && entry.cnt !== null) {
@@ -684,8 +753,10 @@
             } else {
                 entry.timer = timer;
             }
+            remapped[p.cat + '_' + p.id + '_' + p.lvl + '_' + idx] = qmap[key];
         });
-        saveQueueMap(tag, qmap);
+        saveQueueMap(tag, remapped);
+        return cleared;
     }
 
     // 固化已触发的排队项（开工后时刻落定）：timer = 完成时刻 − 导出时刻、清标记，此后药水/助手
@@ -848,8 +919,7 @@
         });
         // 源头阻断：被屏蔽分类（按账号两层记忆）的条目不进入解析结果，
         // 下游（升级列表/总览区/主标题环/排序弹窗/通知调度）全链路自然免扰。
-        // dismissLevel：默认 progress（列表/通知链路沿用）；账号切换 tab 传 'any'——
-        // 被任意档屏蔽的类目不参与 tab 配色/睡眠高亮（用户 2026-10-20）
+        // dismissLevel：默认 progress（列表/通知/账号进度页/小组件沿用）；账号 tab 配色/睡眠高亮传 'color'
         return data.tag ? filterDismissedCategories(upgrading, data.tag, dismissLevel) : upgrading;
     }
 
@@ -1051,24 +1121,26 @@
         return { 5: 'text-success', 4: 'text-danger_red', 3: 'text-warning_orangered', 2: 'text-warning_orange', 1: 'text-warning_yellow', 0: defaultColor }[priority] || defaultColor;
     }
 
-    // ========== 分类目屏蔽（按账号记忆：settings.dismissedCategories = {tag: {key: {dot,notify,progress}}}） ==========
-    // 三档程度：dot=首页总览红点 / notify=升级完成通知 / progress=升级列表及首页进度（解析源头不产出被屏蔽条目
-    // → 升级列表/总览区灰态/账号 tab 配色/主标题环/排序弹窗/道具推演 全链路免扰）
-    // level='any' = 任一档被勾（账号进度页与桌面小组件用：任意程度屏蔽即不显示该分类的升级项目）
-    // 兼容旧数据：值为 true 时视为三档全屏蔽（未升级端读到对象按 truthy 也当全屏蔽，降级安全）
+    // ========== 分类目屏蔽（按账号记忆：settings.dismissedCategories = {tag: {key: {dot,notify,progress,color}}}） ==========
+    // 四档程度：dot=首页总览红点 / notify=升级完成通知 / progress=升级列表·首页进度·账号进度页·桌面小组件
+    // / color=账号 tab 名称颜色·睡眠高亮·主标题待处理空闲环（2026-11-05 用户拍板新增）
+    // level='any' = 任一档被勾
+    // 兼容旧数据：值为 true 时视为全档屏蔽；对象缺 color 字段时按历史语义（任一旧档 = 名称颜色也屏蔽）
     function getDismissFlags(tag, categoryKey) {
-        const none = { dot: false, notify: false, progress: false };
+        const none = { dot: false, notify: false, progress: false, color: false };
         if (!tag || !categoryKey) return none;
         const permMap = settings.dismissedCategories && settings.dismissedCategories[tag];
         const value = permMap && permMap[categoryKey];
         if (!value) return none;
-        if (value === true) return { dot: true, notify: true, progress: true };
-        return { dot: !!value.dot, notify: !!value.notify, progress: !!value.progress };
+        if (value === true) return { dot: true, notify: true, progress: true, color: true };
+        const dot = !!value.dot, notify = !!value.notify, progress = !!value.progress;
+        const color = value.color !== undefined ? !!value.color : (dot || notify || progress);
+        return { dot: dot, notify: notify, progress: progress, color: color };
     }
 
     function isCategoryDismissed(tag, categoryKey, level) {
         const flags = getDismissFlags(tag, categoryKey);
-        if (level === 'any') return flags.dot || flags.notify || flags.progress;
+        if (level === 'any') return flags.dot || flags.notify || flags.progress || flags.color;
         return !!flags[level || 'progress'];
     }
 
@@ -1080,7 +1152,7 @@
 
     function getAccountTabColor(data) {
         const now = Math.floor(Date.now() / 1000);
-        const allItems = extractUpgradingItems(data, now, true, 'any');
+        const allItems = extractUpgradingItems(data, now, true, 'color');
         let highestPriority = 0;
         for (const item of allItems) {
             const completionTs = calculateCompletionTimestamp(item, data);
@@ -1250,7 +1322,7 @@
     function hasSleepHighlight(data) {
         if (!settings.nightMode || !data) return false;
         const now = Math.floor(Date.now() / 1000);
-        const items = extractUpgradingItems(data, now, true, 'any');
+        const items = extractUpgradingItems(data, now, true, 'color');
         for (const item of items) {
             const completionTs = calculateCompletionTimestamp(item, data);
             if (isInSleepRange(completionTs)) return true;

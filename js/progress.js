@@ -18,7 +18,7 @@
        模板结构一变，冷启动就会把旧 class 的 DOM 原样塞回来（组标题/行卡的间距、类名全按旧的来，
        表现为"改了没生效"，DESIGN.md §4.9 记过这次踩坑）。
        **改升级列表的模板（行卡 / 组标题 / 组包装）时把这个数 +1**，老缓存自动失效、重新渲染。 */
-    const VIEW_CACHE_V = 6;
+    const VIEW_CACHE_V = 13;
 
     // 渲染目标：当前账号 slide（Swiper 每账号一页，模板元素仅作克隆源）；无 slide 时回退 document
     function getActiveSlideRoot() {
@@ -423,12 +423,16 @@
         saveNotes(notes);
     }
 
-    // 长按卡片（touch/mouse 通用，500ms，位移>10px 取消）→ 备忘编辑模态；长按后抑制本次 click（删除弹窗不弹出）
+    // 长按卡片（touch/mouse 通用，500ms，位移>10px 取消）→ 动作模态（排队/备注/立即完成；已完成卡不再提供长按动作）
+    // 长按后抑制本次 click（删除弹窗不弹出）
     function bindNoteLongPress(card) {
         if (card.__noteBound) return;
         card.__noteBound = true;
         let timer = null, startX = 0, startY = 0;
         function start(e) {
+            // 清掉上一次长按没走到 click 的残留（长按后把手指移出卡片再释放不会产生 click）：
+            // 否则残留标记会吞掉下一次正常点击（点两次才响应）
+            card.__noteLongPress = false;
             const pt = e.touches ? e.touches[0] : e;
             startX = pt.clientX; startY = pt.clientY;
             if (timer) clearTimeout(timer);
@@ -473,7 +477,7 @@
                 '<div class="flex flex-col space-y-2">' +
                     (current ? '<button class="__note-clear w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">清除备忘</button>' : '') +
                     '<button class="__note-save w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm">保存</button>' +
-                    '<button class="__note-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>' +
+                    '<button class="__note-cancel modal-cancel-link">取消</button>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(overlay);
@@ -572,9 +576,10 @@
             const nameEl = this.querySelector('.card-name');
             const name = nameEl ? nameEl.textContent : '';
             CocTool.ui.showConfirm({
-                title: '删除已完成项目',
-                text: '确认删除已完成项目「' + name + '」？',
-                confirmText: '删除',
+                title: '移除已完成项目',
+                text: '确认移除已完成项目「' + name + '」？',
+                confirmText: '移除',
+                okClass: 'bg-green-500 hover:bg-green-600',
                 onConfirm: function () {
                     const d = accounts[state.currentAccount];
                     if (!d) return;
@@ -758,10 +763,10 @@
                 var iconHtml = '<div class="w-9 h-9 flex items-center justify-center flex-shrink-0" style="margin-right:10px;position:relative;overflow:visible;">' + iconInner + '</div>';
                 var catLine = isSC ? '充能' : isWp ? '武器' : isGear ? '改装中' : originCat;
                 var lvLine;
-                if (isSC) lvLine = '等级' + sc + '→' + (sc + 1);
-                else if (isWp) lvLine = '等级' + wp + '→' + (wp + 1);
+                if (isSC) lvLine = sc + '→' + (sc + 1);
+                else if (isWp) lvLine = wp + '→' + (wp + 1);
                 else if (isGear) lvLine = '';
-                else lvLine = '等级 ' + item.lvl + ' → ' + (item.lvl + 1);
+                else lvLine = item.lvl + ' → ' + (item.lvl + 1);
                 const noteMap = loadNotes();
                 const note = getNoteForItem(state.currentAccount, item, data, noteMap);
                 // 有备忘时：说明行被备忘覆盖，等级信息挪到名称后（lvShort，改装无等级则不显示）
@@ -883,30 +888,8 @@
         }
     }
 
-    function updateBuilderBoostToggle(data) {
-        const root = getActiveSlideRoot();
-        const toggle = root.querySelector('#builder-boost-toggle');
-        const isCn = calc.isCnAccount(data);
-        if (!isCn) {
-            if (toggle) toggle.style.display = 'none';
-            // 隐藏月卡图标
-            const passIcon = root.querySelector('#builder-monthly-pass-icon');
-            if (passIcon) passIcon.classList.add('hidden');
-            return;
-        }
-        if (toggle) toggle.style.display = 'inline-flex';
-        const is24Mode = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-        const label = root.querySelector('#builder-boost-label');
-        if (label) label.textContent = is24Mode ? '24x' : '10x';
-        const icon = root.querySelector('#builder-boost-icon');
-        if (icon) {
-            icon.src = is24Mode ? 'img/icons/builder_boost_24.webp' : 'img/icons/builder_boost.webp';
-        }
-        if (label) label.style.color = is24Mode ? '#ea580c' : '';
-        // 更新建筑工人月卡图标
-        updateBuilderMonthlyPassIcon(data.tag);
-    }
-
+    // 倍率切换已下放到「道具图标 + 剩余时间」（见 updateBoostTimers 的 data-boost-key 与点击委托）：
+    // 组标题里不再有独立倍率键，这里只负责月卡角标的显隐。
     function updateBuilderMonthlyPassIcon(tag) {
         var passIcon = getActiveSlideRoot().querySelector('#builder-monthly-pass-icon');
         if (!passIcon) return;
@@ -950,6 +933,30 @@
             { key: 'clocktower_boost', icon: 'clocktower_boost.webp', name: '钟楼' }] },
     ];
     const sim = { active: false, tag: null, copy: null, frozenNow: 0, baseBoosts: {}, counts: {}, hiddenEls: [], towerBoost: 0 };
+    // 推演步进器里可点图标切倍率的道具（与首页 timer 同一套字段）
+    const SIM_BOOST = {
+        builder_boost: { field: 'builderBoostMode24', icons: ['builder_boost_24.webp', 'builder_boost.webp'] },
+        builder_consumable: { field: 'builderConsumableMode24', icons: ['builder_consumable24.webp', 'builder_consumable.webp'] },
+        lab_consumable: { field: 'labConsumableMode24', icons: ['lab_consumable24.webp', 'lab_consumable.webp'] }
+    };
+
+    function simBoostIcon(key) {
+        const b = SIM_BOOST[key];
+        if (!b) return null;
+        const is24 = settings[b.field] && settings[b.field][sim.tag];
+        return b.icons[is24 ? 0 : 1];
+    }
+
+    // 推演中切倍率：只改 settings 并重算副本列表，不退出推演
+    function toggleSimBoost(key) {
+        const b = SIM_BOOST[key];
+        if (!b || !sim.active) return;
+        if (!settings[b.field]) settings[b.field] = {};
+        settings[b.field][sim.tag] = !settings[b.field][sim.tag];
+        saveSettings();
+        renderSimFrame();   // 图标换 24 版
+        renderSimList();    // 完成时间按新倍率重算
+    }
 
     function hideSimEl(el) {
         if (!el || el.__simHidden) return;
@@ -975,8 +982,10 @@
     }
 
     function stepperHtml(p) {
+        const icon = simBoostIcon(p.key) || p.icon;
+        const boostAttr = SIM_BOOST[p.key] ? ' data-boost-key="' + p.key + '"' : '';
         return '<span class="sim-potion" title="' + p.name + '">' +
-            '<img src="img/icons/' + p.icon + '" width="16" height="16" alt="">' +
+            '<img src="img/icons/' + icon + '" width="16" height="16" alt=""' + boostAttr + '>' +
             '<button type="button" class="sim-btn" data-key="' + p.key + '" data-delta="-1">−</button>' +
             '<input type="number" min="0" step="1" class="sim-input" data-key="' + p.key + '" value="' + (sim.counts[p.key] || 0) + '">' +
             '<button type="button" class="sim-btn" data-key="' + p.key + '" data-delta="1">+</button>' +
@@ -1000,6 +1009,8 @@
             wrap.innerHTML = g.potions.map(stepperHtml).join('');
             wrap.querySelectorAll('.sim-btn').forEach(btn => btn.addEventListener('click', () => setSimCount(btn.dataset.key, (sim.counts[btn.dataset.key] || 0) + Number(btn.dataset.delta))));
             wrap.querySelectorAll('.sim-input').forEach(inp => inp.addEventListener('change', () => setSimCount(inp.dataset.key, inp.value)));
+            // 推演中：点有 24× 形态的道具图标直接切倍率（药水 10/24、大餐 2/24、浓汤 4/24）
+            wrap.querySelectorAll('img[data-boost-key]').forEach(img => img.addEventListener('click', () => toggleSimBoost(img.dataset.boostKey)));
         });
         // 推演操作栏：升级列表容器顶部插入独立条（原锚定标题行 h2，该行已删 2026-11-01；exitSim 按 id 移除）
         const listWrap = root.querySelector('#upgrades-container');
@@ -1318,22 +1329,23 @@
             { key: 'units2', headingId: 'units2-count', timers: [] }
         ];
 
-        // 各分类当前生效的道具（药水与辅食可叠加）：剩余久的排前，显示为「图标 时间  图标 时间」
+        // 各分类当前生效的道具：数组顺序 = 列位（辅食/浓汤在前「中段」、药水在后「右段」）
         const collectTimers = list => list.map(c => ({ key: c.key, iconFile: c.iconFile, remaining: (boosts[c.key] || 0) - elapsed }))
-            .filter(t => t.remaining > 0)
-            .sort((a, b) => b.remaining - a.remaining);
+            .filter(t => t.remaining > 0);
         const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+        const builderConsumable24 = settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
+        const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
         cats[0].timers = collectTimers([
-            { key: 'builder_boost', iconFile: is24 ? 'builder_boost_24.webp' : 'builder_boost.webp' },
-            { key: 'builder_consumable', iconFile: 'builder_consumable.webp' }
+            { key: 'builder_consumable', iconFile: builderConsumable24 ? 'builder_consumable24.webp' : 'builder_consumable.webp' },
+            { key: 'builder_boost', iconFile: is24 ? 'builder_boost_24.webp' : 'builder_boost.webp' }
         ]);
         cats[1].timers = collectTimers([
-            { key: 'lab_boost', iconFile: 'lab_boost.webp' },
-            { key: 'lab_consumable', iconFile: 'lab_consumable.webp' }
+            { key: 'lab_consumable', iconFile: labConsumable24 ? 'lab_consumable24.webp' : 'lab_consumable.webp' },
+            { key: 'lab_boost', iconFile: 'lab_boost.webp' }
         ]);
         cats[2].timers = collectTimers([
-            { key: 'pet_boost', iconFile: 'pet_boost.webp' },
-            { key: 'lab_consumable', iconFile: 'lab_consumable.webp' }
+            { key: 'lab_consumable', iconFile: labConsumable24 ? 'lab_consumable24.webp' : 'lab_consumable.webp' },
+            { key: 'pet_boost', iconFile: 'pet_boost.webp' }
         ]);
         cats[3].timers = collectTimers([{ key: 'clocktower_boost', iconFile: 'clocktower_boost.webp' }]);
         cats[4].timers = collectTimers([{ key: 'clocktower_boost', iconFile: 'clocktower_boost.webp' }]);
@@ -1341,26 +1353,23 @@
         cats.forEach(cat => {
             const countEl = document.getElementById(cat.headingId);
             if (!countEl) return;
-            // 扫描 countEl 之后的既有 boost-timer（hydrateCache 恢复的旧 HTML 也会带进来），按位复用、多余移除
-            const existing = [];
-            let s = countEl.nextElementSibling;
-            while (s && s !== countEl.parentElement) {
-                const next = s.nextElementSibling;
-                if (s.classList && s.classList.contains('boost-timer')) existing.push(s);
-                s = next;
-            }
+            // 标题区（图标/标题/计数）被 .cat-title 包住，timer 是 h3 的直接子项：从 h3 收集、锚点是标题容器
+            // （hydrateCache 恢复的旧 HTML 也会带进来，按位复用、多余移除）
+            const host = countEl.closest('h3') || countEl.parentElement;
+            const existing = Array.from(host.children).filter(el => el.classList && el.classList.contains('boost-timer'));
             const timers = cat.timers || [];
-            let anchor = countEl;
+            let anchor = countEl.closest('.cat-title') || countEl;
             timers.forEach((t, i) => {
                 let timerEl = existing[i];
                 if (!timerEl) {
                     timerEl = document.createElement('span');
                     timerEl.className = 'boost-timer';
-                    timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px;margin-left:6px';
+                    timerEl.style.cssText = 'display:inline-flex;align-items:center;gap:2px';
                 }
                 // 按排序落位：第 i 组紧挨第 i-1 组（insertBefore 对既有节点是移动，顺带纠正缓存恢复时的错位）
                 anchor.parentNode.insertBefore(timerEl, anchor.nextSibling);
                 anchor = timerEl;
+                timerEl.dataset.boostKey = t.key;   // 三类倍率键可点切换（见点击委托），其余只读
                 const h = Math.floor(t.remaining / 3600);
                 const m = Math.floor((t.remaining % 3600) / 60);
                 const sec = Math.floor(t.remaining % 60);
@@ -1452,24 +1461,26 @@
 
     function openDismissModal() {
         const flags = calc.getDismissFlags(state.currentAccount, dismissTargetKey);
-        const dotCb = document.getElementById('dismiss-opt-dot');
-        const notifyCb = document.getElementById('dismiss-opt-notify');
-        const progressCb = document.getElementById('dismiss-opt-progress');
-        if (dotCb) dotCb.checked = flags.dot;
-        if (notifyCb) notifyCb.checked = flags.notify;
-        if (progressCb) progressCb.checked = flags.progress;
+        ['dot', 'notify', 'progress', 'color'].forEach(k => {
+            const el = document.getElementById('dismiss-opt-' + k);
+            if (el) el.checked = flags[k];
+        });
+        // 默认 1→总数（全部账号）
+        const fromEl = document.getElementById('dismiss-range-from');
+        if (fromEl) fromEl.value = '1';
+        const toEl = document.getElementById('dismiss-range-to');
+        if (toEl) toEl.value = String(accountOrder.length || 1);
         syncDismissProgressEnabled();
         document.getElementById('dismiss-modal').classList.remove('hidden');
     }
 
-    // 联动：勾「升级进度」需「红点」「通知」都已勾；取消前两项任一 → 「升级进度」自动取消
+    // 联动：勾「升级进度」需「红点」「名称颜色」「通知」都已勾；取消前三项任一 → 「升级进度」自动取消
     function syncDismissProgressEnabled() {
-        const dotCb = document.getElementById('dismiss-opt-dot');
-        const notifyCb = document.getElementById('dismiss-opt-notify');
-        const progressCb = document.getElementById('dismiss-opt-progress');
-        const row = document.getElementById('dismiss-opt-progress-row');
-        if (!dotCb || !notifyCb || !progressCb) return;
-        const unlocked = dotCb.checked && notifyCb.checked;
+        const el = id => document.getElementById(id);
+        const dotCb = el('dismiss-opt-dot'), colorCb = el('dismiss-opt-color'), notifyCb = el('dismiss-opt-notify'), progressCb = el('dismiss-opt-progress');
+        const row = el('dismiss-opt-progress-row');
+        if (!dotCb || !colorCb || !notifyCb || !progressCb) return;
+        const unlocked = dotCb.checked && colorCb.checked && notifyCb.checked;
         if (!unlocked) progressCb.checked = false;
         progressCb.disabled = !unlocked;
         if (row) row.classList.toggle('dismiss-opt-locked', !unlocked);
@@ -1480,10 +1491,10 @@
         dismissTargetKey = null;
     }
 
-    // 写入某账号该分类的屏蔽档位：三档全关 = 删除该键（取消屏蔽），空账号层一并清理
+    // 写该账号该分类的屏蔽档位；四档全关 = 删除键（取消屏蔽），空账号层一并清理
     function writeDismissFlags(tag, key, flags) {
         if (!settings.dismissedCategories) settings.dismissedCategories = {};
-        if (!flags.dot && !flags.notify && !flags.progress) {
+        if (!flags.dot && !flags.notify && !flags.progress && !flags.color) {
             const tagMap = settings.dismissedCategories[tag];
             if (tagMap) {
                 delete tagMap[key];
@@ -1492,29 +1503,36 @@
             return;
         }
         if (!settings.dismissedCategories[tag]) settings.dismissedCategories[tag] = {};
-        settings.dismissedCategories[tag][key] = { dot: flags.dot, notify: flags.notify, progress: flags.progress };
+        settings.dismissedCategories[tag][key] = { dot: flags.dot, notify: flags.notify, progress: flags.progress, color: flags.color };
     }
 
-    function applyDismissModal(applyAll) {
+    function applyDismissModal(tags) {
         const key = dismissTargetKey;
         if (!key) return;
-        const dotCb = document.getElementById('dismiss-opt-dot');
-        const notifyCb = document.getElementById('dismiss-opt-notify');
-        const progressCb = document.getElementById('dismiss-opt-progress');
-        const flags = {
-            dot: !!(dotCb && dotCb.checked),
-            notify: !!(notifyCb && notifyCb.checked),
-            progress: !!(progressCb && progressCb.checked)
-        };
-        const tags = applyAll ? accountOrder.slice() : (state.currentAccount ? [state.currentAccount] : []);
-        tags.forEach(tag => writeDismissFlags(tag, key, flags));
+        const flags = {};
+        ['dot', 'notify', 'progress', 'color'].forEach(k => {
+            const el = document.getElementById('dismiss-opt-' + k);
+            flags[k] = !!(el && el.checked);
+        });
+        (tags || []).forEach(tag => writeDismissFlags(tag, key, flags));
         saveSettings();
-        // 桌面小组件数据受屏蔽影响（任意档屏蔽即不显示该分类），settings 变化不走 saveAccounts，需手动同步
+        // 小组件受屏蔽影响（任意档即隐藏该分类），settings 变化需手动同步
         if (window.AndroidApp && typeof window.AndroidApp.syncWidgetData === 'function' && typeof CocTool.syncWidgetData === 'function') {
             CocTool.syncWidgetData();
         }
         refreshCurrentAccountDisplay();
         closeDismissModal();
+    }
+
+    // 应用至 N→M 个账号
+    function applyDismissRange() {
+        const n = accountOrder.length;
+        if (!n || !dismissTargetKey) return;
+        const cl = v => Math.min(Math.max(parseInt(v, 10) || 1, 1), n);
+        let a = cl(document.getElementById('dismiss-range-from')?.value);
+        let b = cl(document.getElementById('dismiss-range-to')?.value);
+        if (a > b) [a, b] = [b, a];
+        applyDismissModal(accountOrder.slice(a - 1, b));
     }
 
     function hydrateCache() {
@@ -1611,9 +1629,10 @@
             refreshCurrentAccountDisplay();
         });
         document.getElementById('dismiss-opt-dot')?.addEventListener('change', syncDismissProgressEnabled);
+        document.getElementById('dismiss-opt-color')?.addEventListener('change', syncDismissProgressEnabled);
         document.getElementById('dismiss-opt-notify')?.addEventListener('change', syncDismissProgressEnabled);
-        document.getElementById('dismiss-apply-btn')?.addEventListener('click', () => applyDismissModal(false));
-        document.getElementById('dismiss-apply-all-btn')?.addEventListener('click', () => applyDismissModal(true));
+        document.getElementById('dismiss-apply-btn')?.addEventListener('click', () => applyDismissModal(state.currentAccount ? [state.currentAccount] : []));
+        document.getElementById('dismiss-apply-range-btn')?.addEventListener('click', applyDismissRange);
         document.getElementById('dismiss-cancel-btn')?.addEventListener('click', closeDismissModal);
         document.getElementById('dismiss-modal')?.addEventListener('click', (e) => {
             if (e.target === document.getElementById('dismiss-modal')) closeDismissModal();
@@ -1624,17 +1643,21 @@
                 if (btn) handlePhaseTooltip({ currentTarget: btn });
             });
 
-            // builderBoost 10x/24x 切换（点击图标切换；委托到 displayArea）
+            // 倍率切换（点「道具图标 + 剩余时间」）：工人药水 10x/24x、工人大餐 2x/24x、研究浓汤 4x/24x
             displayArea.addEventListener('click', function(e) {
-                if (!e.target.closest('#builder-boost-toggle')) return;
+                const timer = e.target.closest('.boost-timer[data-boost-key]');
+                if (!timer) return;
+                const key = timer.dataset.boostKey;
+                const field = key === 'builder_boost' ? 'builderBoostMode24'
+                    : key === 'builder_consumable' ? 'builderConsumableMode24'
+                    : key === 'lab_consumable' ? 'labConsumableMode24' : '';
+                if (!field) return;
                 if (!state.currentAccount || !accounts[state.currentAccount]) return;
                 const data = accounts[state.currentAccount];
-                if (!settings.builderBoostMode24) settings.builderBoostMode24 = {};
-                const current = settings.builderBoostMode24[data.tag] || false;
-                settings.builderBoostMode24[data.tag] = !current;
+                if (!settings[field]) settings[field] = {};
+                settings[field][data.tag] = !settings[field][data.tag];
                 saveSettings();
-                updateBuilderBoostToggle(data);
-                // 倍率影响完成时间计算：立即重渲染卡片（data-completion 重算）+ 重调度通知，不等切换页面
+                // 倍率影响完成时间计算：立即重渲染卡片（timer 图标随 24x 形态切换）+ 重调度通知
                 refreshCurrentAccountDisplay();
                 try {
                     const svc = CocTool.features.services;
@@ -1714,7 +1737,7 @@
         updateCategorySummary(counts, denominators, completed);
         renderHelperOverview(data);
         updateBoostTimers(data);
-        updateBuilderBoostToggle(data);
+        updateBuilderMonthlyPassIcon(data.tag);
         renderEventBoostSelector(data);
         updateAllAccountTabColors();
         updateMainTitle();

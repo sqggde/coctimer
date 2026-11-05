@@ -603,6 +603,15 @@ html.game-font img,
 html.game-font svg {
     zoom: 1.05;
 }
+/* 图标底框同步补偿（2026-11-05 用户报「图片已经大于底框」）：底框与图标一起 ×1.05；
+   底框内的图标取消二次补偿——1.05（图标）×1.05（底框）会再次溢出 */
+html.game-font .ov-icon-wrap {
+    zoom: 1.05;
+}
+html.game-font .ov-icon-wrap img,
+html.game-font .ov-icon-wrap svg {
+    zoom: 1;
+}
 html.game-font * {
     font-family: inherit !important;
     font-synthesis: none;
@@ -731,9 +740,13 @@ html.game-font * {
     overflow-y: auto;
 }
 
-/* ===== 屏蔽选项弹窗的勾选行（三档：红点 / 通知 / 升级进度） ===== */
+/* ===== 屏蔽选项弹窗的勾选行（四档：红点 / 名称颜色 / 通知 / 升级进度） =====
+   与小程序的布局同口径：四行作为一个整体居中（行内左对齐），宽度取最长一行。 */
 .dismiss-opts {
-    margin-bottom: 8px;
+    width: -webkit-fit-content;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 8px;
 }
 .dismiss-opt {
     display: flex;
@@ -744,6 +757,19 @@ html.game-font * {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
+/* 「升级进度」行：主行 + 第二行提示（提示始终占位，解锁后块宽不跳；对齐小程序 .dismiss-opt-stack） */
+.dismiss-opt-stack {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+}
+.dismiss-opt-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+}
 .dismiss-opt input[type="checkbox"] {
     width: 16px;
     height: 16px;
@@ -752,27 +778,73 @@ html.game-font * {
     accent-color: #3b82f6;   /* 同活动区服筛选勾选（more.css 先例） */
     cursor: pointer;
 }
-/* 「升级进度」前置未满足：整行灰显（disabled 由 JS 切），提示"需先勾选红点和通知" */
+/* 「升级进度」前置未满足：整行灰显（disabled 由 JS 切），提示"需先勾选前三项" */
 .dismiss-opt-hint {
-    display: none;
+    margin-left: 24px;   /* 与勾选框右侧文字列对齐（16 + 8） */
+    padding-bottom: 4px;
     font-size: 12px;
+    visibility: hidden;   /* 始终占位，解锁后块宽/高不跳（小程序同口径） */
 }
 .dismiss-opt-locked {
     cursor: default;
     opacity: .55;
 }
 .dismiss-opt-locked .dismiss-opt-hint {
-    display: inline;
+    visibility: visible;
 }
 .dismiss-opt-locked input[type="checkbox"] {
     cursor: default;
 }
 /* 「应用到全部账号」= 操作行"更多"那支深灰蓝（次级操作色，深浅同值） */
-.dismiss-apply-all {
-    background-color: #475569;
+/* 「应用至 N → M」范围行：无外框，只有「应用至」是按钮（数字框不触发应用） */
+.dismiss-range {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    color: #374151;
+    font-size: 14px;
+    box-sizing: border-box;
 }
-.dismiss-apply-all:hover {
-    background-color: #3b475a;
+.dark .dismiss-range {
+    color: #e2e8f0;
+}
+.dismiss-range-btn {
+    padding: 3px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.dark .dismiss-range-btn {
+    border-color: #4b5563;
+    background: #374151;
+    color: #e2e8f0;
+}
+.dismiss-range input[type="number"] {
+    width: 46px;
+    height: 26px;
+    text-align: center;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 600;
+    -moz-appearance: textfield;
+}
+.dark .dismiss-range input[type="number"] {
+    border-color: #4b5563;
+    background: #252540;
+    color: #e2e8f0;
+}
+.dismiss-range input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .boost-time-text { font-size:11px; font-weight:500; color:#374151; font-variant-numeric:tabular-nums; }
@@ -918,6 +990,36 @@ html.game-font * {
     -webkit-touch-callout: none;
 }
 
+/* 模态弹窗统一「取消」（2026-11-04 用户拍板）：透明底灰字文字链，不再用灰底整宽按钮。
+   堆叠布局用 .modal-cancel-link（整宽 + 与上方内容拉开距离）；
+   左右并排的表单弹窗用 .modal-cancel-link.inline（保持原行内位置，仅换观感）。 */
+.modal-cancel-link {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 16px 0 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+    text-align: center;
+    color: #6b7280;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.modal-cancel-link:hover { opacity: 0.8; }
+.dark .modal-cancel-link { color: #a0aec0; }
+.modal-cancel-link.inline {
+    width: auto;
+    margin-top: 0;
+    padding: 6px 14px;
+    border-radius: 8px;
+}
+
 /* ===== 升级卡片倒计时（排版照**方案 05**；**配色 2026-09-16 已按用户要求改回原色**）=====
    排版（保留）：数字 15px / 600 + `letter-spacing: .01em` + `line-height: 1.25`；单位小一号（10.5px）、
    常规字重、两侧各留 1px；「就绪」小一号（12px）；完成时刻行 11px + `tabular-nums`。
@@ -949,8 +1051,26 @@ html.game-font * {
    **不要再往这里加颜色**——要改分级色就去改 index.html 里 `tailwind.config` 的那 6 个色值（全局生效）。 */
 /* 有备忘卡片：名称后的等级（如 100→101），小字灰色 */
 .card-lv { font-size: 11px; color: #6b7280; font-weight: 400; }
-#builder-boost-label { color:#374151; }
-.dark #builder-boost-label { color:#fff; }
+/* 倍率切换已下放到「道具图标 + 剩余时间」：三类倍率键的 timer 可点（其余 timer 只读） */
+.boost-timer[data-boost-key="builder_boost"],
+.boost-timer[data-boost-key="builder_consumable"],
+.boost-timer[data-boost-key="lab_consumable"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+/* 分类标题行：标题区固定占 1/3（各行三段起点一致），两个 timer 各占 1/3、内容左对齐
+   ——修复标题长度不同导致 timer 起点漂移（用户 2026-11-05：战宠行药水微微偏左） */
+#upgrades-container h3 > .cat-title {
+    display: inline-flex;
+    align-items: center;
+    width: 33.333%;
+    flex-shrink: 0;
+}
+#upgrades-container h3 > .boost-timer {
+    flex: 1;
+    justify-content: flex-start;
+    margin-left: 0 !important;
+}
 /* 深色模式下开关开启态用亮紫色（primary 蓝在深色背景上对比度低、不明显） */
 html.dark .peer:checked ~ .peer-checked\:bg-primary {
     background-color: #a78bfa !important;
@@ -1026,6 +1146,11 @@ html.dark .peer:checked ~ .peer-checked\:bg-primary {
     border: 1px solid var(--td-inset-bd);
     border-radius: var(--td-btn-r);
     padding: 4px 6px;
+}
+/* 推演中可点图标切倍率（有 24× 形态的三个道具；其余图标只读） */
+.sim-potion img[data-boost-key] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 .sim-btn {
     width: 30px;

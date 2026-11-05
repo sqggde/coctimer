@@ -27,23 +27,22 @@
     }
     // 设为排队：池满校验（有空闲工人无需排队；口径对齐主标题的 includeCompleted 计数）→ 存标记
     //（dur = 账号 JSON 里的原始 timer（导入时/录入时的值，不随时间递减）——用户 2026-11-02：
-    // 导入时 timer=3600、过去 600s 后再排队，显示 1 小时而不是 50 分钟；pos 全局自增，组内有序即可）
-    function queueItem(card) {
+    // 导入时 timer=3600、过去 600 秒后再排队，显示 1 小时而不是 50 分钟；pos 全局自增，组内有序即可）
+    // 入口：长按卡片（queueItem）与时间搜索「+排队」（queueByUnique，条目刚写入、还没有卡片 DOM）
+    function queueByUnique(unique) {
         const tag = state.currentAccount;
         const data = accounts[tag];
-        if (!data || !data.tag) return;
+        if (!data || !data.tag) return false;
         const p = CocTool.features.progress;
-        if (p && p.simActive && p.simActive()) { toastSafe('推演中不可排队'); return; }
-        const unique = card.getAttribute('data-unique');
-        if (!unique) return;
-        const nowSec = Math.floor(Date.now() / 1000);
-        const items = calc.extractUpgradingItems(data, nowSec, true);
+        if (p && p.simActive && p.simActive()) { toastSafe('推演中不可排队'); return false; }
+        if (!unique) return false;
+        const items = calc.extractUpgradingItems(data, Math.floor(Date.now() / 1000), true);
         const item = items.find(it => it.uniqueId === unique);
-        if (!item) return;
-        if (item.isRefiningTable || item.helper_recurrent === true) { toastSafe('该类型暂不支持排队'); return; }
+        if (!item) return false;
+        if (item.isRefiningTable || item.helper_recurrent === true) { toastSafe('该类型暂不支持排队'); return false; }
         const g = calc.getItemCategory(item);
         const denoms = calc.getCategoryDenominators(data);
-        if ((calc.getCategoryCounts(items)[g] || 0) < (denoms[g] || 0)) { toastSafe('该分类当前有空闲工人，无需排队'); return; }
+        if ((calc.getCategoryCounts(items)[g] || 0) < (denoms[g] || 0)) { toastSafe('该分类当前有空闲工人，无需排队'); return false; }
         const qmap = calc.loadQueueMap(tag);
         // 基础时长只认条目上的本地字段 local_nominal（+升级 写入；游戏导出没有它，重导入即消失）——
         // 游戏直接导入的条目永远用原始 timer；程序内 +升级 的条目用名义值，避免「录入-导出」时差错算。
@@ -52,6 +51,11 @@
         calc.saveQueueMap(tag, qmap);
         refreshDisplay();
         pushScheduleSafe();
+        return true;
+    }
+
+    function queueItem(card) {
+        return queueByUnique(card.getAttribute('data-unique'));
     }
 
     // 取消排队：仅清除排队标记——条目保持「升级中」原状（timer 未被排队动过，倒计时按录入时刻恢复），
@@ -86,7 +90,7 @@
 
     // 长按动作选择：长按卡片先出「排队/立即完成/删除项目/备注」选择，点「编辑备注」才进备忘编辑（progress 的 openNoteModal）。
     // 排队中未触发可取消；已开工的排队项不可取消（对齐游戏"开工不可撤"）；
-    // 已完成绿卡只给备注（完成确认/删除走卡片的点击链路）。
+    // 已完成绿卡不再提供长按动作（点击卡片即「移除已完成项目」；长按不弹窗、但保留点击抑制，避免误触发移除）。
     function openItemActionsModal(card) {
         const tag = state.currentAccount;
         if (!tag) return;
@@ -95,31 +99,33 @@
         const qs = parseFloat(card.getAttribute('data-queue-start'));
         const queueStarted = !!mark && !isNaN(qs) && qs <= Date.now() / 1000;
         const completionTs = parseFloat(card.getAttribute('data-completion'));
-        const isDone = !isNaN(completionTs) && completionTs <= Date.now() / 1000;
+        if (!isNaN(completionTs) && completionTs <= Date.now() / 1000) return;   // 已完成卡：长按不弹任何动作
         const name = (card.querySelector('.card-name') || {}).textContent || '该项目';
-        const btn = (cls, label) => '<button class="' + cls + ' w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm">' + label + '</button>';
-        // 按钮顺序（2026-11-01 用户拍板）：设为排队 → 编辑备注（紫）→ 删除项目 → 立即完成
-        let actionBtns = '';
-        if (!isDone) {
-            if (mark) {
-                if (!queueStarted) actionBtns += btn('__act-cancelq bg-orange-500 hover:bg-orange-600 text-white', '取消排队');
-            } else {
-                actionBtns += btn('__act-queue bg-blue-500 hover:bg-blue-600 text-white', '设为排队');
-            }
+        const btn = (cls, icon, label) => '<button class="' + cls + ' w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg transition-all duration-200 text-sm">' +
+            '<i class="fa ' + icon + '"></i><span>' + label + '</span></button>';
+        // C 布局（2026-11-04 用户拍板）：首行主按钮「排队」，第二行 备注 / 完成 / 删除 三枚小按钮，取消做文字链
+        const chip = (cls, icon, label) => '<button class="' + cls + ' flex items-center justify-center gap-1 rounded-lg transition-all duration-200" style="flex:1;height:34px;font-size:12px;">' +
+            '<i class="fa ' + icon + '"></i><span>' + label + '</span></button>';
+        let primaryBtn = '';
+        if (mark) {
+            if (!queueStarted) primaryBtn = btn('__act-cancelq bg-orange-500 hover:bg-orange-600 text-white', 'fa-times', '取消排队');
+        } else {
+            primaryBtn = btn('__act-queue bg-blue-500 hover:bg-blue-600 text-white', 'fa-hourglass', '排队');
         }
-        actionBtns += btn('__act-note bg-purple-500 hover:bg-purple-600 text-white', '编辑备注');
-        if (!isDone) {
-            actionBtns += btn('__act-remove bg-red-500 hover:bg-red-600 text-white', '删除项目') +
-                btn('__act-finish bg-green-600 hover:bg-green-700 text-white', '立即完成');
-        }
+        const actionBtns = primaryBtn +
+            '<div class="flex' + (primaryBtn ? ' mt-2' : '') + '" style="gap:8px;">' +
+                chip('__act-note bg-purple-500 hover:bg-purple-600 text-white', 'fa-comments', '备注') +
+                chip('__act-finish bg-green-600 hover:bg-green-700 text-white', 'fa-check', '完成') +
+                chip('__act-remove bg-red-500 hover:bg-red-600 text-white', 'fa-trash', '删除') +
+            '</div>';
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         overlay.innerHTML =
             '<div class="modal-card w-xs item-actions-modal">' +
                 '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + calc.escapeHtml(name) + '</h3>' +
-                '<div class="flex flex-col space-y-2">' +
+                '<div class="flex flex-col">' +
                     actionBtns +
-                    btn('__act-close bg-gray-200 hover:bg-gray-300 text-gray-800', '取消') +
+                    '<button class="__act-close modal-cancel-link">取消</button>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(overlay);
@@ -282,7 +288,7 @@
                 '</div>' +
                 '<div class="flex flex-col space-y-2">' +
                     '<button class="__star-save w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm"' + (showTime ? '' : ' style="display:none"') + '>确定</button>' +
-                    '<button class="__star-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>' +
+                    '<button class="__star-cancel modal-cancel-link">取消</button>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(overlay);
@@ -383,5 +389,5 @@
         return out;
     }
 
-    CocTool.features.queue = Object.freeze({ queueItem, cancelQueue, openItemActionsModal, renderStars, starClick, starScheduleEntries });
+    CocTool.features.queue = Object.freeze({ queueItem, queueByUnique, cancelQueue, openItemActionsModal, renderStars, starClick, starScheduleEntries });
 })(window);

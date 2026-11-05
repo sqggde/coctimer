@@ -201,7 +201,7 @@
     // 条目规则：cnt:1 → 同条目删 cnt 挂 timer；cnt>1 → cnt-1 并追加独立 {data,lvl,timer}；
     // 无 cnt（兵/法术/英雄/战宠/攻城车等单实例）→ 直接挂 timer。
     // 只挑未升级实例（timer>0 / gear_up===0 的条目跳过，与 searchUpgrades 同口径），找不到返回 false。
-    function applyAddToUpgrades(data, item) {
+    function applyAddToUpgrades(data, item, meta) {
         if (!data || !item || !Array.isArray(data[item.accountCat])) return false;
         const secs = item.seconds || 0;
         const timer = data.timestamp ? Math.floor(Date.now() / 1000) - data.timestamp + secs : secs;
@@ -228,6 +228,8 @@
         // 名义时长写成条目上的本地字段：游戏导出没有这个字段，重导入后自动消失——
         // 游戏直接导入的条目永远命中不到它（排队只认这个字段，不查任何共享记录），保证显示游戏自己的 timer。
         if (secs > 0) target.local_nominal = secs;
+        // +排队 需要条目在数组里的下标算 uniqueId（cat_data_lvl_idx）；失败路径不写 meta
+        if (meta) { meta.entry = target; meta.index = data[item.accountCat].indexOf(target); }
         return true;
     }
 
@@ -956,19 +958,42 @@
         const name = names[CocTool.names.canonicalId(item.id)] || ('未知(' + item.id + ')');
         // 数量型实体按「第 N 座」表述（lvl 是座数、建筑等级恒 1，写「等级 x→y」会误导）
         const lvlText = item.instances ? ('第 ' + item.nextLvl + ' 座') : ('等级 ' + item.lvl + '→' + item.nextLvl);
-        CocTool.ui.showConfirm({
-            title: '添加到升级列表',
-            text: '确认将「' + name + '」' + lvlText + '（' + formatDuration(item.seconds) + '）添加到升级列表中？',
-            confirmText: '添加',
-            onConfirm: function () {
-                const data = currentAccountData();
-                if (!applyAddToUpgrades(data, item)) return;
-                CocTool.storage.saveAccounts();
-                if (CocTool.features.progress && CocTool.features.progress.refresh) CocTool.features.progress.refresh();
-                if (CocTool.features.services && CocTool.features.services.pushSchedule) CocTool.features.services.pushSchedule();
-                renderResults(modal);
+        const durText = formatDuration(item.seconds);
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML =
+            '<div class="modal-card w-xs item-actions-modal">' +
+                '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">添加到升级列表</h3>' +
+                '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">确认将「' + CocTool.calc.escapeHtml(name) + '」' + lvlText + '（' + durText + '）添加到升级列表中？</p>' +
+                '<div class="flex flex-col space-y-2">' +
+                    '<button class="__ds-queue w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm">+排队</button>' +
+                    '<button class="__ds-upgrade w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-200 text-sm">+升级</button>' +
+                    '<button class="__ds-cancel modal-cancel-link">取消</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        function commit(queue) {
+            close();
+            const data = currentAccountData();
+            const meta = {};
+            if (!applyAddToUpgrades(data, item, meta)) return;
+            CocTool.storage.saveAccounts();
+            // +排队：条目刚写入、还没有卡片 DOM，按 uniqueId（账号tag_分类_实体_等级_下标）直接落排队标记
+            if (queue) {
+                const q = CocTool.features.queue;
+                if (q && q.queueByUnique && data.tag) {
+                    q.queueByUnique(data.tag + '_' + item.accountCat + '_' + meta.entry.data + '_' + meta.entry.lvl + '_' + meta.index);
+                }
             }
-        });
+            if (CocTool.features.progress && CocTool.features.progress.refresh) CocTool.features.progress.refresh();
+            if (CocTool.features.services && CocTool.features.services.pushSchedule) CocTool.features.services.pushSchedule();
+            renderResults(modal);
+        }
+        overlay.querySelector('.__ds-queue').addEventListener('click', () => commit(true));
+        overlay.querySelector('.__ds-upgrade').addEventListener('click', () => commit(false));
+        overlay.querySelector('.__ds-cancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
     function openSearchModal() {

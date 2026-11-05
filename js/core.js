@@ -43,7 +43,9 @@
         const defaults = {
             ...DEFAULT_SETTINGS,
             dismissedCategories: {},
-            builderBoostMode24: {}
+            builderBoostMode24: {},
+            builderConsumableMode24: {},
+            labConsumableMode24: {}
         };
         if (includeLoadedFields) {
             defaults.builderMonthlyPass = {};
@@ -223,9 +225,8 @@
                 if (!account) continue;
 
                 // 复用权威提取逻辑（含加速/精工台/递归处理）；includeCompleted=true 以区分已完成节点（绿色）
-                // 小组件对"任意程度屏蔽"（红点/通知/升级进度任一档）都排除该类目的升级项目：
-                // 用户屏蔽红点/通知即表示不在意工人空闲（该分类优先级不高），小组件不必显示
-                var items = calc.filterDismissedCategories(calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true), tag, 'any');
+                // 小组件按「升级进度」档排除：与首页升级列表同口径（2026-11-05 用户拍板）
+                var items = calc.filterDismissedCategories(calc.extractUpgradingItems(account, Math.floor(Date.now() / 1000), true), tag, 'progress');
                 var upgrades = [];
                 for (var j = 0; j < items.length; j++) {
                     var item = items[j];
@@ -402,8 +403,10 @@
 
     // 通用确认弹窗：动态创建 .modal-overlay/.modal-card（与 index.html 静态模态同一套样式），避免原生 confirm
     let confirmModalEl = null;
-    function closeConfirm() {
+    function closeConfirm(force) {
         if (confirmModalEl) {
+            // blocking 弹窗（如 v2 迁移提示）只能由弹窗内确认按钮强制关闭
+            if (!force && confirmModalEl.getAttribute && confirmModalEl.getAttribute('data-blocking') === '1') return;
             confirmModalEl.remove();
             confirmModalEl = null;
         }
@@ -411,6 +414,8 @@
     function showConfirm(options) {
         const opts = options || {};
         closeConfirm();
+        // 必读提示（blocking）未确认时，不叠加新弹窗（防止自动恢复等把它顶掉）
+        if (confirmModalEl) return;
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         // 可选勾选行（opts.checkbox = { text, checked }）：onConfirm 会收到勾选态（老调用方不读该参数，零影响）
@@ -419,34 +424,66 @@
                 '<input type="checkbox" class="__confirm-cb"' + (opts.checkbox.checked ? ' checked' : '') + '>' +
                 '<span>' + opts.checkbox.text + '</span></label>'
             : '';
+        const cancelHtml = opts.hideCancel ? '' :
+            '<button class="__confirm-cancel modal-cancel-link">' + (opts.cancelText || '取消') + '</button>';
+        // 确认键默认红色（危险操作）；非破坏性动作用 opts.okClass 换色（如“移除”用绿色）
+        const okClass = opts.okClass || 'bg-red-500 hover:bg-red-600';
         overlay.innerHTML =
             '<div class="modal-card w-xs">' +
                 '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + (opts.title || '确认') + '</h3>' +
                 '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">' + (opts.text || '') + '</p>' +
                 checkboxHtml +
                 '<div class="flex flex-col space-y-2">' +
-                    '<button class="__confirm-ok w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm">' + (opts.confirmText || '确定') + '</button>' +
-                    '<button class="__confirm-cancel w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">' + (opts.cancelText || '取消') + '</button>' +
+                    '<button class="__confirm-ok w-full px-3 py-2 ' + okClass + ' text-white rounded-lg transition-all duration-200 text-sm">' + (opts.confirmText || '确定') + '</button>' +
+                    cancelHtml +
                 '</div>' +
             '</div>';
+        // blocking 弹窗：返回键也吞掉（只能点弹窗内确认按钮关闭）
+        if (opts.blocking) overlay.setAttribute('data-blocking', '1');
         confirmModalEl = overlay;
         document.body.appendChild(overlay);
         overlay.querySelector('.__confirm-ok').addEventListener('click', () => {
             const cb = overlay.querySelector('.__confirm-cb');
             const checked = cb ? cb.checked : undefined; // 先取勾选态再关弹窗（closeConfirm 会移除节点）
-            closeConfirm();
+            closeConfirm(true);
             if (typeof opts.onConfirm === 'function') opts.onConfirm(checked);
         });
-        overlay.querySelector('.__confirm-cancel').addEventListener('click', () => {
-            closeConfirm();
-            if (typeof opts.onCancel === 'function') opts.onCancel();
-        });
+        const cancelEl = overlay.querySelector('.__confirm-cancel');
+        if (cancelEl) {
+            cancelEl.addEventListener('click', () => {
+                closeConfirm(true);
+                if (typeof opts.onCancel === 'function') opts.onCancel();
+            });
+        }
         // 特例：opts.noOutsideClose 时点击弹窗外区域不关闭（仅能通过弹窗内按钮关闭）
         if (!opts.noOutsideClose) {
             overlay.addEventListener('click', e => {
                 if (e.target === overlay) closeConfirm();
             });
         }
+    }
+
+    // 新版备份（v2）首次启动必读提示：只能点「我知道了」关闭（不能点外部/返回键）
+    const V2_NOTICE_KEY = 'coc_v2_notice_acked';
+    function showV2MigrationNotice() {
+        try {
+            if (localStorage.getItem(V2_NOTICE_KEY) === '1') return;
+        } catch (e) { return; }
+        showConfirm({
+            title: '重要提示',
+            text: '本次更新涉及底层数据结构变动，旧云端数据库已作废，请手动进行一次备份，避免自动备份影响后续使用。已在其他设备完成过手动备份可忽略此提示。',
+            confirmText: '我知道了',
+            hideCancel: true,
+            noOutsideClose: true,
+            blocking: true,
+            onConfirm: function () {
+                try { localStorage.setItem(V2_NOTICE_KEY, '1'); } catch (e) {}
+                var svc = CocTool.features && CocTool.features.services;
+                if (svc && svc.maybeAutoRestore) {
+                    try { svc.maybeAutoRestore(); } catch (e) {}
+                }
+            }
+        });
     }
 
     // ===== 滚轮选择器（老虎机式，供睡眠时间设置/星标校准等复用；样式类 .picker-* 在 app.css） =====
@@ -482,7 +519,7 @@
         const active = column.querySelector('.picker-item.active');
         return active ? active.dataset.value : null;
     }
-    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue });
+    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, showV2MigrationNotice, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue });
 
     let navigationBound = false;
 
@@ -567,6 +604,7 @@
         var ov = CocTool.features && CocTool.features.overview;
         if (ov && ov.closeEpicTip) ov.closeEpicTip();
         document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(function (m) {
+            if (m.getAttribute && m.getAttribute('data-blocking') === '1') return; // 必读提示：切页也不关闭
             if (staticOverlaySet && staticOverlaySet.has(m)) {
                 m.classList.add('hidden');
             } else {
@@ -663,6 +701,8 @@
     CocTool.handleBack = function () {
         var openModal = document.querySelector('.modal-overlay:not(.hidden)');
         if (openModal) {
+            // 必读提示（blocking）：返回键也吞掉，只能点弹窗内「我知道了」
+            if (openModal.getAttribute && openModal.getAttribute('data-blocking') === '1') return 'true';
             openModal.classList.add('hidden');
             // 排序弹窗被返回键关闭 → 走完整退出流程（复位 isSortMode/停止定时器，等同取消；否则排序键无法再次打开）
             if (openModal.id === 'sort-modal' && CocTool.features.accounts && CocTool.features.accounts.exitSortModeIfActive) {

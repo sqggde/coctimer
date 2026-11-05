@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261102-tnvkun"></script>
+<script src="shim.js?v=coc-tool-web-20261105-to1itd"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261102-tnvkun" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261105-to1itd"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -66,7 +66,7 @@
                 <p class="text-sm text-gray-600 mb-3">请粘贴游戏导出的JSON数据</p>
                 <textarea id="json-input" class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 resize-none font-mono text-sm" placeholder="请粘贴游戏导出的JSON数据..."></textarea>
                 <div class="flex justify-end space-x-2 mt-3 pt-3 border-t border-gray-200">
-                    <button id="cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <button id="cancel-btn" class="modal-cancel-link inline">取消</button>
                     <button id="parse-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 flex items-center text-sm"><i class="fa fa-magic mr-1 text-sm"></i>解析数据</button>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end space-x-2 mt-3 pt-3 border-t border-gray-200">
-                    <button id="note-cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <button id="note-cancel-btn" class="modal-cancel-link inline">取消</button>
                     <button id="note-save-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 flex items-center text-sm"><i class="fa fa-save mr-1 text-sm"></i>保存</button>
                 </div>
             </div>
@@ -296,7 +296,7 @@
                     </div>
                 </div>
                 <div class="flex justify-center space-x-3 mt-2">
-                    <button id="sleep-cancel-btn" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <button id="sleep-cancel-btn" class="modal-cancel-link inline">取消</button>
                     <button id="sleep-enable-btn" class="px-5 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">开启</button>
                 </div>
             </div>
@@ -480,11 +480,12 @@
                     <div id="upgrades-container" class="hidden">
                         <!-- 首组**不带 mt-2**：一级标题自己的 mb-1(4px) 与它折叠后就是 4px —— 一级标题离它的组更近；
                              其余四组用 mt-2(8px) 与上一组末卡隔开（间距口径见 DESIGN.md §4.9） -->
-                        <div class="mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界建筑</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span><span id="builder-boost-toggle" class="ml-auto" style="cursor:pointer;display:none;align-items:center;gap:2px;margin-left:auto"><img id="builder-boost-icon" src="img/icons/builder_boost.webp" width="16" height="16" style="vertical-align:middle;display:inline-block;border-radius:4px"><span id="builder-boost-label" style="font-size:11px;font-weight:500;font-variant-numeric:tabular-nums">10x</span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
-                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-flask mr-2 text-secondary"></i><span style="font-size: 14px;">实验室</span><span id="lab-count" class="ml-1 px-1 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full hidden"></span></h3><div id="lab-list" class="space-y-0.5"></div></div>
-                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-paw mr-2 text-pink-500"></i><span style="font-size: 14px;">战宠</span><span id="pets-count" class="ml-1 px-1 py-0.5 bg-pink-500/10 text-pink-500 text-xs rounded-full hidden"></span></h3><div id="pets-list" class="space-y-0.5"></div></div>
-                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-moon-o mr-2 text-warning"></i><span style="font-size: 14px;">🌙 建筑</span><span id="buildings2-count" class="ml-1 px-1 py-0.5 bg-warning/10 text-warning text-xs rounded-full hidden"></span></h3><div id="buildings2-list" class="space-y-0.5"></div></div>
-                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><i class="fa fa-rocket mr-2 text-purple-500"></i><span style="font-size: 14px;">星空实验室</span><span id="units2-count" class="ml-1 px-1 py-0.5 bg-purple-500/10 text-purple-500 text-xs rounded-full hidden"></span></h3><div id="units2-list" class="space-y-0.5"></div></div>
+                        <!-- 首组也带 mt-2(8px)：总览卡 → 首组标题 = 组间间距（用户 2026-11-05：间隙行高统一） -->
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><span class="cat-title"><i class="fa fa-home mr-2 text-primary"></i><span style="font-size: 14px;">主世界</span><span id="buildings-count" class="ml-1 px-1 py-0.5 bg-primary/10 text-primary text-xs rounded-full hidden"></span></span></h3><div id="buildings-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><span class="cat-title"><i class="fa fa-flask mr-2 text-secondary"></i><span style="font-size: 14px;">实验室</span><span id="lab-count" class="ml-1 px-1 py-0.5 bg-secondary/10 text-secondary text-xs rounded-full hidden"></span></span></h3><div id="lab-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><span class="cat-title"><i class="fa fa-paw mr-2 text-pink-500"></i><span style="font-size: 14px;">战宠</span><span id="pets-count" class="ml-1 px-1 py-0.5 bg-pink-500/10 text-pink-500 text-xs rounded-full hidden"></span></span></h3><div id="pets-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><span class="cat-title"><i class="fa fa-moon-o mr-2 text-warning"></i><span style="font-size: 14px;">夜世界</span><span id="buildings2-count" class="ml-1 px-1 py-0.5 bg-warning/10 text-warning text-xs rounded-full hidden"></span></span></h3><div id="buildings2-list" class="space-y-0.5"></div></div>
+                        <div class="mt-2 mb-1"><h3 class="font-medium text-gray-800 mb-1 flex items-center" style="font-size: 13px;"><span class="cat-title"><i class="fa fa-rocket mr-2 text-purple-500"></i><span style="font-size: 14px;">星空实验室</span><span id="units2-count" class="ml-1 px-1 py-0.5 bg-purple-500/10 text-purple-500 text-xs rounded-full hidden"></span></span></h3><div id="units2-list" class="space-y-0.5"></div></div>
                     </div>
                 </div>
             </div>
@@ -675,7 +676,7 @@
                     <input type="file" id="bc-up-file" accept="image/*" style="display:none">
                 </div>
                 <div class="bc-up-actions">
-                    <button id="bc-up-cancel" class="text-gray-500 hover:text-gray-700" style="border:none;background:none;font-size:13px;font-weight:700;padding:8px 12px;cursor:pointer;">取消</button>
+                    <button id="bc-up-cancel" class="modal-cancel-link inline">取消</button>
                     <button id="bc-up-submit" style="border:none;background:#7c3aed;color:#fff;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;">提交审核</button>
                 </div>
             </div>
@@ -708,7 +709,7 @@
                 <label style="display:block;font-size:12px;font-weight:700;color:#6b7280;margin:12px 0 6px;">补充说明（可选）</label>
                 <textarea id="bc-rep-msg" rows="3" style="width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;resize:none;" placeholder="如：链接打开不是这个阵型"></textarea>
                 <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
-                    <button id="bc-rep-cancel" class="text-gray-500 hover:text-gray-700" style="border:none;background:none;font-size:13px;font-weight:700;padding:8px 12px;cursor:pointer;">取消</button>
+                    <button id="bc-rep-cancel" class="modal-cancel-link inline">取消</button>
                     <button id="bc-rep-submit" style="border:none;background:#7c3aed;color:#fff;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;">提交反馈</button>
                 </div>
             </div>
@@ -1147,13 +1148,13 @@
                 <div class="text-xs text-gray-500 mb-2">拖拽 <i class="fa fa-bars"></i> 图标调整顺序</div>
                 <div id="sort-list-container" class="overflow-y-auto" style="max-height:60vh;"></div>
                 <div class="flex justify-end space-x-2 mt-2 pt-2 border-t border-gray-200">
-                    <button id="sort-cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <button id="sort-cancel-btn" class="modal-cancel-link inline">取消</button>
                     <button id="sort-apply-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">应用排序</button>
                 </div>
             </div>
         </div>
 
-        <!-- 屏蔽选项弹窗（三档程度：红点 / 通知 / 升级进度；升级进度需前两项已勾，取消前两项任一自动取消） -->
+        <!-- 屏蔽选项弹窗（四档程度：红点 / 名称颜色 / 通知 / 升级进度；升级进度需前三项已勾，取消前三项任一自动取消） -->
         <div id="dismiss-modal" class="modal-overlay hidden">
             <div class="modal-card w-xs">
                 <h3 class="font-semibold text-gray-800 mb-1 text-center" style="font-size: 15px;">屏蔽选项</h3>
@@ -1163,16 +1164,26 @@
                         <input type="checkbox" id="dismiss-opt-dot"><span>红点</span>
                     </label>
                     <label class="dismiss-opt text-gray-700">
+                        <input type="checkbox" id="dismiss-opt-color"><span>名称颜色</span>
+                    </label>
+                    <label class="dismiss-opt text-gray-700">
                         <input type="checkbox" id="dismiss-opt-notify"><span>通知</span>
                     </label>
-                    <label class="dismiss-opt text-gray-700" id="dismiss-opt-progress-row">
-                        <input type="checkbox" id="dismiss-opt-progress"><span>升级进度</span><span class="dismiss-opt-hint text-gray-400">需先勾选红点和通知</span>
+                    <label class="dismiss-opt dismiss-opt-stack text-gray-700" id="dismiss-opt-progress-row">
+                        <span class="dismiss-opt-main"><input type="checkbox" id="dismiss-opt-progress"><span>升级进度</span></span>
+                        <span class="dismiss-opt-hint text-gray-400">需先勾选前三项</span>
                     </label>
                 </div>
                 <div class="flex flex-col space-y-2">
                     <button id="dismiss-apply-btn" class="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm">应用设置</button>
-                    <button id="dismiss-apply-all-btn" class="dismiss-apply-all w-full px-3 py-2 text-white rounded-lg transition-all duration-200 text-sm">应用到全部账号</button>
-                    <button id="dismiss-cancel-btn" class="w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                    <!-- 应用至第 N → 第 M 个账号（默认 1 → 账号总数 = 全部）；只有「应用至」是按钮，数字框不触发 -->
+                    <div id="dismiss-apply-range" class="dismiss-range">
+                        <button type="button" id="dismiss-apply-range-btn" class="dismiss-range-btn">应用至</button>
+                        <input id="dismiss-range-from" type="number" min="1" inputmode="numeric" value="1" onfocus="this.select()">
+                        <span>→</span>
+                        <input id="dismiss-range-to" type="number" min="1" inputmode="numeric" onfocus="this.select()">
+                    </div>
+                    <button id="dismiss-cancel-btn" class="modal-cancel-link">取消</button>
                 </div>
             </div>
         </div>
@@ -1336,7 +1347,7 @@
             <div id="widget-config-list" class="space-y-2">
             </div>
             <div class="flex justify-end space-x-2 mt-4">
-                <button id="widget-config-cancel-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-200 text-sm">取消</button>
+                <button id="widget-config-cancel-btn" class="modal-cancel-link inline">取消</button>
                 <button id="widget-config-save-btn" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm">保存</button>
             </div>
         </div>
@@ -1616,7 +1627,7 @@
                 </div>
             </div>
             <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-200">
-                <button id="icon-picker-cancel-btn" class="px-4 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-all duration-200 text-sm">取消</button>
+                <button id="icon-picker-cancel-btn" class="modal-cancel-link inline">取消</button>
                 <button id="icon-picker-save-btn" class="px-4 py-1 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 text-sm flex items-center"><i class="fa fa-check mr-1"></i>确定</button>
             </div>
         </div>
@@ -1765,7 +1776,7 @@
                 <input type="file" id="fb-file" accept="image/*" style="display:none">
             </div>
             <div class="flex gap-2 justify-end mt-2">
-                <button id="fb-cancel" class="rounded-lg border border-gray-200 bg-transparent cursor-pointer text-gray-500" style="padding:8px 16px; font-size:14px;">取消</button>
+                <button id="fb-cancel" class="modal-cancel-link inline">取消</button>
                 <button id="fb-submit" class="rounded-lg border-none bg-purple-600 text-white cursor-pointer" style="padding:8px 16px; font-size:14px; font-weight:600;">提交反馈</button>
             </div>
         </div>
@@ -1816,33 +1827,34 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/core.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/names.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/queue.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/services.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261102-tnvkun"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261102-tnvkun"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/skins.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261102-tnvkun"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261102-tnvkun"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/core.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/cloud-sync.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/names.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/queue.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/services.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261105-to1itd"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/skins.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261105-to1itd"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261105-to1itd"></script>
 </body>
 </html>

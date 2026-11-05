@@ -14,9 +14,11 @@
     var CLAN_API_BASE = CocTool.apiBase;
     var APP_TOKEN = CocTool.appToken;
 
-    // localStorage 存储键
-    var STORAGE_KEY = 'clash_clan_list';
-    var CHINA_STORAGE_KEY = 'clash_china_clan_list';
+    // localStorage 存储键：国际服/国服混排为一张卡片列表，数组顺序即显示顺序
+    // 旧键 clash_clan_list / clash_china_clan_list 只作首次懒迁移的数据源，迁移后不再读写
+    var STORAGE_KEY = 'clash_clan_cards';
+    var LEGACY_STORAGE_KEY = 'clash_clan_list';
+    var LEGACY_CHINA_STORAGE_KEY = 'clash_china_clan_list';
 
     // DOM 元素引用
     var el = {};
@@ -36,15 +38,18 @@
         _modeMap: _modeMap
     };
 
-    // 部落数据
-    var clanList = [];
-    var chinaClanList = [];
+    // 部落卡片（国际服 + 国服混排，数组顺序 = 卡片显示顺序）
+    var clanCards = [];
+
+    // 国服卡片：旧结构里国服条目自带 type:'china'，沿用该标记做区分
+    function isChinaClan(c) { return !!c && c.type === 'china'; }
 
     // 是否正在加载
     var isLoading = false;
 
     // 删除模式
     var isDeleteMode = false;
+    var clanSortable = null;   // 部落卡片长按拖拽排序（SortableJS；容器常驻，初始化一次）
 
     // 待删除的部落信息
     var _pendingDeleteTag = null;
@@ -312,7 +317,7 @@
                         removeClan(_pendingDeleteTag);
                     }
                     showToast('已删除「' + _pendingDeleteName + '」', 1500);
-                    if (clanList.length === 0 && chinaClanList.length === 0) exitDeleteMode();
+                    if (clanCards.length === 0) exitDeleteMode();
                 }
                 hideDeleteModal();
             });
@@ -426,12 +431,13 @@
             el.chinaMemberConfirm.addEventListener('click', confirmChinaMembers);
         }
 
-        // 从 localStorage 恢复已保存的部落
+        // 从 localStorage 恢复已保存的部落（首次读取会完成旧两数组的懒迁移）
         loadFromStorage();
-        loadChinaFromStorage();
 
         // 初始显示
         updateUI();
+        // 卡片长按拖拽排序（容器常驻，初始化一次）
+        initClanCardSortable();
 
         // 卡片倒计时定时刷新
         if (_cardTimer) { clearInterval(_cardTimer); _cardTimer = null; }
@@ -462,30 +468,16 @@
         if (!level || level < 1) { showToast('请输入有效的部落等级', 1500); return; }
 
         var data = { name: name, level: level, type: 'china', id: 'china_' + Date.now() };
-        chinaClanList.push(data);
-        saveChinaToStorage();
+        clanCards.push(data);
+        saveToStorage();
         hideChinaModal();
         showToast('已添加国服部落「' + name + '」', 2000);
         updateUI();
     }
 
-    function saveChinaToStorage() {
-        try { localStorage.setItem(CHINA_STORAGE_KEY, JSON.stringify(chinaClanList)); } catch(e) {}
-    }
-
-    function loadChinaFromStorage() {
-        try {
-            var raw = localStorage.getItem(CHINA_STORAGE_KEY);
-            if (raw) {
-                var parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) chinaClanList = parsed;
-            }
-        } catch(e) { chinaClanList = []; }
-    }
-
     function removeChinaClan(id) {
-        chinaClanList = chinaClanList.filter(function(c) { return c.id !== id; });
-        saveChinaToStorage();
+        clanCards = clanCards.filter(function(c) { return !(isChinaClan(c) && c.id === id); });
+        saveToStorage();
         updateUI();
     }
 
@@ -506,6 +498,8 @@
 
     function toggleDeleteMode() {
         isDeleteMode = !isDeleteMode;
+        // 删除模式下禁用拖拽（点卡片是删除确认，不能误拖）
+        if (clanSortable) clanSortable.option('disabled', isDeleteMode);
         if (el.deleteBtn) {
             el.deleteBtn.style.color = isDeleteMode ? '#ef4444' : '';
             el.deleteBtn.style.background = isDeleteMode ? '#fef2f2' : '';
@@ -611,18 +605,18 @@
 
     function addClan(data) {
         data._badgeUpdated = Date.now();
-        // 检查是否已存在相同标签的部落
+        // 检查是否已存在相同标签的部落（国服条目没有 tag，不参与匹配）
         var existing = false;
-        for (var i = 0; i < clanList.length; i++) {
-            if (clanList[i].tag === data.tag) {
-                // 更新已有记录
-                clanList[i] = data;
+        for (var i = 0; i < clanCards.length; i++) {
+            if (!isChinaClan(clanCards[i]) && clanCards[i].tag === data.tag) {
+                // 更新已有记录（保持原位置）
+                clanCards[i] = data;
                 existing = true;
                 break;
             }
         }
         if (!existing) {
-            clanList.push(data);
+            clanCards.push(data);
         }
         saveToStorage();
         updateUI();
@@ -642,10 +636,10 @@
             .then(function(r) { return r.ok ? r.json() : null; })
             .then(function(fresh) {
                 if (!fresh || !fresh.badgeUrls) return;
-                for (var i = 0; i < clanList.length; i++) {
-                    if ((clanList[i].tag || '').replace(/^#/, '') === tag) {
-                        clanList[i].badgeUrls = fresh.badgeUrls;
-                        clanList[i]._badgeUpdated = Date.now();
+                for (var i = 0; i < clanCards.length; i++) {
+                    if (!isChinaClan(clanCards[i]) && (clanCards[i].tag || '').replace(/^#/, '') === tag) {
+                        clanCards[i].badgeUrls = fresh.badgeUrls;
+                        clanCards[i]._badgeUpdated = Date.now();
                         if (shared._currentClan && (shared._currentClan.tag || '').replace(/^#/, '') === tag) {
                             shared._currentClan.badgeUrls = fresh.badgeUrls;
                             shared._currentClan._badgeUpdated = Date.now();
@@ -660,7 +654,7 @@
     }
 
     function removeClan(tag) {
-        clanList = clanList.filter(function(c) { return c.tag !== tag; });
+        clanCards = clanCards.filter(function(c) { return isChinaClan(c) || c.tag !== tag; });
         saveToStorage();
         updateUI();
     }
@@ -862,8 +856,51 @@
         return card;
     }
 
+    // ====== 长按拖拽排序（国际服/国服混排，任意位置互换） ======
+    function initClanCardSortable() {
+        if (typeof Sortable === 'undefined' || !el.clanCards || clanSortable) return;
+        clanSortable = Sortable.create(el.clanCards, {
+            animation: 150,
+            delay: 500,                 // 长按 500ms 进入拖拽（与升级卡片长按动作模态一致）
+            delayOnTouchOnly: true,     // 鼠标端不延迟（桌面调试）
+            touchStartThreshold: 8,
+            ghostClass: 'clan-sort-ghost',
+            chosenClass: 'clan-sort-chosen',
+            filter: '.delete-mode',
+            onChoose: function () {
+                // 长按浮起时震动一次（与首页左右滑切号同口径：settings.vibrate 关则不震）
+                if (CocTool.state.settings.vibrate !== false) CocTool.platform.call('vibrate', 40);
+            },
+            onEnd: persistClanOrder
+        });
+    }
+
+    /** 拖拽结束：按 DOM 顺序回写整张卡片列表并持久化（国际服/国服可混排） */
+    function persistClanOrder() {
+        if (!el.clanCards) return;
+        var byTag = {}, byChinaId = {};
+        for (var i = 0; i < clanCards.length; i++) {
+            var c = clanCards[i];
+            if (isChinaClan(c)) byChinaId[String(c.id)] = c;
+            else if (c.tag) byTag[c.tag] = c;
+        }
+        var ordered = [];
+        Array.prototype.forEach.call(el.clanCards.querySelectorAll('.clan-card'), function (card) {
+            var tag = card.getAttribute('data-tag');
+            var chinaId = card.getAttribute('data-china-id');
+            var item = tag ? byTag[tag] : (chinaId ? byChinaId[chinaId] : null);
+            if (item) ordered.push(item);
+        });
+        // 兜底：DOM 未覆盖到的卡片按原顺序补在末尾，避免任何情况丢数据
+        for (var j = 0; j < clanCards.length; j++) {
+            if (ordered.indexOf(clanCards[j]) < 0) ordered.push(clanCards[j]);
+        }
+        clanCards = ordered;
+        saveToStorage();
+    }
+
     function updateUI() {
-        var total = clanList.length + chinaClanList.length;
+        var total = clanCards.length;
         if (total === 0) {
             // 显示空状态
             if (el.emptyState) el.emptyState.classList.remove('hidden');
@@ -872,18 +909,13 @@
             // 隐藏空状态，显示内容
             if (el.emptyState) el.emptyState.classList.add('hidden');
             if (el.clanContent) el.clanContent.style.display = 'block';
-            // 渲染所有卡片
+            // 按列表顺序渲染所有卡片（国际服/国服混排）
             if (el.clanCards) {
                 el.clanCards.innerHTML = '';
-                // 国际服
-                for (var i = 0; i < clanList.length; i++) {
-                    var card = renderClanCard(clanList[i]);
-                    el.clanCards.appendChild(card);
-                }
-                // 国服
-                for (var ci = 0; ci < chinaClanList.length; ci++) {
-                    var chinaCard = renderChinaCard(chinaClanList[ci]);
-                    el.clanCards.appendChild(chinaCard);
+                for (var i = 0; i < clanCards.length; i++) {
+                    el.clanCards.appendChild(
+                        isChinaClan(clanCards[i]) ? renderChinaCard(clanCards[i]) : renderClanCard(clanCards[i])
+                    );
                 }
             }
         }
@@ -1521,26 +1553,49 @@
             }
         }
     }
-    function saveToStorage() {
+    function saveCardsToStorage(cards) {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(clanList));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
         } catch (e) {
             // storage 满或不可用
         }
     }
 
-    function loadFromStorage() {
+    function readStoredArray(key) {
         try {
-            var raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                var parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) {
-                    clanList = parsed;
-                }
-            }
+            var parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
         } catch (e) {
-            clanList = [];
+            return [];
         }
+    }
+
+    /**
+     * 读取卡片列表（新键 clash_clan_cards）。
+     * 首次读取（新键不存在）时把旧的两个数组懒迁移成一张列表：国际服在前、国服在后，并写回新键。
+     * 旧键只当迁移数据源、不删除：迁移后本版本不再读写它们。
+     */
+    function loadClanCards() {
+        var raw = null;
+        try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+        if (raw === null) {
+            var migrated = readStoredArray(LEGACY_STORAGE_KEY).concat(readStoredArray(LEGACY_CHINA_STORAGE_KEY));
+            saveCardsToStorage(migrated);
+            return migrated;
+        }
+        try {
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+        return [];
+    }
+
+    function saveToStorage() {
+        saveCardsToStorage(clanCards);
+    }
+
+    function loadFromStorage() {
+        clanCards = loadClanCards();
     }
 
     // ====== Toast ======
@@ -1561,14 +1616,14 @@
     // tags: 备份中的国际服部落标签数组；已存在跳过，缺失的逐个拉 API 添加
     function restoreClansFromTags(tags) {
         if (!Array.isArray(tags) || tags.length === 0) return Promise.resolve(0);
-        if (!_initialized) initClan();   // 确保 clanList 已从 storage 加载，"已存在"判断才准确
+        if (!_initialized) initClan();   // 确保卡片列表已从 storage 加载，"已存在"判断才准确
         var missing = [];
         for (var i = 0; i < tags.length; i++) {
             var tag = tags[i];
             if (!tag) continue;
             var exists = false;
-            for (var j = 0; j < clanList.length; j++) {
-                if (clanList[j].tag === tag) { exists = true; break; }
+            for (var j = 0; j < clanCards.length; j++) {
+                if (!isChinaClan(clanCards[j]) && clanCards[j].tag === tag) { exists = true; break; }
             }
             if (!exists) missing.push(tag);
         }
@@ -1596,5 +1651,22 @@
 
     function parseCocTime(str){return CocTool.warView.parseCocTime(str)}
 
+    /** 供云备份/通知等模块读取卡片列表；页面未初始化时直接读 storage（首次读取顺带完成旧数据懒迁移） */
+    function getClanCards() {
+        return _initialized ? clanCards : loadClanCards();
+    }
+
+    /** 仅国际服部落标签（国服卡片不同步云端） */
+    function getIntlClanTags() {
+        var list = getClanCards();
+        var tags = [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && !isChinaClan(list[i]) && list[i].tag) tags.push(list[i].tag);
+        }
+        return tags;
+    }
+
     CocTool.features.clan = Object.freeze({ init: initClan, goBack: goBack, restoreClansFromTags: restoreClansFromTags });
+    CocTool.clan.getClanCards = getClanCards;
+    CocTool.clan.getIntlClanTags = getIntlClanTags;
 })(window);
