@@ -11,7 +11,8 @@ function fl(t,li,cb){var p='/api/coc/warlog/'+encodeURIComponent(t.replace(/^#/,
 function fw(t,et,cb){fx('/api/coc/war-history/'+encodeURIComponent(t.replace(/^#/,''))+'/'+encodeURIComponent(et),cb)}
 function fd(et){if(!et)return'';return et.slice(0,4)+'/'+parseInt(et.slice(4,6),10)+'/'+parseInt(et.slice(6,8),10)}
 function gi(r){if(r==='win')return{text:'胜利',color:'#10b981'};if(r==='lose')return{text:'失败',color:'#f59e0b'};return{text:'平局',color:'#3b82f6'}}
-function gp(p){return C.calc.formatPercent(p)}
+// 单场部落摧毁率是游戏原始值（整数）→ formatRawPercent；成员平均摧毁率等计算类仍走 formatPercent
+function gp(p){return C.calc.formatRawPercent(p)}
 
 function rcs(ct,en){ct.innerHTML='';if(!en||!en.length){var em=document.createElement('div');em.className='empty-state';em.innerHTML='<i class="fa fa-inbox"></i><p>暂无对战记录</p>';ct.appendChild(em);return}
 for(var i=0;i<en.length;i++){var it=en[i];if(it.attacksPerMember!==2||!it.result)continue;var cl=it.clan||{},op=it.opponent||{},inf=gi(it.result);
@@ -109,7 +110,8 @@ function lgSortHead(k,label,sort){var ico=(sort&&sort.k===k)?'<i class="fa fa-ch
 function lgSortRows(arr,sort,val){if(!sort)return arr;return arr.slice().sort(function(a,b){var va=val(a),vb=val(b);if(typeof va==='string')return sort.d*String(va).localeCompare(String(vb));return sort.d*(va-vb)})}
 function lgCount(m,st){var n=0,rr=m.rounds||[];for(var i=0;i<7;i++){var r=rr[i];if(r&&r.stars===st)n++}return n}
 function lgAtkVal(m){if(!LSA)return 0;if(LSA.k==='name')return m.name||'';if(LSA.k==='three')return lgCount(m,3);if(LSA.k==='zero')return lgCount(m,0);if(LSA.k==='avgDest')return m.played>0?(m.totalDest||0)/m.played:0;return m[LSA.k]||0}
-function lgDefVal(m){if(!LSD)return 0;if(LSD.k==='name')return m.name||'';if(LSD.k==='defRate')return m.defended>0?Math.round(m.defBestSum/m.defended/3*100):0;if(LSD.k==='eff')return m.defended>0?Math.round((1-m.defBestSum/(m.defended*3))*100):100;return m[LSD.k]||0}
+// 被三星率/防守效率是除法算出的比率（可带小数）——排序用精确值，显示端走 formatPercent（两位）
+function lgDefVal(m){if(!LSD)return 0;if(LSD.k==='name')return m.name||'';if(LSD.k==='defRate')return m.defended>0?m.defBestSum/m.defended/3*100:0;if(LSD.k==='eff')return m.defended>0?(1-m.defBestSum/(m.defended*3))*100:100;return m[LSD.k]||0}
 
 function lgClanSection(cs){
   var heads1='<div class="ws-mhead">#</div><div class="ws-mhead left">部落</div><div class="ws-mhead">汇总</div>';
@@ -139,11 +141,11 @@ function lgStatsSection(ms){
     rows2+='<div class="ws-mcell">'+(i+1)+'</div>';
     rows2+='<div class="ws-mcell name"><span>'+esc(m.name)+'</span></div>';
     rows2+='<div class="ws-mcell"><div class="lg-main">'+m.totalStars+'</div></div>';
-    rows2+='<div class="ws-mcell"><div class="lg-main">'+C.calc.formatPercent(m.totalDest)+'</div></div>';
+    rows2+='<div class="ws-mcell"><div class="lg-main">'+C.calc.formatRawPercent(m.totalDest)+'</div></div>';
     rows2+='<div class="ws-mcell"><div class="lg-main">'+(m.played||0)+'/'+(m.rostered||0)+'</div></div>';
     for(var j=0;j<7;j++){var r=rr[j];
       // 未开始 = 黑色方块；在册未出刀 = 红色 na 块（统计页「未进攻」同款）；未在册 = 灰色 none 块（未上场）
-      rows2+='<div class="ws-atk-cell">'+(LGP.indexOf(j)>=0?'<div class="ws-atk-box pend"></div>':(r?(r.stars<0?'<div class="ws-atk-box na"></div>':'<div class="ws-atk-box s'+r.stars+'"><span class="ws-atk-stars">'+r.stars+'</span><span class="ws-atk-dest">'+C.calc.formatPercent(r.dest)+'</span></div>'):'<div class="ws-atk-box none"></div>'))+'</div>'}
+      rows2+='<div class="ws-atk-cell">'+(LGP.indexOf(j)>=0?'<div class="ws-atk-box pend"></div>':(r?(r.stars<0?'<div class="ws-atk-box na"></div>':'<div class="ws-atk-box s'+r.stars+'"><span class="ws-atk-stars">'+r.stars+'</span><span class="ws-atk-dest">'+C.calc.formatRawPercent(r.dest)+'</span></div>'):'<div class="ws-atk-box none"></div>'))+'</div>'}
   }
   var h='<div class="ws-section"><div class="ws-section-title"><i class="fa fa-table"></i>本部详情表<button class="ws-share-btn" title="分享表格"><i class="fa fa-share-image"></i></button></div>';
   h+=lgLegend(LGP.length?[['s3','三星'],['s2','两星'],['s1','一星'],['s0','零星'],['na','未出刀'],['pend','未开始'],['none','未上场']]:[['s3','三星'],['s2','两星'],['s1','一星'],['s0','零星'],['na','未出刀'],['none','未上场']]);
@@ -166,8 +168,8 @@ function lgDefenseSection(ms){
   h+='<div class="ws-scroll"><table class="ws-table"><thead><tr><th>#</th>'+lgSortHead('name','成员',LSD)+lgSortHead('rostered','上场',LSD)+lgSortHead('defended','被攻次数',LSD)+lgSortHead('defBestSum','被拿星',LSD)+lgSortHead('defRate','被三星率',LSD)+lgSortHead('eff','防守效率',LSD)+'</tr></thead><tbody>';
   if(!has){h+='<tr><td colspan="7" style="text-align:center;color:var(--ws-sub)">无防守数据（该月未被攻击）</td></tr>'}else{
     var arr=lgSortRows(ms.filter(function(m){return (m.defended||0)>0}),LSD,lgDefVal);
-    for(i=0;i<arr.length;i++){var m=arr[i],dr=m.defended>0?Math.round(m.defBestSum/m.defended/3*100):0,ef=m.defended>0?Math.round((1-m.defBestSum/(m.defended*3))*100):100;
-      h+='<tr><td>'+(i+1)+'</td><td class="ws-name">'+esc(m.name)+'</td><td>'+(m.rostered||0)+'</td><td>'+(m.defended||0)+'</td><td class="num" style="color:var(--ws-red)">'+(m.defBestSum||0)+'</td><td class="num" style="color:var(--ws-red)">'+dr+'%</td><td class="num" style="color:var(--ws-green)">'+ef+'%</td></tr>'}}
+    for(i=0;i<arr.length;i++){var m=arr[i],dr=m.defended>0?m.defBestSum/m.defended/3*100:0,ef=m.defended>0?(1-m.defBestSum/(m.defended*3))*100:100;
+      h+='<tr><td>'+(i+1)+'</td><td class="ws-name">'+esc(m.name)+'</td><td>'+(m.rostered||0)+'</td><td>'+(m.defended||0)+'</td><td class="num" style="color:var(--ws-red)">'+(m.defBestSum||0)+'</td><td class="num" style="color:var(--ws-red)">'+C.calc.formatPercent(dr)+'</td><td class="num" style="color:var(--ws-green)">'+C.calc.formatPercent(ef)+'</td></tr>'}}
   return h+'</tbody></table></div></div>'}
 
 function renderLeagueHistory(ct,d){

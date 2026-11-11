@@ -1,8 +1,8 @@
 // ========== 对战视图共享渲染模块 ==========
 (function(g){'use strict';var C=g.CocTool;if(!C)return;
 function byId(id){return document.getElementById(id)}
-// 百分比统一口径（calc.formatPercent）：非 100% 固定 2 位小数、100% 不带小数
-function fmtPct(v){return C.calc.formatPercent(v)}
+// 单场摧毁率是游戏原始值（整数）→ 走 formatRawPercent（不补两位小数）；平均/比率类才走 formatPercent
+function fmtPct(v){return C.calc.formatRawPercent(v)}
 var DE={detailLoading:byId('detail-loading'),detailNotWar:byId('detail-notwar-view'),detailPrep:byId('detail-prep-view'),detailEmpty:byId('detail-empty-state'),detailContent:byId('detail-content'),
 prepHomeBadge:byId('prep-home-badge'),prepHomeName:byId('prep-home-name'),prepAwayBadge:byId('prep-away-badge'),prepAwayName:byId('prep-away-name'),prepCountdown:byId('prep-countdown'),
 prepHomeMembers:byId('prep-home-members'),prepAwayMembers:byId('prep-away-members'),
@@ -129,4 +129,63 @@ function renderDetailTo(ct,data){
   renderMemberList(aMem,data.opponent.members||[],!0,data.attacksPerMember||2,data.clan.members||[],buildDefenderStarMap(data.opponent.members||[]));
 }
 
-C.warView={parseCocTime:parseCocTime,hideAllDetailViews:hideAllDetailViews,setStat:setStat,renderWarStats:renderWarStats,buildDefenderStarMap:buildDefenderStarMap,renderMemberList:renderMemberList,getTrackedTags:getTrackedTags,DE:DE,renderDetailTo:renderDetailTo,createFilterBar:createFilterBar,_memberFilter:_memberFilter,_fopts:_fopts,setFilter:smf}})(window);
+// ========== 顶栏「未出刀」提示（首页标题行，2026-11-09） ==========
+// 统计进行中战争里本地账号（getTrackedTags，与成员列表蓝底高亮同源）还没打满的刀数。
+// 数据源只读既有缓存、不发请求：部落战 clash_war_{tag} / 联赛 clash_league_war_{warTag}
+//（排除刷新冷却键 clash_war_cooldown_）。仅 state=inWar 且 endTime 未过（缓存滞后时战争
+// 可能已结束，靠 endTime 兜底防数字残留）。
+// 刀数上限按缓存键类型判：**联赛 war 无 attacksPerMember 字段**（clan-league.js 渲染时才
+// 补 war.attacksPerMember=1，缓存里的原始 JSON 没有），故联赛键固定 1 刀/人；部落战键
+// 取 attacksPerMember||2。早期版本统一 attacksPerMember||2 会把联赛打满 1 刀的人算成差 1。
+// 联赛存档的 clan/opponent 两侧都可能是我方（写入前未归一化），按成员 tag 交集两侧遍历，
+// 不依赖键语义。只统计本方账号，敌方成员 tag 撞车视为本方（正常场景自己号都在本方）。
+// 一次遍历算全部：返回 { total, byClan }——byClan[部落cleanTag] = 该部落里本人账号的剩余刀数
+//（部落卡片最左角标用；total = 首页顶栏，所有进行中战争之和）。
+function missedByClan(){
+  var tracked=getTrackedTags(),byClan={},total=0,now=Date.now();
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(!k)continue;
+      if(k.indexOf('clash_war_')!==0&&k.indexOf('clash_league_war_')!==0)continue;
+      if(k.indexOf('clash_war_cooldown_')===0)continue;
+      var d=null;try{d=JSON.parse(localStorage.getItem(k)).data}catch(e){}
+      if(!d||d.state!=='inWar')continue;
+      var endMs=parseCocTime(d.endTime);
+      if(endMs&&endMs<=now)continue;
+      var apm=k.indexOf('clash_league_war_')===0?1:(d.attacksPerMember||2);
+      for(var s=0;s<2;s++){
+        var side=s?d.opponent:d.clan,ms=side&&side.members||[];
+        var localMiss=0;
+        for(var j=0;j<ms.length;j++){
+          if(!tracked.hasOwnProperty(ms[j].tag))continue;
+          var n=(ms[j].attacks||[]).length;
+          if(n<apm)localMiss+=apm-n;
+        }
+        if(localMiss){
+          var clean=(side&&side.tag||'').replace(/^#/,'');
+          if(clean)byClan[clean]=(byClan[clean]||0)+localMiss;
+          total+=localMiss;
+        }
+      }
+    }
+  }catch(e){}
+  return { total: total, byClan: byClan };
+}
+function countTrackedMissedAttacks(){
+  return missedByClan().total;
+}
+// 顶栏按钮显隐：数量>0 才显示；优先级低于版本提示（hasUpdate 时让位，core.updateRedDot 联动调用）。
+// 点击动作在 core.js：切到部落页看详情（成员列表蓝底=自己号、灰字「未进攻」=还没出的刀）
+function updateWarAlertBtn(){
+  var btn=document.getElementById('main-war-btn');
+  if(!btn)return;
+  var miss=countTrackedMissedAttacks();
+  var show=miss>0&&!(C.state&&C.state.hasUpdate);
+  var num=btn.querySelector('span');
+  if(num)num.textContent=miss;
+  btn.classList.toggle('hidden',!show);
+  btn.style.display=show?'flex':'none';
+}
+
+C.warView={parseCocTime:parseCocTime,hideAllDetailViews:hideAllDetailViews,setStat:setStat,renderWarStats:renderWarStats,buildDefenderStarMap:buildDefenderStarMap,renderMemberList:renderMemberList,getTrackedTags:getTrackedTags,countTrackedMissedAttacks:countTrackedMissedAttacks,missedByClan:missedByClan,updateWarAlertBtn:updateWarAlertBtn,DE:DE,renderDetailTo:renderDetailTo,createFilterBar:createFilterBar,_memberFilter:_memberFilter,_fopts:_fopts,setFilter:smf}})(window);

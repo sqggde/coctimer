@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261105-to1itd';
+const CACHE = 'coc-tool-web-20261111-tocaql';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -20,6 +20,7 @@ const CORE_FILES = [
     "./js/calc.js",
     "./js/clan-league.js",
     "./js/clan.js",
+    "./js/cloud-backup.js",
     "./js/cloud-sync.js",
     "./js/core.js",
     "./js/duration-search.js",
@@ -36,9 +37,11 @@ const CORE_FILES = [
     "./js/queue.js",
     "./js/services.js",
     "./js/settings.js",
+    "./js/sim.js",
     "./js/skin-names.js",
     "./js/skins.js",
     "./js/svg-icons.js",
+    "./js/upgrade-notes.js",
     "./js/vendor",
     "./js/war-stats.js",
     "./js/war-view.js",

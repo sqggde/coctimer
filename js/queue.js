@@ -120,9 +120,20 @@
             '</div>';
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
+        // 「闹钟」按钮（标题行左上）：按完成时刻在系统时钟里创建倒计时提醒——OEM 杀后台免疫，
+        // 弥补 App 自身通知可能被国产 ROM 延迟/吞掉；仅真机桥可用时显示（网页版/无桥隐藏）。
+        // <24h → ACTION_SET_ALARM 真闹钟（此窗口内 HH:mm 的下一次出现即完成时刻）；
+        // ≥24h → 闹钟无日期参数，改插系统日历日程（多天升级不提前响）。
+        const alarmable = completionTs > Date.now() / 1000
+            && window.AndroidApp && typeof window.AndroidApp.setSystemAlarm === 'function';
+        const alarmLabel = completionTs - Date.now() / 1000 < 86400 ? '闹钟' : '日程';
         overlay.innerHTML =
             '<div class="modal-card w-xs item-actions-modal">' +
-                '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + calc.escapeHtml(name) + '</h3>' +
+                '<div class="relative mb-3">' +
+                    '<h3 class="font-semibold text-gray-800 text-center" style="font-size: 15px;">' + calc.escapeHtml(name) + '</h3>' +
+                    (alarmable ? '<button class="__act-alarm absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center gap-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-all duration-200" style="padding:4px 10px;font-size:12px;" title="按完成时间设置提醒（不足一天=闹钟 / 一天以上=日历日程）">' +
+                        '<i class="fa fa-clock" style="font-size: 14px;"></i><span>' + alarmLabel + '</span></button>' : '') +
+                '</div>' +
                 '<div class="flex flex-col">' +
                     actionBtns +
                     '<button class="__act-close modal-cancel-link">取消</button>' +
@@ -141,14 +152,33 @@
             const p = CocTool.features.progress;
             if (p && p.openNoteModal) p.openNoteModal(card);
         });
+        // 「闹钟」：按完成时刻在系统时钟创建倒计时；创建成功才关弹窗，失败留在弹窗里可重试/改走别的动作
+        overlay.querySelector('.__act-alarm')?.addEventListener('click', function () {
+            if (!window.AndroidApp || typeof window.AndroidApp.setSystemAlarm !== 'function') return;
+            const remainSec = completionTs - Date.now() / 1000;
+            if (remainSec < 86400) {
+                const d = new Date(completionTs * 1000);
+                const r = window.AndroidApp.setSystemAlarm(name, d.getHours(), d.getMinutes());
+                if (r === 'ok') { close(); toastSafe('已在系统时钟创建闹钟提醒'); }
+                else if (r === 'no_clock') toastSafe('设备没有可用的系统时钟应用');
+                else toastSafe('未能创建闹钟');
+            } else {
+                const r = window.AndroidApp.setCalendarEvent(name, completionTs * 1000, (completionTs + 1800) * 1000);
+                if (r === 'ok') { close(); toastSafe('已打开日历，请确认保存完成日程'); }
+                else if (r === 'no_calendar') toastSafe('设备没有可用的日历应用');
+                else toastSafe('未能创建日历日程');
+            }
+        });
         overlay.querySelector('.__act-close').addEventListener('click', close);
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
-    // ========== 胜利之星（星标行）：主世界 / 夜世界各自独立的 24h 刷新计时器 ==========
+    // ========== 胜利之星（星标行）：主世界 / 夜世界各自独立的刷新计时器 ==========
+    // 刷新周期：主世界 24h、夜世界 22h（用户 2026-11-10 主世界回调 24h / 2026-11-11 确认夜世界 22h）。
     // 每颗星独立计数（0-2，最多囤 2 颗）+ 下一颗刷新时刻：到点计数+1（计 2 停表囤满）。
-    // 点击按计数三分支：满 2 → 领一颗 + 重开 24h；计 1 → 领一颗、表不动（下一颗继续走）；
-    // 计 0 → 没星可领，弹校准框手动设置下一颗的剩余时间（≤24h）。按账号隔离（tag 维度）。
+    // 点击按计数三分支：满 2 → 领一颗 + 重开一个周期；计 1 → 领一颗、表不动（下一颗继续走）；
+    // 计 0 → 没星可领，弹校准框手动设置下一颗的剩余时间（≤周期）。按账号隔离（tag 维度）。
+    const STAR_PERIOD = { home: 24 * 3600, builder: 22 * 3600 };   // 主世界 24h / 夜世界 22h
     const STAR_KEY = 'clash_victory_stars';
     const STAR_DEFS = { home: '主世界', builder: '夜世界' };
     function loadStarAll() {
@@ -163,15 +193,16 @@
         acc[key] = st;
         saveStarAll(all);
     }
-    // 读状态：无记录则从现在起 24h 起算（首见即开始倒计时）；到点惰性推进（App 关闭期间到点也能补计）。
+    // 读状态：无记录则从现在起按该世界周期起算（首见即开始倒计时）；到点惰性推进（App 关闭期间到点也能补计）。
     // 两个开关每星每账号独立：countEnabled = 计数（显示/领取），notifyEnabled = 重置通知（以计数为前提）。
     // 旧记录只有单一 enabled（启用=计数+通知都开）：读时迁移成两个字段并删旧键，保持原有行为。
     function starState(tag, key, nowSec) {
+        const period = STAR_PERIOD[key];
         const all = loadStarAll();
         const acc = all[tag] || (all[tag] = {});
         let st = acc[key];
         if (!st || typeof st.nextAt !== 'number') {
-            st = acc[key] = { countEnabled: false, notifyEnabled: false, count: 0, nextAt: nowSec + 86400 };
+            st = acc[key] = { countEnabled: false, notifyEnabled: false, count: 0, nextAt: nowSec + period };
             saveStarAll(all);
             return st;
         }
@@ -183,7 +214,7 @@
             st.lastAt = st.nextAt;   // 刚过去的这次重置时刻（调度宽限条目用，见 starScheduleEntries）
             st.count++;
             st.lastCount = st.count; // 该次重置后的计数（宽限条目据此判「（已满）」——之后领星不影响这条的文案）
-            st.nextAt += 86400;
+            st.nextAt += period;
             changed = true;
         }
         if (changed) saveStarAll(all);
@@ -235,7 +266,7 @@
         if (st.countEnabled !== true) { starEditModal(tag, key); return; }
         if (st.count >= 2) {
             st.count = 1;                                   // 领一颗
-            st.nextAt = nowSec + 86400;                     // 同时开始倒计时（重开 24h）
+            st.nextAt = nowSec + STAR_PERIOD[key];          // 同时开始倒计时（重开一个周期）
             saveStar(tag, key, st);
         } else if (st.count === 1) {
             st.count = 0;                                   // 领一颗，下一颗的表不动（不影响计时）
@@ -251,10 +282,12 @@
     // 计数是通知的前提：可以只开计数不开通知；开通知自动开计数；关计数连通知一起关。
     // 开关切换即时保存 + 重推调度；两者都关时隐藏时间区与「确定」（没有可校准的对象）。
     function starEditModal(tag, key) {
+        const period = STAR_PERIOD[key];
+        const periodH = Math.floor(period / 3600);          // 周期整小时数（主世界 24 / 夜世界 22）
         const nowSec = Math.floor(Date.now() / 1000);
         const st = starState(tag, key, nowSec);
         const remain = Math.max(0, (st.nextAt || nowSec) - nowSec);
-        const preH = Math.min(24, Math.floor(remain / 3600));
+        const preH = Math.min(periodH, Math.floor(remain / 3600));
         const preM = Math.floor((remain % 3600) / 60);
         const pad = n => String(n).padStart(2, '0');
         const showTime = st.countEnabled === true || st.notifyEnabled === true;
@@ -278,7 +311,7 @@
                 '</div>' +
                 '<p class="text-xs text-gray-500 mb-2">开启通知会自动开启计数</p>' +
                 '<div class="__star-time"' + (showTime ? '' : ' style="display:none"') + '>' +
-                    '<p class="text-xs text-gray-500 text-center mb-2">设置下一颗星的剩余时间（最长 24 小时）</p>' +
+                    '<p class="text-xs text-gray-500 text-center mb-2">设置下一颗星的剩余时间（最长 ' + periodH + ' 小时）</p>' +
                     '<div class="flex items-start justify-center space-x-0.5 mb-2">' +
                         '<div class="picker-column" data-field="__star-h"><div class="picker-scroll"></div></div>' +
                         '<span class="text-xs text-gray-400" style="line-height:144px">时</span>' +
@@ -307,7 +340,7 @@
             saveBtn.style.display = show ? '' : 'none';
             if (show && !wheelReady) {
                 wheelReady = true;
-                CocTool.ui.initScrollPicker(hourCol, Array.from({ length: 25 }, (_, i) => pad(i)));   // 0-24 时
+                CocTool.ui.initScrollPicker(hourCol, Array.from({ length: periodH + 1 }, (_, i) => pad(i)));   // 0-周期整时（24/22）
                 CocTool.ui.initScrollPicker(minCol, Array.from({ length: 60 }, (_, i) => pad(i)));    // 0-59 分
                 CocTool.ui.scrollPickerTo(hourCol, pad(preH));
                 CocTool.ui.scrollPickerTo(minCol, pad(preM));
@@ -344,7 +377,12 @@
             const m = Math.floor(Number(CocTool.ui.getPickerValue(minCol)) || 0);
             const now2 = Math.floor(Date.now() / 1000);
             const stNow = starState(tag, key, now2);
-            stNow.nextAt = now2 + Math.min(86400, h * 3600 + m * 60);
+            stNow.nextAt = now2 + Math.min(period, h * 3600 + m * 60);
+            // 校准语义 = 重新开始计时：计数归零、清掉旧重置事件（lastAt/lastCount）。
+            // 否则旧记录过点后 starState 惰性推进出的 count（可能已达 2）会残留 → 设置完直接显示「已满」。
+            stNow.count = 0;
+            delete stNow.lastAt;
+            delete stNow.lastCount;
             saveStar(tag, key, stNow);
             close();
             pushScheduleSafe();   // 校准改的是下一颗的时刻，必须立刻重推调度（否则设备上还是旧闹钟）

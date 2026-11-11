@@ -1263,3 +1263,25 @@ body.sim-pinned #category-summary-card {
 .dark .sim-modal-btn.close {
     color: #a0aec0;
 }
+
+/* ===== 桌面宽度约束（2026-11-08 用户拍板；同日从 960 收紧到 640）：宽视口（≥641px）所有整页限宽 640px 居中 =====
+   手法：fixed 整页壳 inset:0 不动、加 max-width + auto 边距水平居中（壳内绝对定位元素随壳对齐 640 列，
+   底部导航同法）；壳外两侧露出 body 底作信箱留白（浅色 #f9fafb 与子页底同值，深色为 --td-page 近黑）。
+   ≤640px 视口（手机）整段不生效、渲染零变化；641-960 的平板/横屏手机从此也吃 640 列。
+   首页/更多页在 Tailwind .container 内，仅覆写其断点限宽到 640；弹窗/灯箱本就是居中卡片，不在此列。 */
+@media (min-width: 641px) {
+    body > .container { max-width: 640px; }
+    .bottom-nav { max-width: 640px; margin-left: auto; margin-right: auto; }
+    /* 更多页在 .container 之外（容器 490 行即闭合），按流内块限宽居中 */
+    html #more-page { max-width: 640px; margin-left: auto !important; margin-right: auto !important; }
+    /* html 前缀 + margin important：页面级 css（overview.css:241 等）会用同特异性的 margin:0 把
+       居中边距吃掉（后序胜），跨页约束必须压过它们——同 game-font 段的 !important 逃逸手法 */
+    html #help-page, html #meta-stats-view, html #bases-page, html #overview-page, html #overview-detail-page,
+    html #clan-page, html #clan-detail-page, html #clan-log-view, html #war-history-detail, html #war-stats-view,
+    html #data-query-page, html #pokedex-detail-page,
+    html #settings-page, html #widget-list-page, html #widget-config-page {
+        max-width: 640px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}

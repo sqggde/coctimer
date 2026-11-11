@@ -706,12 +706,20 @@
 
         infoDiv.appendChild(nameDiv);
 
+        // 名称下方：该部落里本人账号的剩余进攻次数角标（0 隐藏；数值由 updateCardMissBadges 填）
+        var missBadge = document.createElement('div');
+        missBadge.className = 'clan-miss-badge';
+        missBadge.style.cssText = 'display:none;margin-top:4px;';
+        missBadge.innerHTML = '<img src="img/icons/cishu.webp" style="width:11px;height:11px;flex-shrink:0;" alt=""><span></span>';
+        infoDiv.appendChild(missBadge);
+
         card.appendChild(badgeImg);
         card.appendChild(infoDiv);
 
         // 部落战倒计时
         var tagClean = (data.tag || '').replace(/^#/, '');
         card.setAttribute('data-war-tag', tagClean);
+
         var warInfo = document.createElement('div');
         warInfo.className = 'card-war-info';
         warInfo.style.cssText = 'text-align:center;flex-shrink:0;margin-left:auto;padding:4px 12px;background:#eff6ff;border-radius:10px;display:none;';
@@ -919,6 +927,9 @@
                 }
             }
         }
+        // 卡片刚重建（角标是隐藏的初始态）：重置节流让角标立即回填——
+        // 否则 30 秒节流窗口内新卡片一直没角标，表现为「拉完数据回列表要重启 App 才看到」
+        _lastMissTick = 0;
         // 初始刷新倒计时
         updateCardCountdowns();
     }
@@ -940,15 +951,37 @@
         return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm + ' 结束';
     }
 
+    // 卡片最左「剩余进攻次数」角标：一次遍历算出 byClan 再逐卡填数。30s 节流——
+    // 刀数只随用户出刀变化，不必跟倒计时一样每秒重算（each 次要 parse 全部战况缓存）。
+    var _lastMissTick = 0;
+    function updateCardMissBadges() {
+        var now = Date.now();
+        if (now - _lastMissTick < 30000) return;
+        _lastMissTick = now;
+        if (!el.clanCards || !CocTool.warView || !CocTool.warView.missedByClan) return;
+        var map = CocTool.warView.missedByClan().byClan;
+        var cards = el.clanCards.querySelectorAll('.clan-card');
+        for (var ci = 0; ci < cards.length; ci++) {
+            var badge = cards[ci].querySelector('.clan-miss-badge');
+            if (!badge) continue;
+            var clean = (cards[ci].getAttribute('data-war-tag') || '');
+            var n = map[clean] || 0;
+            badge.querySelector('span').textContent = n;
+            badge.style.display = n > 0 ? 'inline-flex' : 'none';
+        }
+    }
+
     function updateCardCountdowns() {
         var clanPage = document.getElementById('clan-page');
         if (!clanPage || clanPage.classList.contains('hidden')) return;
+        updateCardMissBadges();
         var cards = el.clanCards;
         if (!cards) return;
         var infos = cards.querySelectorAll('.card-war-info');
         for (var i = 0; i < infos.length; i++) {
             var info = infos[i];
-            var card = info.parentElement;
+            // war-info 现在包在右侧竖排容器（.card-miss-col）里，取卡片要走 closest（国服卡仍是直接子元素）
+            var card = info.closest('.clan-card') || info.parentElement;
             var tag = card.getAttribute('data-war-tag');
             var chinaId = card.getAttribute('data-war-china-id');
             var endMs = 0, state = '', name = '';

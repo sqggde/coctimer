@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261105-to1itd"></script>
+<script src="shim.js?v=coc-tool-web-20261111-tocaql"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261105-to1itd"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261105-to1itd" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261111-tocaql"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -339,6 +339,10 @@
                     <h1 id="main-title" class="font-bold text-gray-800 mb-0 mt-0" style="font-size: 16px; line-height: 1.2;">部落小工具</h1>
                     <button id="main-update-btn" class="hidden flex-shrink-0" style="width:25px;height:25px;border-radius:50%;background:#22c55e;border:none;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(34,197,94,0.4);padding:0;margin-left:6px;" aria-label="发现新版本">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                    </button>
+                    <button id="main-war-btn" class="hidden flex-shrink-0" style="height:25px;border-radius:13px;background:#f97316;border:none;cursor:pointer;align-items:center;gap:3px;box-shadow:0 1px 4px rgba(249,115,22,0.4);padding:0 7px;margin-left:6px;" aria-label="进行中的战争还有未出的攻击次数">
+                        <img src="img/icons/cishu.webp" style="width:13px;height:13px;flex-shrink:0;" alt="">
+                        <span style="font-size:12px;color:#fff;font-weight:700;line-height:1;">0</span>
                     </button>
                 </div>
                 <div class="flex space-x-1" style="align-items:center;">
@@ -1681,11 +1685,10 @@
         <div class="top-bar" style="justify-content:space-between;">
             <button id="pokedex-back" class="detail-back"><i class="fa fa-arrow-left"></i><span>返回</span></button>
             <div class="title" style="position:absolute;left:50%;transform:translateX(-50%);">
-                <i class="fa fa-book"></i>
                 <span id="pokedex-title"></span>
-                <span id="pokedex-disc" style="display:inline-flex;"></span>
                 </div>
             <div style="display:flex;align-items:center;">
+                <span id="pokedex-disc" style="display:inline-flex;margin-right:40px;"></span>
                 <button id="pokedex-refresh" class="detail-back" title="刷新数据"><i class="fa fa-refresh"></i></button>
                 </div>
             </div>
@@ -1827,34 +1830,37 @@
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/core.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/cloud-sync.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/names.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/queue.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/services.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261105-to1itd"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261105-to1itd"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/skins.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261105-to1itd"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261105-to1itd"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/core.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/cloud-sync.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/cloud-backup.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/names.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/upgrade-notes.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/sim.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/queue.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/services.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261111-tocaql"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/skins.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261111-tocaql"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261111-tocaql"></script>
 </body>
 </html>

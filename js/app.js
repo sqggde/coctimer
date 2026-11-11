@@ -65,6 +65,7 @@
             return true;
         });
         run('导航模块', () => CocTool.navigation.init());
+        run('未出刀提示', () => { if (CocTool.warView && CocTool.warView.updateWarAlertBtn) CocTool.warView.updateWarAlertBtn(); });
         run('图标水合', () => CocTool.svgIcons.init());
         run('时长搜索', () => CocTool.durationSearch.init());
 

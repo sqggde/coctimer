@@ -639,7 +639,11 @@ let initialized = false;
         if (oldData && progressModule && progressModule.reconcileNotes) {
             try { progressModule.reconcileNotes(tag, oldData, data); } catch (e) {}
         }
-        detectAccountServer(tag, data, oldData);
+        // 首次导入（tag 此前不存在）→ 自动弹「设置账号备注名」方便起名；重复导入永不弹——
+        // tag 是否存在本身就是状态（取消/空备注后重复导入不再弹；删除账号后重导视同新账号会再弹）。
+        // 区服选择器挂起时，备注弹窗等选择完成后再出（onResolved 在三条路径的收尾处触发）。
+        var firstImport = !oldData;
+        detectAccountServer(tag, data, oldData, firstImport ? function () { setAccountNote(tag); } : null);
         if (CocTool.features.overview && CocTool.features.overview.refreshCard) {
             try { CocTool.features.overview.refreshCard(tag); } catch (e) {}
         }
@@ -648,8 +652,6 @@ let initialized = false;
         if (queueCleared.length) {
             setTimeout(function () { showToast('升级目标已变化，排队已清空', 3000); }, 1600);
         }
-        // 云端自动恢复用：记录本地最后数据变更时刻（墙钟），云端 exportDate 较新时才询问恢复
-        try { localStorage.setItem('coc_last_local_data_change', String(Date.now())); } catch (e) {}
         // 云端自动备份（App 独有）：在导入提示之后异步执行——成功弹「云端备份已更新」、旧版被压弹
         // 「自动备份已失效」，必须放在导入 toast 之后，否则失效提示会被导入 toast 立刻顶掉（同步分支无 await）
         var cloudSvc = CocTool.features.services;
@@ -659,13 +661,14 @@ let initialized = false;
         return 'ok';
     }
 
-    function detectAccountServer(tag, data, oldData) {
+    function detectAccountServer(tag, data, oldData, onResolved) {
         if (data._server) return;
         // 同 tag 再导入：沿用已有区服，不再询问——低本新 JSON 无 _server 且 ID 特征不足，
         // 不沿用会每次导入都弹选择（2026-10-31 用户反馈；与服务器导入接口「旧 tag 回落旧 _server」同口径）
         if (oldData && oldData._server) {
             data._server = oldData._server;
             try { saveToLocalStorage(); } catch (e) {}
+            if (onResolved) onResolved();
             return;
         }
         // 检测完成后刷新卡片（导入流程的 refreshCard 在检测前已执行，异步检测后必须重渲染，否则界面停留在默认区服）
@@ -681,10 +684,11 @@ let initialized = false;
             data._server = s;
             try { saveToLocalStorage(); } catch (e) {}
             refreshAfter();
+            if (onResolved) onResolved();
             return;
         }
-        // 无法判断 → 模态弹窗询问用户（手动选择，不回退 API）
-        showServerPicker(tag, data, refreshAfter);
+        // 无法判断 → 模态弹窗询问用户（手动选择，不回退 API）；选择落盘后再触发 onResolved
+        showServerPicker(tag, data, function () { refreshAfter(); if (onResolved) onResolved(); });
     }
 
     // 物品 ID → 区服：助手 124*/93* 优先，其余物品 ID 前缀兜底；无法判断返回 null

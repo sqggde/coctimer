@@ -998,8 +998,10 @@
            星海方舟/足球盛典/星际漫游/梦回大唐/天宫探秘十系列整批（生成器 ORANGE_FRAME_SERIES）；
            **同日拍板改用紫色方案**（#DC5DE7/#7516B2 与默认紫同款）——原名沿用（orangeFrame/.sk-orange
            只是品质标识，色值随拍板走）；intl 侧无此类皮肤、cn 侧默认框已改蓝 → 紫块在蓝海中即品质辨识 */
-        .sk-orange .sk-frame { background-color: #DC5DE7; }
-        .sk-orange .sk-icon {
+        /* 紫框品质款（用户 2026-11-10）：赛博纪元（酷影极客 52000690-694，生成器 PURPLE_FRAME_SERIES）——
+           与橙十系列同一套紫方案（cn 默认框已改蓝，紫块即品质辨识） */
+        .sk-orange .sk-frame, .sk-purple .sk-frame { background-color: #DC5DE7; }
+        .sk-orange .sk-icon, .sk-purple .sk-icon {
             background: linear-gradient(180deg, #6a1399 0%, #7516B2 55%, #8329c7 100%);
         }
         .sk-name {

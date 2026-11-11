@@ -10,7 +10,7 @@
         dataInfoExpanded: true,
         chestDetect: true,
         gameFont: true,
-        autoImport: false,
+        autoImport: true,
         advanceNotify: false,
         advanceNotifyTime: 300,
         nightMode: false,
@@ -130,6 +130,12 @@
             // 「隐藏账号信息」开关已删（被总览卡右上角折叠箭头取代）：老设置开过的迁移为默认折叠，随后清理废字段
             if (loaded.hideDataInfo === true) loaded.dataInfoExpanded = false;
             delete loaded.hideDataInfo;
+            // 「超·快捷导入」默认改开启（2026-11-06 用户拍板）：旧默认 false 已随设置全量落盘，老用户一次性迁移为开；
+            // 迁移后记标记，此后用户手动关闭照常保存、不再被覆盖
+            if (!loaded.autoImportMigrated) {
+                loaded.autoImport = true;
+                loaded.autoImportMigrated = true;
+            }
             replaceObject(state.settings, loaded);
         } catch (error) {
             replaceObject(state.settings, createSettingsDefaults(true));
@@ -648,6 +654,10 @@
         if (page === 'settings') {
             updateRedDot();
         }
+        // 回首页时重算顶栏「未出刀」提示（部落页刚拉过的战况缓存是最新数据源）
+        if (page === 'progress' && CocTool.warView && CocTool.warView.updateWarAlertBtn) {
+            CocTool.warView.updateWarAlertBtn();
+        }
         if (page === 'clan' && CocTool.features.clan) {
             CocTool.features.clan.init();
         }
@@ -671,6 +681,9 @@
             button.addEventListener('click', () => showPage(button.dataset.page));
         });
         navigationBound = true;
+        // 顶栏「未出刀」提示：点击切到部落页（成员列表里自己号蓝底高亮，「未进攻」灰字=还没出的刀）
+        var warBtn = document.getElementById('main-war-btn');
+        if (warBtn) warBtn.addEventListener('click', function () { showPage('clan'); });
     }
 
     CocTool.navigation = Object.freeze({ init: initNavigation, showPage });
@@ -818,6 +831,9 @@
             mu.classList.toggle('hidden', !show);
             mu.style.display = show ? 'flex' : 'none';
         }
+        // 顶栏「未出刀」提示与版本提示互斥（优先级低于版本提示：有更新时让位）
+        var wv = CocTool.warView;
+        if (wv && wv.updateWarAlertBtn) wv.updateWarAlertBtn();
         // 版本检测结果同步到云端自动备份开关文案（需更新到最新版提示）
         var svc = CocTool.features && CocTool.features.services;
         if (svc && svc.refreshCloudAutoBackupUi) svc.refreshCloudAutoBackupUi();

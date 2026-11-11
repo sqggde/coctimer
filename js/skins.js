@@ -32,11 +32,13 @@
     function tileHtml(server, owned, id) {
         var name = CocTool.skinNames.getName(server, id) || id;
         var isOwned = !!owned[id];
-        // 品质图框：黄金令牌金框 / 红框品质红框 / 橙框品质橙框（名单见生成器 GOLD_PASS_ZH / RED_FRAME_SERIES / ORANGE_FRAME_SERIES）
+        // 品质图框：黄金令牌金框 / 红框品质红框 / 橙框品质橙框 / 紫框品质紫框（名单见生成器
+        // GOLD_PASS_ZH / RED_FRAME_SERIES / ORANGE_FRAME_SERIES / PURPLE_FRAME_SERIES）
         var isGold = CocTool.skinNames.isGoldPass(server, id);
         var isRed = !isGold && CocTool.skinNames.isRedFrame(server, id);
         var isOrange = !isGold && !isRed && CocTool.skinNames.isOrangeFrame(server, id);
-        return '<div class="sk-tile' + (isOwned ? '' : ' sk-locked') + (isGold ? ' sk-gold' : '') + (isRed ? ' sk-red' : '') + (isOrange ? ' sk-orange' : '') + '" data-id="' + id + '" title="' + esc(name) + '">' +
+        var isPurple = !isGold && !isRed && !isOrange && CocTool.skinNames.isPurpleFrame(server, id);
+        return '<div class="sk-tile' + (isOwned ? '' : ' sk-locked') + (isGold ? ' sk-gold' : '') + (isRed ? ' sk-red' : '') + (isOrange ? ' sk-orange' : '') + (isPurple ? ' sk-purple' : '') + '" data-id="' + id + '" title="' + esc(name) + '">' +
             '<div class="sk-frame">' +
                 '<img class="sk-icon" loading="lazy" alt="' + esc(name) + '" src="' + iconUrl(server, id) + '">' +
             '</div>' +
@@ -109,8 +111,8 @@
         };
         els.close.addEventListener('click', closePreview);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closePreview(); });
-        els.prev.addEventListener('click', function () { if (pv && pv.n > 1) showN(pv.n - 1); });
-        els.next.addEventListener('click', function () { if (pv && pv.n < pv.maxN) showN(pv.n + 1); });
+        els.prev.addEventListener('click', function () { if (pv && pv.idx > 0) showAt(pv.idx - 1); });
+        els.next.addEventListener('click', function () { if (pv && pv.idx < pv.list.length - 1) showAt(pv.idx + 1); });
         // 缩放：按钮 / 双击 / 滚轮 / 双指捏合；缩放后拖动平移；未缩放时左右滑翻页
         overlay.querySelectorAll('[data-zbtn]').forEach(function (b) {
             b.addEventListener('click', function () {
@@ -165,8 +167,8 @@
             var dx = t.clientX - zs.sx, dy = t.clientY - zs.sy;
             // 未缩放：横向滑动翻页（与 prev/next 按钮同一出口）
             if (zs.zoomAtStart === 1 && zs.zoom === 1 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                if (dx < 0 && pv.n < pv.maxN) showN(pv.n + 1);
-                else if (dx > 0 && pv.n > 1) showN(pv.n - 1);
+                if (dx < 0 && pv.idx < pv.list.length - 1) showAt(pv.idx + 1);
+                else if (dx > 0 && pv.idx > 0) showAt(pv.idx - 1);
                 return;
             }
             // 双击缩放（iOS WebView 不一定派发 dblclick，这里补一套触摸判定）
@@ -210,44 +212,50 @@
     }
     function updateBar() {
         var e = pv.els;
-        e.num.textContent = pv.maxN > 1 ? (pv.n + ' / ' + pv.maxN) : '';
-        e.prev.classList.toggle('hidden', pv.n <= 1);
-        e.next.classList.toggle('hidden', pv.n >= pv.maxN);
+        e.num.textContent = pv.list.length > 1 ? ((pv.idx + 1) + ' / ' + pv.list.length) : '';
+        e.prev.classList.toggle('hidden', pv.idx <= 0);
+        e.next.classList.toggle('hidden', pv.idx >= pv.list.length - 1);
     }
-    // 探测下一张是否存在（存在则扩展 maxN、亮出 next）
-    function probeNext(n) {
+    // 懒探测（索引未就绪时）：从当前最后一个编号 +10 探一张（间隔制 _10/_20/_30…）
+    function probeNext() {
+        if (!pv || !pv.list.length) return;
+        var nextNo = pv.list[pv.list.length - 1] + 10;
         var probe = new Image();
         probe.onload = function () {
-            if (pv && pv.n === n && n + 1 > pv.maxN) { pv.maxN = n + 1; updateBar(); }
+            if (!pv || pv.list.indexOf(nextNo) >= 0) return;
+            pv.list.push(nextNo);
+            if (pv.idx === pv.list.length - 2) updateBar();
         };
-        probe.src = showUrl(pv.server, pv.id, n + 1);
+        probe.src = showUrl(pv.server, pv.id, nextNo);
     }
-    function showN(n) {
-        pv.n = n;
+    // 按 list 索引显示第 idx 张（编号 = pv.list[idx]，间隔制 _10/_20/…）
+    function showAt(idx) {
+        pv.idx = idx;
         zReset();   // 翻页后回到 1x 适配视图
         var e = pv.els;
+        var no = pv.list[idx];
         e.empty.classList.add('hidden');
         e.img.style.display = 'none';
         e.loading.classList.remove('hidden');   // 加载中：spinner 可见（onload/onerror 切走）
-        e.img.src = showUrl(pv.server, pv.id, n);
+        e.img.src = showUrl(pv.server, pv.id, no);
         e.img.onerror = function () {
             e.loading.classList.add('hidden');
-            if (n === 1) {   // 首张就失败 = 服务器未收录该皮肤
+            if (idx === 0) {   // 首张就失败 = 服务器未收录该皮肤
                 e.img.style.display = 'none';
                 e.empty.classList.remove('hidden');
                 e.name.textContent = pv.name;
                 e.num.textContent = '';
                 e.prev.classList.add('hidden');
                 e.next.classList.add('hidden');
-            } else {         // 切换中途失败：留在上一张
-                showN(n - 1);
+            } else {           // 切换中途失败：留在上一张
+                showAt(idx - 1);
             }
         };
         e.img.onload = function () {
             e.loading.classList.add('hidden');
             e.img.style.display = '';
             updateBar();
-            if (!pv.indexed) probeNext(n);
+            if (!pv.indexed) probeNext();
         };
         updateBar();
     }
@@ -256,22 +264,25 @@
         pv.server = server;
         pv.id = id;
         pv.name = name;
-        pv.maxN = 1;
+        pv.list = [10];
+        pv.idx = 0;
         pv.indexed = false;
         els.name.textContent = name;
         els.overlay.classList.remove('hidden');
         var assetId = CocTool.skinNames.getAssetId(server, id) || id;
-        if (showIndex && showIndex[assetId]) {
-            // 索引命中：张数已知、零探测
-            pv.maxN = showIndex[assetId];
+        var entry = showIndex && showIndex[assetId];
+        if (Array.isArray(entry) && entry.length) {
+            // 索引命中（编号数组）：零探测，第一张 = 数组第一个（原有原画）
+            pv.list = entry.slice();
             pv.indexed = true;
-            showN(1);
-        } else if (showIndex) {
+            showAt(0);
+        } else if (showIndex && entry == null) {
             // 索引明确无记录：立即空态，不发请求
-            pv.n = 1;
+            pv.idx = 0;
             e2Empty(els, name);
         } else {
-            showN(1);   // 索引未加载完成：回退懒探测
+            // 索引未加载完成（或旧数字格式）：回退懒探测（探 _10 起，+10 递增）
+            showAt(0);
         }
     }
     function e2Empty(els, name) {
@@ -399,12 +410,13 @@
 
         // byHero = 系列组：按英雄序原样渲染（生成期已排好）；
         // 散件/单英雄 tab（byHero 省略）：**三级排序 = 拥有情况 → 品质 tier → ID**（用户 2026-10-25 拍板，
-        // "已收集在前"保留为第一优先级）——tier 即图框色：cn 金(亮金三系列)>紫(十系列)>蓝(默认)>米金(令牌)、
-        // intl 紫(默认)>金(令牌)；与 .sk-gold/.sk-red/.sk-orange 的互斥链同源
+        // "已收集在前"保留为第一优先级）——tier 即图框色：cn 金(亮金三系列)>紫(十系列+赛博纪元)>蓝(默认)>米金(令牌)、
+        // intl 紫(默认)>金(令牌)；与 .sk-gold/.sk-red/.sk-orange/.sk-purple 的互斥链同源
         function qualityTier(server, id) {
             if (server === 'cn') {
                 if (CocTool.skinNames.isRedFrame('cn', id)) return 0;
-                if (CocTool.skinNames.isOrangeFrame('cn', id)) return 1;
+                // 紫框（橙十系列 + 赛博纪元）同档：cn 侧都是「紫色品质辨识」
+                if (CocTool.skinNames.isOrangeFrame('cn', id) || CocTool.skinNames.isPurpleFrame('cn', id)) return 1;
                 if (CocTool.skinNames.isGoldPass('cn', id)) return 3;
                 return 2;
             }

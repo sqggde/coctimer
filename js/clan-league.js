@@ -77,6 +77,26 @@
             localStorage.setItem(key, JSON.stringify({ ts: Date.now(), expiry: expiry, data: data }));
         } catch (e) {}
     }
+    // 清过期 inWar 死缓存：旧轮次的 war 缓存写入后不再更新（state 永远是 inWar、endTime 已过），
+    // 会永久积累（实测真机 210 个联赛 war 键 / 62 个假 inWar）。首页「未出刀」统计虽有 endTime
+    // 兜底算得对，但遍历的垃圾会拖慢；进部落拉 group 时顺手清一次（结束超 1 小时才算死，防误删刚结束的）。
+    function pruneStaleLeagueWarCaches() {
+        try {
+            var now = Date.now(), stale = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var k = localStorage.key(i);
+                if (!k || k.indexOf('clash_league_war_') !== 0) continue;
+                try {
+                    var d = JSON.parse(localStorage.getItem(k)).data;
+                    if (d && d.state === 'inWar' && d.endTime) {
+                        var end = parseCocTime(d.endTime);
+                        if (end && end <= now - 3600 * 1000) stale.push(k);
+                    }
+                } catch (e) {}
+            }
+            for (var j = 0; j < stale.length; j++) localStorage.removeItem(stale[j]);
+        } catch (e) {}
+    }
 
     // 本部落 warTag 记忆（轮次→warTag，跨天持久，联赛期间固定）
     var LEAGUE_MINE_KEY = 'clash_league_mine_';
@@ -332,6 +352,7 @@
                     if (shared._currentClan) saveLeagueMine(shared._currentClan.tag.replace(/^#/, ''));
                 }
                 _leagueGroupKey = computeGroupKey(group);
+                pruneStaleLeagueWarCaches();   // 顺手清过期 inWar 死缓存（旧轮次写入后永不更新）
                 renderLeague(group);
             })
             .catch(function(err) {
@@ -601,6 +622,9 @@
                     // 记忆本部落 warTag：后续刷新/进入只请求 1 个
                     _leagueMine[i] = mineWarTag;
                     if (shared._currentClan) saveLeagueMine(shared._currentClan.tag.replace(/^#/, ''));
+                    // 官方拉到的本轮 war 写入缓存（与存档命中分支同一路径）：
+                    // 此前只放内存——详情页看得见、但首页「未出刀」统计读的是缓存，永远读不到当轮数据
+                    setLeagueWarCached(getLeagueWarCacheKey(mineWarTag), mine);
                 }
                 if (_leagueRound !== i) return;
                 hideAllDetailViews();

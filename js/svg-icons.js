@@ -74,6 +74,7 @@
         'check-circle': 'img/svg/settings/check-circle.svg',
         'times': 'img/svg/common/times.svg',
         'trash': 'img/svg/common/trash.svg',
+        'clock': 'img/svg/common/clock.svg',
         'bars': 'img/svg/common/bars.svg',
         'info-circle': 'img/svg/common/info-circle.svg',
         'question': 'img/svg/common/question.svg',

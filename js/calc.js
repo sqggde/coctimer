@@ -709,24 +709,29 @@
     // ① 比签名：变化池 → 清该池所有标记（返回 cleared 供 UI 提示）；首次无签名只记录；
     // ② 剩余标记：按 data+lvl 重定位数组下标（顺序可能变），重放「+升级」写入（分裂/挂载），标记保留；
     //    实例真的找不到（漏检兜底）→ 丢弃该条。
+    // cleared 只含「确实清掉了排队条目」的池——没排过队时签名照常更新，但不弹清空提示。
     function reconcileQueue(tag, newData) {
         if (!tag || !newData) return [];
         const qmap = loadQueueMap(tag);
         const allSigs = loadQueueSigs();
         const oldSigs = allSigs[tag] || {};
         const newSigs = {};
-        const cleared = [];
+        const dropped = {};
         QUEUE_POOLS.forEach(pool => {
             newSigs[pool] = queueSignature(newData, pool);
-            if (oldSigs[pool] !== undefined && oldSigs[pool] !== newSigs[pool]) cleared.push(pool);
+            if (oldSigs[pool] !== undefined && oldSigs[pool] !== newSigs[pool]) dropped[pool] = 1;
         });
         allSigs[tag] = newSigs;
         saveQueueSigs(allSigs);
-        if (cleared.length) {
+        const cleared = [];
+        if (Object.keys(dropped).length) {
             Object.keys(qmap).forEach(key => {
                 const p = parseQueueKey(key);
                 if (!p) { delete qmap[key]; return; }
-                if (cleared.includes(getItemCategory({ category: p.cat }))) delete qmap[key];
+                const pool = getItemCategory({ category: p.cat });
+                if (dropped[pool] === undefined) return;
+                if (cleared.indexOf(pool) === -1) cleared.push(pool);
+                delete qmap[key];
             });
         }
         if (!Object.keys(qmap).length) { saveQueueMap(tag, qmap); return cleared; }
@@ -959,6 +964,16 @@
         if (!isFinite(n)) return '-';
         const rounded = Math.round(n * 100) / 100;
         return (rounded === 100 ? '100' : rounded.toFixed(2)) + '%';
+    }
+
+    // 游戏原始值百分比（单场摧毁率、整数累加值——2026-11-10 用户拍板）：
+    // 单一场次的摧毁率游戏内就是整数、整数相加也不产生小数，两位小数只该给**计算类比率**
+    // （平均摧毁率/胜率/三星率/使用率等仍走 formatPercent）。四舍五入到整数，空值 '-'。
+    function formatRawPercent(value) {
+        if (value === null || value === undefined || value === '') return '-';
+        const n = Number(value);
+        if (!isFinite(n)) return '-';
+        return Math.round(n) + '%';
     }
 
     function formatDateTime(ts) { const d = new Date(ts*1000); return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`; }
@@ -1389,6 +1404,7 @@
         let completedCount = 0;
         let nextCompletionTime = '--';
         let earliestTs = Infinity;
+        let nextTag = null;   // 最早完成项所属账号（常驻通知用账号备注/标签代替「下一个」字样）
         const now = Math.floor(Date.now() / 1000);
 
         // state.accounts 是对象，需要遍历其值
@@ -1402,11 +1418,14 @@
                     completedCount++;
                 } else if (completionTs < earliestTs) {
                     earliestTs = completionTs;
+                    nextTag = account.tag;
                     nextCompletionTime = formatDoneTime(completionTs);
                 }
             }
         }
 
+        // 「下一个：」改成账号备注/标签（备注优先，无备注用 tag）：一眼看出最先完成的是哪个号
+        if (nextTag) nextCompletionTime = (state.accountNotes[nextTag] || nextTag) + '：' + nextCompletionTime;
         return { completedCount, nextCompletionTime };
     }
 
@@ -1441,6 +1460,7 @@
         getItemName,
         formatRemainingTime,
         formatPercent,
+        formatRawPercent,
         formatDateTime,
         formatDoneTime,
         formatExportTime,

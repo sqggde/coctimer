@@ -51,8 +51,6 @@ html.dark #pokedex-detail-page {
     font-weight: 600;
     color: var(--text);
 }
-#pokedex-detail-page .top-bar .title i { color: #3b82f6; }
-html.dark #pokedex-detail-page .top-bar .title i { color: #60a5fa; }
 #pokedex-detail-page .detail-back {
     display: flex;
     align-items: center;

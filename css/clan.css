@@ -169,6 +169,23 @@
             border-radius: 10px;
             flex-shrink: 0;
         }
+        /* 部落名称下方：该部落里本人账号的剩余进攻次数（橙色胶囊，与首页顶栏同一视觉；0 隐藏）。
+           width: fit-content 必须——父级是块容器，不写会被 stretch 撑满整行（截图曾横跨 clan-info） */
+        #clan-page .clan-card .clan-miss-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            width: fit-content;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            background: #f97316;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            vertical-align: top;
+        }
         #clan-page .clan-card .clan-info {
             flex: 1;
             min-width: 0;
@@ -665,7 +682,9 @@
 .ws-mhead.left { left: 0; z-index: 3; }
 .ws-mcell.name { position: sticky; left: 0; z-index: 1; background: var(--td-panel-solid); text-align: left; padding-left: 8px !important; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ws-atk-cell { display: flex; gap: 1px; justify-content: center; align-items: center; border-left: 1px solid var(--ws-border); }
-.ws-atk-box { width: 32px; min-width: 32px; flex-shrink: 0; height: 36px; border-radius: 8px; padding: 5px 0 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+/* 宽 38：容纳 9px 字号下「98.73%」这类 5 字符百分比（实测约 35px，32 会横向溢出）。
+   列表列宽 minmax(46px,1fr) 不受影响 */
+.ws-atk-box { width: 38px; min-width: 38px; flex-shrink: 0; height: 36px; border-radius: 8px; padding: 5px 0 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 .ws-atk-stars { font-size: 14px; font-weight: 700; color: #fff; line-height: 1; }
 .ws-atk-dest { font-size: 9px; color: rgba(255, 255, 255, 0.85); line-height: 1; }
 .ws-atk-box.s3 { background: #10b981; }

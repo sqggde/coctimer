@@ -293,7 +293,7 @@ function buildMatches(s) {
                             // 未进攻：纯红纯色块（无文字）
                             parts.push('<div class="ws-atk-box na"></div>');
                         } else {
-                            parts.push('<div class="ws-atk-box s' + atk.stars + '"><span class="ws-atk-stars">' + atk.stars + '</span><span class="ws-atk-dest">' + fp(atk.dest || 0) + '</span></div>');
+                            parts.push('<div class="ws-atk-box s' + atk.stars + '"><span class="ws-atk-stars">' + atk.stars + '</span><span class="ws-atk-dest">' + C.calc.formatRawPercent(atk.dest || 0) + '</span></div>');
                         }
                     }
                     cell = parts.join('');
