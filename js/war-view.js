@@ -132,8 +132,9 @@ function renderDetailTo(ct,data){
 // ========== 顶栏「未出刀」提示（首页标题行，2026-11-09） ==========
 // 统计进行中战争里本地账号（getTrackedTags，与成员列表蓝底高亮同源）还没打满的刀数。
 // 数据源只读既有缓存、不发请求：部落战 clash_war_{tag} / 联赛 clash_league_war_{warTag}
-//（排除刷新冷却键 clash_war_cooldown_）。仅 state=inWar 且 endTime 未过（缓存滞后时战争
-// 可能已结束，靠 endTime 兜底防数字残留）。
+//（排除刷新冷却键 clash_war_cooldown_）。inWar 且 endTime 未过（缓存滞后时战争
+// 可能已结束，靠 endTime 兜底防数字残留）；**准备日缓存越过 startTime 也按 inWar 计**
+//（本地先算全员 0 刀，不必等战斗日数据刷新——2026-11-13 用户口径）。
 // 刀数上限按缓存键类型判：**联赛 war 无 attacksPerMember 字段**（clan-league.js 渲染时才
 // 补 war.attacksPerMember=1，缓存里的原始 JSON 没有），故联赛键固定 1 刀/人；部落战键
 // 取 attacksPerMember||2。早期版本统一 attacksPerMember||2 会把联赛打满 1 刀的人算成差 1。
@@ -150,8 +151,13 @@ function missedByClan(){
       if(k.indexOf('clash_war_')!==0&&k.indexOf('clash_league_war_')!==0)continue;
       if(k.indexOf('clash_war_cooldown_')===0)continue;
       var d=null;try{d=JSON.parse(localStorage.getItem(k)).data}catch(e){}
-      if(!d||d.state!=='inWar')continue;
+      if(!d)continue;
       var endMs=parseCocTime(d.endTime);
+      // 准备日缓存越过开战时刻 → 本地先按战斗日算（全员 0 刀），不等战斗日数据落缓存；
+      // 开战前/结束后不计数（endTime 兜底防残留）。
+      var startMs=d.startTime?parseCocTime(d.startTime):0;
+      var live=d.state==='inWar'||(d.state==='preparation'&&startMs&&startMs<=now&&endMs&&endMs>now);
+      if(!live)continue;
       if(endMs&&endMs<=now)continue;
       var apm=k.indexOf('clash_league_war_')===0?1:(d.attacksPerMember||2);
       for(var s=0;s<2;s++){

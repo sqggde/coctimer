@@ -108,8 +108,11 @@
     }
     // 一键打开：App 桥最稳（系统分发 app links 直达游戏）；网页版安卓拼 intent，其余新窗口
     function openLayout(link) {
+        if (!link) return;
         if (window.AndroidApp && AndroidApp.openInBrowser) { AndroidApp.openInBrowser(link); return; }
         if (/android/i.test(navigator.userAgent) && link.indexOf('https://link.clashofclans.com') === 0) {
+            // 国服 /cn 链接交给系统 App Links（腾讯包名不同，不能拼国际服 intent）；其余安卓踩国际服 intent
+            if (link.indexOf('https://link.clashofclans.com/cn') === 0) { window.open(link, '_blank'); return; }
             var q = link.indexOf('?') >= 0 ? link.split('?')[1] : link.substring(link.indexOf('action='));
             if (q) { location.href = 'intent://open_layout?' + q + '#Intent;scheme=clashofclans;package=com.supercell.clashofclans;end;'; return; }
         }
@@ -307,6 +310,13 @@
         el.textContent = val > 999 ? '999+' : val;
     }
     function isCn(l) { return (l.tags || []).indexOf('国服') >= 0; }
+    // 国服阵型码的一键打开：官方 /cn 链接 + id=阵型码（用户 2026-11-13 实测可用）
+    var CN_OPEN_PREFIX = 'https://link.clashofclans.com/cn?action=OpenLayout&id=';
+    function openUrlOf(l) {
+        var link = String(l.link || '').trim();
+        if (isCn(l) && link.indexOf('https://') !== 0) return CN_OPEN_PREFIX + encodeURIComponent(link);
+        return link;
+    }
     // 标签配色：只有区服标签按服着色（国际服紫 / 国服蓝），其余统一灰底黑字
     function tagHtml(t) {
         var srv = t === '国际服' ? ' srv-intl' : (t === '国服' ? ' srv-cn' : '');
@@ -350,11 +360,11 @@
         var d = Math.floor(diff / 86400000);
         return d <= 0 ? '今天' : d + '天前';
     }
-    // 卡片操作按钮：国际服「一键打开」白底紫字 +「复制链接」紫底白字；国服仅「复制阵型码」蓝底白字
+    // 卡片操作按钮：两服都是「一键打开」白底 + 复制键（国际服「复制链接」紫底 / 国服「复制阵型码」蓝底）
     function cardActions(l, idx) {
-        if (isCn(l)) return '<button class="bc-btn solid" data-copy="' + esc(l.link) + '" data-idx="' + idx + '">复制阵型码</button>';
-        return '<button class="bc-btn white" data-open="' + esc(l.link) + '" data-idx="' + idx + '">一键打开</button>' +
-            '<button class="bc-btn solid" data-copy="' + esc(l.link) + '" data-idx="' + idx + '">复制链接</button>';
+        var open = '<button class="bc-btn white" data-open="' + esc(openUrlOf(l)) + '" data-idx="' + idx + '">一键打开</button>';
+        if (isCn(l)) return open + '<button class="bc-btn solid" data-copy="' + esc(l.link) + '" data-idx="' + idx + '">复制阵型码</button>';
+        return open + '<button class="bc-btn solid" data-copy="' + esc(l.link) + '" data-idx="' + idx + '">复制链接</button>';
     }
     function cardHtml(l, actions, idx, tagExtra, showDel) {
         var favOn = isFav(l.id);
@@ -683,10 +693,11 @@
         var rm = $('bc-lb-remark');
         if (rm) { rm.style.display = l.remark ? '' : 'none'; rm.textContent = l.remark || ''; }
         $('bc-lb-tags').innerHTML = tagsHtml(l.tags);
-        // 按键组与卡片同口径（isCn）：国服阵型码没法直接打开 → 只留一个蓝底白字「复制阵型码」
+        // 按键组与卡片同口径：国服也支持一键打开（官方 /cn 链接 + 阵型码），复制键仍复制原始阵型码
         var cn = isCn(l), lbOpen = $('bc-lb-open'), lbCopy = $('bc-lb-copy');
-        lbOpen.style.display = cn ? 'none' : '';
-        if (cn) lbOpen.removeAttribute('data-open'); else lbOpen.setAttribute('data-open', l.link);
+        lbOpen.style.display = '';
+        lbOpen.setAttribute('data-open', openUrlOf(l));
+        lbOpen.classList.toggle('cn-open', cn);
         lbCopy.textContent = cn ? '复制阵型码' : '复制链接';
         lbCopy.classList.toggle('ghost', !cn);
         lbCopy.classList.toggle('cn-solid', cn);

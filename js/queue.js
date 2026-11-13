@@ -78,10 +78,11 @@
         const p = CocTool.features.progress;
         if (!p || !p.finalizeCard) return;
         if (p.simActive && p.simActive()) { toastSafe('推演中不可操作'); return; }
+        const isMint = card.getAttribute('data-mint') === '1';
         CocTool.ui.showConfirm({
-            title: addLevel ? '立即完成' : '删除项目',
-            text: addLevel ? ('确认将「' + name + '」标记为已完成（等级+1）？') : ('确认删除「' + name + '」的升级记录（等级不变）？'),
-            confirmText: addLevel ? '完成' : '删除',
+            title: isMint ? '移除铸币坊' : (addLevel ? '立即完成' : '删除项目'),
+            text: isMint ? ('确认移除铸币坊卡片「' + name + '」？') : (addLevel ? ('确认将「' + name + '」标记为已完成（等级+1）？') : ('确认删除「' + name + '」的升级记录（等级不变）？')),
+            confirmText: isMint ? '移除' : (addLevel ? '完成' : '删除'),
             onConfirm: function () {
                 if (p.finalizeCard(card, addLevel)) { refreshDisplay(); pushScheduleSafe(); }
             }
@@ -106,11 +107,14 @@
         // C 布局（2026-11-04 用户拍板）：首行主按钮「排队」，第二行 备注 / 完成 / 删除 三枚小按钮，取消做文字链
         const chip = (cls, icon, label) => '<button class="' + cls + ' flex items-center justify-center gap-1 rounded-lg transition-all duration-200" style="flex:1;height:34px;font-size:12px;">' +
             '<i class="fa ' + icon + '"></i><span>' + label + '</span></button>';
+        const isMint = card.getAttribute('data-mint') === '1';
         let primaryBtn = '';
-        if (mark) {
-            if (!queueStarted) primaryBtn = btn('__act-cancelq bg-orange-500 hover:bg-orange-600 text-white', 'fa-times', '取消排队');
-        } else {
-            primaryBtn = btn('__act-queue bg-blue-500 hover:bg-blue-600 text-white', 'fa-hourglass', '排队');
+        if (!isMint) {
+            if (mark) {
+                if (!queueStarted) primaryBtn = btn('__act-cancelq bg-orange-500 hover:bg-orange-600 text-white', 'fa-times', '取消排队');
+            } else {
+                primaryBtn = btn('__act-queue bg-blue-500 hover:bg-blue-600 text-white', 'fa-hourglass', '排队');
+            }
         }
         const actionBtns = primaryBtn +
             '<div class="flex' + (primaryBtn ? ' mt-2' : '') + '" style="gap:8px;">' +
@@ -170,6 +174,63 @@
             }
         });
         overlay.querySelector('.__act-close').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    }
+
+    // ========== 铸币坊手动计时（入口：升级时长搜索弹窗「小时后」行右侧） ==========
+    // 游戏 JSON 不记录铸造状态；卡片状态存 calc 层 clash_mint_timers，可多张、导入不删，手动移除才消失。
+    function openMintPicker() {
+        const tag = state.currentAccount;
+        if (!tag) return;
+        const p = CocTool.features.progress;
+        if (p && p.simActive && p.simActive()) { toastSafe('推演中不可操作'); return; }
+        const pad = n => String(n).padStart(2, '0');
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML =
+            '<div class="modal-card w-xs">' +
+                '<div class="flex items-center justify-center gap-2 mb-1">' +
+                    '<img src="img/icons/mint.webp" style="width:28px;height:28px;object-fit:contain;" alt="">' +
+                    '<h3 class="font-semibold text-gray-800" style="font-size:15px;">铸币坊</h3>' +
+                '</div>' +
+                '<p class="text-xs text-gray-500 text-center mb-2">设置铸币时长（默认 3 天）</p>' +
+                '<div class="flex items-start justify-center space-x-0.5 mb-2">' +
+                    '<div class="picker-column" data-field="__mint-d"><div class="picker-scroll"></div></div>' +
+                    '<span class="text-xs text-gray-400" style="line-height:144px">天</span>' +
+                    '<div class="picker-column" data-field="__mint-h"><div class="picker-scroll"></div></div>' +
+                    '<span class="text-xs text-gray-400" style="line-height:144px">时</span>' +
+                    '<div class="picker-column" data-field="__mint-m"><div class="picker-scroll"></div></div>' +
+                    '<span class="text-xs text-gray-400" style="line-height:144px">分</span>' +
+                '</div>' +
+                '<div class="flex flex-col space-y-2">' +
+                    '<button class="__mint-save w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 text-sm">确定</button>' +
+                    '<button class="__mint-cancel modal-cancel-link">取消</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+        const dCol = overlay.querySelector('.picker-column[data-field="__mint-d"]');
+        const hCol = overlay.querySelector('.picker-column[data-field="__mint-h"]');
+        const mCol = overlay.querySelector('.picker-column[data-field="__mint-m"]');
+        CocTool.ui.initScrollPicker(dCol, Array.from({ length: 8 }, (_, i) => String(i)));   // 0-7 天
+        CocTool.ui.initScrollPicker(hCol, Array.from({ length: 24 }, (_, i) => pad(i)));    // 0-23 时
+        CocTool.ui.initScrollPicker(mCol, Array.from({ length: 60 }, (_, i) => pad(i)));    // 0-59 分
+        CocTool.ui.scrollPickerTo(dCol, '3');
+        CocTool.ui.scrollPickerTo(hCol, '00');
+        CocTool.ui.scrollPickerTo(mCol, '00');
+        const close = () => overlay.remove();
+        overlay.querySelector('.__mint-save').addEventListener('click', function () {
+            const d = Math.floor(Number(CocTool.ui.getPickerValue(dCol)) || 0);
+            const h = Math.floor(Number(CocTool.ui.getPickerValue(hCol)) || 0);
+            const m = Math.floor(Number(CocTool.ui.getPickerValue(mCol)) || 0);
+            const dur = d * 86400 + h * 3600 + m * 60;
+            if (dur < 60) { toastSafe('至少选择 1 分钟'); return; }
+            if (!calc.addMint(tag, dur)) { toastSafe('添加失败'); return; }
+            close();
+            refreshDisplay();
+            pushScheduleSafe();
+            toastSafe('已添加铸币坊卡片');
+        });
+        overlay.querySelector('.__mint-cancel').addEventListener('click', close);
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
@@ -427,5 +488,5 @@
         return out;
     }
 
-    CocTool.features.queue = Object.freeze({ queueItem, queueByUnique, cancelQueue, openItemActionsModal, renderStars, starClick, starScheduleEntries });
+    CocTool.features.queue = Object.freeze({ queueItem, queueByUnique, cancelQueue, openItemActionsModal, openMintPicker, renderStars, starClick, starScheduleEntries });
 })(window);

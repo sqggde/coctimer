@@ -172,12 +172,8 @@ let initialized = false;
                 }
             }
             if (hasDone) { accountsWithDone++; pendingTags.push(tag); }
-            // 空闲判定：任一未被「名称颜色」屏蔽的分类 分子<分母（有空位可下）
-            const counts = calc.getCategoryCounts(items);
-            const denominators = calc.getCategoryDenominators(data);
-            const hasIdle = ['buildings', 'lab', 'pets', 'buildings2', 'units2'].some(key =>
-                (denominators[key] || 0) > 0 && (counts[key] || 0) < denominators[key] && !calc.isCategoryDismissed(tag, key, 'color'));
-            if (hasIdle) { accountsIdle++; idleTags.push(tag); }
+            // 空闲判定：与账号进度页「闲」角标同一入口（calc.hasIdleAccount，名称颜色档 + 排队算占用）
+            if (calc.hasIdleAccount(data, now)) { accountsIdle++; idleTags.push(tag); }
         });
         _titleCycle = pendingTags.concat(idleTags);
         // 优先级：待处理 > 有空闲 > 默认
@@ -781,11 +777,29 @@ let initialized = false;
         } else { showJsonModal(); showToast('浏览器不支持剪贴板', 2000); hideLoading(); }
     }
 
+    /**
+     * 导入成功后把剪贴板替换成一句短文案：游戏导出 JSON 很长，留在剪贴板会让后续粘贴/
+     * 系统剪贴板预览卡顿；短文案既释放了长文本，也顺带留个入口提示。
+     * 只处理「刚由本 App 读出并成功导入」的那一次（手动快捷导入 / 启动自动导入），
+     * 不动「粘贴导入」——那条路径不知道剪贴板当前内容是否还是用户粘贴的那份。
+     * 设置里「导入后替换剪贴板」默认关，需用户手动打开。
+     */
+    const CLIP_TEXT_AFTER_IMPORT = '小工具超好用';
+    function replaceClipboardAfterImport() {
+        if (settings.replaceClipboardOnImport !== true) return;
+        try {
+            if (window.AndroidApp && window.AndroidApp.copyToClipboard) { window.AndroidApp.copyToClipboard(CLIP_TEXT_AFTER_IMPORT); return; }
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(CLIP_TEXT_AFTER_IMPORT).catch(function () {});
+        } catch (e) {}
+    }
+
     function processImportText(text) {
         try {
             const data = JSON.parse(text.trim());
             if (!data || !data.timestamp) throw new Error();
-            if (importAccountData(data) === 'duplicate') showToast('无需重复导入', 1500);
+            const result = importAccountData(data);
+            if (result === 'duplicate') showToast('无需重复导入', 1500);
+            else if (result === 'ok') replaceClipboardAfterImport();
         } catch (e) {
             showToast('json数据不正确', 2000);
         }
@@ -822,7 +836,7 @@ let initialized = false;
                         // 不导入、不跳转——避免剪贴板残留令每次启动自动跳转，也避免旧档回滚数据
                         const tag = data.tag;
                         if (!(tag && accounts[tag] && data.timestamp <= accounts[tag].timestamp)) {
-                            importAccountData(data);
+                            if (importAccountData(data) === 'ok') replaceClipboardAfterImport();
                         }
                     }
                 } catch (e) {}

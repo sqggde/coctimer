@@ -96,6 +96,7 @@
     const dataInfoToggleBtn = document.getElementById('data-info-toggle');
     const chestDetectToggle = document.getElementById('chest-detect-toggle');
     const autoImportToggle = document.getElementById('auto-import-toggle');
+    const replaceClipboardToggle = document.getElementById('replace-clipboard-toggle');
     const advanceNotifyBtn = document.getElementById('advance-notify-btn');
     const sleepTimeBtn = document.getElementById('sleep-time-btn');
     const sleepModal = document.getElementById('sleep-modal');
@@ -107,6 +108,7 @@
     function applySettings() {
         chestDetectToggle.checked = settings.chestDetect;
         autoImportToggle.checked = settings.autoImport;
+        if (replaceClipboardToggle) replaceClipboardToggle.checked = settings.replaceClipboardOnImport === true;
         const stEl = document.getElementById('stealth-mode-toggle');
         if (stEl) stEl.checked = settings.stealthMode;
         const vibrateEl = document.getElementById('vibration-toggle');
@@ -129,8 +131,34 @@
         applyDarkMode();
         applyUiStyle();
     }
+    // ===== 设置项说明气泡（文案在 js/help-texts.js，按 data-help 键查找；气泡控制器在 core.ui） =====
+    const settingsCard = settingsModal ? settingsModal.querySelector('.modal-card') : null;
+    function initHelpTips() {
+        const modal = document.getElementById('settings-modal');
+        const texts = CocTool.helpTexts;
+        if (!modal || !texts) return;
+        modal.querySelectorAll('[data-help]').forEach(function (label) {
+            const key = label.getAttribute('data-help');
+            const text = texts[key];
+            if (!text) return;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'help-info-btn';
+            btn.dataset.helpKey = key;
+            btn.setAttribute('aria-label', '说明');
+            btn.innerHTML = '<i class="fa fa-info-circle"></i>';
+            label.appendChild(btn);
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // 限制在设置卡片内：气泡不飘出卡片，箭头用 --arrow-left 指着 i
+                CocTool.ui.showHelpTip(btn, text, settingsCard);
+            });
+        });
+    }
+
     function showSettingsModal() { settingsModal.classList.remove('hidden'); }
-    function hideSettingsModal() { settingsModal.classList.add('hidden'); }
+    function hideSettingsModal() { settingsModal.classList.add('hidden'); CocTool.ui.hideHelpTip(); }
     function showSupportModal() { supportModal.classList.remove('hidden'); }
     function hideSupportModal() { supportModal.classList.add('hidden'); }
 
@@ -164,6 +192,7 @@
         if (initialized) return;
         initialized = true;
         initSleepPicker();
+        initHelpTips();
         // 初始化图标显示名称
         const iconNameEl = document.getElementById('current-icon-name');
         if (iconNameEl) {
@@ -343,6 +372,20 @@
 
         // ===== 更新日志（静态数据，倒序=最新在上；条目为数组时表示上一条目的子项） =====
         const UPDATE_LOG = [
+            ['1.5.8', '26.11.14', [
+                '首页新增「铸币坊」手动卡片：升级时长搜索弹窗右侧入口',
+                '首页新增「未出刀」提示：顶栏汇总、部落卡片显示各部落剩余刀数，准备日跨过开战时刻立即刷新',
+                '升级卡长按菜单新增「闹钟/日程」',
+                '云备份：导入后先确保备份成功再自动恢复；网络异常自动重试，避免覆盖刚导入的数据',
+                '皮肤收集：新增泰坦系列（6 款）；立绘大图可左右滑看',
+                '增加部分使用说明「i」',
+                '账号进度：空闲账号卡片显示「闲」角标',
+                '超·快捷导入默认开启；首次导入自动提示设置账号备注名',
+                '胜利之星：主世界 24h / 夜世界 22h；修复校准保存后直接显示已满',
+                '阵型中心：国服阵型也支持一键打开（自动补官方 /cn 链接），复制仍为原始阵型码',
+                '图鉴数据修正：蔓生法术、陷阱、蛮王 / 雷龙 / 巨矛',
+                '其他：宽屏整页限宽 640px 居中、常驻通知「下一个」显示账号备注或标签、图鉴顶栏优化'
+            ]],
             ['1.5.7', '26.11.6', [
                 '云备份切换到新版存储：同步更稳定，自动备份/恢复沿用原入口',
                 '云端备份恢复：提示显示备份更新时间，检测与弹窗响应更快',
@@ -746,6 +789,11 @@
             if (settings.autoImport) {
                 performAutoImport();
             }
+        });
+        if (replaceClipboardToggle) replaceClipboardToggle.addEventListener('change', () => {
+            settings.replaceClipboardOnImport = replaceClipboardToggle.checked;
+            saveSettings();
+            applySettings();
         });
         darkModeToggle.addEventListener('change', () => {
             settings.darkMode = darkModeToggle.checked;

@@ -324,6 +324,19 @@
                     extrasRow.appendChild(bi);
                 })(doneList[di]);
             }
+            // 有工人空闲 → 橙色「闲」角标。判定必须与首页主标题「X 个账号有空闲」完全一致，
+            // 共用 calc.hasIdleAccount（名称颜色档过滤 + getCategoryCounts：排队项算占用），不在这里另算。
+            try {
+                if (CocTool.calc.hasIdleAccount(data, Math.floor(Date.now() / 1000))) {
+                    var idleBadge = document.createElement('span');
+                    idleBadge.className = 'acc-idle-badge';
+                    idleBadge.textContent = '闲';
+                    idleBadge.title = '有工人空闲';
+                    extrasRow.appendChild(idleBadge);
+                }
+            } catch (e) {
+                console.warn('[overview] 空闲角标计算失败', e);
+            }
             if (extrasRow.children.length > 0) rightDiv.appendChild(extrasRow);
         } catch (e) {
             // 这里吞异常，整块右侧（倒计时/助手/钟楼/已完成）会**静默消失**（2026-09-19 超级充能角标那次

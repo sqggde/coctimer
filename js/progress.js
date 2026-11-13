@@ -216,22 +216,8 @@
         renderContent();
         tooltip.dataset.target = btn.dataset.unique || '';
 
-        // 测量大小并定位
-        tooltip.classList.remove('hidden');
-        tooltip.style.left = '-9999px';
-        tooltip.style.top = '-9999px';
-        const tw = tooltip.offsetWidth;
-        const th = tooltip.offsetHeight;
-
-        const rect = btn.getBoundingClientRect();
-        let left = rect.left + rect.width / 2 - tw / 2;
-        let top = rect.top - 10 - th;
-        if (top < 4) top = rect.bottom + 10;
-        if (left < 4) left = 4;
-        if (left + tw > window.innerWidth - 4) left = window.innerWidth - 4 - tw;
-
-        tooltip.style.left = left + 'px';
-        tooltip.style.top = top + 'px';
+        // 测量大小并定位（共享定位：core.ui.placeTooltip，设置项说明气泡同用）
+        CocTool.ui.placeTooltip(tooltip, btn);
 
         // 启动动态倒计时
         if (tooltipTimer) clearInterval(tooltipTimer);
@@ -408,6 +394,18 @@
         const tag = state.currentAccount;
         const d = accounts[tag];
         if (!d) return false;
+        // 铸币坊是独立手动卡片（不在账号 JSON 里）：完成/删除都只清该卡片状态，不动账号数据
+        if (card.getAttribute('data-mint') === '1') {
+            const mintId = card.getAttribute('data-mint-id');
+            if (!calc.removeMint(tag, mintId)) return false;
+            const noteKey = card.getAttribute('data-note-key');
+            if (noteKey) {
+                const notes = CocTool.features.upgradeNotes.loadNotes();
+                if (notes[tag]) { delete notes[tag][noteKey]; CocTool.features.upgradeNotes.saveNotes(notes); }
+            }
+            calc.clearQueueMark(tag, card.getAttribute('data-unique'));
+            return true;
+        }
         const cat = card.getAttribute('data-cat');
         const id = card.getAttribute('data-item-id');
         const timer = card.getAttribute('data-item-timer');
@@ -618,6 +616,10 @@
                 card.setAttribute('data-item-timer', item.timer);
                 card.setAttribute('data-item-lvl', item.lvl);
                 card.setAttribute('data-note-key', calc.getNoteKey(item, data));
+                if (item.isMint) {
+                    card.setAttribute('data-mint', '1');
+                    card.setAttribute('data-mint-id', item.mintId);
+                }
                 if (remainingSec <= 0) bindCardDelete(card);
                 const phaseIcon = calc.getItemPhaseIcon(item, data);
                 const iconUrls = calc.getItemIconUrl(item);
@@ -661,18 +663,18 @@
                     h3Inner += '<span class="ml-1 inline-block rounded-full bg-yellow-100 text-yellow-800 font-semibold align-middle" style="font-size:10px;line-height:16px;padding:0 5px;vertical-align:2px;">排队' + (queueOrder[item.uniqueId] || '') + '</span>';
                 }
                 if (note) {
-                    const lvShort = isGear ? '' : (isSC ? sc + '→' + (sc + 1) : isWp ? wp + '→' + (wp + 1) : item.lvl + '→' + (item.lvl + 1));
+                    const lvShort = item.isMint ? '' : (isGear ? '' : (isSC ? sc + '→' + (sc + 1) : isWp ? wp + '→' + (wp + 1) : item.lvl + '→' + (item.lvl + 1)));
                     if (lvShort) h3Inner += '<span class="card-lv"> ' + lvShort + '</span>';
                 }
                 const subLine = note
                     ? '<p class="text-xs card-note-line" style="color:#b45309;">📝 ' + calc.escapeHtml(note) + '</p>'
-                    : '<p class="text-xs text-gray-500">' + catLine + ' · ' + lvLine + '</p>';
+                    : '<p class="text-xs text-gray-500">' + (item.isMint ? '铸币' : catLine + ' · ' + lvLine) + '</p>';
                 // 倒计时与完成时刻的排版走 app.css 的 .card-time-container / .card-done-time（方案 05 口径）；
                 // 这里**不写 text-sm / 行内字号**——Tailwind 是运行时注入、同权重时它赢，会把 15px/600 压回 14px/400
                 card.innerHTML = '<div class="flex items-center">' + iconHtml + '<div class="min-w-0"><h3 class="card-name font-semibold text-gray-800" style="font-size:13px;">' + h3Inner + phaseIcon + '</h3>' + subLine + '</div></div><div class="text-right flex-shrink-0"><div class="' + textColor + ' card-time-container"><span class="card-remain">' + remainHtml(remainingSec) + '</span></div><div class="card-done-time">' + doneTimeFmt + '</div></div>';
                 const iconImage = card.querySelector('img[data-cachekey]');
                 if (iconImage) iconImage.addEventListener('error', handleIconError);
-                bindIconPokedex(card);
+                if (!item.isMint) bindIconPokedex(card);   // 铸币坊图标没有图鉴实体，点图标不跳转
                 CocTool.features.upgradeNotes.bindNoteLongPress(card);
                 if (categoryContainers[g]) categoryContainers[g].appendChild(card);
             });
@@ -753,6 +755,7 @@
     // tab 颜色与标题节流到 10 秒（其变化只发生在项目完成瞬间，秒级全量遍历 N 个账号成本过高）
     let lastTabTitleTick = 0;
     let lastWarAlertTick = 0;
+    let lastSummaryTick = 0;
     function updateTimersOnly() {
         if (!state.currentAccount || !accounts[state.currentAccount]) return;
         const now = Date.now();
@@ -763,13 +766,23 @@
         updateCurrentTime();
         renderHelperOverview(data);
         updateBoostTimers(data);
+        // 总览卡 10 秒兜底：升级/铸币到点后绿色角标与 X/Y 占用不用等整页重渲染（正常卡与铸币坊同口径）
+        if (now - lastSummaryTick >= 10000) {
+            lastSummaryTick = now;
+            const items = calc.filterDismissedCategories(calc.extractUpgradingItems(data, nowTs, true), data.tag);
+            const counts = calc.getActiveCategoryCounts(items);
+            const denominators = calc.getCategoryDenominators(data);
+            const completed = calc.getCategoryCompletedCounts(items, data);
+            updateCategorySummary(counts, denominators, completed);
+        }
         if (now - lastTabTitleTick >= 10000) {
             lastTabTitleTick = now;
             updateAllAccountTabColors();
             updateMainTitle();
         }
-        // 顶栏「未出刀」提示 60 秒一刷：战争结束瞬间（endTime 过点）用户停在首页也能看到数字消失
-        if (CocTool.warView && CocTool.warView.updateWarAlertBtn && now - lastWarAlertTick >= 60000) {
+        // 顶栏「未出刀」提示 10 秒一刷：准备日刚跨过开战时刻时 10 秒内就显示「2 刀未出」，
+        // 战争结束瞬间也能较快看到数字消失（扫描的是本机战争缓存，量小）
+        if (CocTool.warView && CocTool.warView.updateWarAlertBtn && now - lastWarAlertTick >= 10000) {
             lastWarAlertTick = now;
             CocTool.warView.updateWarAlertBtn();
         }
@@ -868,9 +881,11 @@
         // 各分类当前生效的道具：数组顺序 = 列位（辅食/浓汤在前「中段」、药水在后「右段」）
         const collectTimers = list => list.map(c => ({ key: c.key, iconFile: c.iconFile, remaining: (boosts[c.key] || 0) - elapsed }))
             .filter(t => t.remaining > 0);
-        const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-        const builderConsumable24 = settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
-        const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
+        // 24× 形态仅国服可用：国际服固定显示基础倍率图标（设置里残留的 24× 标记不采纳）
+        const cn24 = calc.isCnAccount(data);
+        const is24 = cn24 && settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+        const builderConsumable24 = cn24 && settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
+        const labConsumable24 = cn24 && settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
         cats[0].timers = collectTimers([
             { key: 'builder_consumable', iconFile: builderConsumable24 ? 'builder_consumable24.webp' : 'builder_consumable.webp' },
             { key: 'builder_boost', iconFile: is24 ? 'builder_boost_24.webp' : 'builder_boost.webp' }
@@ -905,7 +920,10 @@
                 // 按排序落位：第 i 组紧挨第 i-1 组（insertBefore 对既有节点是移动，顺带纠正缓存恢复时的错位）
                 anchor.parentNode.insertBefore(timerEl, anchor.nextSibling);
                 anchor = timerEl;
-                timerEl.dataset.boostKey = t.key;   // 三类倍率键可点切换（见点击委托），其余只读
+                // 三类倍率键且国服账号才挂 data-boost-key（可点切换 + cursor:pointer）；国际服锁死基础倍率
+                const switchable = cn24 && (t.key === 'builder_boost' || t.key === 'builder_consumable' || t.key === 'lab_consumable');
+                if (switchable) timerEl.dataset.boostKey = t.key;
+                else delete timerEl.dataset.boostKey;
                 const h = Math.floor(t.remaining / 3600);
                 const m = Math.floor((t.remaining % 3600) / 60);
                 const sec = Math.floor(t.remaining % 60);
@@ -921,6 +939,32 @@
             });
             // 道具耗尽/缓存残留的多余 timer 移除
             existing.slice(timers.length).forEach(el => el.remove());
+            // 国服 + 可切换倍率的道具在跑：行尾 i 说明「点道具图标可切换倍率」（无道具时移除）
+            const switchableActive = cn24 && timers.some(t => t.key === 'builder_boost' || t.key === 'builder_consumable' || t.key === 'lab_consumable');
+            let infoBtn = host.querySelector('.boost-info-btn');
+            if (switchableActive) {
+                if (!infoBtn) {
+                    infoBtn = document.createElement('button');
+                    infoBtn.type = 'button';
+                    infoBtn.className = 'help-info-btn boost-info-btn';
+                    infoBtn.dataset.helpKey = 'boostMultiplier';
+                    infoBtn.setAttribute('aria-label', '说明');
+                    infoBtn.innerHTML = '<i class="fa fa-info-circle"></i>';
+                    infoBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const text = CocTool.helpTexts && CocTool.helpTexts.boostMultiplier;
+                        // 气泡边界用页面 .container（不是标题行 h3）：i 在行最右侧，h3 边界会把气泡
+                        // 硬夹在内容右边、看起来偏左；container 的右内边距允许气泡再往右一点。
+                        const bounds = host.closest('.container') || document.body;
+                        if (text) CocTool.ui.showHelpTip(infoBtn, text, bounds);
+                    });
+                }
+                host.appendChild(infoBtn);   // 标题行最右侧
+                infoBtn.style.marginLeft = '4px';
+            } else if (infoBtn) {
+                infoBtn.remove();
+            }
         });
     }
 
@@ -1190,6 +1234,8 @@
                 if (!field) return;
                 if (!state.currentAccount || !accounts[state.currentAccount]) return;
                 const data = accounts[state.currentAccount];
+                // 24× 形态仅国服可用：国际服账号不允许切换（正常渲染不给 data-boost-key，这里再兜底一次）
+                if (!calc.isCnAccount(data)) return;
                 if (!settings[field]) settings[field] = {};
                 settings[field][data.tag] = !settings[field][data.tag];
                 saveSettings();

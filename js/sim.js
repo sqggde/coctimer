@@ -55,14 +55,17 @@
     function simBoostIcon(key) {
         const b = SIM_BOOST[key];
         if (!b) return null;
-        const is24 = settings[b.field] && settings[b.field][sim.tag];
+        // 24× 形态仅国服可用：国际服固定基础图标（设置里残留的 24× 标记不采纳）
+        const cn24 = calc.isCnAccount(sim.copy);
+        const is24 = cn24 && settings[b.field] && settings[b.field][sim.tag];
         return b.icons[is24 ? 0 : 1];
     }
 
-    // 推演中切倍率：只改 settings 并重算副本列表，不退出推演
+    // 推演中切倍率：只改 settings 并重算副本列表，不退出推演（国际服锁死基础倍率，不允许切）
     function toggleSimBoost(key) {
         const b = SIM_BOOST[key];
         if (!b || !sim.active) return;
+        if (!calc.isCnAccount(sim.copy)) return;
         if (!settings[b.field]) settings[b.field] = {};
         settings[b.field][sim.tag] = !settings[b.field][sim.tag];
         storage.saveSettings();
@@ -95,7 +98,9 @@
 
     function stepperHtml(p) {
         const icon = simBoostIcon(p.key) || p.icon;
-        const boostAttr = SIM_BOOST[p.key] ? ' data-boost-key="' + p.key + '"' : '';
+        // 国际服锁死基础倍率：不挂 data-boost-key（无 pointer 手势、点击委托也不绑定）
+        const canToggle = SIM_BOOST[p.key] && calc.isCnAccount(sim.copy);
+        const boostAttr = canToggle ? ' data-boost-key="' + p.key + '"' : '';
         return '<span class="sim-potion" title="' + p.name + '">' +
             '<img src="img/icons/' + icon + '" width="16" height="16" alt=""' + boostAttr + '>' +
             '<button type="button" class="sim-btn" data-key="' + p.key + '" data-delta="-1">−</button>' +

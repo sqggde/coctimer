@@ -190,6 +190,7 @@
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
     function getItemPhaseIcon(item, data) {
+        if (item.isMint) return '';
         const buildBtn = (icon, phase, helperTimer, recurrent) => {
             const usage = getHelperUsage(item, data);
             const countHtml = usage ? '<span class="phase-count">' + usage.count + '</span>' : '';
@@ -556,23 +557,26 @@
     // 辅食有普通 / 24× 两种形态（工人大餐 2×→24×、研究浓汤 4×→24×），按账号独立开关。
     function getBoostWindows(data, category) {
         const boosts = data.boosts || {};
+        // 24× 形态是国服专属：国际服账号锁死基础倍率（药水 10× / 大餐 2× / 浓汤 4×），
+        // 即使旧设置里残留 24× 标记也不生效（UI 侧也禁止切换）。
+        const cn24 = isCnAccount(data);
         if (["buildings", "heroes", "traps", "guardians"].includes(category)) {
-            const is24 = settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
-            const consumable24 = settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
+            const is24 = cn24 && settings.builderBoostMode24 && settings.builderBoostMode24[data.tag];
+            const consumable24 = cn24 && settings.builderConsumableMode24 && settings.builderConsumableMode24[data.tag];
             return [
                 boosts.builder_boost ? { duration: boosts.builder_boost, mult: is24 ? 24 : 10 } : null,
                 boosts.builder_consumable ? { duration: boosts.builder_consumable, mult: consumable24 ? 24 : 2 } : null
             ];
         }
         if (["units", "siege_machines", "spells"].includes(category)) {
-            const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
+            const labConsumable24 = cn24 && settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
             return [
                 boosts.lab_boost ? { duration: boosts.lab_boost, mult: 24 } : null,
                 boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: labConsumable24 ? 24 : 4 } : null
             ];
         }
         if (category === "pets") {
-            const labConsumable24 = settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
+            const labConsumable24 = cn24 && settings.labConsumableMode24 && settings.labConsumableMode24[data.tag];
             return [
                 boosts.pet_boost ? { duration: boosts.pet_boost, mult: 24 } : null,
                 boosts.lab_consumable ? { duration: boosts.lab_consumable, mult: labConsumable24 ? 24 : 4 } : null
@@ -601,6 +605,47 @@
             all[tag] = map || {};
             localStorage.setItem('clash_upgrade_queue', JSON.stringify(all));
         } catch (e) {}
+    }
+
+    // 铸币坊手动计时（localStorage clash_mint_timers）：游戏 JSON 不记录铸造状态，按账号独立存
+    // {tag:[{id,startAt,endAt,duration}]}；导入不删，只有用户手动移除才删。在 extract 层注入后，
+    // 列表/工人占用/总览绿色角标/通知调度全链路自动生效（同排队标记的单一取数口思路）。
+    const MINT_KEY = 'clash_mint_timers';
+    const MINT_DATA = 'mint';
+    const MINT_NAME = '铸币坊';
+    function loadMintAll() {
+        try { return JSON.parse(localStorage.getItem(MINT_KEY)) || {}; } catch (e) { return {}; }
+    }
+    function saveMintAll(all) {
+        try { localStorage.setItem(MINT_KEY, JSON.stringify(all)); } catch (e) {}
+    }
+    function getMintList(tag) {
+        if (!tag) return [];
+        const list = loadMintAll()[tag];
+        return Array.isArray(list)
+            ? list.filter(m => m && m.id && Number(m.endAt) > 0)
+            : [];
+    }
+    function addMint(tag, durationSec, nowSec) {
+        if (!tag) return null;
+        const dur = Math.max(60, Math.round(Number(durationSec) || 0));
+        const now = nowSec || Math.floor(Date.now() / 1000);
+        const all = loadMintAll();
+        const list = Array.isArray(all[tag]) ? all[tag] : (all[tag] = []);
+        const id = 'm' + now.toString(36) + Math.random().toString(36).slice(2, 8);
+        list.push({ id: id, startAt: now, endAt: now + dur, duration: dur });
+        saveMintAll(all);
+        return id;
+    }
+    function removeMint(tag, id) {
+        if (!tag || !id) return false;
+        const all = loadMintAll();
+        const list = Array.isArray(all[tag]) ? all[tag] : [];
+        const next = list.filter(m => !m || m.id !== id);
+        if (next.length === list.length) return false;
+        all[tag] = next;
+        saveMintAll(all);
+        return true;
     }
     // 排队基础时长：+升级 条目带本地名义值 local_nominal（游戏导出没有这个字段），有则用名义值，
     // 否则用原始 timer（游戏直接导入的条目永远走这条，保证与游戏内显示一致）。
@@ -849,6 +894,8 @@
     }
 
     function calculateCompletionTimestamp(item, data) {
+        // 铸币坊是手动卡片：完成时刻就是用户设定值，不受账号快照/加速/助手折算
+        if (item.isMint) return item.mintEndAt;
         // 排队项：完成时刻由队列模拟给出（开工时刻 + 时长），不走 timer 折算
         if (item.queueFinish != null) return item.queueFinish;
         const { timestamp } = data;
@@ -898,6 +945,24 @@
                 });
             }
         });
+        // 铸币坊：JSON 不记录，把独立手动卡片注入同一事件流（占 1 工人；完成后仍保留到手动移除）
+        if (data.tag) {
+            getMintList(data.tag).forEach(m => {
+                const dur = Math.max(1, Math.round(Number(m.duration) || (Number(m.endAt) - Number(m.startAt)) || 0));
+                collected.push({
+                    data: MINT_DATA,
+                    category: 'buildings',
+                    lvl: 0,
+                    timer: dur,
+                    isMint: true,
+                    mintId: m.id,
+                    mintStartAt: Number(m.startAt) || 0,
+                    mintEndAt: Number(m.endAt),
+                    uniqueId: tagPrefix + 'mint_' + m.id,
+                    originalTimer: dur
+                });
+            });
+        }
         // ② 排队模拟：有标记才跑（零标记零开销）；按展示池分组各自模拟
         if (data.tag) {
             const queueMap = loadQueueMap(data.tag);
@@ -920,7 +985,8 @@
         const upgrading = [];
         collected.forEach(it => {
             const completion = calculateCompletionTimestamp(it, data);
-            if (includeCompleted || completion > nowTimestamp) upgrading.push(it);
+            // 铸币坊卡片完成也保留（用户手动移除前一直存在/占工人），不受 includeCompleted 影响
+            if (it.isMint || includeCompleted || completion > nowTimestamp) upgrading.push(it);
         });
         // 源头阻断：被屏蔽分类（按账号两层记忆）的条目不进入解析结果，
         // 下游（升级列表/总览区/主标题环/排序弹窗/通知调度）全链路自然免扰。
@@ -941,7 +1007,10 @@
         return "buildings";
     }
 
-    function getItemName(id) { return ITEM_NAMES[CocTool.names.canonicalId(id)] || `未知(${id})`; }
+    function getItemName(id) {
+        if (id === MINT_DATA) return MINT_NAME;
+        return ITEM_NAMES[CocTool.names.canonicalId(id)] || `未知(${id})`;
+    }
 
     function formatRemainingTime(sec) {
         if (sec <= 0) return "就绪";
@@ -1010,6 +1079,7 @@
     }
 
     function getItemIconUrl(item) {
+        if (item.isMint) return ['img/icons/mint.webp'];
         const { data, lvl, category, parentData, parentTargetLevel } = item;
         // 图标只有一套（国际服基址）：国服基址 ID 先归一再拼路径
         const iconId = CocTool.names.canonicalId(data);
@@ -1067,6 +1137,8 @@
     // 键 = 分类_data_lvl_绝对完成时刻（timestamp+timer）。不用药水/助手时跨导入稳定；
     // 药水/助手改变时刻 → 由 reconcileNoteKeys 在剩余池按最近时刻归位。
     function getNoteKey(item, data) {
+        // 铸币坊：timer 是剩余/总时长、会随渲染变化，按键必须用固定 endAt，否则备注会跟错卡片
+        if (item.isMint) return 'mint_0_0_' + item.mintEndAt;
         return (item.category || 'x') + '_' + item.data + '_' + (item.lvl || 0) + '_' + ((data.timestamp || 0) + (item.timer || 0));
     }
     function noteKeyBase(key) {
@@ -1227,6 +1299,23 @@
             if (counts[g] !== undefined) counts[g]++;
         });
         return counts;
+    }
+
+    /**
+     * 账号是否「有空闲」——**单一判定入口**：首页主标题「X 个账号有空闲」与账号进度页「闲」角标共用。
+     * 口径：按「名称颜色」档过滤后，5 类里任一 分母>0 且 占用<分母（有空位可下）。
+     * 用 getCategoryCounts（排队项算占用）——排队项预定了下一个空位，剔掉会误报空闲。
+     */
+    function hasIdleAccount(data, now) {
+        if (!data) return false;
+        const nowSec = now || Math.floor(Date.now() / 1000);
+        const items = filterDismissedCategories(extractUpgradingItems(data, nowSec, true), data.tag, 'color');
+        const counts = getCategoryCounts(items);
+        const denominators = getCategoryDenominators(data);
+        return ['buildings', 'lab', 'pets', 'buildings2', 'units2'].some(key =>
+            (denominators[key] || 0) > 0
+            && (counts[key] || 0) < denominators[key]
+            && !isCategoryDismissed(data.tag, key, 'color'));
     }
 
     function getCategoryCompletedCounts(items, data) {
@@ -1453,6 +1542,10 @@
         loadQueueMap,
         saveQueueMap,
         getQueueBaseDuration,
+        MINT_DATA,
+        getMintList,
+        addMint,
+        removeMint,
         clearQueueMark,
         reconcileQueue,
         solidifyQueues,
@@ -1482,6 +1575,7 @@
         getCategoryDenominators,
         getCategoryCounts,
         getActiveCategoryCounts,
+        hasIdleAccount,
         getCategoryCompletedCounts,
         getSummaryIconUrl,
         isMultiStageWeapon,

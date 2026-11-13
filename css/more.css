@@ -302,15 +302,12 @@
     #bc-rank-modal .bc-rank-sk span { animation: none; }
     #bc-rank-modal .bc-rank-seg { transition: none; }
 }
-/* 手机端固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）——所有手机同等布局，不随屏宽变。
-   宽屏（网页版电脑端）按断点加分列：卡片宽始终落在手机同档（~190~260px），不再出现"两列巨卡"拉满屏（用户 2026-09-22 反馈）。 */
+/* 列数：手机（<641）固定两列（用户反馈：auto-fill 按屏宽在 1/2 列间跳变，真机不一致）。
+   2026-11-08 起 ≥641 视口整页限宽 640（app.css 桌面宽度约束），内容宽度不再随视口增长：
+   三列 = 卡片约 190~200px，与手机 412（190px）同档；不要再按视口加 4/5 列——640 内容里会压到
+   148/117px（2026-11-13 用户反馈平板/宽屏一行 5 个太挤）。 */
 #bases-page .bc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-@media (min-width: 720px) { #bases-page .bc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 1000px) { #bases-page .bc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { #bases-page .bc-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-/* ≥1600 交给 auto-fill：卡片宽恒定在 240~250（手机端是 190），超宽屏自动加列，
-   不必再往上堆断点（2560 → 10 列、3840 → 15 列），也不会回到"卡片被拉宽"的老问题 */
-@media (min-width: 1600px) { #bases-page .bc-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } }
+@media (min-width: 641px) { #bases-page .bc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 #bases-page .bc-card {
     background-color: var(--td-panel-bg);
     background-image: var(--td-panel-sheen);
@@ -370,9 +367,11 @@
 }
 #bases-page .bc-btn.ghost { background-color: var(--td-inset-bg); box-shadow: none; background-image: none; color: #4b5563; }
 .dark #bases-page .bc-btn.ghost { color: #d1d5db; }
-/* 卡片双按钮：国际服「一键打开」白底紫字 +「复制链接」紫底白字；国服「复制阵型码」蓝底白字 */
+/* 卡片双按钮：国际服「一键打开」白底紫字 +「复制链接」紫底白字；国服「一键打开」沿用同款底、只把紫换蓝 +「复制阵型码」蓝底白字 */
 #bases-page .bc-btn.white { background-color: var(--td-sel-bg); color: #7c3aed; border: 1px solid #dcd7f0; box-shadow: none; }
 .dark #bases-page .bc-btn.white { background-color: #19212c; color: #c4b5fd; border-color: #4c445e; }
+#bases-page .bc-card.srv-cn .bc-btn.white { background-color: var(--td-sel-bg); color: #2563eb; border-color: #bfdbfe; }
+.dark #bases-page .bc-card.srv-cn .bc-btn.white { background-color: #19212c; color: #93c5fd; border-color: #1e3a5f; }
 #bases-page .bc-card.srv-cn .bc-btn.solid { background-color: #2563eb; }
 #bases-page .bc-st { display: inline-block; border-radius: 6px; padding: 2px 10px; font-size: 12px; font-weight: 800; }
 #bases-page .bc-st.pending { background: #fef3c7; color: #b45309; }
@@ -542,7 +541,8 @@
 #bc-lightbox .bc-lb-acts { display: flex; gap: 10px; padding: 10px 14px 14px; }
 #bc-lightbox .bc-lb-acts .bc-btn { flex: 1; border: none; border-radius: var(--td-act-r); padding: 10px 0; font-size: 13px; font-weight: 800; cursor: pointer; background-color: #7c3aed; background-image: var(--td-act-sheen); box-shadow: var(--td-act-shadow); color: #fff; }
 #bc-lightbox .bc-lb-acts .bc-btn.ghost { background-color: #2a2f45; box-shadow: none; background-image: none; color: #d1d5db; }
-/* 国服大图（无「一键打开」）：单按键蓝底白字，色值同卡片 .bc-card.srv-cn 的主按键 */
+/* 国服大图：一键打开参考国际服紫底样式，只把紫底换成蓝底；复制阵型码同为蓝底主键 */
+#bc-lightbox .bc-lb-acts .bc-btn.cn-open { background-color: #2563eb; }
 #bc-lightbox .bc-lb-acts .bc-btn.cn-solid { background-color: #2563eb; }
 #bc-lightbox .bc-lb-close { color: #9ca3af; }
 /* 大图弹窗避让底部导航（同上传弹窗参考：遮罩 padding-bottom 64px，88vh 面板随内容区整体上移，底部不再被盖） */

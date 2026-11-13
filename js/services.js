@@ -462,7 +462,9 @@
                         // 排队项（未开工）通知带前缀：完成时刻是队列模拟值，开工后（固化/转正）走正常通知
                         const qPrefix = (item.queueStart != null && item.queueStart > now) ? '排队·' : '';
                         var msg;
-                        if (item.supercharge !== undefined) {
+                        if (item.isMint) {
+                            msg = accountName + '\n铸币已完成';   // 铸币坊手动卡片：两行、完成时刻不提前
+                        } else if (item.supercharge !== undefined) {
                             msg = accountName + '\n' + qPrefix + name + ' 充能·等级' + (item.supercharge + 1) + '完成';
                         } else if (calc.isMultiStageWeapon(item)) {
                             msg = accountName + '\n' + qPrefix + name + ' 武器·等级' + (item.weapon + 1) + '完成';
@@ -476,11 +478,13 @@
                             ? CocTool.features.progress.getNoteForItem(tag, item, data)
                             : '';
                         if (note) msg += '\n' + note;
-                        schedule.push({ timestamp: applyAdvance(completionTs, advanceThreshold, now), message: msg, id: item.uniqueId, type: 'upgrade' });
+                        // 铸币坊按用户设定时刻准点通知；普通升级仍按提前提醒档
+                        const notifyTs = item.isMint ? completionTs : applyAdvance(completionTs, advanceThreshold, now);
+                        schedule.push({ timestamp: notifyTs, message: msg, id: item.uniqueId, type: 'upgrade' });
                         var itemMeta = { timer: item.timer };
                         if (item.helper_timer && item.helper_timer > 0) itemMeta.helper_timer = item.helper_timer;
                         if (item.helper_recurrent === true) itemMeta.recurrent = true;
-                        notificationMonitor.log('调度', msg.slice(msg.indexOf('\n') + 1) + ' 于 ' + fmtClock(applyAdvance(completionTs, advanceThreshold, now)), { account: accountName, meta: itemMeta });
+                        notificationMonitor.log('调度', msg.slice(msg.indexOf('\n') + 1) + ' 于 ' + fmtClock(notifyTs), { account: accountName, meta: itemMeta });
                     }
                 }
             }

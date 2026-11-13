@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261111-tocaql';
+const CACHE = 'coc-tool-web-20261113-togblr';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -24,6 +24,7 @@ const CORE_FILES = [
     "./js/cloud-sync.js",
     "./js/core.js",
     "./js/duration-search.js",
+    "./js/help-texts.js",
     "./js/home-skin-names.js",
     "./js/meta-stats.js",
     "./js/names.js",

@@ -634,6 +634,9 @@
             '</div>' +
             '<span class="text-sm text-gray-600">小时后</span>' +
             '<span data-ds-future-result class="text-sm font-medium text-primary">' + futureResultText() + '</span>' +
+            '<button type="button" data-ds-mint style="margin-left:auto;padding:2px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;" title="铸币坊">' +
+            '<img src="img/icons/mint.webp" style="width:22px;height:22px;object-fit:contain;display:block;" alt="铸币坊">' +
+            '</button>' +
             '</div>' +
             '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
             '<button data-ds-tab="home" class="ds-tab flex-1 px-2 py-1 rounded-lg text-sm bg-primary text-white">主世界</button>' +
@@ -675,6 +678,13 @@
             }
             if (e.target === modal) {
                 modal.classList.add('hidden');
+                return;
+            }
+            const mintBtn = e.target.closest('[data-ds-mint]');
+            if (mintBtn) {
+                modal.classList.add('hidden');
+                const q = CocTool.features.queue;
+                if (q && q.openMintPicker) q.openMintPicker();
                 return;
             }
             const addBtn = e.target.closest('[data-ds-add]');

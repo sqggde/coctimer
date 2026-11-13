@@ -11,6 +11,7 @@
         chestDetect: true,
         gameFont: true,
         autoImport: true,
+        replaceClipboardOnImport: false,
         advanceNotify: false,
         advanceNotifyTime: 300,
         nightMode: false,
@@ -525,7 +526,75 @@
         const active = column.querySelector('.picker-item.active');
         return active ? active.dataset.value : null;
     }
-    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, showV2MigrationNotice, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue });
+    /**
+     * 气泡定位（进度页助手气泡与设置项说明共用）：显示后测量尺寸，锚点上方优先。
+     * boundsEl 可选：把气泡限制在该元素内（设置项气泡限制在弹窗卡片内，避免飘出卡片）；
+     * 越界夹取后箭头用 --arrow-left 跟着锚点走，保证始终指着触发元素。
+     * 注意：整页可能带 body zoom（html.game-font 的 0.95 字体补偿），getBoundingClientRect
+     * 返回的是缩放后的视觉坐标，而 style.left/top 是布局坐标——必须除以视觉/布局比，
+     * 否则气泡会整体往左上偏（表现为箭头指到上一行）。
+     */
+    function placeTooltip(tooltip, anchor, boundsEl) {
+        if (!tooltip || !anchor) return;
+        tooltip.classList.remove('hidden');
+        tooltip.style.left = '-9999px';
+        tooltip.style.top = '-9999px';
+        const tw = tooltip.offsetWidth;
+        const th = tooltip.offsetHeight;
+        const body = document.body;
+        let zoom = 1;
+        if (body && body.offsetWidth > 0) {
+            const z = body.getBoundingClientRect().width / body.offsetWidth;
+            if (z > 0.2 && z < 5) zoom = z;
+        }
+        const rect = anchor.getBoundingClientRect();
+        const ax = rect.left / zoom;
+        const ay = rect.top / zoom;
+        const aw = rect.width / zoom;
+        let left = ax + aw / 2 - tw / 2;
+        let top = ay - 10 - th;
+        if (top < 4) top = rect.bottom / zoom + 10;
+        const bounds = boundsEl ? boundsEl.getBoundingClientRect() : null;
+        const viewportW = window.innerWidth / zoom;
+        const minLeft = bounds ? bounds.left / zoom + 8 : 4;
+        const maxLeft = bounds ? bounds.right / zoom - 8 - tw : viewportW - 4 - tw;
+        if (left < minLeft) left = minLeft;
+        if (left > maxLeft) left = maxLeft;
+        const arrowX = ax + aw / 2 - left;
+        tooltip.style.setProperty('--arrow-left', Math.max(12, Math.min(tw - 12, arrowX)) + 'px');
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    }
+    // 通用 i 气泡（设置页 / 首页倍率提示共用 #help-tooltip 单一实例）：同 i 再点关闭；点空白/滚动收起
+    let helpTipAnchor = null;
+    let helpTipOnDocClick = null;
+    function hideHelpTip() {
+        const el = document.getElementById('help-tooltip');
+        if (el) el.classList.add('hidden');
+        if (helpTipOnDocClick) { document.removeEventListener('click', helpTipOnDocClick); helpTipOnDocClick = null; }
+        document.removeEventListener('scroll', hideHelpTip);
+        helpTipAnchor = null;
+    }
+    function showHelpTip(anchor, text, boundsEl) {
+        const el = document.getElementById('help-tooltip');
+        if (!el || !anchor) return;
+        const key = anchor.dataset ? (anchor.dataset.helpKey || '') : '';
+        if (!el.classList.contains('hidden') && helpTipAnchor === anchor && el.dataset.target === key) {
+            hideHelpTip();
+            return;
+        }
+        hideHelpTip();
+        el.textContent = text;
+        el.dataset.target = key;
+        placeTooltip(el, anchor, boundsEl);
+        helpTipAnchor = anchor;
+        helpTipOnDocClick = function (e) {
+            if (!e.target.closest('.help-info-btn') && !e.target.closest('#help-tooltip')) hideHelpTip();
+        };
+        setTimeout(function () { document.addEventListener('click', helpTipOnDocClick); }, 10);
+        document.addEventListener('scroll', hideHelpTip, { passive: true });
+    }
+    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, showV2MigrationNotice, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue, placeTooltip, showHelpTip, hideHelpTip });
 
     let navigationBound = false;
 

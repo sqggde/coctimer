@@ -4,20 +4,20 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/img/pwa-192x192.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/img/pwa-64x64.png">
-<script src="shim.js?v=coc-tool-web-20261111-tocaql"></script>
+<script src="shim.js?v=coc-tool-web-20261113-togblr"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=1.0, touch-action: manipulation">
     <title>部落小工具</title>
-    <script src="css/tailwind.min.js?v=coc-tool-web-20261111-tocaql"></script>
-    <link href="css/tokens.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/icons.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/app.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/help.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/more.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/clan.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-    <link href="css/overview.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-<link href="css/pokedex.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
-<link href="css/meta-stats.css?v=coc-tool-web-20261111-tocaql" rel="stylesheet">
+    <script src="css/tailwind.min.js?v=coc-tool-web-20261113-togblr"></script>
+    <link href="css/tokens.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/icons.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/app.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/help.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/more.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/clan.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+    <link href="css/overview.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+<link href="css/pokedex.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
+<link href="css/meta-stats.css?v=coc-tool-web-20261113-togblr" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -135,25 +135,32 @@
                             </div>
                         </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">宝箱识别</span>
+                        <span class="text-sm text-gray-700" data-help="chestDetect">宝箱识别</span>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="chest-detect-toggle" class="sr-only peer">
                             <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
                         </label>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">超·快捷导入</span>
+                        <span class="text-sm text-gray-700" data-help="autoImport">超·快捷导入</span>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="auto-import-toggle" class="sr-only peer">
                             <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
                         </label>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">夜间预示</span>
+                        <span class="text-sm text-gray-700" data-help="replaceClipboardOnImport">剪贴板优化</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="replace-clipboard-toggle" class="sr-only peer">
+                            <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700" data-help="nightMode">夜间预示</span>
                         <button id="sleep-time-btn" class="px-3 py-1 rounded-lg transition-all duration-200 text-xs bg-gray-300 text-gray-500 cursor-not-allowed" style="font-size: 13px;">设置睡眠时间</button>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-700">夜间模式</span>
+                        <span class="text-sm text-gray-700" data-help="darkMode">夜间模式</span>
                         <div class="flex items-center space-x-2">
                             <button id="dark-mode-auto-btn" class="px-2 py-1 rounded transition-all duration-200 text-xs bg-gray-300 text-gray-500" style="font-size: 13px;">跟随系统</button>
                             <label class="relative inline-flex items-center cursor-pointer">
@@ -164,7 +171,7 @@
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm text-gray-700">震感反馈</span>
+                            <span class="text-sm text-gray-700" data-help="vibrate">震感反馈</span>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="vibration-toggle" class="sr-only peer">
                                 <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
@@ -1829,38 +1836,41 @@
     </div>
     <!-- 助手阶段气泡提示 -->
     <div id="phase-tooltip" class="phase-tooltip hidden"></div>
+    <!-- 设置项说明气泡（复用 phase-tooltip 视觉，.help-tooltip 允许换行限宽） -->
+    <div id="help-tooltip" class="phase-tooltip help-tooltip hidden"></div>
 
-    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/core.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/cloud-sync.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/cloud-backup.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/names.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/skin-names.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/home-skin-names.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/calc.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/progress.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/upgrade-notes.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/sim.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/queue.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/accounts.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/settings.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/services.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/war-view.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/clan.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/clan-league.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script src="js/warlog.js?v=coc-tool-web-20261111-tocaql"></script>
-        <script src="js/war-stats.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script defer src="js/svg-icons.js?v=coc-tool-web-20261111-tocaql"></script>
-    <script defer src="js/duration-search.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/overview.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/overview-detail.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/overview-share.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/pokedex.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/skins.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/meta-stats.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/bases.js?v=coc-tool-web-20261111-tocaql"></script>
-<script defer src="js/app.js?v=coc-tool-web-20261111-tocaql"></script>
+    <script src="js/vendor/Sortable.min.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/core.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/help-texts.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/cloud-sync.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/cloud-backup.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/names.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/skin-names.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/home-skin-names.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/calc.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/progress.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/upgrade-notes.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/sim.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/queue.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/accounts.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/settings.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/services.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/war-view.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/clan.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/clan-league.js?v=coc-tool-web-20261113-togblr"></script>
+    <script src="js/warlog.js?v=coc-tool-web-20261113-togblr"></script>
+        <script src="js/war-stats.js?v=coc-tool-web-20261113-togblr"></script>
+    <script defer src="js/progress-meta-intl.js?v=coc-tool-web-20261113-togblr"></script>
+    <script defer src="js/progress-meta-cn.js?v=coc-tool-web-20261113-togblr"></script>
+    <script defer src="js/svg-icons.js?v=coc-tool-web-20261113-togblr"></script>
+    <script defer src="js/duration-search.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/overview.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/overview-detail.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/overview-share.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/pokedex.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/skins.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/meta-stats.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/bases.js?v=coc-tool-web-20261113-togblr"></script>
+<script defer src="js/app.js?v=coc-tool-web-20261113-togblr"></script>
 </body>
 </html>

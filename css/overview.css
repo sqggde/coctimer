@@ -188,6 +188,27 @@
             border: 1px solid #d1d5db;
             background: radial-gradient(circle, #93c2ff, #4962b4);
         }
+        /* 有工人空闲的角标：橙色圆底 + 白色「闲」字（尺寸与 extras 图标同高 18px）
+           - 加粗 + 12px：18px 圆里 11px 常规字太细，深色下看不清；
+           - box-sizing + 非对称 padding：CJK 字形重心偏右上（实测字心比圆心右 0.46px、上 1.54px），
+             用 padding-top/right 收内容区，让 flex 居中后字心回到圆心（不能对 span 用 transform，会连圆一起移） */
+        #overview-page .account-card .acc-idle-badge {
+            box-sizing: border-box;
+            width: 18px;
+            height: 18px;
+            padding: 2.5px 1px 0 0;
+            border-radius: 50%;
+            background: #f97316;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            user-select: none;
+        }
         /* 账号卡图标尺度：`--acc-item-icon` = 倒计时行那个**升级项图标**的边长，充能角标取它的 1/3
            （用户 2026-09-19 口径：「充能图标再小一些，高度只有项目图标的 1/3 即可」）。
            角标的尺寸/定位只在这里给值——JS 只建节点加类名，不再写 px。 */

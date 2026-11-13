@@ -411,7 +411,8 @@
     content: '';
     position: absolute;
     bottom: -6px;
-    left: 50%;
+    /* 箭头默认居中；placeTooltip 会写 --arrow-left，气泡被夹取时仍指着触发元素 */
+    left: var(--arrow-left, 50%);
     transform: translateX(-50%);
     width: 0;
     height: 0;
@@ -433,6 +434,32 @@
 .dark .phase-tooltip::after {
     border-top-color: #334155;
 }
+
+/* 设置项说明气泡（复用 phase-tooltip 深色外观）：说明文案可换行、限宽 */
+.help-tooltip {
+    white-space: normal;
+    max-width: 240px;
+    line-height: 1.6;
+}
+/* 设置行末端的 i 按钮：常驻灰色，点按后出气泡 */
+.help-info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 2px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 13px;
+    line-height: 1;
+    vertical-align: -2px;
+    cursor: pointer;
+}
+.help-info-btn:active { color: #6b7280; }
+.dark .help-info-btn { color: #64748b; }
 
 /* ===== 浅色页面底 = 方案 04 的 `--page`（2026-09-16）=====
    用户口径：「先做第一个改动，浅色模式应用方案 04 的背景色」——04 的浅色底色是 `#EEF3FA`（偏蓝的浅灰），

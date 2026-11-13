@@ -954,6 +954,9 @@
     // 卡片最左「剩余进攻次数」角标：一次遍历算出 byClan 再逐卡填数。30s 节流——
     // 刀数只随用户出刀变化，不必跟倒计时一样每秒重算（each 次要 parse 全部战况缓存）。
     var _lastMissTick = 0;
+    // 准备日→战斗日的本地过渡（key = tag|startTime）：首次检测到就立即刷新角标，
+    // 之后不再重复（数据真正拉回来前每秒重算没有意义）
+    var _transitionedWarStarts = {};
     function updateCardMissBadges() {
         var now = Date.now();
         if (now - _lastMissTick < 30000) return;
@@ -977,6 +980,7 @@
         updateCardMissBadges();
         var cards = el.clanCards;
         if (!cards) return;
+        var _missRefreshNeeded = false;
         var infos = cards.querySelectorAll('.card-war-info');
         for (var i = 0; i < infos.length; i++) {
             var info = infos[i];
@@ -1001,6 +1005,14 @@
                             } else if (warEndMs > nowMs) {
                                 endMs = warEndMs;
                                 state = 'inWar';
+                                // 准备日缓存刚跨过开战时刻：立即刷新「未出刀」角标（此时按 0 刀算）
+                                if (war.state === 'preparation') {
+                                    var wk = tag + '|' + war.startTime;
+                                    if (!_transitionedWarStarts[wk]) {
+                                        _transitionedWarStarts[wk] = true;
+                                        _missRefreshNeeded = true;
+                                    }
+                                }
                             }
                         }
                     } catch(e) {}
@@ -1092,6 +1104,10 @@
                 if (endHide) endHide.style.display = 'none';
             }
         }
+        if (_missRefreshNeeded) {
+            _lastMissTick = 0;
+            updateCardMissBadges();
+        }
     }
 
     // ====== 详情页 ======
@@ -1179,7 +1195,10 @@
             var warState = cached.data.state;
             var cacheTtl = CACHE_TTL_NOTINWAR;
             if (warState === 'preparation') {
-                cacheTtl = CACHE_TTL_PREPARATION;
+                // 准备日缓存只在开战前有效：越过 startTime 后必须拉一次战斗日数据，
+                // 否则点进详情会一直显示准备日（旧逻辑 24h TTL 会拖到第二天）
+                var prepStartMs = _parseCocTime(cached.data.startTime);
+                cacheTtl = (prepStartMs && prepStartMs <= nowMs) ? 0 : CACHE_TTL_PREPARATION;
             } else if (warState === 'inWar') {
                 cacheTtl = CACHE_TTL_INWAR;
             }
