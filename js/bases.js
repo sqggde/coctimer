@@ -107,14 +107,22 @@
         });
     }
     // 一键打开：App 桥最稳（系统分发 app links 直达游戏）；网页版安卓拼 intent，其余新窗口
+    // 国服注意：link.clashofclans.com 的 assetlinks 只登记了国际服包，https /cn 链接会被系统
+    // 分发给国际服；国服客户端注册的是 clashofclans://（腾讯包名），所以国服必须走显式包名 intent。
     function openLayout(link) {
         if (!link) return;
+        var isCn = link.indexOf('https://link.clashofclans.com/cn') === 0;
+        if (window.AndroidApp && AndroidApp.openGameLayout && isCn) {
+            if (AndroidApp.openGameLayout(link)) return;
+        }
         if (window.AndroidApp && AndroidApp.openInBrowser) { AndroidApp.openInBrowser(link); return; }
         if (/android/i.test(navigator.userAgent) && link.indexOf('https://link.clashofclans.com') === 0) {
-            // 国服 /cn 链接交给系统 App Links（腾讯包名不同，不能拼国际服 intent）；其余安卓踩国际服 intent
-            if (link.indexOf('https://link.clashofclans.com/cn') === 0) { window.open(link, '_blank'); return; }
             var q = link.indexOf('?') >= 0 ? link.split('?')[1] : link.substring(link.indexOf('action='));
-            if (q) { location.href = 'intent://open_layout?' + q + '#Intent;scheme=clashofclans;package=com.supercell.clashofclans;end;'; return; }
+            if (q) {
+                location.href = 'intent://open_layout?' + q + '#Intent;scheme=clashofclans;package='
+                    + (isCn ? 'com.tencent.tmgp.supercell.clashofclans' : 'com.supercell.clashofclans') + ';end;';
+                return;
+            }
         }
         window.open(link, '_blank');
     }
@@ -310,8 +318,8 @@
         el.textContent = val > 999 ? '999+' : val;
     }
     function isCn(l) { return (l.tags || []).indexOf('国服') >= 0; }
-    // 国服阵型码的一键打开：官方 /cn 链接 + id=阵型码（用户 2026-11-13 实测可用）
-    var CN_OPEN_PREFIX = 'https://link.clashofclans.com/cn?action=OpenLayout&id=';
+    // 国服阵型码的一键打开：官方 /cn 链接 + id=阵型码（非安卓/无桥环境兜底）
+    var CN_OPEN_PREFIX = 'https://link.clashofclans.com/cn/?action=OpenLayout&id=';
     function openUrlOf(l) {
         var link = String(l.link || '').trim();
         if (isCn(l) && link.indexOf('https://') !== 0) return CN_OPEN_PREFIX + encodeURIComponent(link);
@@ -792,7 +800,8 @@
             localStorage.setItem('bc_last_report', String(Date.now())); // 记入限流窗口（仅提交成功才计）
             closeReport(); toast('反馈已提交，感谢反馈');
         }).catch(function (e) {
-            toast('提交失败：' + e.message);
+            var msg = String(e && e.message || '');
+            toast(msg.indexOf('登录') >= 0 ? '请先登录账号后再反馈' : '提交失败：' + msg);
         }).finally(function () {
             btn.disabled = false; btn.textContent = '提交反馈';
         });
@@ -1350,10 +1359,12 @@
             if (miss) { toast('请选择' + miss); return; }
             if (!state.upImage) { toast('请选择阵型截图'); return; }
             var btn = $('bc-up-submit');
+            // 2026-11-14：上传必须登录（服务端对未登录同样 403），这里提前拦，避免用户填完才被拒
+            var auth = cloudAuth();
+            if (!auth) { toast('上传阵型需要先登录账号'); return; }
             btn.disabled = true; btn.textContent = '提交中…';
             var headers = { 'Content-Type': 'application/json' };
-            var auth = cloudAuth();
-            if (auth) headers['X-Auth-Token'] = auth.token;
+            headers['X-Auth-Token'] = auth.token;
             // 区服自动并入标签（卡片配色/广场筛选依赖区服标签），同时带 server 供后端按区服校验链接
             // 顺序统一为 区服→世界→大本→用途（卡片展示顺序，落库即规范）
             var tags = orderTags(state.upTags.indexOf(state.upServer) < 0 ? state.upTags.concat([state.upServer]) : state.upTags);
@@ -1374,7 +1385,8 @@
                 toast('已提交，等待管理员审核');
                 if (state.tab === 'square') loadSquare(true); else loadMine();
             }).catch(function (e) {
-                toast('提交失败：' + e.message);
+                var msg = String(e && e.message || '');
+                toast(msg.indexOf('登录') >= 0 ? '请先登录账号后再上传' : '提交失败：' + msg);
             }).finally(function () {
                 btn.disabled = false; btn.textContent = '提交审核';
             });

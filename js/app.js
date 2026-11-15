@@ -71,8 +71,9 @@
 
         const hasAccounts = run('账号启动', () => accounts.start());
         run('设置应用', () => settings.apply());
-        // 新版备份（v2）首次启动必读提示：只能点「我知道了」关闭；确认后再跑自动恢复
-        run('迁移提示', () => CocTool.ui.showV2MigrationNotice());
+        // 1.5.9 账号安全提示（替换原 v2 手动备份提示）：未确认前不跑自动恢复
+        run('安全提示', () => CocTool.ui.showSecurityNotice());
+        run('安全升级', () => { if (CocTool.securityUpgrade && CocTool.securityUpgrade.maybeOpen) CocTool.securityUpgrade.maybeOpen(); });
         if (hasAccounts && servicesReady) run('后台检测', () => services.start());
         run('快捷导入', () => accounts.performAutoImport());
         run('通知权限', () => requestNotificationPermission(CocTool));

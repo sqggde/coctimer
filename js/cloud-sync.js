@@ -218,7 +218,7 @@ const RETRY_BASE_MS = 600;
                     await sleep(retryDelayMs(attempt, r.retryAfter));
                     continue;
                 }
-                return { success: false, error: errText, status: r.status };
+                return { success: false, error: errText, status: r.status, code: r.json.code || '' };
             } catch (e) {
                 lastError = e && e.name === 'AbortError' ? '网络超时' : ((e && e.message) || '网络错误');
                 if (attempt < MAX_ATTEMPTS - 1) {

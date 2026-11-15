@@ -436,7 +436,7 @@
         // 确认键默认红色（危险操作）；非破坏性动作用 opts.okClass 换色（如“移除”用绿色）
         const okClass = opts.okClass || 'bg-red-500 hover:bg-red-600';
         overlay.innerHTML =
-            '<div class="modal-card w-xs">' +
+            '<div class="modal-card w-xs' + (opts.scroll ? ' h-scroll' : '') + '">' +
                 '<h3 class="font-semibold text-gray-800 mb-3 text-center" style="font-size: 15px;">' + (opts.title || '确认') + '</h3>' +
                 '<p class="text-sm text-gray-600 mb-4 text-center" style="word-break: break-all;">' + (opts.text || '') + '</p>' +
                 checkboxHtml +
@@ -470,27 +470,75 @@
         }
     }
 
-    // 新版备份（v2）首次启动必读提示：只能点「我知道了」关闭（不能点外部/返回键）
-    const V2_NOTICE_KEY = 'coc_v2_notice_acked';
-    function showV2MigrationNotice() {
+    // 1.5.9 账号安全提示（2026-11-15）：替换原来的 v2 手动备份提示。
+    // 新 key 不能复用 coc_v2_notice_acked，否则老用户看不到新提示。
+    const SECURITY_NOTICE_KEY = 'coc_security_notice_160';
+    const SECURITY_VERSION_KEY = 'coc_security_v4';
+    function securityUpgradePending() {
         try {
-            if (localStorage.getItem(V2_NOTICE_KEY) === '1') return;
+            if (!localStorage.getItem('coc_cloud_auth')) return false;
+            return localStorage.getItem(SECURITY_VERSION_KEY) !== '1';
+        } catch (e) { return false; }
+    }
+    function showSecurityNotice() {
+        try {
+            if (localStorage.getItem(SECURITY_NOTICE_KEY) === '1') return;
         } catch (e) { return; }
+        var noticeAuth = null;
+        try { noticeAuth = JSON.parse(localStorage.getItem('coc_cloud_auth') || 'null'); } catch (e) {}
+        var hasAuth = !!(noticeAuth && noticeAuth.email);
         showConfirm({
-            title: '重要提示',
-            text: '本次更新涉及底层数据结构变动，旧云端数据库已作废，请手动进行一次备份，避免自动备份影响后续使用。已在其他设备完成过手动备份可忽略此提示。',
-            confirmText: '我知道了',
-            hideCancel: true,
+            title: '账号安全提示',
+            text: '2026 年 11 月 13 日，小工具服务器遭到恶意攻击。具体情况可以前往作者 B 站最新视频了解：<a href="https://www.bilibili.com/video/BV1jWsV6hEsf/" data-security-video="1" style="color:#3b82f6;text-decoration:underline;">点击跳转</a><br><br>' +
+                '对方使用从其他渠道泄露的邮箱和密码组合，批量尝试登录小工具账号（也就是“撞库”），目前已确认部分用户的账号密码被破译。<br><br>' +
+                '这不是小工具数据库被拖库；但被破译的账号可能被用来继续攻击小工具，也可能登录你的云备份。请所有注册过账号的用户尽快修改密码；如果你在其他网站也用了同一个密码，请一并修改。<br><br>' +
+                '小工具不会向你索要密码，改密只在 App 或网页内进行。<br><br>' +
+                (hasAuth
+                    ? '点「我知道了」后：进入账号验证流程，需要升级时再设置新密码。'
+                    : '点「登录并升级」登录账号并完成验证；也可以选择「仅使用本地功能」。'),
+            confirmText: hasAuth ? '我知道了' : '登录并升级',
+            cancelText: '仅使用本地功能',
+            hideCancel: hasAuth,
             noOutsideClose: true,
             blocking: true,
+            scroll: true,
             onConfirm: function () {
-                try { localStorage.setItem(V2_NOTICE_KEY, '1'); } catch (e) {}
-                var svc = CocTool.features && CocTool.features.services;
-                if (svc && svc.maybeAutoRestore) {
-                    try { svc.maybeAutoRestore(); } catch (e) {}
+                try { localStorage.setItem(SECURITY_NOTICE_KEY, '1'); } catch (e) {}
+                // 未登录：引导去登录；登录返回 security_upgrade_required 时由登录分支弹改密
+                if (!hasAuth) {
+                    var svc = CocTool.features && CocTool.features.services;
+                    if (svc && svc.openCloudLogin) {
+                        try { svc.openCloudLogin(); } catch (e) {}
+                    }
+                    return;
                 }
+                // 已登录但还没完成安全升级：本次只进改密，不跑自动恢复。
+                // 弹窗打不开（服务端开关未开 / 配置拉取失败）也直接结束——绝不能回退到自动恢复，
+                // 否则用户会在改密前被云包覆盖（2026-11-15 真机反馈）。
+                if (securityUpgradePending()) {
+                    if (CocTool.securityUpgrade && CocTool.securityUpgrade.open) {
+                        try { CocTool.securityUpgrade.open({ email: noticeAuth.email }); } catch (e) {}
+                    }
+                    return;
+                }
+                var svc2 = CocTool.features && CocTool.features.services;
+                if (svc2 && svc2.maybeAutoRestore) {
+                    try { svc2.maybeAutoRestore(); } catch (e) {}
+                }
+            },
+            onCancel: function () {
+                // 未登录用户选择「仅使用本地功能」：记录已读，不再重复弹
+                try { localStorage.setItem(SECURITY_NOTICE_KEY, '1'); } catch (e) {}
             }
         });
+        setTimeout(function () {
+            var link = document.querySelector('[data-security-video]');
+            if (!link) return;
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                openExternal(link.getAttribute('href'));
+            });
+        }, 0);
     }
 
     // ===== 滚轮选择器（老虎机式，供睡眠时间设置/星标校准等复用；样式类 .picker-* 在 app.css） =====
@@ -594,7 +642,7 @@
         setTimeout(function () { document.addEventListener('click', helpTipOnDocClick); }, 10);
         document.addEventListener('scroll', hideHelpTip, { passive: true });
     }
-    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, showV2MigrationNotice, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue, placeTooltip, showHelpTip, hideHelpTip });
+    CocTool.ui = Object.freeze({ showToast, showConfirm, closeConfirm, showSecurityNotice, initScrollPicker, updatePickerActive, scrollPickerTo, getPickerValue, placeTooltip, showHelpTip, hideHelpTip });
 
     let navigationBound = false;
 

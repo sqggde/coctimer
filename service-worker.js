@@ -1,4 +1,4 @@
-const CACHE = 'coc-tool-web-20261113-togblr';
+const CACHE = 'coc-tool-web-20261115-toiz38';
 const CORE_FILES = [
     "./",
     "./index.html",
@@ -36,6 +36,7 @@ const CORE_FILES = [
     "./js/progress-meta-intl.js",
     "./js/progress.js",
     "./js/queue.js",
+    "./js/security-upgrade.js",
     "./js/services.js",
     "./js/settings.js",
     "./js/sim.js",

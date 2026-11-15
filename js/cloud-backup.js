@@ -370,6 +370,36 @@
         const CLOUD_API = 'https://coctool.top/api/account';
         const AUTH_KEY = 'coc_cloud_auth';
         const TOKEN_KEY = 'coc_cloud_token';
+        // 本机安全标记（版本号可随测试/发版递增：老 key 不删，只换新 key 即可重新触发一次流程）
+        const SECURITY_NOTICE_KEY = 'coc_security_notice_160';
+        const SECURITY_VERSION_KEY = 'coc_security_v4';
+        const SECURITY_REQUIRED_KEY = 'coc_security_required_v4';
+
+        // 1.5.9：安全提示未确认、服务端已明确返回“需要升级”、或改密弹窗正在打开/已打开时，
+        // 自动恢复/自动备份都不跑。
+        // 注意：不能只凭「已登录但版本标记缺失」判断——服务端开关还没打开时，老账号仍可正常登录；
+        // 弹窗打开期间的让位由 securityUpgrade.isActive() 兜住（含正在拉 config 的短窗口）。
+        function securityUpgradePending() {
+            try {
+                if (localStorage.getItem(SECURITY_NOTICE_KEY) !== '1') return true;
+                if (localStorage.getItem(SECURITY_REQUIRED_KEY) === '1') return true;
+            } catch (e) { return false; }
+            try {
+                if (CocTool.securityUpgrade && CocTool.securityUpgrade.isActive && CocTool.securityUpgrade.isActive()) return true;
+            } catch (e) {}
+            return false;
+        }
+        function markSecurityVersion(version) {
+            if (Number(version) >= 2) {
+                try {
+                    localStorage.setItem(SECURITY_VERSION_KEY, '1');
+                    localStorage.removeItem(SECURITY_REQUIRED_KEY);
+                } catch (e) {}
+            }
+        }
+        function markSecurityRequired() {
+            try { localStorage.setItem(SECURITY_REQUIRED_KEY, '1'); } catch (e) {}
+        }
 
         // DOM 引用
         const cloudLoginText = document.getElementById('cloud-login-text');
@@ -477,6 +507,7 @@
                     authData = { email };
                     localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
                     localStorage.setItem(TOKEN_KEY, result.token);
+                    markSecurityVersion(result.securityVersion);
                     updateLoginUI();
                     loginModal.classList.add('hidden');
                     showToast('登录成功', 1500);
@@ -484,6 +515,20 @@
                     try { CocTool.cloudSync.ensureCloudInitialized().catch(function () {}); } catch (e) {}
                     // 阵型中心：登录态变化，我的上传会触发本机旧阵型认领并刷新
                     window.dispatchEvent(new CustomEvent('cloud-auth-changed'));
+                } else if (result.code === 'security_upgrade_required') {
+                    // 1.5.9：账号需要先改密；不保存 token，直接打开改密弹窗
+                    markSecurityRequired();
+                    loginModal.classList.add('hidden');
+                    if (CocTool.securityUpgrade && CocTool.securityUpgrade.open) {
+                        CocTool.securityUpgrade.open({ email: email, upgradeToken: result.upgradeToken });
+                    } else {
+                        loginError.textContent = '账号需要安全升级，请更新到最新版本';
+                        loginError.classList.remove('hidden');
+                        loginModal.classList.remove('hidden');
+                    }
+                } else if (result.code === 'security_locked') {
+                    loginError.textContent = '账号存在异常，请联系作者' + (result.supportCode ? '（支持码：' + result.supportCode + '）' : '');
+                    loginError.classList.remove('hidden');
                 } else {
                     loginError.textContent = result.error || '登录失败';
                     loginError.classList.remove('hidden');
@@ -504,9 +549,76 @@
             registerConfirmPwd.value = '';
             registerError.classList.add('hidden');
             registerModal.classList.remove('hidden');
+            loadCaptcha();
         });
 
         // 注册弹窗操作
+        // 人机验证（2026-11-14）：服务端图池出图 → 本机播放 spritesheet → 点击坐标回传
+        const captchaBox = document.getElementById('register-captcha-box');
+        const captchaSprite = document.getElementById('register-captcha-sprite');
+        const captchaHint = document.getElementById('register-captcha-hint');
+        let captchaState = { uid: '', points: [] };
+
+        async function loadCaptcha() {
+            captchaState = { uid: '', points: [] };
+            if (captchaBox) {
+                captchaBox.querySelectorAll('.captcha-dot').forEach(function (d) { d.remove(); });
+            }
+            captchaSprite.classList.remove('playing');
+            captchaSprite.style.backgroundImage = '';
+            captchaHint.style.display = 'flex';
+            captchaHint.textContent = '加载验证码…';
+            try {
+                const r = await fetch('https://coctool.top/api/captcha/get');
+                const j = await r.json();
+                if (!j.success) { captchaHint.textContent = (j.msg || '加载失败') + '（点击重试）'; return; }
+                captchaState.uid = j.uid;
+                captchaSprite.style.backgroundImage = 'url(' + j.image + ')';
+                captchaSprite.classList.add('playing');
+                captchaHint.style.display = 'none';
+            } catch (e) {
+                captchaHint.textContent = '网络错误（点击重试）';
+            }
+        }
+
+        if (captchaBox) {
+            captchaBox.addEventListener('click', function (e) {
+                if (!captchaState.uid) { loadCaptcha(); return; }
+                const rect = captchaBox.getBoundingClientRect();
+                const x = Math.round(e.clientX - rect.left);
+                const y = Math.round(e.clientY - rect.top);
+                if (x < 0 || y < 0 || x > 200 || y > 200) return;
+                captchaState.points.push({ x: x, y: y });
+                const dot = document.createElement('div');
+                dot.className = 'captcha-dot';
+                dot.style.left = x + 'px';
+                dot.style.top = y + 'px';
+                captchaBox.appendChild(dot);
+            });
+        }
+
+        // 点错救急：重置选择（清空点，不换图） / 刷新图片（换一张）
+        const captchaReset = document.getElementById('register-captcha-reset');
+        const captchaRefresh = document.getElementById('register-captcha-refresh');
+
+        if (captchaReset) {
+            captchaReset.addEventListener('click', function () {
+                captchaState.points = [];
+                if (captchaBox) captchaBox.querySelectorAll('.captcha-dot').forEach(function (d) { d.remove(); });
+            });
+        }
+
+        if (captchaRefresh) {
+            captchaRefresh.addEventListener('click', function () {
+                if (captchaRefresh.disabled) return;
+                captchaRefresh.disabled = true;
+                // 服务端 get 限流 3 次/分钟：连点会被 429，禁用 3 秒做节流，失败时 loadCaptcha 会显示原因
+                Promise.resolve(loadCaptcha()).finally(function () {
+                    setTimeout(function () { captchaRefresh.disabled = false; }, 3000);
+                });
+            });
+        }
+
         registerCloseBtn.addEventListener('click', () => registerModal.classList.add('hidden'));
         registerModal.addEventListener('click', (e) => { if (e.target === registerModal) registerModal.classList.add('hidden'); });
 
@@ -530,13 +642,14 @@
                 const res = await fetch(`${CLOUD_API}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({ email, password, captchaUid: captchaState.uid, captchaPoints: captchaState.points }),
                 });
                 const result = await res.json();
                 if (result.success) {
                     authData = { email };
                     localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
                     localStorage.setItem(TOKEN_KEY, result.token);
+                    markSecurityVersion(result.securityVersion);
                     updateLoginUI();
                     registerModal.classList.add('hidden');
                     showToast('注册成功', 1500);
@@ -546,6 +659,8 @@
                 } else {
                     registerError.textContent = result.error || '注册失败';
                     registerError.classList.remove('hidden');
+                    // 验证码错/过期 → 换一张（一次性 uid 已作废）
+                    if (/验证码|顺时针|物体/.test(String(result.error || ''))) loadCaptcha();
                 }
             } catch (err) {
                 registerError.textContent = '网络错误：' + err.message;
@@ -565,6 +680,10 @@
         document.getElementById('cloud-backup-btn').addEventListener('click', async () => {
             if (!authData || !authData.email) {
                 showToast('请先登录账号', 2000);
+                return;
+            }
+            if (securityUpgradePending()) {
+                showToast('请先完成账号安全升级，再备份', 2500);
                 return;
             }
             const btn = document.getElementById('cloud-backup-btn');
@@ -733,6 +852,10 @@
                     if (gate) settleStartupBackup('skipped');
                     return;
                 }
+                if (securityUpgradePending()) {
+                    if (gate) settleStartupBackup('skipped');
+                    return;
+                }
                 if (!isAutoBackupActive()) {
                     if (gate) settleStartupBackup('failed');   // 旧版被压：备份不可用 → 本次自动恢复跳过
                     // 导入后本应自动备份并提示「云端备份已更新」；用户设置开着但因旧版被压时，
@@ -850,6 +973,8 @@
         // 启动触发（5s，晚于云端检测）：开关开 + WebDAV 已配置 → 拉云端文件比对 exportDate，较新则询问后恢复
         async function maybeWebdavAutoRestore() {
             try {
+                // 1.5.9：安全提示未确认 / 改密弹窗打开期间，WebDAV 自动恢复也不在弹窗背后跑
+                if (securityUpgradePending()) return;
                 if (!webdavAutoRestoreReady()) return;
                 const filename = 'webdav_backup.json';
                 const res = await doWebdavRequest(filename, 'GET');
@@ -1014,8 +1139,9 @@
         // 新库还没有文档时，用本机数据自动初始化（不弹窗）。
         async function maybeAutoRestore() {
             try {
-                // 必读迁移提示未确认前不跑自动恢复（避免两个弹窗叠在一起；确认后会主动调一次）
-                try { if (localStorage.getItem('coc_v2_notice_acked') !== '1') return; } catch (e) { return; }
+                // 1.5.9 安全提示未确认 / 已登录未改密：不跑自动恢复（避免弹窗盖着还拉云包）
+                try { if (localStorage.getItem(SECURITY_NOTICE_KEY) !== '1') return; } catch (e) { return; }
+                if (securityUpgradePending()) return;
                 if (!cloudAutoRestoreEnabled()) return;
                 if (webdavAutoRestoreOn()) return; // WebDAV 自动恢复优先，云端让位（不发请求）
                 const token = localStorage.getItem(TOKEN_KEY);
@@ -1033,7 +1159,13 @@
                 await cloud.awaitSettledUpload();
 
                 const status = await cloud.getVersion();
-                if (!status || !status.success) return;
+                if (!status || !status.success) {
+                    if (status && status.code === 'security_upgrade_required' && CocTool.securityUpgrade) {
+                        markSecurityRequired();
+                        CocTool.securityUpgrade.open({ email: authData.email });
+                    }
+                    return;
+                }
                 if (!status.exists) {
                     // 新库为空：用内存 state；state 空则读本地旧结构转换后初始化
                     const data = Object.keys(accounts).length ? cloud.buildBackupData() : cloud.convertLegacyLocal();
